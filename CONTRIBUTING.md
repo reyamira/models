@@ -11,7 +11,7 @@ Thanks for your interest in contributing to `models`! This guide will help you g
 ## Getting Started
 
 ```bash
-git clone https://github.com/arimxyer/models
+git clone https://github.com/reyamira/models
 cd models
 cargo build
 cargo run

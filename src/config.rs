@@ -228,7 +228,7 @@ impl Config {
                  # version_command = [\"myagent\", \"--version\"]  # optional\n\
                  #\n\
                  # Add multiple agents with additional [[agents.custom]] blocks.\n\
-                 # See: https://github.com/arimxyer/models/wiki/Configuration#custom-agents\n",
+                 # See: https://github.com/reyamira/models/wiki/Configuration#custom-agents\n",
             );
         }
 

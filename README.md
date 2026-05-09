@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/modelsdev"><img src="https://img.shields.io/crates/v/modelsdev.svg?label=version" alt="Version"></a>
-  <a href="https://github.com/arimxyer/models/actions/workflows/update-benchmarks.yml"><img src="https://github.com/arimxyer/models/actions/workflows/update-benchmarks.yml/badge.svg" alt="Benchmarks"></a>
+  <a href="https://github.com/reyamira/models/actions/workflows/update-benchmarks.yml"><img src="https://github.com/reyamira/models/actions/workflows/update-benchmarks.yml/badge.svg" alt="Benchmarks"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <a href="https://buymeacoffee.com/arimxyer"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee"></a>
 </p>
@@ -47,7 +47,7 @@ scoop install extras/models
 paru -S models-bin
 ```
 
-Pre-built binaries, `.deb`, and `.rpm` packages are available on [GitHub Releases](https://github.com/arimxyer/models/releases). See the [Installation wiki page](https://github.com/arimxyer/models/wiki/Installation) for all methods, shell completions, and command aliases.
+Pre-built binaries, `.deb`, and `.rpm` packages are available on [GitHub Releases](https://github.com/reyamira/models/releases). See the [Installation wiki page](https://github.com/reyamira/models/wiki/Installation) for all methods, shell completions, and command aliases.
 
 ## Quick Start
 
@@ -57,7 +57,7 @@ models
 
 <video src="https://github.com/user-attachments/assets/2e205916-5998-42b2-b60e-c8ffd7b2a668" controls width="100%"></video>
 
-Navigate with arrow keys, switch tabs with `[`/`]`, search with `/`, and press `?` for context-aware help. See [Getting Started](https://github.com/arimxyer/models/wiki/Getting-Started) for a full walkthrough.
+Navigate with arrow keys, switch tabs with `[`/`]`, search with `/`, and press `?` for context-aware help. See [Getting Started](https://github.com/reyamira/models/wiki/Getting-Started) for a full walkthrough.
 
 ## Features
 
@@ -65,7 +65,7 @@ Navigate with arrow keys, switch tabs with `[`/`]`, search with `/`, and press `
 
 Three-column layout with providers, model list, and rich detail panel. RTFO capability indicators, 6 filter keys, sort by name/date/cost/context, cross-provider search, and copy-to-clipboard.
 
-[Models wiki page](https://github.com/arimxyer/models/wiki/Models) &#8226; CLI: `models list`, `models show`, `models search`, `models providers`
+[Models wiki page](https://github.com/reyamira/models/wiki/Models) &#8226; CLI: `models list`, `models show`, `models search`, `models providers`
 
 ### Agents — track AI coding assistants
 
@@ -73,7 +73,7 @@ Three-column layout with providers, model list, and rich detail panel. RTFO capa
 
 Curated catalog of 12+ agents with automatic version detection, GitHub release tracking, styled changelogs with search and match navigation, and live service health from provider status pages.
 
-[Agents wiki page](https://github.com/arimxyer/models/wiki/Agents) &#8226; CLI: `agents status`, `agents <tool>`, `agents latest`, `agents list-sources`
+[Agents wiki page](https://github.com/reyamira/models/wiki/Agents) &#8226; CLI: `agents status`, `agents <tool>`, `agents latest`, `agents list-sources`
 
 ### Benchmarks — compare model performance
 
@@ -81,7 +81,7 @@ Curated catalog of 12+ agents with automatic version detection, GitHub release t
 
 ~400 entries with quality indexes, speed, and pricing. Compare mode with head-to-head tables, scatter plots, and radar charts. Filter by creator, region, type, reasoning, and open/closed source.
 
-[Benchmarks wiki page](https://github.com/arimxyer/models/wiki/Benchmarks) &#8226; CLI: `models benchmarks list`, `models benchmarks show`
+[Benchmarks wiki page](https://github.com/reyamira/models/wiki/Benchmarks) &#8226; CLI: `models benchmarks list`, `models benchmarks show`
 
 ### Status — monitor provider health
 
@@ -89,24 +89,24 @@ Curated catalog of 12+ agents with automatic version detection, GitHub release t
 
 Live health monitoring for 22 AI providers across 7 status page platforms. Overall dashboard with health gauge, incident and maintenance cards. Provider detail with grouped services, incidents, and scheduled maintenance.
 
-[Status wiki page](https://github.com/arimxyer/models/wiki/Status) &#8226; CLI: `models status list`, `models status show`, `models status status`
+[Status wiki page](https://github.com/reyamira/models/wiki/Status) &#8226; CLI: `models status list`, `models status show`, `models status status`
 
 ## Documentation
 
-Full documentation lives in the [wiki](https://github.com/arimxyer/models/wiki):
+Full documentation lives in the [wiki](https://github.com/reyamira/models/wiki):
 
 | Page | Description |
 |------|-------------|
-| [Installation](https://github.com/arimxyer/models/wiki/Installation) | All install methods, shell completions, command aliases |
-| [Getting Started](https://github.com/arimxyer/models/wiki/Getting-Started) | First launch, navigation, basic usage |
-| [Models](https://github.com/arimxyer/models/wiki/Models) | Models tab and CLI commands |
-| [Agents](https://github.com/arimxyer/models/wiki/Agents) | Agents tab and CLI commands |
-| [Benchmarks](https://github.com/arimxyer/models/wiki/Benchmarks) | Benchmarks tab and CLI commands |
-| [Status](https://github.com/arimxyer/models/wiki/Status) | Status tab and CLI commands |
-| [Configuration](https://github.com/arimxyer/models/wiki/Configuration) | Config file, custom agents, tracked providers |
-| [Data Sources](https://github.com/arimxyer/models/wiki/Data-Sources) | Where the data comes from |
-| [Architecture](https://github.com/arimxyer/models/wiki/Architecture) | Internal design for contributors |
-| [Contributing](https://github.com/arimxyer/models/wiki/Contributing) | How to contribute |
+| [Installation](https://github.com/reyamira/models/wiki/Installation) | All install methods, shell completions, command aliases |
+| [Getting Started](https://github.com/reyamira/models/wiki/Getting-Started) | First launch, navigation, basic usage |
+| [Models](https://github.com/reyamira/models/wiki/Models) | Models tab and CLI commands |
+| [Agents](https://github.com/reyamira/models/wiki/Agents) | Agents tab and CLI commands |
+| [Benchmarks](https://github.com/reyamira/models/wiki/Benchmarks) | Benchmarks tab and CLI commands |
+| [Status](https://github.com/reyamira/models/wiki/Status) | Status tab and CLI commands |
+| [Configuration](https://github.com/reyamira/models/wiki/Configuration) | Config file, custom agents, tracked providers |
+| [Data Sources](https://github.com/reyamira/models/wiki/Data-Sources) | Where the data comes from |
+| [Architecture](https://github.com/reyamira/models/wiki/Architecture) | Internal design for contributors |
+| [Contributing](https://github.com/reyamira/models/wiki/Contributing) | How to contribute |
 
 ## Data Sources
 

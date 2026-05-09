@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it through [GitHub's private vulnerability reporting](https://github.com/arimxyer/models/security/advisories/new). Do not open a public issue.
+If you discover a security vulnerability, please report it through [GitHub's private vulnerability reporting](https://github.com/reyamira/models/security/advisories/new). Do not open a public issue.
 
 Please include:
 

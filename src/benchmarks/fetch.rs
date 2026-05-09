@@ -2,7 +2,7 @@
 
 use super::BenchmarkEntry;
 
-const CDN_URL: &str = "https://cdn.jsdelivr.net/gh/arimxyer/models@main/data/benchmarks.json";
+const CDN_URL: &str = "https://cdn.jsdelivr.net/gh/reyamira/models@main/data/benchmarks.json";
 
 /// Result of a fetch operation.
 #[derive(Debug)]

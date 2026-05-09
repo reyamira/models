@@ -11,7 +11,7 @@ Astro 6 landing/marketing page for the models CLI/TUI. Lives in `website/`, comp
 - **UI Components:** Bearnie (Astro-native, zero-JS-runtime component library)
 - **Package manager:** bun (not npm/pnpm)
 - **Formatting:** Prettier with astro + tailwindcss plugins
-- **Deployment:** GitHub Pages at `https://arimxyer.github.io/models`
+- **Deployment:** GitHub Pages at `https://reyamira.github.io/models`
 
 ## Build & Test
 

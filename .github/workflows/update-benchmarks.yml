@@ -70,4 +70,4 @@ jobs:
       - name: Purge jsDelivr cache
         if: steps.commit.outputs.changed == 'true'
         run: |
-          curl -sf "https://purge.jsdelivr.net/gh/arimxyer/models@main/data/benchmarks.json" || true
+          curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/benchmarks.json" || true

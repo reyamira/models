@@ -11,7 +11,7 @@ Three-file architecture for AI model benchmarking: store, fetch, traits matching
   - `ReasoningFilter`: enum with `All` / `Reasoning` / `NonReasoning` and `matches()` helper
 
 - **fetch.rs** — `BenchmarkFetcher`, `BenchmarkFetchResult`
-  - Async HTTP client (reqwest) for jsDelivr CDN at `https://cdn.jsdelivr.net/gh/arimxyer/models@main/data/benchmarks.json`
+  - Async HTTP client (reqwest) for jsDelivr CDN at `https://cdn.jsdelivr.net/gh/reyamira/models@main/data/benchmarks.json`
   - No caching, no ETag — fetches fresh on every launch
   - Result: `Fresh(Vec<BenchmarkEntry>)` or `Error`
 
