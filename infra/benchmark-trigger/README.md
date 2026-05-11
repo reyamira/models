@@ -4,8 +4,9 @@ Cloudflare Worker that invokes `workflow_dispatch` on
 `.github/workflows/update-benchmarks.yml` from a cron trigger, as a fallback
 for GitHub Actions cron throttling.
 
-**Status: scaffolded, not deployed.** Activate only if the offset cron in
-`update-benchmarks.yml` (`13,43 * * * *`) does not recover enough slots.
+**Status: active.** Activated 2026-05-11 after the offset cron alone did not
+recover enough slots. Fires hourly at `:17`, complementary to the GitHub
+Actions slots at `:13` and `:43`.
 
 ## Why this exists
 
