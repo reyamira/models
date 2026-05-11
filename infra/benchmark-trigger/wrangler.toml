@@ -2,13 +2,14 @@ name = "models-benchmark-trigger"
 main = "src/index.ts"
 compatibility_date = "2026-05-01"
 
-# Active fallback for GitHub Actions cron throttling.
-# Fires hourly at :17, complementary to the GH Actions slots at :13 and :43.
-# Duplicate runs are harmless — the workflow's `git diff --quiet` step
-# skips the redundant commit when no data changed.
+# Sole driver of the benchmark update workflow. The GH Actions
+# `schedule:` was removed after it proved unreliable under GitHub's
+# cron throttling — see git history. The workflow's
+# `git diff --quiet` step keeps duplicate invocations harmless if
+# both crons ever fire in quick succession.
 
 [triggers]
-crons = ["17 * * * *"]
+crons = ["17 * * * *", "47 * * * *"]
 
 [observability]
 enabled = true

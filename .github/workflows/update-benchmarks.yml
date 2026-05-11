@@ -1,8 +1,6 @@
 name: Update Benchmark Data
 
 on:
-  schedule:
-    - cron: '13,43 * * * *' # Every 30 minutes (off-the-hour offset to avoid GitHub Actions cron throttling)
   workflow_dispatch: {}
 
 permissions:

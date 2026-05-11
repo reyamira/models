@@ -59,7 +59,7 @@ Each module has its own `CLAUDE.md` with detailed documentation. Top-level highl
 ### GitHub Actions
 - `ci.yml` — runs on PR/push: fmt check, clippy, test
 - `release.yml` — triggered by `v*` tags: builds 5 targets in parallel with Rust caching, packages .deb/.rpm via cargo-binstall (pinned versions), generates SHA256SUMS, publishes to crates.io, and updates AUR package. Homebrew Core updates are handled in `Homebrew/homebrew-core` by Homebrew automation/maintainers, not from this repo. Pre-release tags (containing `-`) skip publish/AUR and mark the GitHub release as prerelease. Scoop Extras handles Windows updates via its own autoupdate mechanism.
-- `update-benchmarks.yml` — runs every 30 minutes: fetches AA API, commits if data changed
+- `update-benchmarks.yml` — `workflow_dispatch`-only; fetches AA API, commits if data changed. Triggered every 30 min (at `:17` and `:47` UTC) by the Cloudflare Worker in `infra/benchmark-trigger/` — the original GH `schedule:` cron was removed after proving unreliable under GitHub's cron throttling
 
 ## Conventions
 - Use `mise run <task>` for all CLI operations — never run bare commands
