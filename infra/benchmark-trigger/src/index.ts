@@ -24,11 +24,12 @@ async function triggerWorkflow(token: string): Promise<{ ok: boolean; status: nu
 }
 
 export default {
-  async scheduled(_event: ScheduledController, env: Env, _ctx: ExecutionContext): Promise<void> {
+  async scheduled(event: ScheduledController, env: Env, _ctx: ExecutionContext): Promise<void> {
     const result = await triggerWorkflow(env.GH_DISPATCH_TOKEN);
     if (!result.ok) {
       console.error(`Workflow dispatch failed: ${result.status} ${result.body}`);
       throw new Error(`Workflow dispatch failed with status ${result.status}`);
     }
+    console.log(JSON.stringify({ msg: "workflow dispatched", cron: event.cron, scheduledTime: event.scheduledTime }));
   },
 } satisfies ExportedHandler<Env>;

@@ -12,3 +12,6 @@ crons = ["17 * * * *"]
 
 [observability]
 enabled = true
+
+  [observability.logs]
+  invocation_logs = true
