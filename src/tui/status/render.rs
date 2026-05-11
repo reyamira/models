@@ -150,7 +150,7 @@ pub(super) fn overall_attention_entries(
                 )
         })
         .collect();
-    entries.sort_by(|a, b| a.health.sort_rank().cmp(&b.health.sort_rank()));
+    entries.sort_by_key(|a| a.health.sort_rank());
     entries
 }
 

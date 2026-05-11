@@ -123,14 +123,11 @@ pub fn parse_changelog(body: &str) -> Changelog {
 
     for node in root.children() {
         match &node.data.borrow().value {
-            NodeValue::Heading(heading) => {
-                // Only process ## and ### (level 2+), skip # (title)
-                if heading.level >= 2 {
-                    let text = collect_text(node);
-                    let trimmed = text.trim().to_string();
-                    if !is_skip_header(&trimmed) && !trimmed.is_empty() {
-                        blocks.push(ChangelogBlock::Heading(trimmed));
-                    }
+            NodeValue::Heading(heading) if heading.level >= 2 => {
+                let text = collect_text(node);
+                let trimmed = text.trim().to_string();
+                if !is_skip_header(&trimmed) && !trimmed.is_empty() {
+                    blocks.push(ChangelogBlock::Heading(trimmed));
                 }
             }
             NodeValue::List(_) => {
