@@ -1,0 +1,16 @@
+name = "models-benchmark-trigger"
+main = "src/index.ts"
+compatibility_date = "2026-05-01"
+
+# NOT YET ACTIVATED — see README.md.
+#
+# To enable the fallback, uncomment the [triggers] block below, set the
+# GH_DISPATCH_TOKEN secret via `bun wrangler secret put GH_DISPATCH_TOKEN`,
+# then run `bun wrangler deploy`.
+#
+# The default cron fires hourly at :17, complementary to the GitHub Actions
+# slots at :13 and :43 — so if both fire in the same hour, the workflow's
+# `git diff --quiet` step skips the redundant commit.
+#
+# [triggers]
+# crons = ["17 * * * *"]
