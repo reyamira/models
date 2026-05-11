@@ -1,0 +1,16 @@
+{
+  "name": "models-benchmark-trigger",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Cloudflare Worker fallback that triggers the models benchmark update workflow via workflow_dispatch. Inactive until GH Actions cron throttling proves insufficient.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260101.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^4.0.0"
+  }
+}
