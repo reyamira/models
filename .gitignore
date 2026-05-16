@@ -8,7 +8,6 @@ docs/plans/
 data/fuzzy_*.json
 .omx/
 */__pycache__/
-
 # Video branch assets
 .agents/
 demo.gif
@@ -22,3 +21,6 @@ video-v3/
 # local mcp servers
 .mcp.json
 .stitch/
+
+# nix artifacts
+/result*
