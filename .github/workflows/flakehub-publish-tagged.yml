@@ -1,8 +1,6 @@
 name: "Publish tags to FlakeHub"
 on:
-  push:
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+*"
+  # Manual-only until FlakeHub publishing is intentionally enabled.
   workflow_dispatch:
     inputs:
       tag:
