@@ -2,9 +2,21 @@ name: Build with Nix
 on:
   workflow_dispatch:
   pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "website/**"
+      - "docs/**"
+      - "public/**"
+      - "LICENSE"
   push:
     branches:
       - main
+    paths-ignore:
+      - "**/*.md"
+      - "website/**"
+      - "docs/**"
+      - "public/**"
+      - "LICENSE"
 
 # Keep only the newest run per PR or ref so force-pushes do not leave stale
 # Nix builds queued behind newer commits.
