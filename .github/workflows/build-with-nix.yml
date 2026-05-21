@@ -18,27 +18,13 @@ permissions:
   contents: read
   id-token: write
 
-jobs:
-  check:
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - ubuntu-24.04-arm
-          - macos-latest
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout tree
-        uses: actions/checkout@v6
-      - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@v3
-      - name: Enable Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@v13
-      - name: Check Flake
-        run: nix flake check
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-  build:
+jobs:
+  nix:
+    name: Nix / ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -54,5 +40,10 @@ jobs:
         uses: DeterminateSystems/determinate-nix-action@v3
       - name: Enable Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          use-flakehub: disabled
+          use-gha-cache: enabled
       - name: Build Packages / ${{ matrix.os }}
         run: nix build .
+      - name: Check Flake / ${{ matrix.os }}
+        run: nix flake check
