@@ -1,5 +1,6 @@
 ---
 import { VERSION, REPO_URL, WIKI_URL, CRATES_URL } from "@/data/site";
+import ReyamiraMark from "./ReyamiraMark.astro";
 
 const year = new Date().getFullYear();
 ---
@@ -63,7 +64,15 @@ const year = new Date().getFullYear();
         <li>LICENSE: MIT_OPEN_SOURCE</li>
       </ul>
     </div>
-    <div class="flex items-end md:justify-end">
+    <div class="flex flex-col justify-end gap-3 md:items-end">
+      <a
+        class="transition-opacity hover:opacity-80 focus-visible:opacity-80"
+        href="https://reyamira.com"
+        rel="noopener noreferrer"
+        aria-label="Reyamira"
+      >
+        <ReyamiraMark variant="icon" class="h-12 w-12" />
+      </a>
       <small class="font-mono text-[10px] text-slate-400"
         >© {year} REYAMIRA. MIT LICENSE.</small
       >

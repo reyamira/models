@@ -1,0 +1,50 @@
+---
+interface Props {
+  class?: string;
+  variant?: "mark" | "icon";
+}
+const { class: className = "", variant = "mark" } = Astro.props;
+---
+
+{
+  variant === "icon" ? (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 280 280"
+      role="img"
+      aria-label="Reyamira"
+      class={className}
+    >
+      <title>Reyamira</title>
+      <rect
+        x="0"
+        y="0"
+        width="280"
+        height="280"
+        rx="62"
+        ry="62"
+        fill="#FF3A00"
+      />
+      <g fill="#FFFFFF" transform="translate(44 46)">
+        <rect x="14" y="11" width="59" height="58" />
+        <rect x="14" y="78" width="59" height="99" />
+        <path d="M 178 11 C 123.32 11, 90.99 39.33, 79 69 L 79 136 C 90.99 106.33, 123.32 69, 178 69 Z" />
+      </g>
+    </svg>
+  ) : (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 192 188"
+      role="img"
+      aria-label="Reyamira"
+      class={className}
+    >
+      <title>Reyamira</title>
+      <g fill="currentColor">
+        <rect x="14" y="11" width="59" height="58" />
+        <rect x="14" y="78" width="59" height="99" />
+        <path d="M 178 11 C 123.32 11, 90.99 39.33, 79 69 L 79 136 C 90.99 106.33, 123.32 69, 178 69 Z" />
+      </g>
+    </svg>
+  )
+}
