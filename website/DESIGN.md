@@ -143,7 +143,7 @@ Separate from the feature tab videos. Uses Astro `<Image>` component with optimi
 
 ### Install Section
 
-Four copy-to-clipboard buttons in a 2x2 grid (Homebrew, Cargo, Scoop, AUR) + a "GitHub_Releases" link with arrow below. The "System Access" heading uses `italic` — the only italic text on the site, for visual differentiation of the CTA block.
+Five copy-to-clipboard buttons in a responsive grid (Homebrew, Cargo, Nix, Scoop, AUR) + a "GitHub_Releases" link with arrow below. The "Installation Commands" heading uses `italic` — the only italic text on the site, for visual differentiation of the CTA block.
 
 ## 5. Layout Principles
 

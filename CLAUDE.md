@@ -58,7 +58,9 @@ Each module has its own `CLAUDE.md` with detailed documentation. Top-level highl
 
 ### GitHub Actions
 - `ci.yml` — runs on PR/push: fmt check, clippy, test
+- `build-with-nix.yml` — runs on PR/push/manual dispatch: `nix build .` then `nix flake check` across Linux, Linux ARM, and macOS. Magic Nix Cache uses GitHub Actions cache only; FlakeHub cache is disabled.
 - `release.yml` — triggered by `v*` tags: builds 5 targets in parallel with Rust caching, packages .deb/.rpm via cargo-binstall (pinned versions), generates SHA256SUMS, publishes to crates.io, and updates AUR package. Homebrew Core updates are handled in `Homebrew/homebrew-core` by Homebrew automation/maintainers, not from this repo. Pre-release tags (containing `-`) skip publish/AUR and mark the GitHub release as prerelease. Scoop Extras handles Windows updates via its own autoupdate mechanism.
+- `flakehub-publish-tagged.yml` — manual-only; dispatch with an existing `v<version>` tag if FlakeHub publishing is intentionally enabled. Do not assume GitHub flake availability requires FlakeHub.
 - `update-benchmarks.yml` — `workflow_dispatch`-only; fetches AA API, commits if data changed. Triggered every 30 min (at `:17` and `:47` UTC) by the Cloudflare Worker in `infra/benchmark-trigger/` — the original GH `schedule:` cron was removed after proving unreliable under GitHub's cron throttling
 
 ## Conventions
@@ -98,6 +100,7 @@ Deployed to GitHub Pages at `/models`. Uses bun, not npm.
 3. Commit `Cargo.toml` and `Cargo.lock` together
 4. `git tag v<version> && git push && git push --tags`
 5. Release workflow runs automatically: builds binaries, packages .deb/.rpm, publishes to crates.io, and updates AUR package. Homebrew Core bumps happen separately in `Homebrew/homebrew-core`.
+6. The GitHub flake is available from the pushed tag automatically (for example, `nix run github:reyamira/models/v<version>`). FlakeHub publishing is manual-only and should only be dispatched after account/org setup is intentionally enabled.
 
 ## Secrets
 - `AA_API_KEY` — Artificial Analysis API key (GitHub repo secret, local `.env`)

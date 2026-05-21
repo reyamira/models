@@ -6,6 +6,7 @@ Thanks for your interest in contributing to `models`! This guide will help you g
 
 - [Rust](https://www.rust-lang.org/tools/install) (stable) — install via [rustup](https://rustup.rs/)
 - [mise](https://mise.jdx.dev/) (optional, recommended) — task runner that wraps cargo commands
+- [Nix](https://nixos.org/download/) (optional) — for validating the flake build locally
 - Git
 
 ## Getting Started
@@ -33,6 +34,13 @@ cargo fmt && cargo clippy -- -D warnings && cargo test
 
 All three must pass. CI enforces the same checks on pull requests.
 
+If your change touches `flake.nix`, `flake.lock`, packaging, or release/install behavior, also run:
+
+```bash
+nix build .
+nix flake check
+```
+
 ## Code Conventions
 
 - **Clippy** runs with `-D warnings` — all warnings are errors
@@ -56,7 +64,7 @@ For detailed architecture documentation, key file locations, async patterns, and
 
 - Branch from `main` and keep changes focused
 - Reference related issues in your PR description
-- CI runs format checking, clippy, and tests on every PR (doc-only changes are skipped)
+- CI runs format checking, clippy, tests, and Nix build/flake checks on every PR. Rust CI skips doc-only changes; the Nix workflow still validates pushes and pull requests.
 
 ## Reporting Issues
 

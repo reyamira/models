@@ -18,12 +18,11 @@ TUI and CLI for browsing AI models, benchmarks, coding agents, and provider stat
 - **11+ coding agents** tracked with version detection, changelogs, and GitHub integration
 - **22 provider statuses** monitored live across 7 status page platforms
 
-## What's New in v0.11.3
+## What's New in v0.11.52
 
-- **Status CLI** — `models status list`, `show`, `sources`, and `status` commands with interactive picker and JSON output
-- **Configurable aliases** — customize symlink names via `[aliases]` in config.toml; `models link` creates all three
-- **Status tab** — live provider health monitoring with incidents, maintenance, and customizable tracking
-- **Agent service health** — live operational status from provider status pages in the agents detail panel and CLI
+- **Nix flake support** — build, run, or install directly from the GitHub flake
+- **Reproducible Nix CI** — validates the flake across Linux, Linux ARM, and macOS
+- **Shell completions in Nix builds** — packaged completions are generated during the Nix build
 
 ## Install
 
@@ -36,6 +35,14 @@ brew install models
 ```bash
 cargo install modelsdev
 ```
+
+### Nix (flake)
+```bash
+nix run github:reyamira/models
+nix profile install github:reyamira/models
+```
+
+The flake is available directly from GitHub tags and branches; it is not currently published to FlakeHub or nixpkgs.
 
 ### Scoop (Windows)
 ```powershell
