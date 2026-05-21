@@ -30,10 +30,6 @@
         inherit (pkgs) lib;
 
         craneLib = crane.mkLib pkgs;
-        nixSkippedTest =
-          # TODO: Remove this once the picker-save fetch counter test works
-          "tui::app::tests::picker_save_updates_agents_fetch_counters_for_newly_tracked_agents";
-
         unfilteredRoot = ./.;
         src = lib.fileset.toSource {
           root = unfilteredRoot;
@@ -58,7 +54,6 @@
           // {
             inherit cargoArtifacts;
             doCheck = true;
-            cargoTestExtraArgs = "-- --skip ${nixSkippedTest}";
 
             nativeBuildInputs = with pkgs; [
               makeWrapper
