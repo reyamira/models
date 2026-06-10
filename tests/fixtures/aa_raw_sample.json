@@ -1,0 +1,102 @@
+{
+  "data": [
+    {
+      "id": "atlas-pro-id",
+      "name": "Atlas Pro (Reasoning, High Effort)",
+      "slug": "atlas-pro",
+      "release_date": "2026-03-01",
+      "model_creator": {
+        "id": "acme-labs-id",
+        "slug": "acme-labs",
+        "name": "Acme Labs"
+      },
+      "evaluations": {
+        "artificial_analysis_intelligence_index": 71.4,
+        "artificial_analysis_coding_index": 64.2,
+        "artificial_analysis_math_index": 80.9,
+        "mmlu_pro": 0.842,
+        "gpqa": 0.731,
+        "livecodebench": 0.612,
+        "scicode": 0.448,
+        "ifbench": 0.553,
+        "lcr": 0.621,
+        "terminalbench_hard": 0.389,
+        "tau2": 0.572,
+        "math_500": 0.961,
+        "aime": 0.833,
+        "aime_25": 0.7
+      },
+      "median_output_tokens_per_second": 142.7,
+      "median_time_to_first_token_seconds": 0.41,
+      "median_time_to_first_answer_token": 1.83,
+      "pricing": {
+        "price_1m_input_tokens": 3.0,
+        "price_1m_output_tokens": 15.0,
+        "price_1m_blended_3_to_1": 6.0
+      }
+    },
+    {
+      "id": "nova-base-id",
+      "name": "Nova Base (Non-Reasoning)",
+      "slug": "nova-base",
+      "release_date": "2025-11-15",
+      "model_creator": null,
+      "evaluations": null,
+      "median_output_tokens_per_second": 98.3,
+      "median_time_to_first_token_seconds": 0.55,
+      "median_time_to_first_answer_token": 0.55,
+      "pricing": {
+        "price_1m_input_tokens": 0.5,
+        "price_1m_output_tokens": 1.5,
+        "price_1m_blended_3_to_1": 0.75
+      }
+    },
+    {
+      "id": "orion-flash-id",
+      "name": "Orion Flash (Dec '24)",
+      "slug": "orion-flash",
+      "release_date": "2024-12-10",
+      "model_creator": {
+        "id": "borealis-id",
+        "slug": "borealis",
+        "name": "Borealis AI"
+      },
+      "evaluations": {
+        "artificial_analysis_intelligence_index": 52.1,
+        "mmlu_pro": 0.701,
+        "gpqa": 0.488
+      },
+      "median_output_tokens_per_second": 210.5,
+      "median_time_to_first_token_seconds": 0.22,
+      "median_time_to_first_answer_token": 0.22,
+      "pricing": {
+        "price_1m_input_tokens": 0.15,
+        "price_1m_output_tokens": 0.6,
+        "price_1m_blended_3_to_1": 0.26
+      }
+    },
+    {
+      "id": "zephyr-zero-id",
+      "name": "Zephyr Zero",
+      "slug": "zephyr-zero",
+      "release_date": null,
+      "model_creator": {
+        "id": "zephyr-corp-id",
+        "slug": "zephyr-corp",
+        "name": "Zephyr Corp"
+      },
+      "evaluations": {
+        "artificial_analysis_intelligence_index": 44.0,
+        "math_500": 0.512
+      },
+      "median_output_tokens_per_second": 0,
+      "median_time_to_first_token_seconds": 0,
+      "median_time_to_first_answer_token": 0,
+      "pricing": {
+        "price_1m_input_tokens": 0.1,
+        "price_1m_output_tokens": 0.3,
+        "price_1m_blended_3_to_1": 0.15
+      }
+    }
+  ]
+}

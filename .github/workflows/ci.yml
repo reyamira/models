@@ -31,10 +31,10 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build
-        run: cargo build --verbose
+        run: cargo build --all-features --verbose
 
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test --all-features --verbose
 
   clippy:
     name: Clippy
@@ -48,7 +48,7 @@ jobs:
           components: clippy
 
       - name: Clippy
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --all-features -- -D warnings
 
   fmt:
     name: Format

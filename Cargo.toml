@@ -13,6 +13,17 @@ categories = ["command-line-utilities"]
 name = "models"
 path = "src/main.rs"
 
+# Data pipeline transform binary — NOT built by default (so `cargo install
+# modelsdev` skips it). Build/run with `--features pipeline`. Shares the v2
+# schema via a `#[path]` module include since the crate has no lib target.
+[[bin]]
+name = "transform"
+path = "src/bin/transform/main.rs"
+required-features = ["pipeline"]
+
+[features]
+pipeline = []
+
 [dependencies]
 # CLI
 clap = { version = "4", features = ["derive"] }

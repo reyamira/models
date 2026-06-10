@@ -20,11 +20,11 @@ run = "cargo fmt --check"
 
 [tasks.clippy]
 description = "Run clippy lints"
-run = "cargo clippy -- -D warnings"
+run = "cargo clippy --all-features -- -D warnings"
 
 [tasks.test]
 description = "Run tests"
-run = "cargo test"
+run = "cargo test --all-features"
 
 [tasks.run]
 description = "Run the TUI application"
@@ -82,6 +82,69 @@ xh GET https://artificialanalysis.ai/api/v2/data/llms/models X-API-Key:"$AA_API_
   }]' > data/benchmarks.json
 
 echo "Updated data/benchmarks.json ($(jq length data/benchmarks.json) entries)"
+"""
+
+[tasks.refresh-sources]
+description = "Fetch AA data and regenerate v2 source files"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ ! -f .env ]; then
+  echo "Error: .env file not found. Create one with AA_API_KEY=your_key"
+  exit 1
+fi
+
+source .env
+
+if [ -z "${AA_API_KEY:-}" ]; then
+  echo "Error: AA_API_KEY not set in .env"
+  exit 1
+fi
+
+raw=$(mktemp)
+trap 'rm -f "$raw"' EXIT
+
+echo "Fetching from Artificial Analysis API..."
+xh GET https://artificialanalysis.ai/api/v2/data/llms/models X-API-Key:"$AA_API_KEY" > "$raw"
+
+# Legacy lane (frozen): byte-identical jq contract with refresh-benchmarks.
+jq '[.data[] | {
+  id: .id,
+  name: .name,
+  slug: .slug,
+  creator: (.model_creator?.slug // null),
+  creator_id: (.model_creator?.id // null),
+  creator_name: (.model_creator?.name // null),
+  release_date: .release_date,
+  intelligence_index: (.evaluations?.artificial_analysis_intelligence_index // null),
+  coding_index: (.evaluations?.artificial_analysis_coding_index // null),
+  math_index: (.evaluations?.artificial_analysis_math_index // null),
+  mmlu_pro: (.evaluations?.mmlu_pro // null),
+  gpqa: (.evaluations?.gpqa // null),
+  hle: (.evaluations?.hle // null),
+  livecodebench: (.evaluations?.livecodebench // null),
+  scicode: (.evaluations?.scicode // null),
+  ifbench: (.evaluations?.ifbench // null),
+  lcr: (.evaluations?.lcr // null),
+  terminalbench_hard: (.evaluations?.terminalbench_hard // null),
+  tau2: (.evaluations?.tau2 // null),
+  math_500: (.evaluations?.math_500 // null),
+  aime: (.evaluations?.aime // null),
+  aime_25: (.evaluations?.aime_25 // null),
+  output_tps: (.median_output_tokens_per_second | if . == 0 then null else . end),
+  ttft: (.median_time_to_first_token_seconds | if . == 0 then null else . end),
+  ttfat: (.median_time_to_first_answer_token | if . == 0 then null else . end),
+  price_input: (.pricing?.price_1m_input_tokens // null),
+  price_output: (.pricing?.price_1m_output_tokens // null),
+  price_blended: (.pricing?.price_1m_blended_3_to_1 // null)
+}]' "$raw" > data/benchmarks.json
+
+mkdir -p data/v2
+cargo run --features pipeline --bin transform -- aa "$raw" -o data/v2/aa.json
+
+echo "Updated data/benchmarks.json ($(jq length data/benchmarks.json) entries)"
+echo "Updated data/v2/aa.json ($(jq '.models | length' data/v2/aa.json) models)"
 """
 
 [tools]

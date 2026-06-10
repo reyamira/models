@@ -15,13 +15,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+
       - name: Fetch benchmark data from Artificial Analysis API
         env:
           AA_API_KEY: ${{ secrets.AA_API_KEY }}
         run: |
           curl -sf -H "X-API-Key: $AA_API_KEY" \
             https://artificialanalysis.ai/api/v2/data/llms/models \
-            | jq '[.data[] | {
+            > aa_raw.json
+
+          jq '[.data[] | {
               id: .id,
               name: .name,
               slug: .slug,
@@ -50,18 +58,23 @@ jobs:
               price_input: (.pricing?.price_1m_input_tokens // null),
               price_output: (.pricing?.price_1m_output_tokens // null),
               price_blended: (.pricing?.price_1m_blended_3_to_1 // null)
-            }]' > data/benchmarks.json
+            }]' aa_raw.json > data/benchmarks.json
 
           echo "Fetched $(jq length data/benchmarks.json) entries"
+
+      - name: Generate v2 AA source file
+        run: |
+          mkdir -p data/v2
+          cargo run --features pipeline --bin transform -- aa aa_raw.json -o data/v2/aa.json
 
       - name: Commit and push if changed
         id: commit
         run: |
-          git diff --quiet data/benchmarks.json && echo "changed=false" >> "$GITHUB_OUTPUT" && exit 0
+          git add data/benchmarks.json data/v2/aa.json
+          git diff --cached --quiet && echo "changed=false" >> "$GITHUB_OUTPUT" && exit 0
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/benchmarks.json
-          git commit -m "chore: update benchmark data from Artificial Analysis"
+          git commit -m "chore: update benchmark data"
           git push
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
@@ -69,3 +82,4 @@ jobs:
         if: steps.commit.outputs.changed == 'true'
         run: |
           curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/benchmarks.json" || true
+          curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/v2/aa.json" || true

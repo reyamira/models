@@ -1,16 +1,6 @@
-use std::sync::LazyLock;
-
-use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
-pub enum ReasoningStatus {
-    #[default]
-    None,
-    Reasoning,
-    NonReasoning,
-    Adaptive,
-}
+use super::schema::{parse_name_metadata, ReasoningStatus};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct BenchmarkEntry {
@@ -65,132 +55,13 @@ pub struct BenchmarkEntry {
     pub max_output: Option<u64>,
 }
 
-// Matches a parenthetical group: captures the content inside parens.
-static PAREN_RE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\(([^)]*)\)").expect("valid regex"));
-
-// Matches a date like "Dec '24", "Feb 2026", "June '24", "March 2025"
-static DATE_RE: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?i)^(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*'?\s*\d{2,4}$")
-        .expect("valid regex")
-});
-
-// Matches a standalone effort keyword (entire content is just the keyword)
-static EFFORT_ONLY_RE: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?i)^(high|low|medium|xhigh|minimal)(\s+effort)?$").expect("valid regex")
-});
-
-fn extract_effort(content: &str) -> Option<String> {
-    // content is like "Max Effort" or "Low Effort" or just "High"
-    let lower = content.to_lowercase();
-    if lower.contains("max") || lower.contains("xhigh") {
-        Some("max".to_string())
-    } else if lower.contains("high") {
-        Some("high".to_string())
-    } else if lower.contains("medium") || lower.contains("med") {
-        Some("medium".to_string())
-    } else if lower.contains("low") {
-        Some("low".to_string())
-    } else if lower.contains("minimal") {
-        Some("minimal".to_string())
-    } else {
-        None
-    }
-}
-
 impl BenchmarkEntry {
     pub fn parse_metadata(&mut self) {
-        let mut variant_parts: Vec<String> = Vec::new();
-
-        for cap in PAREN_RE.captures_iter(&self.name.clone()) {
-            let content = cap[1].trim();
-
-            let lower = content.to_lowercase();
-
-            // Date pattern — drop date part; if comma-separated, keep non-date parts as variant
-            if DATE_RE.is_match(content) {
-                continue;
-            }
-            if let Some(comma_pos) = content.find(',') {
-                let first = content[..comma_pos].trim();
-                if DATE_RE.is_match(first) {
-                    let rest = content[comma_pos + 1..].trim();
-                    if !rest.is_empty() {
-                        variant_parts.push(rest.to_string());
-                    }
-                    continue;
-                }
-            }
-
-            // Adaptive Reasoning (may have comma-separated effort)
-            if lower.contains("adaptive reasoning") {
-                self.reasoning_status = ReasoningStatus::Adaptive;
-                if let Some(comma_pos) = content.find(',') {
-                    let effort_part = content[comma_pos + 1..].trim();
-                    self.effort_level = extract_effort(effort_part);
-                }
-                continue;
-            }
-
-            // Non-reasoning (check before "Reasoning" to avoid substring match)
-            if lower.contains("non-reasoning") {
-                self.reasoning_status = ReasoningStatus::NonReasoning;
-                if let Some(comma_pos) = content.find(',') {
-                    let effort_part = content[comma_pos + 1..].trim();
-                    self.effort_level = extract_effort(effort_part);
-                }
-                continue;
-            }
-
-            // Reasoning
-            if lower.contains("reasoning") {
-                self.reasoning_status = ReasoningStatus::Reasoning;
-                if let Some(comma_pos) = content.find(',') {
-                    let effort_part = content[comma_pos + 1..].trim();
-                    self.effort_level = extract_effort(effort_part);
-                }
-                continue;
-            }
-
-            // Thinking (older AA naming)
-            if lower.contains("thinking") {
-                self.reasoning_status = ReasoningStatus::Reasoning;
-                continue;
-            }
-
-            // Pure effort keyword — implies reasoning (effort controls thinking budget)
-            if EFFORT_ONLY_RE.is_match(content) {
-                self.effort_level = extract_effort(content);
-                if self.reasoning_status == ReasoningStatus::None {
-                    self.reasoning_status = ReasoningStatus::Reasoning;
-                }
-                continue;
-            }
-
-            // Everything else -> variant_tag
-            variant_parts.push(content.to_string());
-        }
-
-        if !variant_parts.is_empty() {
-            self.variant_tag = Some(variant_parts.join(", "));
-        }
-
-        // Build display_name by stripping all (...) groups
-        let stripped = PAREN_RE.replace_all(&self.name, "");
-        let trimmed = stripped.trim().to_string();
-        self.display_name = if trimmed.is_empty() {
-            self.name.clone()
-        } else {
-            trimmed
-        };
-
-        // Check base name (outside parens) for reasoning/thinking keywords
-        if self.reasoning_status == ReasoningStatus::None {
-            let base_lower = self.display_name.to_lowercase();
-            if base_lower.contains("reasoning") || base_lower.contains("thinking") {
-                self.reasoning_status = ReasoningStatus::Reasoning;
-            }
-        }
+        let parsed = parse_name_metadata(&self.name, self.reasoning_status.clone());
+        self.display_name = parsed.display_name;
+        self.reasoning_status = parsed.reasoning_status;
+        self.effort_level = parsed.effort_level;
+        self.variant_tag = parsed.variant_tag;
     }
 }
 
