@@ -269,6 +269,10 @@ pub struct BenchmarksApp {
     pub reasoning_filter: ReasoningFilter,
     pub creator_grouping: CreatorGrouping,
     creator_info: HashMap<String, CreatorInfo>,
+    // Model totals independent of creator attribution — sources like Epoch
+    // carry no Organization data, so creator-summed counts would read 0.
+    all_models_count: usize,
+    all_models_filtered_count: usize,
     /// Creator -> openness, derived from the active source's models.
     creator_openness: HashMap<String, bool>,
     pub bottom_view: BottomView,
@@ -313,6 +317,8 @@ impl BenchmarksApp {
             reasoning_filter: ReasoningFilter::default(),
             creator_grouping: CreatorGrouping::default(),
             creator_info: HashMap::new(),
+            all_models_count: 0,
+            all_models_filtered_count: 0,
             creator_openness: HashMap::new(),
             bottom_view: BottomView::default(),
             h2h_scroll: ScrollOffset::default(),
@@ -513,11 +519,17 @@ impl BenchmarksApp {
         let mut info: HashMap<String, CreatorInfo> = HashMap::new();
         let filtering = self.has_active_filters();
 
+        let mut total = 0usize;
+        let mut filtered_total = 0usize;
         for model in &file.models {
+            let passes = !filtering || self.model_matches_filters(model);
+            total += 1;
+            if passes {
+                filtered_total += 1;
+            }
             if model.creator.is_empty() {
                 continue;
             }
-            let passes = !filtering || self.model_matches_filters(model);
             info.entry(model.creator.clone())
                 .and_modify(|i| {
                     i.count += 1;
@@ -535,6 +547,9 @@ impl BenchmarksApp {
                     filtered_count: if passes { 1 } else { 0 },
                 });
         }
+
+        self.all_models_count = total;
+        self.all_models_filtered_count = filtered_total;
 
         let mut creators: Vec<String> = if filtering {
             info.iter()
@@ -630,18 +645,13 @@ impl BenchmarksApp {
 
     /// Total filtered count across all visible creators.
     pub fn filtered_creator_count(&self) -> usize {
+        // Counts ALL models (creator-attributed or not) — sources like Epoch
+        // ship no Organization data, and summing per-creator counts there
+        // would render "All (0)" beside a populated list.
         if self.has_active_filters() {
-            self.creator_list_items
-                .iter()
-                .filter_map(|item| match item {
-                    CreatorListItem::Creator(slug) => {
-                        self.creator_info.get(slug).map(|i| i.filtered_count)
-                    }
-                    _ => None,
-                })
-                .sum()
+            self.all_models_filtered_count
         } else {
-            self.creator_info.values().map(|i| i.count).sum()
+            self.all_models_count
         }
     }
 
