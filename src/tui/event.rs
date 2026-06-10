@@ -336,7 +336,18 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
         KeyCode::Char('4') => Some(Message::CycleBenchmarkSource),
         KeyCode::Char('5') => Some(Message::ToggleRegionGrouping),
         KeyCode::Char('6') => Some(Message::ToggleTypeGrouping),
-        KeyCode::Char('7') => Some(Message::CycleReasoningFilter),
+        // `7` cycles the reasoning filter — no-op (and footer-hidden) when no
+        // model in the active source carries a reasoning status.
+        KeyCode::Char('7')
+            if super::benchmarks::BenchmarksApp::reasoning_filter_available(
+                app.multi_store.file(app.benchmarks_app.active_source),
+            ) =>
+        {
+            Some(Message::CycleReasoningFilter)
+        }
+        // `{` / `}` cycle data source prev/next (tab-local; `[` / `]` stay global).
+        KeyCode::Char('{') => Some(Message::CycleDataSourcePrev),
+        KeyCode::Char('}') => Some(Message::CycleDataSourceNext),
         KeyCode::Char('s') => Some(Message::OpenSortPicker),
         KeyCode::Char('S') => Some(Message::ToggleBenchmarkSortDir),
         KeyCode::Char('c') if !app.selections.is_empty() => Some(Message::ClearBenchmarkSelections),

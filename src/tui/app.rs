@@ -8,12 +8,29 @@ const PAGE_SIZE: usize = 10;
 
 pub const MAX_SELECTIONS: usize = 8;
 use crate::agents::{AgentsFile, FetchStatus, GitHubData};
-use std::collections::HashMap;
 
-use crate::benchmarks::{BenchmarkEntry, BenchmarkStore};
+use crate::benchmarks::multi::{MultiStore, SortKey};
+use crate::benchmarks::schema::SourceFile;
 use crate::config::Config;
 use crate::data::{Provider, ProvidersMap};
 use crate::tui::widgets::scroll_offset::ScrollOffset;
+
+/// Apply the active source's trait/openness augmentation and rebuild the
+/// benchmarks sub-app if the freshly loaded source is the active one.
+fn finalize_loaded_source(app: &mut App, idx: usize) {
+    // AA-only: fill open_weights / context_window from models.dev before the
+    // sub-app derives the creator-openness map.
+    if app.multi_store.sources.get(idx).map(|s| s.descriptor.id) == Some("aa") {
+        if let Some(file) = app.multi_store.file_mut(idx) {
+            crate::benchmarks::apply_model_traits(&app.providers, &mut file.models);
+        }
+    }
+    if idx == app.benchmarks_app.active_source {
+        if let Some(file) = app.multi_store.file(idx) {
+            app.benchmarks_app.rebuild(file);
+        }
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Mode {
@@ -203,12 +220,14 @@ pub enum Message {
     ScrollStatusDetailBottom,
     PageScrollStatusDetailUp,
     PageScrollStatusDetailDown,
+    // Data-source switcher (benchmarks tab): `{` / `}` cycle prev/next
+    CycleDataSourcePrev,
+    CycleDataSourceNext,
     // Async data messages
     GitHubDataReceived(String, GitHubData),
     GitHubFetchFailed(String, String), // (agent_id, error_message)
-    // Benchmark data messages
-    BenchmarkDataReceived(Vec<BenchmarkEntry>),
-    BenchmarkFetchFailed,
+    // Benchmark data: one variant per source fetch. `None` => fetch failed.
+    DataSourceLoaded(usize, Option<SourceFile>),
     // Provider status data messages
     StatusDataReceived(Vec<crate::status::ProviderStatus>),
 }
@@ -225,10 +244,10 @@ pub struct App {
     pub config: Config,
     /// Agents newly tracked that need GitHub fetches (agent_id, repo)
     pub pending_fetches: Vec<(String, String)>,
-    pub benchmark_store: BenchmarkStore,
+    /// Multi-source benchmark store: one load-state per compiled-in source.
+    pub multi_store: MultiStore,
     pub benchmarks_app: BenchmarksApp,
     pub status_app: Option<StatusApp>,
-    pub open_weights_map: HashMap<String, bool>,
     /// Cached detail panel height for search match scrolling
     pub last_detail_height: u16,
     /// Store indices of selected models for comparison (shared between tabs)
@@ -242,7 +261,6 @@ impl App {
         providers_map: ProvidersMap,
         agents_file: Option<&AgentsFile>,
         config: Option<Config>,
-        mut benchmark_store: BenchmarkStore,
     ) -> Self {
         let mut providers: Vec<(String, Provider)> = providers_map.into_iter().collect();
         providers.sort_by(|a, b| a.0.cmp(&b.0));
@@ -250,10 +268,10 @@ impl App {
         let config = config.unwrap_or_default();
         let agents_app = agents_file.map(|af| AgentsApp::new(af, &config));
         let status_app = Some(StatusApp::new(&config));
-        let open_weights_map =
-            crate::benchmarks::build_open_weights_map(&providers, benchmark_store.entries());
-        crate::benchmarks::apply_model_traits(&providers, benchmark_store.entries_mut());
-        let benchmarks_app = BenchmarksApp::new(&benchmark_store, &open_weights_map);
+        // Sources load progressively from the CDN; nothing is loaded at startup,
+        // so the benchmarks sub-app starts empty (loading state).
+        let multi_store = MultiStore::new();
+        let benchmarks_app = BenchmarksApp::new(None);
         let models_app = ModelsApp::new(&providers);
 
         Self {
@@ -267,15 +285,19 @@ impl App {
             agents_app,
             config,
             pending_fetches: Vec::new(),
-            benchmark_store,
+            multi_store,
             benchmarks_app,
             status_app,
-            open_weights_map,
             last_detail_height: 0,
             selections: Vec::new(),
             pending_status_refresh: false,
             force_status_refresh: false,
         }
+    }
+
+    /// Borrow the active source's loaded `SourceFile`, if any.
+    pub fn active_benchmark_file(&self) -> Option<&SourceFile> {
+        self.multi_store.file(self.benchmarks_app.active_source)
     }
 
     pub fn toggle_selection(&mut self, store_index: usize) {
@@ -388,8 +410,9 @@ impl App {
                 }
                 Tab::Benchmarks => {
                     self.benchmarks_app.search_query.push(c);
-                    self.benchmarks_app
-                        .rebuild_after_filter_change(&self.benchmark_store, &self.open_weights_map);
+                    if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                        self.benchmarks_app.rebuild_after_filter_change(file);
+                    }
                 }
                 Tab::Status => {
                     if let Some(ref mut status_app) = self.status_app {
@@ -412,8 +435,9 @@ impl App {
                 }
                 Tab::Benchmarks => {
                     self.benchmarks_app.search_query.pop();
-                    self.benchmarks_app
-                        .rebuild_after_filter_change(&self.benchmark_store, &self.open_weights_map);
+                    if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                        self.benchmarks_app.rebuild_after_filter_change(file);
+                    }
                 }
                 Tab::Status => {
                     if let Some(ref mut status_app) = self.status_app {
@@ -436,8 +460,9 @@ impl App {
                 }
                 Tab::Benchmarks => {
                     self.benchmarks_app.search_query.clear();
-                    self.benchmarks_app
-                        .rebuild_after_filter_change(&self.benchmark_store, &self.open_weights_map);
+                    if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                        self.benchmarks_app.rebuild_after_filter_change(file);
+                    }
                 }
                 Tab::Status => {
                     if let Some(ref mut status_app) = self.status_app {
@@ -831,33 +856,39 @@ impl App {
             }
             Message::NextBenchmarkCreator => {
                 self.benchmarks_app.next_creator();
-                self.benchmarks_app
-                    .update_filtered(&self.benchmark_store, &self.open_weights_map);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.update_filtered(file);
+                }
             }
             Message::PrevBenchmarkCreator => {
                 self.benchmarks_app.prev_creator();
-                self.benchmarks_app
-                    .update_filtered(&self.benchmark_store, &self.open_weights_map);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.update_filtered(file);
+                }
             }
             Message::SelectFirstBenchmarkCreator => {
                 self.benchmarks_app.select_first_creator();
-                self.benchmarks_app
-                    .update_filtered(&self.benchmark_store, &self.open_weights_map);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.update_filtered(file);
+                }
             }
             Message::SelectLastBenchmarkCreator => {
                 self.benchmarks_app.select_last_creator();
-                self.benchmarks_app
-                    .update_filtered(&self.benchmark_store, &self.open_weights_map);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.update_filtered(file);
+                }
             }
             Message::PageDownBenchmarkCreator => {
                 self.benchmarks_app.page_down_creator();
-                self.benchmarks_app
-                    .update_filtered(&self.benchmark_store, &self.open_weights_map);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.update_filtered(file);
+                }
             }
             Message::PageUpBenchmarkCreator => {
                 self.benchmarks_app.page_up_creator();
-                self.benchmarks_app
-                    .update_filtered(&self.benchmark_store, &self.open_weights_map);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.update_filtered(file);
+                }
             }
             Message::FocusBenchmarkRight => {
                 let has_compare = self.selections.len() >= 2;
@@ -890,73 +921,95 @@ impl App {
                     .increment(PAGE_SIZE as u16);
             }
             Message::CycleBenchmarkSource => {
-                self.benchmarks_app
-                    .cycle_source_filter(&self.benchmark_store, &self.open_weights_map);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.cycle_source_filter(file);
+                }
             }
             Message::CycleReasoningFilter => {
-                self.benchmarks_app
-                    .cycle_reasoning_filter(&self.benchmark_store, &self.open_weights_map);
+                // No-op when the active source has no model carrying a reasoning
+                // status (the `7` key is hidden in that case anyway).
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    if BenchmarksApp::reasoning_filter_available(Some(file)) {
+                        self.benchmarks_app.cycle_reasoning_filter(file);
+                    }
+                }
             }
             Message::ToggleRegionGrouping => {
-                self.benchmarks_app
-                    .toggle_region_grouping(&self.benchmark_store, &self.open_weights_map);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.toggle_region_grouping(file);
+                }
             }
             Message::ToggleTypeGrouping => {
-                self.benchmarks_app
-                    .toggle_type_grouping(&self.benchmark_store, &self.open_weights_map);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.toggle_type_grouping(file);
+                }
             }
             Message::ToggleBenchmarkSortDir => {
-                self.benchmarks_app
-                    .toggle_sort_direction(&self.benchmark_store);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.toggle_sort_direction(file);
+                }
             }
             Message::OpenSortPicker => {
-                let current = self.benchmarks_app.sort_column;
-                self.benchmarks_app.sort_picker_selected =
-                    super::benchmarks::BenchmarkSortColumn::ALL
-                        .iter()
-                        .position(|&c| c == current)
-                        .unwrap_or(0);
-                self.benchmarks_app.show_sort_picker = true;
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    let current = self.benchmarks_app.sort_key;
+                    let options = BenchmarksApp::sort_options(file);
+                    self.benchmarks_app.sort_picker_selected =
+                        options.iter().position(|o| o.key == current).unwrap_or(0);
+                    self.benchmarks_app.show_sort_picker = true;
+                }
             }
             Message::SortPickerNext => {
-                let len = super::benchmarks::BenchmarkSortColumn::ALL.len();
-                self.benchmarks_app.sort_picker_selected =
-                    (self.benchmarks_app.sort_picker_selected + 1).min(len - 1);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    let len = BenchmarksApp::sort_options(file).len().max(1);
+                    self.benchmarks_app.sort_picker_selected =
+                        (self.benchmarks_app.sort_picker_selected + 1).min(len - 1);
+                }
             }
             Message::SortPickerPrev => {
                 self.benchmarks_app.sort_picker_selected =
                     self.benchmarks_app.sort_picker_selected.saturating_sub(1);
             }
             Message::SortPickerConfirm => {
-                let col = super::benchmarks::BenchmarkSortColumn::ALL
-                    [self.benchmarks_app.sort_picker_selected];
                 self.benchmarks_app.show_sort_picker = false;
-                self.benchmarks_app
-                    .quick_sort(col, &self.benchmark_store, &self.open_weights_map);
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    let options = BenchmarksApp::sort_options(file);
+                    if let Some(opt) = options.get(self.benchmarks_app.sort_picker_selected) {
+                        let key = opt.key;
+                        self.benchmarks_app.quick_sort(key, file);
+                    }
+                }
             }
             Message::CloseSortPicker => {
                 self.benchmarks_app.show_sort_picker = false;
             }
             Message::QuickSortIntelligence => {
-                self.benchmarks_app.quick_sort(
-                    super::benchmarks::BenchmarkSortColumn::Intelligence,
-                    &self.benchmark_store,
-                    &self.open_weights_map,
-                );
+                // `1` = first metric of the source.
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    if let Some(key) = BenchmarksApp::quick_sort_metric_first(file) {
+                        self.benchmarks_app.quick_sort(key, file);
+                    }
+                }
             }
             Message::QuickSortDate => {
-                self.benchmarks_app.quick_sort(
-                    super::benchmarks::BenchmarkSortColumn::ReleaseDate,
-                    &self.benchmark_store,
-                    &self.open_weights_map,
-                );
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.quick_sort(SortKey::ReleaseDate, file);
+                }
             }
             Message::QuickSortSpeed => {
-                self.benchmarks_app.quick_sort(
-                    super::benchmarks::BenchmarkSortColumn::Speed,
-                    &self.benchmark_store,
-                    &self.open_weights_map,
-                );
+                // `3` = first TokensPerSec metric; no-op when the source has none.
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    if let Some(key) = BenchmarksApp::quick_sort_speed(file) {
+                        self.benchmarks_app.quick_sort(key, file);
+                    }
+                }
+            }
+            Message::CycleDataSourceNext => {
+                self.benchmarks_app.switch_source(&self.multi_store, true);
+                self.clear_selections();
+            }
+            Message::CycleDataSourcePrev => {
+                self.benchmarks_app.switch_source(&self.multi_store, false);
+                self.clear_selections();
             }
             Message::ToggleBenchmarkSelection => {
                 if let Some(&store_idx) = self
@@ -1025,13 +1078,19 @@ impl App {
                 }
             }
             Message::CycleScatterX => {
-                self.benchmarks_app.cycle_scatter_x();
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.cycle_scatter_x(file);
+                }
             }
             Message::CycleScatterY => {
-                self.benchmarks_app.cycle_scatter_y();
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.cycle_scatter_y(file);
+                }
             }
             Message::CycleRadarPreset => {
-                self.benchmarks_app.cycle_radar_preset();
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.cycle_radar_group(file);
+                }
             }
             Message::CopyBenchmarkName | Message::OpenBenchmarkUrl => {
                 // Handled in main loop
@@ -1066,24 +1125,28 @@ impl App {
                     }
                 }
             }
-            Message::BenchmarkDataReceived(entries) => {
-                self.selections.clear();
-                self.benchmarks_app.loading = false;
-                self.benchmark_store = BenchmarkStore::from_entries(entries);
-                self.open_weights_map = crate::benchmarks::build_open_weights_map(
-                    &self.providers,
-                    self.benchmark_store.entries(),
-                );
-                crate::benchmarks::apply_model_traits(
-                    &self.providers,
-                    self.benchmark_store.entries_mut(),
-                );
-                self.benchmarks_app
-                    .rebuild(&self.benchmark_store, &self.open_weights_map);
-            }
-            Message::BenchmarkFetchFailed => {
-                self.benchmarks_app.loading = false;
-                self.set_status("Failed to fetch benchmark data".to_string());
+            Message::DataSourceLoaded(idx, result) => {
+                match result {
+                    Some(file) => {
+                        self.multi_store.set_loaded(idx, file);
+                        // Apply traits (AA only) before the sub-app derives state,
+                        // then rebuild the sub-app when this is the active source.
+                        finalize_loaded_source(self, idx);
+                    }
+                    None => {
+                        self.multi_store.set_failed(idx);
+                        if idx == self.benchmarks_app.active_source {
+                            self.benchmarks_app.loading = false;
+                        }
+                        let name = self
+                            .multi_store
+                            .sources
+                            .get(idx)
+                            .map(|s| s.descriptor.name)
+                            .unwrap_or("source");
+                        self.set_status(format!("Failed to fetch {name} benchmark data"));
+                    }
+                }
             }
             Message::StatusDataReceived(entries) => {
                 if let Some(ref mut status_app) = self.status_app {
@@ -1202,12 +1265,7 @@ mod tests {
         config.agents.custom.clear();
 
         let agents_file = test_agents_file();
-        let mut app = App::new(
-            HashMap::new(),
-            Some(&agents_file),
-            Some(config),
-            BenchmarkStore::empty(),
-        );
+        let mut app = App::new(HashMap::new(), Some(&agents_file), Some(config));
 
         {
             let agents_app = app.agents_app.as_mut().expect("agents app should exist");
@@ -1244,7 +1302,7 @@ mod tests {
 
     fn make_test_app() -> App {
         let providers = std::collections::HashMap::new();
-        App::new(providers, None, None, BenchmarkStore::empty())
+        App::new(providers, None, None)
     }
 
     #[test]
@@ -1340,31 +1398,27 @@ mod tests {
     }
 
     #[test]
-    fn test_scatter_axis_next_cycles() {
-        use super::super::benchmarks::ScatterAxis;
-        let mut axis = ScatterAxis::Intelligence;
-        axis = axis.next();
-        assert_eq!(axis, ScatterAxis::Coding);
-        axis = axis.next();
-        assert_eq!(axis, ScatterAxis::Math);
-        axis = axis.next();
-        assert_eq!(axis, ScatterAxis::Speed);
-        axis = axis.next();
-        assert_eq!(axis, ScatterAxis::Price);
-        axis = axis.next();
-        assert_eq!(axis, ScatterAxis::Intelligence);
+    fn test_cycle_data_source_clears_selections() {
+        // With a single compiled-in source, cycling wraps back to index 0 and
+        // clears the shared selection vec (per the switch contract).
+        let mut app = make_test_app();
+        app.toggle_selection(1);
+        app.toggle_selection(2);
+        assert_eq!(app.selections.len(), 2);
+        app.update(Message::CycleDataSourceNext);
+        assert!(app.selections.is_empty());
+        assert_eq!(app.benchmarks_app.active_source, 0);
     }
 
     #[test]
-    fn test_radar_preset_next_cycles() {
-        use super::super::benchmarks::RadarPreset;
-        let mut preset = RadarPreset::Agentic;
-        preset = preset.next();
-        assert_eq!(preset, RadarPreset::Academic);
-        preset = preset.next();
-        assert_eq!(preset, RadarPreset::Indexes);
-        preset = preset.next();
-        assert_eq!(preset, RadarPreset::Agentic);
+    fn test_data_source_loaded_failed_sets_status() {
+        let mut app = make_test_app();
+        app.update(Message::DataSourceLoaded(0, None));
+        assert!(super::super::benchmarks::BenchmarksApp::active_is_failed(
+            &app.multi_store,
+            0
+        ));
+        assert!(app.status_message.is_some());
     }
 
     #[test]

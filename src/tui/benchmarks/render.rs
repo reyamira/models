@@ -6,12 +6,21 @@ use ratatui::{
     Frame,
 };
 
+use super::app::BenchmarksApp;
 use super::compare::{draw_h2h_table_generic, draw_scatter};
-use crate::formatting::format_tokens;
-use crate::formatting::truncate;
+use crate::benchmarks::multi::{
+    format_metric_value, groups_in_order, metric_indices_in_group, SortKey, SourceLoad,
+};
+use crate::benchmarks::schema::{MetricKind, ModelRow, ScoreCell, SourceFile};
+use crate::formatting::{format_relative_time_from_str, format_tokens, truncate};
 use crate::tui::app::App;
-use crate::tui::ui::{caret, centered_rect, centered_rect_fixed, focus_border};
+use crate::tui::ui::{
+    caret, centered_rect, centered_rect_fixed, focus_border, section_header_line,
+};
 use crate::tui::widgets::scrollable_panel::ScrollablePanel;
+
+/// Em-dash sentinel for missing values.
+const EM: &str = "\u{2014}";
 
 /// Color palette for selected models in comparison mode.
 pub(crate) fn compare_colors(index: usize) -> Color {
@@ -29,6 +38,14 @@ pub(crate) fn compare_colors(index: usize) -> Color {
 }
 
 pub(in crate::tui) fn draw_benchmarks_main(f: &mut Frame, area: Rect, app: &mut App) {
+    // Source bar (1 line) + existing content (remainder).
+    let outer = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Length(1), Constraint::Min(0)])
+        .split(area);
+    draw_source_bar(f, outer[0], app);
+    let area = outer[1];
+
     let in_compare = app.selections.len() >= 2;
 
     if in_compare {
@@ -90,7 +107,79 @@ pub(in crate::tui) fn draw_benchmarks_main(f: &mut Frame, area: Rect, app: &mut 
 
     // Sort picker popup
     if app.benchmarks_app.show_sort_picker {
-        draw_sort_picker(f, area, &app.benchmarks_app);
+        draw_sort_picker(f, area, app);
+    }
+}
+
+/// Source bar: one bracketed label per compiled-in source (active = Cyan+BOLD,
+/// loaded-inactive = DarkGray, loading = label + `◐` Yellow, failed = label +
+/// `✗` Red). Right-aligned for the active source: `fetched {relative}` (DarkGray)
+/// + ` self-reported` (Yellow) when the source is unverified.
+fn draw_source_bar(f: &mut Frame, area: Rect, app: &App) {
+    let bench_app = &app.benchmarks_app;
+    let active = bench_app.active_source;
+
+    // Left: bracketed source labels.
+    let mut left_spans: Vec<Span> = vec![Span::raw(" ")];
+    for (idx, state) in app.multi_store.sources.iter().enumerate() {
+        let name = state.descriptor.name;
+        match &state.load {
+            SourceLoad::Loading => {
+                left_spans.push(Span::styled(
+                    format!("[{}] ", name),
+                    Style::default().fg(Color::DarkGray),
+                ));
+                left_spans.push(Span::styled(
+                    "\u{25D0} ",
+                    Style::default().fg(Color::Yellow),
+                ));
+            }
+            SourceLoad::Failed => {
+                left_spans.push(Span::styled(
+                    format!("[{}] ", name),
+                    Style::default().fg(Color::DarkGray),
+                ));
+                left_spans.push(Span::styled("\u{2717} ", Style::default().fg(Color::Red)));
+            }
+            SourceLoad::Loaded(_) => {
+                let style = if idx == active {
+                    Style::default()
+                        .fg(Color::Cyan)
+                        .add_modifier(Modifier::BOLD)
+                } else {
+                    Style::default().fg(Color::DarkGray)
+                };
+                left_spans.push(Span::styled(format!("[{}] ", name), style));
+            }
+        }
+    }
+    f.render_widget(Paragraph::new(Line::from(left_spans)), area);
+
+    // Right: freshness + self-reported for the active source.
+    let mut right_spans: Vec<Span> = Vec::new();
+    if let Some(state) = app.multi_store.sources.get(active) {
+        if let SourceLoad::Loaded(file) = &state.load {
+            right_spans.push(Span::styled(
+                format!(
+                    "fetched {}",
+                    format_relative_time_from_str(&file.source.fetched_at)
+                ),
+                Style::default().fg(Color::DarkGray),
+            ));
+            if !file.source.verified {
+                right_spans.push(Span::styled(
+                    " self-reported",
+                    Style::default().fg(Color::Yellow),
+                ));
+            }
+            right_spans.push(Span::raw(" "));
+        }
+    }
+    if !right_spans.is_empty() {
+        f.render_widget(
+            Paragraph::new(Line::from(right_spans)).alignment(ratatui::layout::Alignment::Right),
+            area,
+        );
     }
 }
 
@@ -115,12 +204,12 @@ fn draw_benchmark_subtab_bar(f: &mut Frame, area: Rect, bench_app: &super::app::
     f.render_widget(Paragraph::new(Line::from(spans)), area);
 }
 
-fn draw_benchmark_creators(f: &mut Frame, area: Rect, app: &mut App) {
+fn draw_benchmark_creators(f: &mut Frame, area: Rect, app: &App) {
     use super::app::{
         BenchmarkFocus, CreatorGrouping, CreatorListItem, CreatorRegion, CreatorType,
     };
 
-    let bench_app = &mut app.benchmarks_app;
+    let bench_app = &app.benchmarks_app;
 
     let is_focused = bench_app.focus == BenchmarkFocus::Creators;
     let border_style = focus_border(is_focused);
@@ -258,22 +347,79 @@ fn draw_benchmark_creators(f: &mut Frame, area: Rect, app: &mut App) {
     f.render_stateful_widget(list, chunks[1], &mut state);
 }
 
+/// Loading / failed / empty state lines for the active source, or `None` when a
+/// loaded non-empty file is available. Rendered inside the list panel area.
+fn source_state_lines(app: &App) -> Option<Vec<Line<'static>>> {
+    let store = &app.multi_store;
+    let active = app.benchmarks_app.active_source;
+
+    if BenchmarksApp::active_is_failed(store, active) {
+        let name = BenchmarksApp::active_descriptor(store, active)
+            .map(|d| d.name)
+            .unwrap_or("source");
+        return Some(vec![Line::from(Span::styled(
+            format!("\u{2717} Failed to fetch {name} data"),
+            Style::default().fg(Color::Red),
+        ))]);
+    }
+
+    match BenchmarksApp::active_file(store, active) {
+        // Not yet loaded (Loading or absent) -> loading state.
+        None => Some(vec![Line::from(Span::styled(
+            "Loading...",
+            Style::default().fg(Color::Yellow),
+        ))]),
+        Some(file) if file.models.is_empty() => Some(vec![Line::from(Span::styled(
+            "No models",
+            Style::default().fg(Color::DarkGray),
+        ))]),
+        Some(_) => None,
+    }
+}
+
+/// Build the value-column string for a model under the active sort key.
+/// ReleaseDate -> date string, Metric -> formatted value, Name -> empty.
+fn list_value_for(file: &SourceFile, model: &ModelRow, key: SortKey) -> String {
+    match key {
+        SortKey::Name => String::new(),
+        SortKey::ReleaseDate => model.release_date.clone().unwrap_or_else(|| EM.to_string()),
+        SortKey::Metric(mi) => {
+            BenchmarksApp::formatted_score(file, model, mi).unwrap_or_else(|| EM.to_string())
+        }
+    }
+}
+
+/// Header label for the active sort value column.
+fn list_value_header(file: Option<&SourceFile>, key: SortKey) -> String {
+    match key {
+        SortKey::Name => String::new(),
+        SortKey::ReleaseDate => "Released".to_string(),
+        SortKey::Metric(mi) => file
+            .and_then(|f| f.metrics.get(mi))
+            .map(|m| truncate(&m.label, 11))
+            .unwrap_or_else(|| EM.to_string()),
+    }
+}
+
 /// Compact list for compare mode: selection marker + name only, full height.
-fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &mut App) {
+fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &App) {
     use super::app::BenchmarkFocus;
 
-    let bench_app = &mut app.benchmarks_app;
-    let store = &app.benchmark_store;
-
-    let is_focused = bench_app.focus == BenchmarkFocus::List;
+    let is_focused = app.benchmarks_app.focus == BenchmarkFocus::List;
     let border_style = focus_border(is_focused);
 
+    let bench_app = &app.benchmarks_app;
     let sort_dir = if bench_app.sort_descending {
         "\u{2193}"
     } else {
         "\u{2191}"
     };
-    let sort_indicator = format!(" {}{}", sort_dir, bench_app.sort_column.label());
+    let file = app.multi_store.file(bench_app.active_source);
+    let sort_indicator = format!(
+        " {}{}",
+        sort_dir,
+        BenchmarksApp::sort_label(file, bench_app.sort_key)
+    );
 
     let source_indicator = match bench_app.source_filter {
         super::app::SourceFilter::All => String::new(),
@@ -289,7 +435,12 @@ fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &mut App) {
         }
     };
 
-    let loading_suffix = if bench_app.loading { " loading..." } else { "" };
+    let loading_suffix =
+        if BenchmarksApp::active_is_loading(&app.multi_store, bench_app.active_source) {
+            " loading..."
+        } else {
+            ""
+        };
 
     let title = if bench_app.search_query.is_empty() {
         format!(
@@ -319,8 +470,18 @@ fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &mut App) {
     let inner_area = outer_block.inner(area);
     f.render_widget(outer_block, area);
 
+    // Loading / failed / empty state.
+    if let Some(lines) = source_state_lines(app) {
+        f.render_widget(Paragraph::new(lines), inner_area);
+        return;
+    }
+    let Some(file) = app.multi_store.file(app.benchmarks_app.active_source) else {
+        return;
+    };
+
+    let bench_app = &app.benchmarks_app;
     let caret = caret(is_focused);
-    let entries = store.entries();
+    let openness = bench_app.creator_openness();
 
     // Extra columns: marker(2) + caret(2) + reasoning(3) + source(2) + optional region/type
     let show_region = bench_app.creator_grouping == super::app::CreatorGrouping::ByRegion;
@@ -332,8 +493,8 @@ fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &mut App) {
         .filtered_indices
         .iter()
         .enumerate()
-        .map(|(display_idx, &entry_idx)| {
-            let entry = &entries[entry_idx];
+        .map(|(display_idx, &model_idx)| {
+            let model = &file.models[model_idx];
             let is_selected = display_idx == bench_app.selected;
 
             let style = if is_selected {
@@ -348,7 +509,7 @@ fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &mut App) {
             let mut row_spans: Vec<Span> = Vec::new();
 
             // Selection marker
-            if let Some(sel_pos) = app.selections.iter().position(|&i| i == entry_idx) {
+            if let Some(sel_pos) = app.selections.iter().position(|&i| i == model_idx) {
                 row_spans.push(Span::styled(
                     "\u{25CF} ",
                     Style::default().fg(compare_colors(sel_pos)),
@@ -360,31 +521,20 @@ fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &mut App) {
             row_spans.push(Span::styled(prefix, style));
 
             // Reasoning status indicator
-            let (rs_label, rs_color) = match entry.reasoning_status {
-                crate::benchmarks::ReasoningStatus::Reasoning => ("R  ", Color::Cyan),
-                crate::benchmarks::ReasoningStatus::NonReasoning => ("NR ", Color::DarkGray),
-                crate::benchmarks::ReasoningStatus::Adaptive => ("AR ", Color::Yellow),
-                crate::benchmarks::ReasoningStatus::None => ("   ", Color::Reset),
-            };
-            row_spans.push(Span::styled(rs_label, Style::default().fg(rs_color)));
+            row_spans.push(reasoning_span(model));
 
-            // Source indicator (Open/Closed)
-            let (src_label, src_color) = match app.open_weights_map.get(&entry.slug) {
-                Some(true) => ("O ", Color::Green),
-                Some(false) => ("C ", Color::Red),
-                None => ("  ", Color::Reset),
-            };
-            row_spans.push(Span::styled(src_label, Style::default().fg(src_color)));
+            // Source indicator (Open/Closed) via creator-openness map
+            row_spans.push(openness_span(model, openness));
 
             // Region/Type indicator when grouping is active
             if show_region {
-                let region = super::app::CreatorRegion::from_creator(&entry.creator);
+                let region = super::app::CreatorRegion::from_creator(&model.creator);
                 row_spans.push(Span::styled(
                     format!("{:<4}", region.short_label()),
                     Style::default().fg(region.color()),
                 ));
             } else if show_type {
-                let ct = super::app::CreatorType::from_creator(&entry.creator);
+                let ct = super::app::CreatorType::from_creator(&model.creator);
                 row_spans.push(Span::styled(
                     format!("{:<4}", ct.short_label()),
                     Style::default().fg(ct.color()),
@@ -392,7 +542,7 @@ fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &mut App) {
             }
 
             row_spans.push(Span::styled(
-                truncate(&entry.display_name, name_width),
+                truncate(&model.display_name, name_width),
                 style,
             ));
             ListItem::new(Line::from(row_spans))
@@ -412,21 +562,54 @@ fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &mut App) {
     f.render_stateful_widget(list, inner_area, &mut state);
 }
 
-fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
+/// Reasoning status indicator span (R / NR / AR / blank).
+fn reasoning_span(model: &ModelRow) -> Span<'static> {
+    use crate::benchmarks::ReasoningStatus;
+    let (label, color) = match model.reasoning_status {
+        ReasoningStatus::Reasoning => ("R  ", Color::Cyan),
+        ReasoningStatus::NonReasoning => ("NR ", Color::DarkGray),
+        ReasoningStatus::Adaptive => ("AR ", Color::Yellow),
+        ReasoningStatus::None => ("   ", Color::Reset),
+    };
+    Span::styled(label, Style::default().fg(color))
+}
+
+/// Open/closed source indicator span. Openness is resolved per-model first
+/// (`ModelRow.open_weights`), falling back to the creator-openness map.
+fn openness_span(
+    model: &ModelRow,
+    openness: &std::collections::HashMap<String, bool>,
+) -> Span<'static> {
+    let open = model
+        .open_weights
+        .or_else(|| openness.get(&model.creator).copied());
+    let (label, color) = match open {
+        Some(true) => ("O ", Color::Green),
+        Some(false) => ("C ", Color::Red),
+        None => ("  ", Color::Reset),
+    };
+    Span::styled(label, Style::default().fg(color))
+}
+
+fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &App) {
     use super::app::BenchmarkFocus;
 
-    let bench_app = &mut app.benchmarks_app;
-    let store = &app.benchmark_store;
-
-    let is_focused = bench_app.focus == BenchmarkFocus::List;
+    let is_focused = app.benchmarks_app.focus == BenchmarkFocus::List;
     let border_style = focus_border(is_focused);
+
+    let bench_app = &app.benchmarks_app;
+    let file_opt = app.multi_store.file(bench_app.active_source);
 
     let sort_dir = if bench_app.sort_descending {
         "\u{2193}"
     } else {
         "\u{2191}"
     };
-    let sort_indicator = format!(" {}{}", sort_dir, bench_app.sort_column.label());
+    let sort_indicator = format!(
+        " {}{}",
+        sort_dir,
+        BenchmarksApp::sort_label(file_opt, bench_app.sort_key)
+    );
 
     let source_indicator = match bench_app.source_filter {
         super::app::SourceFilter::All => String::new(),
@@ -443,7 +626,12 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
     };
 
     let creator_label = bench_app.selected_creator_name().unwrap_or("Benchmarks");
-    let loading_suffix = if bench_app.loading { " loading..." } else { "" };
+    let loading_suffix =
+        if BenchmarksApp::active_is_loading(&app.multi_store, bench_app.active_source) {
+            " loading..."
+        } else {
+            ""
+        };
 
     let title = if bench_app.search_query.is_empty() {
         format!(
@@ -475,27 +663,39 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
     let inner_area = outer_block.inner(area);
     f.render_widget(outer_block, area);
 
-    // Dynamic columns based on active sort
-    let visible_cols = bench_app.sort_column.visible_columns();
+    // Loading / failed / empty state.
+    if let Some(lines) = source_state_lines(app) {
+        f.render_widget(Paragraph::new(lines), inner_area);
+        return;
+    }
+    let Some(file) = app.multi_store.file(app.benchmarks_app.active_source) else {
+        return;
+    };
 
-    // Compute dynamic name column width from available space
+    let bench_app = &app.benchmarks_app;
+    let openness = bench_app.creator_openness();
+    let sort_key = bench_app.sort_key;
+
+    // Column widths.
     let caret_w: u16 = 2;
     let reasoning_col_w: u16 = 3;
     let source_col_w: u16 = 2;
     let show_region = bench_app.creator_grouping == super::app::CreatorGrouping::ByRegion;
     let show_type = bench_app.creator_grouping == super::app::CreatorGrouping::ByType;
     let grouping_col_w: u16 = if show_region || show_type { 4 } else { 0 };
-    let fixed_width: u16 = visible_cols
-        .iter()
-        .map(|col| benchmark_col_width(*col))
-        .sum();
     let selection_w: u16 = if !app.selections.is_empty() { 2 } else { 0 };
+    // Value column: 11 wide right-aligned (dates / formatted metric values), with
+    // a leading space. Name takes the remaining width. Empty for Name sort.
+    let value_w: u16 = if matches!(sort_key, SortKey::Name) {
+        0
+    } else {
+        12 // 11-wide value + 1 leading gap
+    };
     let name_width = (inner_area.width.saturating_sub(
-        fixed_width + caret_w + selection_w + reasoning_col_w + source_col_w + grouping_col_w,
+        value_w + caret_w + selection_w + reasoning_col_w + source_col_w + grouping_col_w,
     ) as usize)
         .max(10);
 
-    // Caret prefix for focused panel
     let caret = caret(is_focused);
 
     let header_style = Style::default()
@@ -510,7 +710,7 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
     if has_selections {
         header_spans.push(Span::raw("  ")); // align with selection marker column
     }
-    header_spans.push(Span::raw("  "));
+    header_spans.push(Span::raw("  ")); // caret
     header_spans.push(Span::styled("   ", header_style)); // reasoning indicator
     header_spans.push(Span::styled("  ", header_style)); // source indicator
     if show_region {
@@ -518,21 +718,20 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
     } else if show_type {
         header_spans.push(Span::styled("Typ ", header_style));
     }
-    header_spans.extend(visible_cols.iter().map(|col| {
-        let style = if *col == bench_app.sort_column {
-            active_header_style
-        } else {
-            header_style
-        };
-        benchmark_col_header(*col, style, name_width)
-    }));
+    header_spans.push(Span::styled(
+        format!("{:<width$}", "Name", width = name_width),
+        header_style,
+    ));
+    if value_w > 0 {
+        let label = list_value_header(Some(file), sort_key);
+        header_spans.push(Span::styled(format!(" {:>11}", label), active_header_style));
+    }
     let header = ListItem::new(Line::from(header_spans));
 
-    let entries = store.entries();
     let mut items: Vec<ListItem> = vec![header];
 
-    for (display_idx, &entry_idx) in bench_app.filtered_indices.iter().enumerate() {
-        let entry = &entries[entry_idx];
+    for (display_idx, &model_idx) in bench_app.filtered_indices.iter().enumerate() {
+        let model = &file.models[model_idx];
         let is_selected = display_idx == bench_app.selected;
 
         let style = if is_selected {
@@ -547,7 +746,7 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
         let mut row_spans: Vec<Span> = Vec::new();
 
         // Selection marker
-        if let Some(sel_pos) = app.selections.iter().position(|&i| i == entry_idx) {
+        if let Some(sel_pos) = app.selections.iter().position(|&i| i == model_idx) {
             row_spans.push(Span::styled(
                 "\u{25CF} ",
                 Style::default().fg(compare_colors(sel_pos)),
@@ -559,42 +758,42 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
         row_spans.push(Span::styled(prefix, style));
 
         // Reasoning status indicator
-        let (rs_label, rs_color) = match entry.reasoning_status {
-            crate::benchmarks::ReasoningStatus::Reasoning => ("R  ", Color::Cyan),
-            crate::benchmarks::ReasoningStatus::NonReasoning => ("NR ", Color::DarkGray),
-            crate::benchmarks::ReasoningStatus::Adaptive => ("AR ", Color::Yellow),
-            crate::benchmarks::ReasoningStatus::None => ("   ", Color::Reset),
-        };
-        row_spans.push(Span::styled(rs_label, Style::default().fg(rs_color)));
+        row_spans.push(reasoning_span(model));
 
         // Source indicator (Open/Closed)
-        let (src_label, src_color) = match app.open_weights_map.get(&entry.slug) {
-            Some(true) => ("O ", Color::Green),
-            Some(false) => ("C ", Color::Red),
-            None => ("  ", Color::Reset),
-        };
-        row_spans.push(Span::styled(src_label, Style::default().fg(src_color)));
+        row_spans.push(openness_span(model, openness));
 
         // Region/Type indicator when grouping is active
         if show_region {
-            let region = super::app::CreatorRegion::from_creator(&entry.creator);
+            let region = super::app::CreatorRegion::from_creator(&model.creator);
             row_spans.push(Span::styled(
                 format!("{:<4}", region.short_label()),
                 Style::default().fg(region.color()),
             ));
         } else if show_type {
-            let ct = super::app::CreatorType::from_creator(&entry.creator);
+            let ct = super::app::CreatorType::from_creator(&model.creator);
             row_spans.push(Span::styled(
                 format!("{:<4}", ct.short_label()),
                 Style::default().fg(ct.color()),
             ));
         }
 
-        row_spans.extend(
-            visible_cols
-                .iter()
-                .map(|col| benchmark_col_value(entry, *col, style, name_width)),
-        );
+        // Name
+        row_spans.push(Span::styled(
+            format!(
+                "{:<width$}",
+                truncate(&model.display_name, name_width.saturating_sub(1)),
+                width = name_width
+            ),
+            style,
+        ));
+
+        // Active sort value column
+        if value_w > 0 {
+            let value = list_value_for(file, model, sort_key);
+            row_spans.push(Span::styled(format!(" {:>11}", value), style));
+        }
+
         items.push(ListItem::new(Line::from(row_spans)));
     }
 
@@ -608,14 +807,22 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
 fn draw_benchmark_detail(f: &mut Frame, area: Rect, app: &App) {
     use super::app::BenchmarkFocus;
     let bench_app = &app.benchmarks_app;
-    let store = &app.benchmark_store;
     let focused = bench_app.focus == BenchmarkFocus::Details;
 
-    let entry = match bench_app.current_entry(store) {
-        Some(e) => e,
+    // Loading / failed / empty state shown in the detail panel too.
+    if let Some(lines) = source_state_lines(app) {
+        ScrollablePanel::new("Details", lines, &bench_app.detail_scroll, focused).render(f, area);
+        return;
+    }
+    let Some(file) = app.multi_store.file(bench_app.active_source) else {
+        return;
+    };
+
+    let model = match bench_app.current_model(file) {
+        Some(m) => m,
         None => {
             let lines = vec![Line::from(Span::styled(
-                "No benchmark selected",
+                "No model selected",
                 Style::default().fg(Color::DarkGray),
             ))];
             ScrollablePanel::new("Details", lines, &bench_app.detail_scroll, focused)
@@ -625,203 +832,150 @@ fn draw_benchmark_detail(f: &mut Frame, area: Rect, app: &App) {
     };
 
     let inner_w = area.width.saturating_sub(2);
-    let lines = build_benchmark_detail_lines(inner_w, entry, app);
+    let lines = build_benchmark_detail_lines(inner_w, file, model);
     ScrollablePanel::new("Details", lines, &bench_app.detail_scroll, focused).render(f, area);
 }
 
-fn build_benchmark_detail_lines<'a>(
-    width: u16,
-    entry: &'a crate::benchmarks::BenchmarkEntry,
-    app: &'a App,
-) -> Vec<Line<'a>> {
-    let mut lines: Vec<Line> = Vec::new();
+/// Registry-driven model detail: identity block + one section per metric group
+/// (`groups_in_order`), values formatted via `format_metric_value`, with `±ci`
+/// for Elo cells and a dim `(upd {date})` suffix where the cell carries a date.
+/// Final line is a source-attribution line.
+///
+/// Returns owned `Line<'static>` so the overlay (compare.rs) can render it.
+pub(super) fn build_benchmark_detail_lines(
+    inner_width: u16,
+    file: &SourceFile,
+    model: &ModelRow,
+) -> Vec<Line<'static>> {
+    let mut lines: Vec<Line<'static>> = Vec::new();
+    let width = inner_width as usize;
+    let cw = ColumnWidths::from_width(inner_width);
 
-    // Dynamic column widths via ratatui's constraint solver
-    let cw = ColumnWidths::from_width(width);
-
-    // Name + creator + metadata on first lines
-    let creator_display = if !entry.creator_name.is_empty() {
-        &entry.creator_name
-    } else {
-        &entry.creator
-    };
-    let region = super::app::CreatorRegion::from_creator(&entry.creator);
-    let creator_type = super::app::CreatorType::from_creator(&entry.creator);
-
-    // Line 1: Name
+    // --- Identity block ---
     lines.push(Line::from(Span::styled(
-        &entry.display_name,
+        model.display_name.clone(),
         Style::default()
-            .fg(Color::Cyan)
+            .fg(Color::White)
             .add_modifier(Modifier::BOLD),
     )));
-    // Metadata rows (2-wide, dynamic)
-    let em = "\u{2014}";
-    let (source_label, source_color) = match app.open_weights_map.get(&entry.slug) {
-        Some(true) => ("Open", Color::Green),
-        Some(false) => ("Closed", Color::Red),
-        None => (em, Color::DarkGray),
+    lines.push(Line::from(Span::styled(
+        model.id.clone(),
+        Style::default().fg(Color::DarkGray),
+    )));
+
+    // Creator + release date row
+    let creator_display = if !model.creator_name.is_empty() {
+        model.creator_name.clone()
+    } else {
+        model.creator.clone()
     };
+    let date_str = model.release_date.clone().unwrap_or_else(|| EM.to_string());
     push_meta_row(
         &mut lines,
         &cw,
-        ("Creator", creator_display, Color::Reset),
-        ("Source", source_label, source_color),
+        ("Creator", creator_display.as_str(), Color::White),
+        ("Released", date_str.as_str(), Color::White),
     );
-    push_meta_row(
-        &mut lines,
-        &cw,
-        ("Region", region.label(), Color::Reset),
-        ("Type", creator_type.label(), Color::Reset),
-    );
-    let date_str = entry.release_date.as_deref().unwrap_or(em);
+
+    // Reasoning / Effort / Variant (each only when present, except reasoning
+    // which always shows the status word or em-dash).
     let (reasoning_label, reasoning_color) = {
         use crate::benchmarks::ReasoningStatus;
-        match entry.reasoning_status {
+        match model.reasoning_status {
             ReasoningStatus::Reasoning => ("Reasoning", Color::Cyan),
             ReasoningStatus::NonReasoning => ("Non-reasoning", Color::DarkGray),
             ReasoningStatus::Adaptive => ("Adaptive", Color::Yellow),
-            ReasoningStatus::None => (em, Color::DarkGray),
+            ReasoningStatus::None => (EM, Color::DarkGray),
         }
     };
+    let effort_str = model.effort_level.clone();
     push_meta_row(
         &mut lines,
         &cw,
-        ("Released", date_str, Color::Reset),
-        ("Reason", reasoning_label, reasoning_color),
+        ("Reasoning", reasoning_label, reasoning_color),
+        (
+            "Effort",
+            effort_str.as_deref().unwrap_or(EM),
+            if effort_str.is_some() {
+                Color::White
+            } else {
+                Color::DarkGray
+            },
+        ),
     );
-    // Effort + Variant (only if present)
-    let has_effort = entry.effort_level.is_some();
-    let has_variant = entry.variant_tag.is_some();
-    if has_effort || has_variant {
-        let effort_str = entry.effort_level.as_deref().unwrap_or(em);
-        let variant_str = entry.variant_tag.as_deref().unwrap_or(em);
+
+    // Open weights + context window (only meaningful values shown plainly).
+    // Openness resolves per-model first, then falls back to creator-level
+    // openness derived from sibling models — same semantics as openness_span,
+    // so the detail panel never disagrees with the list/compare indicators.
+    let resolved_open = model.open_weights.or_else(|| {
+        let mut known_closed = false;
+        for sibling in file.models.iter().filter(|m| m.creator == model.creator) {
+            match sibling.open_weights {
+                Some(true) => return Some(true),
+                Some(false) => known_closed = true,
+                None => {}
+            }
+        }
+        known_closed.then_some(false)
+    });
+    let (open_label, open_color) = match resolved_open {
+        Some(true) => ("Open", Color::Green),
+        Some(false) => ("Closed", Color::Red),
+        None => (EM, Color::DarkGray),
+    };
+    let ctx_str = model
+        .context_window
+        .map(format_tokens)
+        .unwrap_or_else(|| EM.to_string());
+    push_meta_row(
+        &mut lines,
+        &cw,
+        ("Weights", open_label, open_color),
+        (
+            "Context",
+            ctx_str.as_str(),
+            if model.context_window.is_some() {
+                Color::White
+            } else {
+                Color::DarkGray
+            },
+        ),
+    );
+
+    if let Some(variant) = &model.variant_tag {
         push_meta_row(
             &mut lines,
             &cw,
-            ("Effort", effort_str, Color::Reset),
-            ("Variant", variant_str, Color::Reset),
+            ("Variant", variant.as_str(), Color::White),
+            ("", "", Color::Reset),
         );
     }
-    // Tools + Context
-    let tools_str = match entry.tool_call {
-        Some(true) => "Yes",
-        Some(false) => "No",
-        None => em,
-    };
-    let tools_color = match entry.tool_call {
-        Some(true) => Color::Green,
-        Some(false) => Color::DarkGray,
-        None => Color::DarkGray,
-    };
-    let ctx_str = entry
-        .context_window
-        .map(format_tokens)
-        .unwrap_or_else(|| em.to_string());
-    push_meta_row(
-        &mut lines,
-        &cw,
-        ("Tools", tools_str, tools_color),
-        ("Context", &ctx_str, Color::Reset),
-    );
-    // Max output
-    let out_str = entry
-        .max_output
-        .map(format_tokens)
-        .unwrap_or_else(|| em.to_string());
-    push_meta_row(
-        &mut lines,
-        &cw,
-        ("Output", &out_str, Color::Reset),
-        ("", "", Color::Reset),
-    );
 
-    // Composite Indexes (0-100 scale, higher is better)
-    lines.push(Line::from(""));
-    push_section_header(&mut lines, "Indexes (0\u{2013}100, \u{2191} better)");
-    let int_idx = fmt_idx(entry.intelligence_index);
-    let cod_idx = fmt_idx(entry.coding_index);
-    push_detail_row(
-        &mut lines,
-        &cw,
-        "Intelligence",
-        &int_idx,
-        "Coding",
-        &cod_idx,
-    );
-    let math_idx = fmt_idx(entry.math_index);
-    push_detail_row(&mut lines, &cw, "Math", &math_idx, "", "");
+    // --- One section per metric group ---
+    for group in groups_in_order(file) {
+        lines.push(Line::from(""));
+        lines.push(section_header_line(group, width));
+        for mi in metric_indices_in_group(file, group) {
+            let metric = &file.metrics[mi];
+            let cell = model.scores.get(&metric.id);
+            push_metric_row(&mut lines, &cw, &metric.label, metric.kind, cell);
+        }
+    }
 
-    // Benchmark Scores (percentage, higher is better)
+    // --- Source attribution ---
     lines.push(Line::from(""));
-    push_section_header(&mut lines, "Benchmarks (%, \u{2191} better)");
-    let gpqa = fmt_pct(entry.gpqa);
-    let mmlu = fmt_pct(entry.mmlu_pro);
-    push_detail_row(&mut lines, &cw, "GPQA", &gpqa, "MMLU-Pro", &mmlu);
-    let hle = fmt_pct(entry.hle);
-    let livecode = fmt_pct(entry.livecodebench);
-    push_detail_row(&mut lines, &cw, "HLE", &hle, "LiveCode", &livecode);
-    let scicode = fmt_pct(entry.scicode);
-    let ifbench = fmt_pct(entry.ifbench);
-    push_detail_row(&mut lines, &cw, "SciCode", &scicode, "IFBench", &ifbench);
-    let terminal = fmt_pct(entry.terminalbench_hard);
-    let tau2 = fmt_pct(entry.tau2);
-    push_detail_row(&mut lines, &cw, "Terminal", &terminal, "Tau2", &tau2);
-    let lcr = fmt_pct(entry.lcr);
-    let math500 = fmt_pct(entry.math_500);
-    push_detail_row(&mut lines, &cw, "LCR", &lcr, "MATH-500", &math500);
-    let aime = fmt_pct(entry.aime);
-    let aime25 = fmt_pct(entry.aime_25);
-    push_detail_row(&mut lines, &cw, "AIME", &aime, "AIME'25", &aime25);
-
-    // Performance (speed: higher better, TTFT/TTFAT: lower better)
-    lines.push(Line::from(""));
-    push_section_header(
-        &mut lines,
-        "Performance (Speed \u{2191}, TTFT/TTFAT \u{2193})",
-    );
-    let tps_str = entry
-        .output_tps
-        .map(|v| format!("{:.0} tok/s", v))
-        .unwrap_or_else(|| em.to_string());
-    let ttft_str = entry
-        .ttft
-        .map(|v| format!("{:.2}s", v))
-        .unwrap_or_else(|| em.to_string());
-    let ttfat_str = entry
-        .ttfat
-        .map(|v| format!("{:.2}s", v))
-        .unwrap_or_else(|| em.to_string());
-    push_detail_row(&mut lines, &cw, "Speed", &tps_str, "TTFT", &ttft_str);
-    push_detail_row(&mut lines, &cw, "TTFAT", &ttfat_str, "", "");
-
-    // Pricing ($/M tokens, lower is better)
-    lines.push(Line::from(""));
-    push_section_header(&mut lines, "Pricing ($/M tokens, \u{2193} better)");
-    let input_price = fmt_price(entry.price_input);
-    let output_price = fmt_price(entry.price_output);
-    push_detail_row(
-        &mut lines,
-        &cw,
-        "Input",
-        &input_price,
-        "Output",
-        &output_price,
-    );
-    let blended_str = entry
-        .price_blended
-        .map(|v| format!("${:.2}", v))
-        .unwrap_or_else(|| em.to_string());
-    push_detail_row(&mut lines, &cw, "Blended", &blended_str, "", "");
-
-    // Keybinding hints
-    lines.push(Line::from(""));
-    lines.push(Line::from(vec![
-        Span::styled("c ", Style::default().fg(Color::Yellow)),
-        Span::styled("copy  ", Style::default().fg(Color::DarkGray)),
-        Span::styled("o ", Style::default().fg(Color::Yellow)),
-        Span::styled("open AA", Style::default().fg(Color::DarkGray)),
-    ]));
+    let mut src_spans = vec![Span::styled(
+        format!("Source: {}", file.source.name),
+        Style::default().fg(Color::Gray),
+    )];
+    if !file.source.verified {
+        src_spans.push(Span::styled(
+            " (self-reported)",
+            Style::default().fg(Color::Yellow),
+        ));
+    }
+    lines.push(Line::from(src_spans));
 
     lines
 }
@@ -834,17 +988,22 @@ fn draw_detail_overlay(f: &mut Frame, area: Rect, app: &App) {
     f.render_widget(Clear, overlay_area);
 
     let bench_app = &app.benchmarks_app;
-    let store = &app.benchmark_store;
 
     let block = Block::default()
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::Cyan))
         .title(" Model Detail (Esc to close) ");
 
-    let entry = match bench_app.current_entry(store) {
-        Some(e) => e,
+    let Some(file) = app.multi_store.file(bench_app.active_source) else {
+        let msg = Paragraph::new("No model selected").block(block);
+        f.render_widget(msg, overlay_area);
+        return;
+    };
+
+    let model = match bench_app.current_model(file) {
+        Some(m) => m,
         None => {
-            let msg = Paragraph::new("No benchmark selected").block(block);
+            let msg = Paragraph::new("No model selected").block(block);
             f.render_widget(msg, overlay_area);
             return;
         }
@@ -852,20 +1011,9 @@ fn draw_detail_overlay(f: &mut Frame, area: Rect, app: &App) {
 
     let inner = block.inner(overlay_area);
     f.render_widget(block, overlay_area);
-    let lines = build_benchmark_detail_lines(inner.width, entry, app);
+    let lines = build_benchmark_detail_lines(inner.width, file, model);
     let paragraph = Paragraph::new(lines).wrap(Wrap { trim: false });
     f.render_widget(paragraph, inner);
-}
-
-/// Push a section header line like "─── Title ───"
-fn push_section_header(lines: &mut Vec<Line>, title: &str) {
-    lines.push(Line::from(Span::styled(
-        format!(
-            "\u{2500}\u{2500}\u{2500} {} \u{2500}\u{2500}\u{2500}",
-            title
-        ),
-        Style::default().fg(Color::DarkGray),
-    )));
 }
 
 struct ColumnWidths {
@@ -897,20 +1045,21 @@ impl ColumnWidths {
     }
 }
 
+fn style_for(c: Color) -> Style {
+    if c == Color::Reset {
+        Style::default()
+    } else {
+        Style::default().fg(c)
+    }
+}
+
+/// Push a 2-column label/value metadata row.
 fn push_meta_row(
-    lines: &mut Vec<Line>,
+    lines: &mut Vec<Line<'static>>,
     cw: &ColumnWidths,
     left: (&str, &str, Color),
     right: (&str, &str, Color),
 ) {
-    let style_for = |c: Color| {
-        if c == Color::Reset {
-            Style::default()
-        } else {
-            Style::default().fg(c)
-        }
-    };
-
     let mut spans = vec![
         Span::styled(
             format!(
@@ -939,222 +1088,73 @@ fn push_meta_row(
     lines.push(Line::from(spans));
 }
 
-fn push_detail_row(
-    lines: &mut Vec<Line>,
+/// Push a single metric row: label (Gray) + value (White, em-dash DarkGray when
+/// missing). Elo cells with a confidence interval append ` ±{ci:.0}`, and any
+/// cell with a per-model date appends a dim `(upd {date})`.
+fn push_metric_row(
+    lines: &mut Vec<Line<'static>>,
     cw: &ColumnWidths,
-    l1: &str,
-    v1: &str,
-    l2: &str,
-    v2: &str,
+    label: &str,
+    kind: MetricKind,
+    cell: Option<&ScoreCell>,
 ) {
-    let em = "\u{2014}";
-    let val_color = |s: &str| {
-        if s == em {
-            Color::DarkGray
-        } else {
-            Color::White
+    let mut spans = vec![Span::styled(
+        format!(
+            "{:indent$}{:<w$}",
+            "",
+            label,
+            indent = cw.indent as usize,
+            w = cw.label as usize
+        ),
+        Style::default().fg(Color::Gray),
+    )];
+
+    match cell {
+        Some(cell) => {
+            let mut value = format_metric_value(kind, cell.value);
+            if kind == MetricKind::Elo {
+                if let Some(ci) = cell.ci {
+                    value.push_str(&format!(" \u{00B1}{ci:.0}"));
+                }
+            }
+            spans.push(Span::styled(value, Style::default().fg(Color::White)));
+            if let Some(date) = &cell.date {
+                spans.push(Span::styled(
+                    format!("  (upd {date})"),
+                    Style::default().fg(Color::DarkGray),
+                ));
+            }
         }
-    };
-
-    let mut spans = vec![
-        Span::styled(
-            format!(
-                "{:indent$}{:<w$}",
-                "",
-                l1,
-                indent = cw.indent as usize,
-                w = cw.label as usize
-            ),
-            Style::default().fg(Color::Gray),
-        ),
-        Span::styled(
-            format!("{:<w$}", v1, w = cw.value as usize),
-            Style::default().fg(val_color(v1)),
-        ),
-    ];
-
-    if !l2.is_empty() {
-        spans.push(Span::styled(
-            format!("{:<w$}", l2, w = cw.label2 as usize),
-            Style::default().fg(Color::Gray),
-        ));
-        spans.push(Span::styled(
-            v2.to_string(),
-            Style::default().fg(val_color(v2)),
-        ));
+        None => {
+            spans.push(Span::styled(
+                EM.to_string(),
+                Style::default().fg(Color::DarkGray),
+            ));
+        }
     }
 
     lines.push(Line::from(spans));
 }
 
-fn fmt_idx(value: Option<f64>) -> String {
-    match value {
-        Some(v) => format!("{:.1}", v),
-        None => "\u{2014}".to_string(),
-    }
-}
-
-/// Format a 0-1 decimal score as a percentage
-fn fmt_pct(value: Option<f64>) -> String {
-    match value {
-        Some(v) => format!("{:.1}%", v * 100.0),
-        None => "\u{2014}".to_string(),
-    }
-}
-
-/// Format a price value for list columns (right-aligned, 9 chars)
-fn fmt_col_price(value: Option<f64>) -> String {
-    match value {
-        Some(v) => format!("{:>8.2}$", v),
-        None => format!("{:>9}", "\u{2014}"),
-    }
-}
-
-/// Format a price value
-fn fmt_price(value: Option<f64>) -> String {
-    match value {
-        Some(v) if v.fract() == 0.0 => format!("${:.0}", v),
-        Some(v) => format!("${:.2}", v),
-        None => "\u{2014}".to_string(),
-    }
-}
-
-/// Format a 0-100 index for list columns (right-aligned, 6 chars)
-fn fmt_col_idx(value: Option<f64>) -> String {
-    match value {
-        Some(v) => format!("{:>6.1}", v),
-        None => format!("{:>6}", "\u{2014}"),
-    }
-}
-
-/// Format a 0-1 decimal score as % for list columns (right-aligned, 6 chars)
-fn fmt_col_pct(value: Option<f64>) -> String {
-    match value {
-        Some(v) => format!("{:>5.1}%", v * 100.0),
-        None => format!("{:>6}", "\u{2014}"),
-    }
-}
-
-fn fmt_speed(value: Option<f64>) -> String {
-    match value {
-        Some(v) => format!("{:>7.0}", v),
-        None => format!("{:>7}", "\u{2014}"),
-    }
-}
-
-fn fmt_col_ttft(value: Option<f64>) -> String {
-    match value {
-        Some(v) => format!("{:>6.2}s", v),
-        None => format!("{:>7}", "\u{2014}"),
-    }
-}
-
-fn fmt_col_date(value: Option<&str>) -> String {
-    match value {
-        Some(d) => format!("{:>11}", d),
-        None => format!("{:>11}", "\u{2014}"),
-    }
-}
-
-/// Fixed width for a non-Name column.
-fn benchmark_col_width(col: super::app::BenchmarkSortColumn) -> u16 {
-    use super::app::BenchmarkSortColumn::*;
-    match col {
-        Name => 0, // dynamic
-        Speed | Ttft | Ttfat => 7,
-        PriceInput | PriceOutput | PriceBlended => 9,
-        ReleaseDate => 11,
-        _ => 6, // all index/percentage columns
-    }
-}
-
-/// Render a column header span for the given sort column
-fn benchmark_col_header(
-    col: super::app::BenchmarkSortColumn,
-    style: Style,
-    name_width: usize,
-) -> Span<'static> {
-    use super::app::BenchmarkSortColumn::*;
-    match col {
-        Name => Span::styled(format!("{:<width$}", "Name", width = name_width), style),
-        Intelligence => Span::styled(format!("{:>6}", "Intel"), style),
-        Coding => Span::styled(format!("{:>6}", "Code"), style),
-        Math => Span::styled(format!("{:>6}", "Math"), style),
-        Gpqa => Span::styled(format!("{:>6}", "GPQA"), style),
-        MMLUPro => Span::styled(format!("{:>6}", "MMLU"), style),
-        Hle => Span::styled(format!("{:>6}", "HLE"), style),
-        LiveCode => Span::styled(format!("{:>6}", "LCode"), style),
-        SciCode => Span::styled(format!("{:>6}", "SciCd"), style),
-        Terminal => Span::styled(format!("{:>6}", "Term"), style),
-        IFBench => Span::styled(format!("{:>6}", "IFB"), style),
-        Lcr => Span::styled(format!("{:>6}", "LCR"), style),
-        Tau2 => Span::styled(format!("{:>6}", "Tau2"), style),
-        Speed => Span::styled(format!("{:>7}", "Tok/s"), style),
-        Ttft => Span::styled(format!("{:>7}", "TTFT"), style),
-        Ttfat => Span::styled(format!("{:>7}", "TTFAT"), style),
-        PriceInput => Span::styled(format!("{:>9}", "In $/M"), style),
-        PriceOutput => Span::styled(format!("{:>9}", "Out $/M"), style),
-        PriceBlended => Span::styled(format!("{:>9}", "Bld $/M"), style),
-        ReleaseDate => Span::styled(format!("{:>11}", "Released"), style),
-    }
-}
-
-/// Render a column value span for the given sort column
-fn benchmark_col_value<'a>(
-    entry: &crate::benchmarks::BenchmarkEntry,
-    col: super::app::BenchmarkSortColumn,
-    style: Style,
-    name_width: usize,
-) -> Span<'a> {
-    use super::app::BenchmarkSortColumn::*;
-    match col {
-        Name => Span::styled(
-            format!(
-                "{:<width$}",
-                truncate(&entry.display_name, name_width.saturating_sub(1)),
-                width = name_width
-            ),
-            style,
-        ),
-        Intelligence => Span::styled(fmt_col_idx(entry.intelligence_index), style),
-        Coding => Span::styled(fmt_col_idx(entry.coding_index), style),
-        Math => Span::styled(fmt_col_idx(entry.math_index), style),
-        Gpqa => Span::styled(fmt_col_pct(entry.gpqa), style),
-        MMLUPro => Span::styled(fmt_col_pct(entry.mmlu_pro), style),
-        Hle => Span::styled(fmt_col_pct(entry.hle), style),
-        LiveCode => Span::styled(fmt_col_pct(entry.livecodebench), style),
-        SciCode => Span::styled(fmt_col_pct(entry.scicode), style),
-        Terminal => Span::styled(fmt_col_pct(entry.terminalbench_hard), style),
-        IFBench => Span::styled(fmt_col_pct(entry.ifbench), style),
-        Lcr => Span::styled(fmt_col_pct(entry.lcr), style),
-        Tau2 => Span::styled(fmt_col_pct(entry.tau2), style),
-        Speed => Span::styled(fmt_speed(entry.output_tps), style),
-        Ttft => Span::styled(fmt_col_ttft(entry.ttft), style),
-        Ttfat => Span::styled(fmt_col_ttft(entry.ttfat), style),
-        PriceInput => Span::styled(fmt_col_price(entry.price_input), style),
-        PriceOutput => Span::styled(fmt_col_price(entry.price_output), style),
-        PriceBlended => Span::styled(fmt_col_price(entry.price_blended), style),
-        ReleaseDate => Span::styled(fmt_col_date(entry.release_date.as_deref()), style),
-    }
-}
-
-fn draw_sort_picker(f: &mut Frame, area: Rect, bench_app: &super::app::BenchmarksApp) {
-    use super::app::BenchmarkSortColumn;
-
-    let columns = BenchmarkSortColumn::ALL;
+fn draw_sort_picker(f: &mut Frame, area: Rect, app: &App) {
+    let bench_app = &app.benchmarks_app;
+    let Some(file) = app.multi_store.file(bench_app.active_source) else {
+        return;
+    };
+    let options = BenchmarksApp::sort_options(file);
     let selected = bench_app.sort_picker_selected;
 
-    // Fixed-size popup: 30 wide, enough for all items + border
-    let height = (columns.len() as u16 + 2).min(area.height);
+    // Fixed-width popup: 30 wide; height clamped to fit all options + border.
+    let height = (options.len() as u16 + 2).min(area.height.max(3));
     let width = 30u16.min(area.width);
     let popup_area = centered_rect_fixed(width, height, area);
 
     f.render_widget(Clear, popup_area);
 
-    let items: Vec<ListItem> = columns
+    let items: Vec<ListItem> = options
         .iter()
-        .map(|col| {
-            let marker = if *col == bench_app.sort_column {
+        .map(|opt| {
+            let marker = if opt.key == bench_app.sort_key {
                 let arrow = if bench_app.sort_descending {
                     "\u{25bc}"
                 } else {
@@ -1164,7 +1164,7 @@ fn draw_sort_picker(f: &mut Frame, area: Rect, bench_app: &super::app::Benchmark
             } else {
                 String::new()
             };
-            ListItem::new(Line::from(format!(" {}{}", col.picker_label(), marker)))
+            ListItem::new(Line::from(format!(" {}{}", opt.label, marker)))
         })
         .collect();
 
@@ -1185,4 +1185,214 @@ fn draw_sort_picker(f: &mut Frame, area: Rect, bench_app: &super::app::Benchmark
         );
 
     f.render_stateful_widget(list, popup_area, &mut list_state);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::benchmarks::schema::{MetricDef, ReasoningStatus, ScoreCell, SourceMeta};
+    use std::collections::BTreeMap;
+
+    fn meta(verified: bool) -> SourceMeta {
+        SourceMeta {
+            id: "test".into(),
+            name: "Test Source".into(),
+            url: "https://example.com".into(),
+            fetched_at: "2026-06-10T20:37:40.687663442+00:00".into(),
+            verified,
+        }
+    }
+
+    fn metric(id: &str, label: &str, kind: MetricKind, group: &str) -> MetricDef {
+        MetricDef {
+            id: id.into(),
+            label: label.into(),
+            kind,
+            group: group.into(),
+            higher_is_better: true,
+            last_updated: None,
+        }
+    }
+
+    fn cell(value: f64, ci: Option<f64>, date: Option<&str>) -> ScoreCell {
+        ScoreCell {
+            value,
+            ci,
+            date: date.map(str::to_string),
+        }
+    }
+
+    fn model_with(scores: Vec<(&str, ScoreCell)>) -> ModelRow {
+        let mut score_map = BTreeMap::new();
+        for (id, c) in scores {
+            score_map.insert(id.to_string(), c);
+        }
+        ModelRow {
+            id: "test-model".into(),
+            name: "Test Model (Reasoning)".into(),
+            display_name: "Test Model".into(),
+            creator: "openai".into(),
+            creator_name: "OpenAI".into(),
+            release_date: Some("2026-01-15".into()),
+            reasoning_status: ReasoningStatus::Reasoning,
+            effort_level: Some("high".into()),
+            variant_tag: None,
+            open_weights: Some(false),
+            context_window: Some(200_000),
+            scores: score_map,
+        }
+    }
+
+    fn line_text(line: &Line) -> String {
+        line.spans.iter().map(|s| s.content.as_ref()).collect()
+    }
+
+    #[test]
+    fn detail_lines_identity_and_groups() {
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![
+                metric(
+                    "intelligence_index",
+                    "Intelligence",
+                    MetricKind::Index,
+                    "Indexes",
+                ),
+                metric("gpqa", "GPQA", MetricKind::Percentage, "Academic"),
+            ],
+            models: vec![model_with(vec![
+                ("intelligence_index", cell(70.0, None, None)),
+                ("gpqa", cell(0.914, None, None)),
+            ])],
+        };
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let text: Vec<String> = lines.iter().map(line_text).collect();
+        let joined = text.join("\n");
+
+        // Identity: display name + id.
+        assert_eq!(text[0], "Test Model");
+        assert_eq!(text[1], "test-model");
+        // Group section headers present (first-appearance order).
+        assert!(joined.contains("Indexes"));
+        assert!(joined.contains("Academic"));
+        // Index value formatted as one decimal; percentage *100.
+        assert!(joined.contains("70.0"));
+        assert!(joined.contains("91.4%"));
+        // Verified source -> no self-reported note.
+        assert!(joined.contains("Source: Test Source"));
+        assert!(!joined.contains("self-reported"));
+    }
+
+    #[test]
+    fn detail_lines_elo_ci_and_date_and_self_reported() {
+        let file = SourceFile {
+            source: meta(false),
+            metrics: vec![metric("elo_text", "Text Elo", MetricKind::Elo, "Arena Elo")],
+            models: vec![model_with(vec![(
+                "elo_text",
+                cell(1432.7, Some(8.0), Some("2026-06-01")),
+            )])],
+        };
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let joined: String = lines
+            .iter()
+            .map(|l| line_text(l))
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        // Elo rounded, ± ci appended, per-cell date appended dim.
+        assert!(joined.contains("1433 \u{00B1}8"), "got: {joined}");
+        assert!(joined.contains("(upd 2026-06-01)"));
+        // Unverified source -> self-reported note on the attribution line.
+        assert!(joined.contains("Source: Test Source"));
+        assert!(joined.contains("(self-reported)"));
+    }
+
+    #[test]
+    fn detail_lines_missing_metric_is_em_dash() {
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![metric("gpqa", "GPQA", MetricKind::Percentage, "Academic")],
+            models: vec![model_with(vec![])], // no scores
+        };
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let joined: String = lines
+            .iter()
+            .map(|l| line_text(l))
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(joined.contains(EM));
+    }
+
+    #[test]
+    fn list_value_for_each_sort_key() {
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![
+                metric(
+                    "intelligence_index",
+                    "Intelligence",
+                    MetricKind::Index,
+                    "Indexes",
+                ),
+                metric(
+                    "price_input",
+                    "Input Price",
+                    MetricKind::UsdPerMTok,
+                    "Pricing",
+                ),
+            ],
+            models: vec![model_with(vec![
+                ("intelligence_index", cell(70.0, None, None)),
+                ("price_input", cell(2.5, None, None)),
+            ])],
+        };
+        let m = &file.models[0];
+        // Name -> empty
+        assert_eq!(list_value_for(&file, m, SortKey::Name), "");
+        // ReleaseDate -> date
+        assert_eq!(list_value_for(&file, m, SortKey::ReleaseDate), "2026-01-15");
+        // Metric(0) Index -> "70.0"
+        assert_eq!(list_value_for(&file, m, SortKey::Metric(0)), "70.0");
+        // Metric(1) price -> "$2.50"
+        assert_eq!(list_value_for(&file, m, SortKey::Metric(1)), "$2.50");
+    }
+
+    #[test]
+    fn list_value_header_labels() {
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![
+                // Short label (<= 11) passes through unchanged.
+                metric("gpqa", "GPQA", MetricKind::Percentage, "Academic"),
+                // Long label (> 11) is truncated to fit the value column.
+                metric(
+                    "intelligence_index",
+                    "Intelligence",
+                    MetricKind::Index,
+                    "Indexes",
+                ),
+            ],
+            models: vec![],
+        };
+        assert_eq!(list_value_header(Some(&file), SortKey::Name), "");
+        assert_eq!(
+            list_value_header(Some(&file), SortKey::ReleaseDate),
+            "Released"
+        );
+        assert_eq!(list_value_header(Some(&file), SortKey::Metric(0)), "GPQA");
+        // "Intelligence" (12 chars) truncates to 11 with an ellipsis.
+        assert_eq!(
+            list_value_header(Some(&file), SortKey::Metric(1)),
+            "Intellig..."
+        );
+    }
+
+    #[test]
+    fn fetched_at_timestamp_parses_to_relative() {
+        // The committed aa.json carries a nanosecond-precision RFC3339 timestamp;
+        // the source bar's freshness must not echo it raw.
+        let out = format_relative_time_from_str("2026-06-10T20:37:40.687663442+00:00");
+        assert!(out.ends_with("ago"), "expected relative time, got: {out}");
+    }
 }

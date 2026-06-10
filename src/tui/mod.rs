@@ -22,7 +22,9 @@ pub mod widgets;
 use crate::agents::{
     load_agents, AsyncGitHubClient, ConditionalFetchResult, GitHubCache, GitHubData,
 };
-use crate::benchmarks::{BenchmarkFetchResult, BenchmarkFetcher, BenchmarkStore};
+use crate::benchmarks::fetch_source;
+use crate::benchmarks::schema::SourceFile;
+use crate::benchmarks::sources::SOURCES;
 use crate::config::Config;
 use crate::data::ProvidersMap;
 use crate::status::{StatusFetchResult, StatusFetcher};
@@ -40,6 +42,47 @@ fn copy_to_clipboard(text: String) {
             std::thread::sleep(std::time::Duration::from_secs(2));
         }
     });
+}
+
+/// Peek the label of the metric that a scatter axis will advance to, used for
+/// the status-bar message before `app.update` runs the cycle.
+fn peek_next_metric_label(app: &app::App, current: usize) -> Option<String> {
+    let file = app.active_benchmark_file()?;
+    let n = file.metrics.len();
+    if n == 0 {
+        return None;
+    }
+    let next = (current + 1) % n;
+    Some(file.metrics[next].label.clone())
+}
+
+/// Peek the name of the radar group the preset will advance to.
+fn peek_next_radar_group_label(app: &app::App) -> Option<String> {
+    let file = app.active_benchmark_file()?;
+    let groups = crate::benchmarks::multi::radar_groups(file);
+    if groups.is_empty() {
+        return None;
+    }
+    let next = (app.benchmarks_app.radar_group + 1) % groups.len();
+    Some(groups[next].clone())
+}
+
+/// Peek the display name of the source the switcher will advance to.
+fn peek_next_source_name(app: &app::App, forward: bool) -> Option<String> {
+    let count = app.multi_store.sources.len();
+    if count == 0 {
+        return None;
+    }
+    let active = app.benchmarks_app.active_source;
+    let next = if forward {
+        (active + 1) % count
+    } else {
+        (active + count - 1) % count
+    };
+    app.multi_store
+        .sources
+        .get(next)
+        .map(|s| s.descriptor.name.to_string())
 }
 
 /// Result of a GitHub fetch operation for an agent.
@@ -64,7 +107,8 @@ struct RuntimeHandles {
     github_tx: mpsc::Sender<FetchResult>,
     client: AsyncGitHubClient,
     disk_cache: Arc<RwLock<GitHubCache>>,
-    bench_rx: mpsc::Receiver<BenchmarkFetchResult>,
+    /// One message per source fetch: `(source_idx, Option<SourceFile>)`.
+    bench_rx: mpsc::Receiver<(usize, Option<SourceFile>)>,
     status: StatusRuntime,
 }
 pub async fn run(providers: ProvidersMap) -> Result<()> {
@@ -74,14 +118,14 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
     let agents_file = load_agents().ok();
     let config = Config::load().ok();
 
-    // Benchmark data fetched from CDN in background; starts empty until loaded.
-    let benchmark_store = BenchmarkStore::empty();
+    // Benchmark data fetched from CDN in background; the multi-store starts with
+    // every source in the Loading state until each fetch lands.
 
     // Load disk cache for GitHub data (load before wrapping to avoid blocking in async)
     let disk_cache = GitHubCache::load();
 
     // Create app BEFORE entering alternate screen
-    let mut app = app::App::new(providers, agents_file.as_ref(), config, benchmark_store);
+    let mut app = app::App::new(providers, agents_file.as_ref(), config);
 
     // Install panic hook to restore terminal on crash
     let original_hook = std::panic::take_hook();
@@ -157,13 +201,16 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
         Vec::new()
     };
 
-    // Spawn background benchmark fetch from CDN
-    let (bench_tx, bench_rx) = mpsc::channel(1);
-    tokio::spawn(async move {
-        let fetcher = BenchmarkFetcher::new();
-        let result = fetcher.fetch().await;
-        let _ = bench_tx.send(result).await;
-    });
+    // Spawn one background fetch per compiled-in data source. Each posts its
+    // source index alongside the result so the main loop can route it.
+    let (bench_tx, bench_rx) = mpsc::channel(SOURCES.len().max(1));
+    for (idx, descriptor) in SOURCES.iter().enumerate() {
+        let bench_tx = bench_tx.clone();
+        tokio::spawn(async move {
+            let result = fetch_source(descriptor).await;
+            let _ = bench_tx.send((idx, result)).await;
+        });
+    }
 
     let (status_tx, status_rx) = mpsc::channel(4);
     let status_client = reqwest::Client::builder()
@@ -283,16 +330,10 @@ fn run_app(
             }
         }
 
-        // Check for benchmark data updates (non-blocking)
-        if let Ok(result) = runtime.bench_rx.try_recv() {
-            match result {
-                BenchmarkFetchResult::Fresh(entries) => {
-                    app.update(app::Message::BenchmarkDataReceived(entries));
-                }
-                BenchmarkFetchResult::Error => {
-                    app.update(app::Message::BenchmarkFetchFailed);
-                }
-            }
+        // Check for benchmark source updates (non-blocking) — drain all that
+        // have landed so multiple sources are absorbed in one tick.
+        while let Ok((idx, result)) = runtime.bench_rx.try_recv() {
+            app.update(app::Message::DataSourceLoaded(idx, result));
         }
 
         if app.pending_status_refresh {
@@ -405,18 +446,23 @@ fn run_app(
                     }
                 }
                 app::Message::CopyBenchmarkName => {
-                    if let Some(entry) = app.benchmarks_app.current_entry(&app.benchmark_store) {
-                        copy_to_clipboard(entry.name.clone());
-                        app.set_status(format!("Copied: {}", entry.name));
-                        last_status_time = Some(std::time::Instant::now());
+                    if let Some(file) = app.active_benchmark_file() {
+                        if let Some(model) = app.benchmarks_app.current_model(file) {
+                            copy_to_clipboard(model.display_name.clone());
+                            app.set_status(format!("Copied: {}", model.display_name));
+                            last_status_time = Some(std::time::Instant::now());
+                        }
                     }
                 }
                 app::Message::OpenBenchmarkUrl => {
-                    if let Some(entry) = app.benchmarks_app.current_entry(&app.benchmark_store) {
-                        let url = format!("https://artificialanalysis.ai/models/{}", entry.slug);
-                        let _ = open::that_in_background(&url);
-                        app.set_status(format!("Opened: {}", url));
-                        last_status_time = Some(std::time::Instant::now());
+                    // Attribution URL is per-source; the model id is the source slug.
+                    if let Some(file) = app.active_benchmark_file() {
+                        if let Some(model) = app.benchmarks_app.current_model(file) {
+                            let url = format!("{}/models/{}", file.source.url, model.id);
+                            let _ = open::that_in_background(&url);
+                            app.set_status(format!("Opened: {}", url));
+                            last_status_time = Some(std::time::Instant::now());
+                        }
                     }
                 }
                 app::Message::OpenStatusPage => {
@@ -444,10 +490,9 @@ fn run_app(
                         .get(app.benchmarks_app.selected)
                     {
                         let name = app
-                            .benchmark_store
-                            .entries()
-                            .get(store_idx)
-                            .map(|e| e.name.as_str())
+                            .active_benchmark_file()
+                            .and_then(|f| f.models.get(store_idx))
+                            .map(|m| m.display_name.as_str())
                             .unwrap_or("?");
                         let is_already_selected = app.selections.contains(&store_idx);
                         if is_already_selected {
@@ -494,19 +539,29 @@ fn run_app(
                     last_status_time = Some(std::time::Instant::now());
                 }
                 app::Message::CycleScatterX => {
-                    let next_axis = app.benchmarks_app.scatter_x.next();
-                    app.set_status(format!("X-axis: {}", next_axis.label()));
-                    last_status_time = Some(std::time::Instant::now());
+                    if let Some(label) = peek_next_metric_label(app, app.benchmarks_app.scatter_x) {
+                        app.set_status(format!("X-axis: {}", label));
+                        last_status_time = Some(std::time::Instant::now());
+                    }
                 }
                 app::Message::CycleScatterY => {
-                    let next_axis = app.benchmarks_app.scatter_y.next();
-                    app.set_status(format!("Y-axis: {}", next_axis.label()));
-                    last_status_time = Some(std::time::Instant::now());
+                    if let Some(label) = peek_next_metric_label(app, app.benchmarks_app.scatter_y) {
+                        app.set_status(format!("Y-axis: {}", label));
+                        last_status_time = Some(std::time::Instant::now());
+                    }
                 }
                 app::Message::CycleRadarPreset => {
-                    let next_preset = app.benchmarks_app.radar_preset.next();
-                    app.set_status(format!("Radar: {}", next_preset.label()));
-                    last_status_time = Some(std::time::Instant::now());
+                    if let Some(label) = peek_next_radar_group_label(app) {
+                        app.set_status(format!("Radar: {}", label));
+                        last_status_time = Some(std::time::Instant::now());
+                    }
+                }
+                app::Message::CycleDataSourceNext | app::Message::CycleDataSourcePrev => {
+                    let forward = matches!(&msg, app::Message::CycleDataSourceNext);
+                    if let Some(name) = peek_next_source_name(app, forward) {
+                        app.set_status(format!("Source: {}", name));
+                        last_status_time = Some(std::time::Instant::now());
+                    }
                 }
                 _ => {}
             }

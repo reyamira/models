@@ -206,7 +206,7 @@ pub fn draw(f: &mut Frame, app: &mut App) {
 
     // Draw help popup on top if visible
     if app.show_help {
-        draw_help_popup(f, &app.help_scroll, app.current_tab);
+        draw_help_popup(f, &app.help_scroll, app);
     }
 
     // Draw picker modal on top if visible (agents tab only)
@@ -346,6 +346,8 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                         spans.extend([
                             Span::styled(" c ", Style::default().fg(Color::Yellow)),
                             Span::raw("clear  "),
+                            Span::styled(" { } ", Style::default().fg(Color::Yellow)),
+                            Span::raw("source  "),
                             Span::styled(" s ", Style::default().fg(Color::Yellow)),
                             Span::raw("sort  "),
                             Span::styled(" / ", Style::default().fg(Color::Yellow)),
@@ -353,7 +355,7 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                         ]);
                         Line::from(spans)
                     } else {
-                        Line::from(vec![
+                        let mut spans = vec![
                             Span::styled(" q ", Style::default().fg(Color::Yellow)),
                             Span::raw("quit  "),
                             Span::styled(" 1 ", Style::default().fg(Color::Yellow)),
@@ -363,18 +365,29 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                             Span::styled(" 3 ", Style::default().fg(Color::Yellow)),
                             Span::raw("speed  "),
                             Span::styled(" 4 ", Style::default().fg(Color::Yellow)),
-                            Span::raw("source  "),
+                            Span::raw("weights  "),
                             Span::styled(" 5-6 ", Style::default().fg(Color::Yellow)),
                             Span::raw("group  "),
-                            Span::styled(" 7 ", Style::default().fg(Color::Yellow)),
-                            Span::raw("reasoning  "),
+                        ];
+                        // Reasoning filter hint hidden when the active source
+                        // carries no reasoning metadata (key is a no-op then).
+                        if super::benchmarks::BenchmarksApp::reasoning_filter_available(
+                            app.multi_store.file(app.benchmarks_app.active_source),
+                        ) {
+                            spans.push(Span::styled(" 7 ", Style::default().fg(Color::Yellow)));
+                            spans.push(Span::raw("reasoning  "));
+                        }
+                        spans.extend([
+                            Span::styled(" { } ", Style::default().fg(Color::Yellow)),
+                            Span::raw("source  "),
                             Span::styled(" s ", Style::default().fg(Color::Yellow)),
                             Span::raw("sort  "),
                             Span::styled(" / ", Style::default().fg(Color::Yellow)),
                             Span::raw("search  "),
                             Span::styled(" Space ", Style::default().fg(Color::Yellow)),
                             Span::raw("select"),
-                        ])
+                        ]);
+                        Line::from(spans)
                     }
                 }
                 Tab::Status => {
@@ -436,7 +449,8 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
     };
 }
 
-fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, current_tab: Tab) {
+fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
+    let current_tab = app.current_tab;
     let area = centered_rect(50, 70, f.area());
 
     // Clear the area behind the popup
@@ -544,23 +558,37 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, current_tab: Tab) {
         }
         Tab::Benchmarks => {
             help_text.extend(vec![
+                help_section("Data Source"),
+                help_line("}", "Next data source"),
+                help_line("{", "Previous data source"),
+                Line::from(""),
                 help_section("Quick Sort (press again to flip direction)"),
-                help_line("1", "Sort by Intelligence index"),
+                help_line("1", "Sort by first metric (AA: Intelligence)"),
                 help_line("2", "Sort by Release date"),
-                help_line("3", "Sort by Speed (tok/s)"),
+                help_line("3", "Sort by Speed (tok/s, if present)"),
                 Line::from(""),
                 help_section("Filters"),
-                help_line("4", "Cycle source filter (Open/Closed/Mixed)"),
+                help_line("4", "Cycle open-weights filter (All/Open/Closed)"),
                 help_line("5", "Cycle region filter (US/China/Europe/...)"),
                 help_line("6", "Cycle type filter (Startup/Big Tech/Research)"),
-                help_line("7", "Cycle reasoning filter (All/Reasoning/Non-reasoning)"),
+            ]);
+            // Hidden when the active source has no reasoning metadata (key no-op).
+            if super::benchmarks::BenchmarksApp::reasoning_filter_available(
+                app.multi_store.file(app.benchmarks_app.active_source),
+            ) {
+                help_text.push(help_line(
+                    "7",
+                    "Cycle reasoning filter (All/Reasoning/Non-reasoning)",
+                ));
+            }
+            help_text.extend(vec![
                 Line::from(""),
                 help_section("Sort (full cycle)"),
                 help_line("s", "Open sort picker"),
                 help_line("S", "Toggle sort direction"),
                 Line::from(""),
                 help_section("Actions"),
-                help_line("o", "Open Artificial Analysis page"),
+                help_line("o", "Open source model page in browser"),
                 Line::from(""),
                 help_section("Compare"),
                 help_line("Space", "Toggle model for comparison (max 8)"),

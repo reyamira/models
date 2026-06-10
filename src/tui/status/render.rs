@@ -737,7 +737,6 @@ mod tests {
 
     use super::*;
     use crate::{
-        benchmarks::BenchmarkStore,
         status::{
             ActiveIncident, ComponentStatus, IncidentUpdate, ProviderStatus, ScheduledMaintenance,
             StatusProvenance, StatusSourceMethod, StatusSupportTier,
@@ -746,7 +745,7 @@ mod tests {
     };
 
     fn make_status_app(entry: ProviderStatus) -> App {
-        let mut app = App::new(HashMap::new(), None, None, BenchmarkStore::empty());
+        let mut app = App::new(HashMap::new(), None, None);
         app.current_tab = Tab::Status;
         let status_app = app.status_app.as_mut().expect("status app");
         status_app.entries = vec![entry];

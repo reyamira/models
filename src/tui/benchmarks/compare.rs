@@ -8,182 +8,19 @@ use ratatui::{
 use unicode_width::UnicodeWidthStr;
 
 use super::render::compare_colors;
+use crate::benchmarks::multi::format_metric_value;
+use crate::benchmarks::schema::{MetricDef, ModelRow, SourceFile};
 use crate::formatting::format_tokens;
 use crate::tui::app::App;
 use crate::tui::widgets::scrollable_panel::ScrollablePanel;
 
 // ── H2H comparison table ────────────────────────────────────────────────────
 
-struct MetricDef {
-    label: &'static str,
-    extract: fn(&crate::benchmarks::BenchmarkEntry) -> Option<f64>,
-    format: fn(f64) -> String,
-    higher_is_better: bool,
-}
-
-fn fmt_h2h_index(v: f64) -> String {
-    format!("{:.1}", v)
-}
-
-fn fmt_h2h_pct(v: f64) -> String {
-    format!("{:.1}%", v * 100.0)
-}
-
-fn fmt_h2h_speed(v: f64) -> String {
-    format!("{:.0}", v)
-}
-
-fn fmt_h2h_latency(v: f64) -> String {
-    format!("{:.0}ms", v)
-}
-
-fn fmt_h2h_price(v: f64) -> String {
-    format!("${:.2}", v)
-}
-
-/// A section header or a metric row in the H2H table.
-enum H2HRow {
-    Section(&'static str),
-    Metric(MetricDef),
-}
-
-fn h2h_rows() -> Vec<H2HRow> {
-    vec![
-        // Indexes (0-100, higher better)
-        H2HRow::Section("Indexes (0\u{2013}100)"),
-        H2HRow::Metric(MetricDef {
-            label: "Intelligence",
-            extract: |e| e.intelligence_index,
-            format: fmt_h2h_index,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "Coding",
-            extract: |e| e.coding_index,
-            format: fmt_h2h_index,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "Math",
-            extract: |e| e.math_index,
-            format: fmt_h2h_index,
-            higher_is_better: true,
-        }),
-        // Benchmarks (%, higher better)
-        H2HRow::Section("Benchmarks (%)"),
-        H2HRow::Metric(MetricDef {
-            label: "GPQA",
-            extract: |e| e.gpqa,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "MMLU-Pro",
-            extract: |e| e.mmlu_pro,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "HLE",
-            extract: |e| e.hle,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "MATH-500",
-            extract: |e| e.math_500,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "AIME",
-            extract: |e| e.aime,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "AIME'25",
-            extract: |e| e.aime_25,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "LiveCodeBench",
-            extract: |e| e.livecodebench,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "SciCode",
-            extract: |e| e.scicode,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "IFBench",
-            extract: |e| e.ifbench,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "Terminal",
-            extract: |e| e.terminalbench_hard,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "Tau2",
-            extract: |e| e.tau2,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "LCR",
-            extract: |e| e.lcr,
-            format: fmt_h2h_pct,
-            higher_is_better: true,
-        }),
-        // Performance (speed ↑, latency ↓)
-        H2HRow::Section("Performance"),
-        H2HRow::Metric(MetricDef {
-            label: "Speed (tok/s)",
-            extract: |e| e.output_tps,
-            format: fmt_h2h_speed,
-            higher_is_better: true,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "TTFT (ms)",
-            extract: |e| e.ttft,
-            format: fmt_h2h_latency,
-            higher_is_better: false,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "TTFAT (ms)",
-            extract: |e| e.ttfat,
-            format: fmt_h2h_latency,
-            higher_is_better: false,
-        }),
-        // Pricing ($/M tokens, lower better)
-        H2HRow::Section("Pricing ($/M)"),
-        H2HRow::Metric(MetricDef {
-            label: "Input",
-            extract: |e| e.price_input,
-            format: fmt_h2h_price,
-            higher_is_better: false,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "Output",
-            extract: |e| e.price_output,
-            format: fmt_h2h_price,
-            higher_is_better: false,
-        }),
-        H2HRow::Metric(MetricDef {
-            label: "Blended",
-            extract: |e| e.price_blended,
-            format: fmt_h2h_price,
-            higher_is_better: false,
-        }),
-    ]
+/// Extract the raw value of metric `metric_idx` for `model`, or `None` when the
+/// model has no score for that metric.
+fn metric_value(file: &SourceFile, model: &ModelRow, metric_idx: usize) -> Option<f64> {
+    let metric = file.metrics.get(metric_idx)?;
+    model.scores.get(&metric.id).map(|cell| cell.value)
 }
 
 /// Rank extracted values: 1 = best, None for missing data.
@@ -208,7 +45,9 @@ fn rank_values(values: &[Option<f64>], higher_is_better: bool) -> Vec<Option<u32
 }
 
 pub(super) fn draw_h2h_table_generic(f: &mut Frame, area: Rect, app: &App) {
-    let entries = app.benchmark_store.entries();
+    let Some(file) = app.active_benchmark_file() else {
+        return;
+    };
     let selections = &app.selections;
 
     if selections.len() < 2 {
@@ -225,23 +64,23 @@ pub(super) fn draw_h2h_table_generic(f: &mut Frame, area: Rect, app: &App) {
         return;
     }
 
-    let rows = h2h_rows();
     let label_w = 14_u16;
     let num_models = selections.len();
     let available = inner_w.saturating_sub(label_w);
     let col_w = (available as usize / num_models).max(10);
     let total_w = inner_w as usize;
 
+    // Resolve the selected models once (indices into the active file's models).
+    let models: Vec<Option<&ModelRow>> =
+        selections.iter().map(|&idx| file.models.get(idx)).collect();
+
     // Header row: model names
     let mut header_spans: Vec<Span> = vec![Span::styled(
         format!("{:<width$}", "", width = label_w as usize),
         Style::default(),
     )];
-    for (i, &store_idx) in selections.iter().enumerate() {
-        let name = entries
-            .get(store_idx)
-            .map(|e| e.display_name.as_str())
-            .unwrap_or("?");
+    for (i, model) in models.iter().enumerate() {
+        let name = model.map(|m| m.display_name.as_str()).unwrap_or("?");
         let color = compare_colors(i);
         let truncated = if name.width() > col_w - 1 {
             format!("{:.width$}", name, width = col_w - 2)
@@ -265,17 +104,15 @@ pub(super) fn draw_h2h_table_generic(f: &mut Frame, area: Rect, app: &App) {
 
     // ── Pre-compute win counts (need them near the top) ──
     let mut win_counts = vec![0u32; num_models];
-    for row in &rows {
-        if let H2HRow::Metric(metric) = row {
-            let values: Vec<Option<f64>> = selections
-                .iter()
-                .map(|&idx| entries.get(idx).and_then(|e| (metric.extract)(e)))
-                .collect();
-            let ranks = rank_values(&values, metric.higher_is_better);
-            for (i, rank) in ranks.iter().enumerate() {
-                if *rank == Some(1) {
-                    win_counts[i] += 1;
-                }
+    for (mi, metric) in file.metrics.iter().enumerate() {
+        let values: Vec<Option<f64>> = models
+            .iter()
+            .map(|m| m.and_then(|model| metric_value(file, model, mi)))
+            .collect();
+        let ranks = rank_values(&values, metric.higher_is_better);
+        for (i, rank) in ranks.iter().enumerate() {
+            if *rank == Some(1) {
+                win_counts[i] += 1;
             }
         }
     }
@@ -334,17 +171,18 @@ pub(super) fn draw_h2h_table_generic(f: &mut Frame, area: Rect, app: &App) {
         lines.push(Line::from(spans));
     };
 
+    let openness = app.benchmarks_app.creator_openness();
+
     // Creator
-    let creators: Vec<(String, Color)> = selections
+    let creators: Vec<(String, Color)> = models
         .iter()
-        .map(|&idx| {
-            let name = entries
-                .get(idx)
-                .map(|e| {
-                    if !e.creator_name.is_empty() {
-                        e.creator_name.clone()
+        .map(|m| {
+            let name = m
+                .map(|model| {
+                    if !model.creator_name.is_empty() {
+                        model.creator_name.clone()
                     } else {
-                        e.creator.clone()
+                        model.creator.clone()
                     }
                 })
                 .unwrap_or_default();
@@ -353,62 +191,57 @@ pub(super) fn draw_h2h_table_generic(f: &mut Frame, area: Rect, app: &App) {
         .collect();
     render_info_row(&mut lines, "Creator", creators);
 
-    // Source (Open/Closed) with color
-    let sources: Vec<(String, Color)> = selections
+    // Source (Open/Closed) with color — model-level open_weights first, then the
+    // creator-openness map as a fallback.
+    let sources: Vec<(String, Color)> = models
         .iter()
-        .map(|&idx| {
-            entries
-                .get(idx)
-                .and_then(|e| app.open_weights_map.get(&e.slug))
-                .map(|&open| {
-                    if open {
-                        ("Open".to_string(), Color::Green)
-                    } else {
-                        ("Closed".to_string(), Color::Red)
-                    }
-                })
-                .unwrap_or_else(|| ("\u{2014}".to_string(), Color::DarkGray))
+        .map(|m| {
+            let open = m.and_then(|model| {
+                model
+                    .open_weights
+                    .or_else(|| openness.get(&model.creator).copied())
+            });
+            match open {
+                Some(true) => ("Open".to_string(), Color::Green),
+                Some(false) => ("Closed".to_string(), Color::Red),
+                None => ("\u{2014}".to_string(), Color::DarkGray),
+            }
         })
         .collect();
     render_info_row(&mut lines, "Source", sources);
 
     // Region with creator region colors
-    let regions: Vec<(String, Color)> = selections
+    let regions: Vec<(String, Color)> = models
         .iter()
-        .map(|&idx| {
-            entries
-                .get(idx)
-                .map(|e| {
-                    let region = super::app::CreatorRegion::from_creator(&e.creator);
-                    (region.label().to_string(), region.color())
-                })
-                .unwrap_or_default()
+        .map(|m| {
+            m.map(|model| {
+                let region = super::app::CreatorRegion::from_creator(&model.creator);
+                (region.label().to_string(), region.color())
+            })
+            .unwrap_or_default()
         })
         .collect();
     render_info_row(&mut lines, "Region", regions);
 
     // Type with creator type colors
-    let types: Vec<(String, Color)> = selections
+    let types: Vec<(String, Color)> = models
         .iter()
-        .map(|&idx| {
-            entries
-                .get(idx)
-                .map(|e| {
-                    let ct = super::app::CreatorType::from_creator(&e.creator);
-                    (ct.label().to_string(), ct.color())
-                })
-                .unwrap_or_default()
+        .map(|m| {
+            m.map(|model| {
+                let ct = super::app::CreatorType::from_creator(&model.creator);
+                (ct.label().to_string(), ct.color())
+            })
+            .unwrap_or_default()
         })
         .collect();
     render_info_row(&mut lines, "Type", types);
 
     // Release date
-    let dates: Vec<(String, Color)> = selections
+    let dates: Vec<(String, Color)> = models
         .iter()
-        .map(|&idx| {
-            let d = entries
-                .get(idx)
-                .and_then(|e| e.release_date.clone())
+        .map(|m| {
+            let d = m
+                .and_then(|model| model.release_date.clone())
                 .unwrap_or_else(|| "\u{2014}".to_string());
             (d, Color::White)
         })
@@ -416,34 +249,28 @@ pub(super) fn draw_h2h_table_generic(f: &mut Frame, area: Rect, app: &App) {
     render_info_row(&mut lines, "Released", dates);
 
     // Reasoning status with color
-    let reasoning_vals: Vec<(String, Color)> = selections
+    let reasoning_vals: Vec<(String, Color)> = models
         .iter()
-        .map(|&idx| {
-            entries
-                .get(idx)
-                .map(|e| {
-                    use crate::benchmarks::ReasoningStatus;
-                    match e.reasoning_status {
-                        ReasoningStatus::Reasoning => ("Reasoning".to_string(), Color::Cyan),
-                        ReasoningStatus::NonReasoning => {
-                            ("Non-reasoning".to_string(), Color::DarkGray)
-                        }
-                        ReasoningStatus::Adaptive => ("Adaptive".to_string(), Color::Yellow),
-                        ReasoningStatus::None => ("\u{2014}".to_string(), Color::DarkGray),
-                    }
-                })
-                .unwrap_or_else(|| ("\u{2014}".to_string(), Color::DarkGray))
+        .map(|m| {
+            m.map(|model| {
+                use crate::benchmarks::ReasoningStatus;
+                match model.reasoning_status {
+                    ReasoningStatus::Reasoning => ("Reasoning".to_string(), Color::Cyan),
+                    ReasoningStatus::NonReasoning => ("Non-reasoning".to_string(), Color::DarkGray),
+                    ReasoningStatus::Adaptive => ("Adaptive".to_string(), Color::Yellow),
+                    ReasoningStatus::None => ("\u{2014}".to_string(), Color::DarkGray),
+                }
+            })
+            .unwrap_or_else(|| ("\u{2014}".to_string(), Color::DarkGray))
         })
         .collect();
     render_info_row(&mut lines, "Reasoning", reasoning_vals);
 
     // Effort level (if any model has one)
-    let effort_vals: Vec<(String, Color)> = selections
+    let effort_vals: Vec<(String, Color)> = models
         .iter()
-        .map(|&idx| {
-            entries
-                .get(idx)
-                .and_then(|e| e.effort_level.as_ref())
+        .map(|m| {
+            m.and_then(|model| model.effort_level.as_ref())
                 .map(|lvl| (lvl.clone(), Color::White))
                 .unwrap_or_else(|| ("\u{2014}".to_string(), Color::DarkGray))
         })
@@ -453,12 +280,10 @@ pub(super) fn draw_h2h_table_generic(f: &mut Frame, area: Rect, app: &App) {
     }
 
     // Variant tag (if any model has one)
-    let variant_vals: Vec<(String, Color)> = selections
+    let variant_vals: Vec<(String, Color)> = models
         .iter()
-        .map(|&idx| {
-            entries
-                .get(idx)
-                .and_then(|e| e.variant_tag.as_ref())
+        .map(|m| {
+            m.and_then(|model| model.variant_tag.as_ref())
                 .map(|tag| (tag.clone(), Color::White))
                 .unwrap_or_else(|| ("\u{2014}".to_string(), Color::DarkGray))
         })
@@ -467,127 +292,94 @@ pub(super) fn draw_h2h_table_generic(f: &mut Frame, area: Rect, app: &App) {
         render_info_row(&mut lines, "Variant", variant_vals);
     }
 
-    // Tool call support with color
-    let tool_vals: Vec<(String, Color)> = selections
+    // Context window (if any model has one)
+    let ctx_vals: Vec<(String, Color)> = models
         .iter()
-        .map(|&idx| {
-            entries
-                .get(idx)
-                .and_then(|e| e.tool_call)
-                .map(|tc| {
-                    if tc {
-                        ("Yes".to_string(), Color::Green)
-                    } else {
-                        ("No".to_string(), Color::DarkGray)
-                    }
-                })
-                .unwrap_or_else(|| ("\u{2014}".to_string(), Color::DarkGray))
-        })
-        .collect();
-    render_info_row(&mut lines, "Tools", tool_vals);
-
-    // Context window
-    let ctx_vals: Vec<(String, Color)> = selections
-        .iter()
-        .map(|&idx| {
-            entries
-                .get(idx)
-                .and_then(|e| e.context_window)
+        .map(|m| {
+            m.and_then(|model| model.context_window)
                 .map(|v| (format_tokens(v), Color::White))
                 .unwrap_or_else(|| ("\u{2014}".to_string(), Color::DarkGray))
         })
         .collect();
-    render_info_row(&mut lines, "Context", ctx_vals);
+    if ctx_vals.iter().any(|(v, _)| v != "\u{2014}") {
+        render_info_row(&mut lines, "Context", ctx_vals);
+    }
 
-    // Max output
-    let out_vals: Vec<(String, Color)> = selections
-        .iter()
-        .map(|&idx| {
-            entries
-                .get(idx)
-                .and_then(|e| e.max_output)
-                .map(|v| (format_tokens(v), Color::White))
-                .unwrap_or_else(|| ("\u{2014}".to_string(), Color::DarkGray))
-        })
-        .collect();
-    render_info_row(&mut lines, "Max Output", out_vals);
+    // ── Metric rows grouped by section ──
+    for group in crate::benchmarks::multi::groups_in_order(file) {
+        let header = format!("\u{2500}\u{2500}\u{2500} {} \u{2500}", group);
+        lines.push(Line::from(Span::styled(
+            format!("{:<width$}", header, width = total_w),
+            Style::default().fg(Color::DarkGray),
+        )));
 
-    // ── Metric rows with section headers and ranks ──
-    for row in &rows {
-        match row {
-            H2HRow::Section(title) => {
-                let header = format!("\u{2500}\u{2500}\u{2500} {} \u{2500}", title);
-                lines.push(Line::from(Span::styled(
-                    format!("{:<width$}", header, width = total_w),
-                    Style::default().fg(Color::DarkGray),
-                )));
-            }
-            H2HRow::Metric(metric) => {
-                let values: Vec<Option<f64>> = selections
-                    .iter()
-                    .map(|&idx| entries.get(idx).and_then(|e| (metric.extract)(e)))
-                    .collect();
-                let ranks = rank_values(&values, metric.higher_is_better);
+        for mi in crate::benchmarks::multi::metric_indices_in_group(file, group) {
+            let metric: &MetricDef = &file.metrics[mi];
+            let values: Vec<Option<f64>> = models
+                .iter()
+                .map(|m| m.and_then(|model| metric_value(file, model, mi)))
+                .collect();
+            let ranks = rank_values(&values, metric.higher_is_better);
 
-                let mut row_spans: Vec<Span> = vec![Span::styled(
-                    format!("{:<width$}", metric.label, width = label_w as usize),
-                    Style::default().fg(Color::DarkGray),
-                )];
+            let label = truncate_label(&metric.label, label_w as usize);
+            let mut row_spans: Vec<Span> = vec![Span::styled(
+                format!("{:<width$}", label, width = label_w as usize),
+                Style::default().fg(Color::DarkGray),
+            )];
 
-                for (i, (val, rank)) in values.iter().zip(ranks.iter()).enumerate() {
-                    let color = compare_colors(i);
-                    match val {
-                        Some(v) => {
-                            let formatted = (metric.format)(*v);
-                            if *rank == Some(1) {
-                                // Best: value ★
-                                let value_and_star = format!("{} \u{2605}", formatted);
-                                let padded = format!("{:>width$}", value_and_star, width = col_w);
-                                let star_pos = padded.rfind('\u{2605}').unwrap_or(padded.len());
-                                row_spans.push(Span::styled(
-                                    padded[..star_pos].to_string(),
-                                    Style::default().fg(color).add_modifier(Modifier::BOLD),
-                                ));
-                                row_spans.push(Span::styled(
-                                    "\u{2605}",
-                                    Style::default()
-                                        .fg(Color::Yellow)
-                                        .add_modifier(Modifier::BOLD),
-                                ));
-                            } else {
-                                // Non-best: value in model color, rank in medal colors
-                                let rank_num = rank.unwrap_or(0);
-                                let suffix = format!(" #{}", rank_num);
-                                let rank_color = match rank_num {
-                                    2 => Color::Indexed(250), // silver
-                                    3 => Color::Indexed(172), // bronze
-                                    _ => Color::DarkGray,
-                                };
-
-                                let combined = format!("{}{}", formatted, suffix);
-                                let padded = format!("{:>width$}", combined, width = col_w);
-                                let suffix_start = padded.len().saturating_sub(suffix.len());
-                                row_spans.push(Span::styled(
-                                    padded[..suffix_start].to_string(),
-                                    Style::default().fg(color),
-                                ));
-                                row_spans.push(Span::styled(
-                                    padded[suffix_start..].to_string(),
-                                    Style::default().fg(rank_color),
-                                ));
-                            }
-                        }
-                        None => {
+            for (i, (val, rank)) in values.iter().zip(ranks.iter()).enumerate() {
+                let color = compare_colors(i);
+                match val {
+                    Some(v) => {
+                        let formatted = format_metric_value(metric.kind, *v);
+                        if *rank == Some(1) {
+                            // Best: value ★
+                            let value_and_star = format!("{} \u{2605}", formatted);
+                            let padded = format!("{:>width$}", value_and_star, width = col_w);
+                            let star_pos = padded.rfind('\u{2605}').unwrap_or(padded.len());
                             row_spans.push(Span::styled(
-                                format!("{:>width$}", "\u{2014}", width = col_w),
-                                Style::default().fg(Color::DarkGray),
+                                padded[..star_pos].to_string(),
+                                Style::default().fg(color).add_modifier(Modifier::BOLD),
+                            ));
+                            row_spans.push(Span::styled(
+                                "\u{2605}",
+                                Style::default()
+                                    .fg(Color::Yellow)
+                                    .add_modifier(Modifier::BOLD),
+                            ));
+                        } else {
+                            // Non-best: value in model color, rank in medal colors
+                            let rank_num = rank.unwrap_or(0);
+                            let suffix = format!(" #{}", rank_num);
+                            let rank_color = match rank_num {
+                                2 => Color::Indexed(250), // silver
+                                3 => Color::Indexed(172), // bronze
+                                _ => Color::DarkGray,
+                            };
+
+                            let combined = format!("{}{}", formatted, suffix);
+                            let padded = format!("{:>width$}", combined, width = col_w);
+                            let suffix_start = padded.len().saturating_sub(suffix.len());
+                            row_spans.push(Span::styled(
+                                padded[..suffix_start].to_string(),
+                                Style::default().fg(color),
+                            ));
+                            row_spans.push(Span::styled(
+                                padded[suffix_start..].to_string(),
+                                Style::default().fg(rank_color),
                             ));
                         }
                     }
+                    None => {
+                        row_spans.push(Span::styled(
+                            format!("{:>width$}", "\u{2014}", width = col_w),
+                            Style::default().fg(Color::DarkGray),
+                        ));
+                    }
                 }
-
-                lines.push(Line::from(row_spans));
             }
+
+            lines.push(Line::from(row_spans));
         }
     }
 
@@ -601,24 +393,65 @@ pub(super) fn draw_h2h_table_generic(f: &mut Frame, area: Rect, app: &App) {
     .render(f, area);
 }
 
+/// Truncate a metric label to fit the H2H label column (unicode-aware).
+fn truncate_label(label: &str, width: usize) -> String {
+    // Reserve 1 trailing space inside the column so the label never abuts the
+    // value columns.
+    let max = width.saturating_sub(1);
+    if label.width() <= max {
+        label.to_string()
+    } else {
+        let mut out = String::new();
+        let mut w = 0;
+        for ch in label.chars() {
+            let cw = ch.to_string().width();
+            if w + cw > max {
+                break;
+            }
+            out.push(ch);
+            w += cw;
+        }
+        out
+    }
+}
+
 pub(super) fn draw_scatter(f: &mut Frame, area: Rect, app: &App) {
     use ratatui::symbols::Marker;
     use ratatui::widgets::{Axis, Chart, Dataset, GraphType};
 
-    let entries = app.benchmark_store.entries();
-    if entries.is_empty() {
+    let Some(file) = app.active_benchmark_file() else {
+        let block = Block::default().borders(Borders::ALL).title(" Scatter ");
+        f.render_widget(block, area);
+        return;
+    };
+
+    // Need at least two metrics to form a scatter plot.
+    if file.metrics.len() < 2 {
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .title(" Scatter (need 2 metrics) ");
+        f.render_widget(block, area);
+        return;
+    }
+
+    if file.models.is_empty() {
         let block = Block::default().borders(Borders::ALL).title(" Scatter ");
         f.render_widget(block, area);
         return;
     }
 
-    let x_extract = app.benchmarks_app.scatter_x.extract();
-    let y_extract = app.benchmarks_app.scatter_y.extract();
+    let x_idx = app.benchmarks_app.scatter_x.min(file.metrics.len() - 1);
+    let y_idx = app.benchmarks_app.scatter_y.min(file.metrics.len() - 1);
+    let x_metric = &file.metrics[x_idx];
+    let y_metric = &file.metrics[y_idx];
+
+    let x_value = |model: &ModelRow| metric_value(file, model, x_idx);
+    let y_value = |model: &ModelRow| metric_value(file, model, y_idx);
 
     // Collect all points with both x and y values present
     let mut all_points: Vec<(f64, f64)> = Vec::new();
-    for entry in entries.iter() {
-        if let (Some(x), Some(y)) = (x_extract(entry), y_extract(entry)) {
+    for model in file.models.iter() {
+        if let (Some(x), Some(y)) = (x_value(model), y_value(model)) {
             all_points.push((x, y));
         }
     }
@@ -730,16 +563,16 @@ pub(super) fn draw_scatter(f: &mut Frame, area: Rect, app: &App) {
         nice_bounds(y_min - y_pad, y_max + y_pad, num_ticks)
     };
 
-    // Compute independent averages (each axis uses all entries with data for that metric)
-    let (x_sum, x_count) = entries.iter().fold((0.0_f64, 0_u32), |(s, c), e| {
-        if let Some(v) = x_extract(e) {
+    // Compute independent averages (each axis uses all models with data for that metric)
+    let (x_sum, x_count) = file.models.iter().fold((0.0_f64, 0_u32), |(s, c), m| {
+        if let Some(v) = x_value(m) {
             (s + log_transform(v, x_log), c + 1)
         } else {
             (s, c)
         }
     });
-    let (y_sum, y_count) = entries.iter().fold((0.0_f64, 0_u32), |(s, c), e| {
-        if let Some(v) = y_extract(e) {
+    let (y_sum, y_count) = file.models.iter().fold((0.0_f64, 0_u32), |(s, c), m| {
+        if let Some(v) = y_value(m) {
             (s + log_transform(v, y_log), c + 1)
         } else {
             (s, c)
@@ -765,12 +598,12 @@ pub(super) fn draw_scatter(f: &mut Frame, area: Rect, app: &App) {
     #[allow(clippy::type_complexity)]
     let mut selected_data: Vec<(String, Vec<(f64, f64)>, Color)> = Vec::new();
 
-    for (sel_idx, &store_idx) in app.selections.iter().enumerate() {
+    for (sel_idx, &model_idx) in app.selections.iter().enumerate() {
         let color = compare_colors(sel_idx);
-        if let Some(entry) = entries.get(store_idx) {
-            let name = entry.display_name.clone();
-            let raw_x = x_extract(entry);
-            let raw_y = y_extract(entry);
+        if let Some(model) = file.models.get(model_idx) {
+            let name = model.display_name.clone();
+            let raw_x = x_value(model);
+            let raw_y = y_value(model);
             if let (Some(x), Some(y)) = (raw_x, raw_y) {
                 let tx = log_transform(x, x_log);
                 let ty = log_transform(y, y_log);
@@ -778,7 +611,7 @@ pub(super) fn draw_scatter(f: &mut Frame, area: Rect, app: &App) {
                     && tx <= x_bounds[1]
                     && ty >= y_bounds[0]
                     && ty <= y_bounds[1];
-                selected_data.push((entry.display_name.clone(), vec![(tx, ty)], color));
+                selected_data.push((model.display_name.clone(), vec![(tx, ty)], color));
                 legend_entries.push((name, color, if in_range { 1 } else { 2 }, raw_x, raw_y));
             } else {
                 legend_entries.push((name, color, 0, raw_x, raw_y));
@@ -815,8 +648,8 @@ pub(super) fn draw_scatter(f: &mut Frame, area: Rect, app: &App) {
         );
     }
 
-    let x_label = app.benchmarks_app.scatter_x.label();
-    let y_label = app.benchmarks_app.scatter_y.label();
+    let x_label = x_metric.label.as_str();
+    let y_label = y_metric.label.as_str();
 
     // Generate evenly-spaced tick labels for an axis.
     // ratatui distributes labels uniformly across the axis, so values must be evenly spaced.
@@ -961,5 +794,126 @@ pub(super) fn draw_scatter(f: &mut Frame, area: Rect, app: &App) {
             .collect();
 
         ComparisonLegend::new(entries).render(f, leg_area);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::benchmarks::schema::{MetricKind, ReasoningStatus, ScoreCell, SourceMeta};
+    use std::collections::BTreeMap;
+
+    fn meta() -> SourceMeta {
+        SourceMeta {
+            id: "test".into(),
+            name: "Test".into(),
+            url: "https://example.com".into(),
+            fetched_at: "2026-06-10T00:00:00+00:00".into(),
+            verified: true,
+        }
+    }
+
+    fn metric(id: &str, kind: MetricKind, group: &str, hib: bool) -> MetricDef {
+        MetricDef {
+            id: id.into(),
+            label: id.to_uppercase(),
+            kind,
+            group: group.into(),
+            higher_is_better: hib,
+            last_updated: None,
+        }
+    }
+
+    fn model(id: &str, scores: &[(&str, f64)]) -> ModelRow {
+        let mut score_map = BTreeMap::new();
+        for (mid, v) in scores {
+            score_map.insert(
+                (*mid).to_string(),
+                ScoreCell {
+                    value: *v,
+                    date: None,
+                    ci: None,
+                },
+            );
+        }
+        ModelRow {
+            id: id.into(),
+            name: id.into(),
+            display_name: id.into(),
+            creator: "openai".into(),
+            creator_name: "OpenAI".into(),
+            release_date: Some("2026-01-01".into()),
+            reasoning_status: ReasoningStatus::Reasoning,
+            effort_level: None,
+            variant_tag: None,
+            open_weights: None,
+            context_window: None,
+            scores: score_map,
+        }
+    }
+
+    fn sample_file() -> SourceFile {
+        SourceFile {
+            source: meta(),
+            metrics: vec![
+                metric("intelligence_index", MetricKind::Index, "Indexes", true),
+                metric("price_input", MetricKind::UsdPerMTok, "Pricing", false),
+            ],
+            models: vec![
+                model(
+                    "alpha",
+                    &[("intelligence_index", 70.0), ("price_input", 2.0)],
+                ),
+                model(
+                    "beta",
+                    &[("intelligence_index", 60.0), ("price_input", 1.0)],
+                ),
+                model("gamma", &[("intelligence_index", 80.0)]),
+            ],
+        }
+    }
+
+    #[test]
+    fn metric_value_present_and_missing() {
+        let file = sample_file();
+        // alpha has intelligence_index = 70.0
+        assert_eq!(metric_value(&file, &file.models[0], 0), Some(70.0));
+        // gamma lacks price_input (idx 1)
+        assert_eq!(metric_value(&file, &file.models[2], 1), None);
+        // out-of-range metric index
+        assert_eq!(metric_value(&file, &file.models[0], 9), None);
+    }
+
+    #[test]
+    fn rank_values_higher_is_better() {
+        // [70, 60, 80] -> ranks [2, 3, 1]
+        let ranks = rank_values(&[Some(70.0), Some(60.0), Some(80.0)], true);
+        assert_eq!(ranks, vec![Some(2), Some(3), Some(1)]);
+    }
+
+    #[test]
+    fn rank_values_lower_is_better() {
+        // [2.0, 1.0, missing] lower-is-better -> ranks [2, 1, None]
+        let ranks = rank_values(&[Some(2.0), Some(1.0), None], false);
+        assert_eq!(ranks, vec![Some(2), Some(1), None]);
+    }
+
+    #[test]
+    fn rank_values_all_missing() {
+        let ranks = rank_values(&[None, None], true);
+        assert_eq!(ranks, vec![None, None]);
+    }
+
+    #[test]
+    fn truncate_label_fits() {
+        assert_eq!(truncate_label("GPQA", 14), "GPQA");
+    }
+
+    #[test]
+    fn truncate_label_clips() {
+        // 14-char column reserves 1 trailing space -> max 13 visible chars.
+        let clipped = truncate_label("ThisLabelIsWayTooLong", 14);
+        assert!(clipped.width() <= 13);
+        assert_eq!(clipped, "ThisLabelIsWa");
     }
 }

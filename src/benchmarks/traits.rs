@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::{BenchmarkEntry, ReasoningStatus};
+use super::schema::ModelRow;
 use crate::data::Provider;
 
 /// Minimum Jaro-Winkler similarity to consider a match.
@@ -57,114 +57,80 @@ fn known_creator_openness(creator: &str) -> Option<bool> {
 /// Model traits extracted from models.dev matching.
 struct ModelTraits {
     open_weights: bool,
-    reasoning: bool,
-    tool_call: bool,
     context_window: Option<u64>,
-    max_output: Option<u64>,
 }
 
 impl ModelTraits {
     fn from_model(model: &crate::data::Model) -> Self {
         Self {
             open_weights: model.open_weights,
-            reasoning: model.reasoning,
-            tool_call: model.tool_call,
             context_window: model.limit.as_ref().and_then(|l| l.context),
-            max_output: model.limit.as_ref().and_then(|l| l.output),
         }
     }
 }
 
-/// Build a map from AA benchmark entry slug → open_weights bool,
-/// and optionally augment entries with reasoning status from models.dev.
-///
-/// Matching strategy:
-/// 1. **Creator-scoped**: Map AA creator to models.dev provider(s), then
-///    Jaro-Winkler match the slug within those providers
-/// 2. **Global fallback**: If no creator-scoped match, search ALL models
-///    across ALL providers for a high-confidence slug match
-///
-/// Both stages require [`MIN_SIMILARITY`] threshold. Unmatched entries
-/// are absent from the map — callers show no source label.
-pub fn build_open_weights_map(
-    providers: &[(String, Provider)],
-    entries: &[BenchmarkEntry],
-) -> HashMap<String, bool> {
-    let matched = match_entries(providers, entries);
-    matched
-        .into_iter()
-        .map(|(slug, traits)| (slug, traits.open_weights))
-        .collect()
+/// Prebuilt model lookups derived from the models.dev provider list, reused
+/// across every match so the normalization work happens once.
+struct MatchIndex {
+    /// Set of normalized provider IDs present in models.dev.
+    provider_set: HashMap<String, ()>,
+    /// Normalized provider ID → [(normalized model ID, traits)].
+    model_lookup: HashMap<String, Vec<(String, ModelTraits)>>,
+    /// Flat list of every model for the global fallback stage.
+    all_models: Vec<(String, ModelTraits)>,
 }
 
-/// Augment benchmark entries with traits from models.dev:
-/// reasoning status (when not already set), tool_call, context_window, max_output.
-pub fn apply_model_traits(providers: &[(String, Provider)], entries: &mut [BenchmarkEntry]) {
-    let matched = match_entries(providers, entries);
-    for entry in entries {
-        if let Some(traits) = matched.get(&entry.slug) {
-            if entry.reasoning_status == ReasoningStatus::None && traits.reasoning {
-                entry.reasoning_status = ReasoningStatus::Reasoning;
-            }
-            if entry.tool_call.is_none() {
-                entry.tool_call = Some(traits.tool_call);
-            }
-            if entry.context_window.is_none() {
-                entry.context_window = traits.context_window;
-            }
-            if entry.max_output.is_none() {
-                entry.max_output = traits.max_output;
-            }
-        }
-    }
-}
-
-fn match_entries(
-    providers: &[(String, Provider)],
-    entries: &[BenchmarkEntry],
-) -> HashMap<String, ModelTraits> {
-    // Build per-provider lookup: normalized provider ID → [(normalized model ID, traits)]
-    let provider_set: HashMap<String, ()> = providers
-        .iter()
-        .map(|(id, _)| (normalize(id), ()))
-        .collect();
-
-    let mut model_lookup: HashMap<String, Vec<(String, ModelTraits)>> = HashMap::new();
-    for (id, provider) in providers {
-        let norm_provider = normalize(id);
-        let models: Vec<(String, ModelTraits)> = provider
-            .models
+impl MatchIndex {
+    fn build(providers: &[(String, Provider)]) -> Self {
+        let provider_set: HashMap<String, ()> = providers
             .iter()
-            .map(|(model_id, model)| (normalize(model_id), ModelTraits::from_model(model)))
+            .map(|(id, _)| (normalize(id), ()))
             .collect();
-        model_lookup.insert(norm_provider, models);
-    }
 
-    // Build global flat list of all models for fallback matching
-    let all_models: Vec<(String, ModelTraits)> = providers
-        .iter()
-        .flat_map(|(_, provider)| {
-            provider
+        let mut model_lookup: HashMap<String, Vec<(String, ModelTraits)>> = HashMap::new();
+        for (id, provider) in providers {
+            let norm_provider = normalize(id);
+            let models: Vec<(String, ModelTraits)> = provider
                 .models
                 .iter()
                 .map(|(model_id, model)| (normalize(model_id), ModelTraits::from_model(model)))
-        })
-        .collect();
-
-    let mut result = HashMap::new();
-
-    for entry in entries {
-        if entry.creator.is_empty() || entry.slug.is_empty() {
-            continue;
+                .collect();
+            model_lookup.insert(norm_provider, models);
         }
 
-        let norm_creator = normalize(&entry.creator);
-        let norm_slug = normalize(&entry.slug);
+        let all_models: Vec<(String, ModelTraits)> = providers
+            .iter()
+            .flat_map(|(_, provider)| {
+                provider
+                    .models
+                    .iter()
+                    .map(|(model_id, model)| (normalize(model_id), ModelTraits::from_model(model)))
+            })
+            .collect();
+
+        Self {
+            provider_set,
+            model_lookup,
+            all_models,
+        }
+    }
+
+    /// Match a single `(creator, slug)` pair via the three-stage strategy:
+    /// creator-scoped Jaro-Winkler, global fallback, then known-creator
+    /// openness override. Returns `None` when nothing meets [`MIN_SIMILARITY`]
+    /// and the creator has no override.
+    fn match_pair(&self, creator: &str, slug: &str) -> Option<ModelTraits> {
+        if creator.is_empty() || slug.is_empty() {
+            return None;
+        }
+
+        let norm_creator = normalize(creator);
+        let norm_slug = normalize(slug);
 
         // Stage 1: Creator-scoped matching
-        let mapped = creator_to_providers(&entry.creator);
+        let mapped = creator_to_providers(creator);
         let provider_ids: Vec<String> = if mapped.is_empty() {
-            vec![norm_creator.clone()]
+            vec![norm_creator]
         } else {
             mapped.iter().map(|id| normalize(id)).collect()
         };
@@ -173,11 +139,11 @@ fn match_entries(
         let mut best_traits: Option<&ModelTraits> = None;
 
         for norm_provider_id in &provider_ids {
-            if !provider_set.contains_key(norm_provider_id.as_str()) {
+            if !self.provider_set.contains_key(norm_provider_id.as_str()) {
                 continue;
             }
 
-            if let Some(models) = model_lookup.get(norm_provider_id.as_str()) {
+            if let Some(models) = self.model_lookup.get(norm_provider_id.as_str()) {
                 for (norm_model_id, traits) in models {
                     let score = strsim::jaro_winkler(&norm_slug, norm_model_id);
                     if score > best_score {
@@ -197,7 +163,7 @@ fn match_entries(
 
         // Stage 2: Global fallback — search all models if creator-scoped didn't match
         if best_score < MIN_SIMILARITY {
-            for (norm_model_id, traits) in &all_models {
+            for (norm_model_id, traits) in &self.all_models {
                 let score = strsim::jaro_winkler(&norm_slug, norm_model_id);
                 if score > best_score {
                     best_score = score;
@@ -211,42 +177,70 @@ fn match_entries(
 
         if best_score >= MIN_SIMILARITY {
             if let Some(traits) = best_traits {
-                result.insert(
-                    entry.slug.clone(),
-                    ModelTraits {
-                        open_weights: traits.open_weights,
-                        reasoning: traits.reasoning,
-                        tool_call: traits.tool_call,
-                        context_window: traits.context_window,
-                        max_output: traits.max_output,
-                    },
-                );
-                continue;
+                return Some(ModelTraits {
+                    open_weights: traits.open_weights,
+                    context_window: traits.context_window,
+                });
             }
         }
 
         // Stage 3: Known creator overrides for providers absent from models.dev
-        if let Some(ow) = known_creator_openness(&entry.creator) {
-            result.insert(
-                entry.slug.clone(),
-                ModelTraits {
-                    open_weights: ow,
-                    reasoning: false,
-                    tool_call: false,
-                    context_window: None,
-                    max_output: None,
-                },
-            );
+        known_creator_openness(creator).map(|ow| ModelTraits {
+            open_weights: ow,
+            context_window: None,
+        })
+    }
+}
+
+/// Augment AA [`ModelRow`]s with traits from models.dev.
+///
+/// AA-only call site: the model id (the AA slug) is matched against models.dev
+/// model IDs with a Jaro-Winkler + creator-scoping strategy, filling
+/// `open_weights` and `context_window` from the matched models.dev model (and
+/// the known-creator-openness overrides for creators absent from models.dev).
+/// Existing populated fields are left untouched.
+pub fn apply_model_traits(providers: &[(String, Provider)], models: &mut [ModelRow]) {
+    let index = MatchIndex::build(providers);
+    for model in models {
+        if let Some(traits) = index.match_pair(&model.creator, &model.id) {
+            if model.open_weights.is_none() {
+                model.open_weights = Some(traits.open_weights);
+            }
+            if model.context_window.is_none() {
+                model.context_window = traits.context_window;
+            }
         }
     }
+}
 
-    result
+/// Derive a creator → openness map from model-level `open_weights`.
+///
+/// A creator maps to `true` if any of its models is open-weight, `false` if all
+/// of its models with a known status are closed, and is absent entirely when no
+/// model under that creator has a known status. Drives the sidebar O/C
+/// indicators and the `4` weights filter.
+pub fn creator_openness(models: &[ModelRow]) -> HashMap<String, bool> {
+    // creator -> (any_open, any_known)
+    let mut acc: HashMap<String, (bool, bool)> = HashMap::new();
+    for model in models {
+        if model.creator.is_empty() {
+            continue;
+        }
+        if let Some(open) = model.open_weights {
+            let entry = acc.entry(model.creator.clone()).or_insert((false, false));
+            entry.0 |= open;
+            entry.1 = true;
+        }
+    }
+    acc.into_iter()
+        .filter(|(_, (_, any_known))| *any_known)
+        .map(|(creator, (any_open, _))| (creator, any_open))
+        .collect()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::benchmarks::BenchmarkEntry;
     use crate::data::{Model, Provider, ProvidersMap};
 
     fn make_provider(id: &str, models: Vec<(&str, bool)>) -> (String, Provider) {
@@ -296,44 +290,11 @@ mod tests {
         }
     }
 
-    fn make_entry(creator: &str, slug: &str) -> BenchmarkEntry {
-        BenchmarkEntry {
-            id: String::new(),
-            name: slug.to_string(),
-            slug: slug.to_string(),
-            creator: creator.to_string(),
-            creator_id: String::new(),
-            creator_name: String::new(),
-            release_date: None,
-            intelligence_index: None,
-            coding_index: None,
-            math_index: None,
-            mmlu_pro: None,
-            gpqa: None,
-            hle: None,
-            livecodebench: None,
-            scicode: None,
-            ifbench: None,
-            lcr: None,
-            terminalbench_hard: None,
-            tau2: None,
-            math_500: None,
-            aime: None,
-            aime_25: None,
-            output_tps: None,
-            ttft: None,
-            ttfat: None,
-            price_input: None,
-            price_output: None,
-            price_blended: None,
-            reasoning_status: Default::default(),
-            effort_level: None,
-            variant_tag: None,
-            display_name: String::new(),
-            tool_call: None,
-            context_window: None,
-            max_output: None,
-        }
+    /// Match a single AA model row and read back its derived openness.
+    fn match_openness(providers: &[(String, Provider)], creator: &str, id: &str) -> Option<bool> {
+        let mut models = vec![make_model_row(creator, id)];
+        apply_model_traits(providers, &mut models);
+        models[0].open_weights
     }
 
     #[test]
@@ -342,10 +303,10 @@ mod tests {
             "llama",
             vec![("llama-3.1-70b", true), ("llama-3.1-8b", true)],
         )];
-        let entries = vec![make_entry("meta", "llama-3.1-70b")];
-
-        let map = build_open_weights_map(&providers, &entries);
-        assert_eq!(map.get("llama-3.1-70b"), Some(&true));
+        assert_eq!(
+            match_openness(&providers, "meta", "llama-3.1-70b"),
+            Some(true)
+        );
     }
 
     #[test]
@@ -354,19 +315,16 @@ mod tests {
             "openai",
             vec![("gpt-4o", false), ("gpt-4o-mini", false)],
         )];
-        let entries = vec![make_entry("openai", "gpt-4o")];
-
-        let map = build_open_weights_map(&providers, &entries);
-        assert_eq!(map.get("gpt-4o"), Some(&false));
+        assert_eq!(match_openness(&providers, "openai", "gpt-4o"), Some(false));
     }
 
     #[test]
-    fn test_unmatched_creator_not_in_map() {
+    fn test_unmatched_creator_not_matched() {
         let providers = vec![make_provider("openai", vec![("gpt-4o", false)])];
-        let entries = vec![make_entry("unknown-lab", "some-model")];
-
-        let map = build_open_weights_map(&providers, &entries);
-        assert!(map.is_empty());
+        assert_eq!(
+            match_openness(&providers, "unknown-lab", "some-model"),
+            None
+        );
     }
 
     #[test]
@@ -375,10 +333,10 @@ mod tests {
             "mistral",
             vec![("mistral-large-2411", false)],
         )];
-        let entries = vec![make_entry("mistral", "mistral-large")];
-
-        let map = build_open_weights_map(&providers, &entries);
-        assert_eq!(map.get("mistral-large"), Some(&false));
+        assert_eq!(
+            match_openness(&providers, "mistral", "mistral-large"),
+            Some(false)
+        );
     }
 
     #[test]
@@ -388,20 +346,19 @@ mod tests {
             "llama",
             vec![("llama-3.1-405b", true), ("llama-3.2-1b", true)],
         )];
-        let entries = vec![
-            make_entry("meta", "llama-3.1-405b"),
-            make_entry("meta", "llama-3.2-1b"),
-        ];
-
-        let map = build_open_weights_map(&providers, &entries);
-        assert_eq!(map.len(), 2);
-        assert_eq!(map.get("llama-3.1-405b"), Some(&true));
-        assert_eq!(map.get("llama-3.2-1b"), Some(&true));
+        assert_eq!(
+            match_openness(&providers, "meta", "llama-3.1-405b"),
+            Some(true)
+        );
+        assert_eq!(
+            match_openness(&providers, "meta", "llama-3.2-1b"),
+            Some(true)
+        );
     }
 
     #[test]
     fn test_best_score_picks_closest() {
-        // Given two models, pick the one that matches best
+        // "claude-35-sonnet" should match a sonnet model (not haiku); both closed.
         let providers = vec![make_provider(
             "anthropic",
             vec![
@@ -410,17 +367,15 @@ mod tests {
                 ("claude-3-5-haiku-20241022", false),
             ],
         )];
-        // "claude-35-sonnet" should match both sonnet models (not haiku)
-        let entries = vec![make_entry("anthropic", "claude-35-sonnet")];
-
-        let map = build_open_weights_map(&providers, &entries);
-        // Should match one of the sonnet models (both are closed)
-        assert_eq!(map.get("claude-35-sonnet"), Some(&false));
+        assert_eq!(
+            match_openness(&providers, "anthropic", "claude-35-sonnet"),
+            Some(false)
+        );
     }
 
     #[test]
     fn test_best_score_prefers_longer_slug_overlap() {
-        // "gemini-2-5-pro" should match "gemini-2.5-pro" over "gemini-2.5-pro-preview"
+        // "gemini-2-5-pro" should match "gemini-2.5-pro" over the preview variant.
         let providers = vec![make_provider(
             "google",
             vec![
@@ -428,70 +383,75 @@ mod tests {
                 ("gemini-2.5-pro-preview-05-06", false),
             ],
         )];
-        let entries = vec![make_entry("google", "gemini-2-5-pro")];
-
-        let map = build_open_weights_map(&providers, &entries);
-        assert_eq!(map.get("gemini-2-5-pro"), Some(&false));
+        assert_eq!(
+            match_openness(&providers, "google", "gemini-2-5-pro"),
+            Some(false)
+        );
     }
 
     #[test]
     fn test_reordered_tokens_match() {
         // AA: "llama-3-1-instruct-405b" vs models.dev: "llama-3.1-405b-instruct"
-        // These differ in token order but should match via Jaro-Winkler
+        // These differ in token order but should match via Jaro-Winkler.
         let providers = vec![make_provider(
             "llama",
             vec![("llama-3.1-405b-instruct", true)],
         )];
-        let entries = vec![make_entry("meta", "llama-3-1-instruct-405b")];
-
-        let map = build_open_weights_map(&providers, &entries);
-        assert_eq!(map.get("llama-3-1-instruct-405b"), Some(&true));
+        assert_eq!(
+            match_openness(&providers, "meta", "llama-3-1-instruct-405b"),
+            Some(true)
+        );
     }
 
     #[test]
     fn test_cross_family_rejected() {
-        // "gemma-3-27b" should NOT match "gemini-3-pro" — different model families
+        // "gemma-3-27b" should NOT match "gemini-3-pro" — different model families.
         let providers = vec![make_provider(
             "google",
             vec![("gemini-3-pro-preview", false)],
         )];
-        let entries = vec![make_entry("google", "gemma-3-27b")];
-
-        let map = build_open_weights_map(&providers, &entries);
-        assert!(map.is_empty(), "gemma should not match gemini");
+        assert_eq!(match_openness(&providers, "google", "gemma-3-27b"), None);
     }
 
-    /// Diagnostic test: runs matching against real benchmarks.json + live models.dev API.
+    /// Diagnostic test: runs v2 matching against the committed AA data file + the
+    /// live models.dev API.
     /// Run manually with: cargo test diagnostic_match_rate -- --ignored --nocapture
     #[test]
     #[ignore]
     fn diagnostic_match_rate() {
-        // Load benchmark entries from local data file
-        let bench_path =
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("data/benchmarks.json");
+        use crate::benchmarks::schema::SourceFile;
+
+        // Load AA model rows from the committed v2 data file.
+        let bench_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("data/v2/aa.json");
         let bench_data = std::fs::read_to_string(&bench_path)
             .unwrap_or_else(|_| panic!("Failed to read {}", bench_path.display()));
-        let entries: Vec<BenchmarkEntry> =
-            serde_json::from_str(&bench_data).expect("Failed to parse benchmarks.json");
+        let file: SourceFile =
+            serde_json::from_str(&bench_data).expect("Failed to parse data/v2/aa.json");
 
-        // Fetch providers from models.dev API
+        // Fetch providers from models.dev API.
         let api_url = "https://models.dev/api.json";
         let response = reqwest::blocking::get(api_url).expect("Failed to fetch models.dev API");
         let providers_map: ProvidersMap = response.json().expect("Failed to parse API response");
         let providers: Vec<(String, crate::data::Provider)> = providers_map.into_iter().collect();
 
-        // Run matching
-        let map = build_open_weights_map(&providers, &entries);
+        // Run matching on a clone so we observe derived openness per model.
+        let mut models = file.models.clone();
+        apply_model_traits(&providers, &mut models);
 
-        // Report stats
-        let total = entries.len();
-        let matched = map.len();
+        let total = models.len();
+        let matched = models.iter().filter(|m| m.open_weights.is_some()).count();
         let unmatched = total - matched;
-        let open_count = map.values().filter(|&&v| v).count();
-        let closed_count = map.values().filter(|&&v| !v).count();
+        let open_count = models
+            .iter()
+            .filter(|m| m.open_weights == Some(true))
+            .count();
+        let closed_count = models
+            .iter()
+            .filter(|m| m.open_weights == Some(false))
+            .count();
 
         println!("\n=== Open Weights Match Rate ===");
-        println!("Total AA entries:  {total}");
+        println!("Total AA models:   {total}");
         println!(
             "Matched:           {matched} ({:.1}%)",
             matched as f64 / total as f64 * 100.0
@@ -503,83 +463,152 @@ mod tests {
             unmatched as f64 / total as f64 * 100.0
         );
 
-        // Group unmatched by creator
+        // Group unmatched by creator.
         let mut unmatched_by_creator: HashMap<&str, Vec<&str>> = HashMap::new();
-        for entry in &entries {
-            if !map.contains_key(&entry.slug) {
+        for model in &models {
+            if model.open_weights.is_none() {
                 unmatched_by_creator
-                    .entry(&entry.creator)
+                    .entry(model.creator.as_str())
                     .or_default()
-                    .push(&entry.slug);
+                    .push(model.id.as_str());
             }
         }
         let mut unmatched_creators: Vec<_> = unmatched_by_creator.iter().collect();
-        unmatched_creators.sort_by(|a, b| b.1.len().cmp(&a.1.len()));
-
-        // Build provider ID set for checking availability
-        let provider_set: HashMap<String, Vec<String>> = providers
-            .iter()
-            .map(|(id, p)| {
-                let model_ids: Vec<String> = p.models.keys().cloned().collect();
-                (normalize(id), model_ids)
-            })
-            .collect();
+        unmatched_creators.sort_by_key(|b| std::cmp::Reverse(b.1.len()));
 
         println!("\n--- Unmatched by creator ---");
-        let mut no_provider_count = 0;
-        let mut has_provider_count = 0;
-
-        for &(creator, slugs) in &unmatched_creators {
+        for &(creator, ids) in &unmatched_creators {
             let mapped = creator_to_providers(creator);
-            let norm_ids: Vec<String> = if mapped.is_empty() {
-                vec![normalize(creator)]
-            } else {
-                mapped.iter().map(|id| normalize(id)).collect()
-            };
-
-            let has_provider = norm_ids
-                .iter()
-                .any(|id| provider_set.contains_key(id.as_str()));
-            let status = if has_provider {
-                has_provider_count += slugs.len();
-                "HAS PROVIDER"
-            } else {
-                no_provider_count += slugs.len();
-                "NO PROVIDER"
-            };
-
             let mapping_note = if mapped.is_empty() {
                 format!("(identity: {})", normalize(creator))
             } else {
-                format!("(mapped → {:?})", mapped)
+                format!("(mapped → {mapped:?})")
             };
-            println!(
-                "[{status}] {creator} ({} entries) {mapping_note}",
-                slugs.len()
-            );
-            for slug in slugs {
-                println!("  - {slug}");
-            }
-
-            // Show sample model IDs from the provider for gap analysis
-            if has_provider {
-                for norm_id in &norm_ids {
-                    if let Some(model_ids) = provider_set.get(norm_id.as_str()) {
-                        let mut sample: Vec<&str> = model_ids.iter().map(|s| s.as_str()).collect();
-                        sample.sort();
-                        sample.truncate(10);
-                        println!(
-                            "  >> models.dev has: {:?}{}",
-                            sample,
-                            if model_ids.len() > 10 { " ..." } else { "" }
-                        );
-                    }
-                }
+            println!("{creator} ({} models) {mapping_note}", ids.len());
+            for id in ids {
+                println!("  - {id}");
             }
         }
+    }
 
-        println!("\n--- Summary ---");
-        println!("No provider in models.dev:  {no_provider_count} (truly unmatchable)");
-        println!("Has provider, slug mismatch: {has_provider_count} (potentially fixable)");
+    fn make_model_row(creator: &str, id: &str) -> ModelRow {
+        ModelRow {
+            id: id.to_string(),
+            name: id.to_string(),
+            display_name: id.to_string(),
+            creator: creator.to_string(),
+            creator_name: creator.to_string(),
+            release_date: None,
+            reasoning_status: Default::default(),
+            effort_level: None,
+            variant_tag: None,
+            open_weights: None,
+            context_window: None,
+            scores: std::collections::BTreeMap::new(),
+        }
+    }
+
+    #[test]
+    fn test_apply_model_traits_fills_open_weights() {
+        let providers = vec![make_provider("openai", vec![("gpt-4o", false)])];
+        let mut models = vec![make_model_row("openai", "gpt-4o")];
+        apply_model_traits(&providers, &mut models);
+        assert_eq!(models[0].open_weights, Some(false));
+    }
+
+    #[test]
+    fn test_apply_model_traits_open_via_creator_mapping() {
+        // meta → llama provider; llama models are open.
+        let providers = vec![make_provider("llama", vec![("llama-3.1-405b", true)])];
+        let mut models = vec![make_model_row("meta", "llama-3.1-405b")];
+        apply_model_traits(&providers, &mut models);
+        assert_eq!(models[0].open_weights, Some(true));
+    }
+
+    #[test]
+    fn test_apply_model_traits_known_creator_override() {
+        // ai2 has no models.dev provider but is a known open-weight creator.
+        let providers = vec![make_provider("openai", vec![("gpt-4o", false)])];
+        let mut models = vec![make_model_row("ai2", "olmo-2-32b")];
+        apply_model_traits(&providers, &mut models);
+        assert_eq!(models[0].open_weights, Some(true));
+    }
+
+    #[test]
+    fn test_apply_model_traits_unmatched_left_none() {
+        let providers = vec![make_provider("openai", vec![("gpt-4o", false)])];
+        let mut models = vec![make_model_row("unknown-lab", "some-model")];
+        apply_model_traits(&providers, &mut models);
+        assert_eq!(models[0].open_weights, None);
+    }
+
+    #[test]
+    fn test_apply_model_traits_preserves_existing() {
+        // A pre-populated open_weights must not be overwritten by matching.
+        let providers = vec![make_provider("openai", vec![("gpt-4o", false)])];
+        let mut models = vec![make_model_row("openai", "gpt-4o")];
+        models[0].open_weights = Some(true);
+        apply_model_traits(&providers, &mut models);
+        assert_eq!(models[0].open_weights, Some(true));
+    }
+
+    #[test]
+    fn test_apply_model_traits_fills_context_window() {
+        let mut model_map = HashMap::new();
+        model_map.insert(
+            "gpt-4o".to_string(),
+            Model {
+                id: "gpt-4o".to_string(),
+                name: "gpt-4o".to_string(),
+                limit: Some(crate::data::Limits {
+                    context: Some(128_000),
+                    input: None,
+                    output: Some(16_000),
+                }),
+                ..default_model()
+            },
+        );
+        let providers = vec![(
+            "openai".to_string(),
+            Provider {
+                id: "openai".to_string(),
+                name: "openai".to_string(),
+                npm: None,
+                env: Vec::new(),
+                doc: None,
+                api: None,
+                models: model_map,
+            },
+        )];
+        let mut models = vec![make_model_row("openai", "gpt-4o")];
+        apply_model_traits(&providers, &mut models);
+        assert_eq!(models[0].context_window, Some(128_000));
+    }
+
+    #[test]
+    fn test_creator_openness() {
+        let models = vec![
+            {
+                let mut m = make_model_row("meta", "llama-a");
+                m.open_weights = Some(true);
+                m
+            },
+            {
+                let mut m = make_model_row("meta", "llama-b");
+                m.open_weights = Some(false); // any-open wins → meta = open
+                m
+            },
+            {
+                let mut m = make_model_row("openai", "gpt-a");
+                m.open_weights = Some(false);
+                m
+            },
+            // unknown openness — should not create an entry
+            make_model_row("mystery", "x"),
+        ];
+        let map = creator_openness(&models);
+        assert_eq!(map.get("meta"), Some(&true));
+        assert_eq!(map.get("openai"), Some(&false));
+        assert!(!map.contains_key("mystery"));
     }
 }

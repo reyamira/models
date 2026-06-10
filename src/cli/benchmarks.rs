@@ -1,4 +1,4 @@
-use std::{collections::HashMap, time::Duration};
+use std::time::Duration;
 
 use anyhow::{bail, Result};
 use clap::{CommandFactory, Parser, ValueEnum};
@@ -18,10 +18,8 @@ use serde::Serialize;
 
 use super::picker::{self, PickerTerminal};
 
-use crate::benchmarks::{
-    BenchmarkEntry, BenchmarkFetchResult, BenchmarkFetcher, BenchmarkStore, ReasoningFilter,
-    ReasoningStatus,
-};
+use crate::benchmarks::schema::{ModelRow, ReasoningStatus, SourceFile};
+use crate::benchmarks::{fetch_source, multi::ReasoningFilter, sources::SOURCES};
 use crate::formatting::{cmp_opt_f64, parse_date_to_numeric, truncate};
 
 #[derive(Parser, Debug)]
@@ -165,37 +163,46 @@ impl BenchmarkSort {
         )
     }
 
-    fn extract(self, entry: &BenchmarkEntry) -> Option<f64> {
+    /// The metric id this sort column reads from a model's score map, or `None`
+    /// for the non-metric sorts (Name, ReleaseDate).
+    fn metric_id(self) -> Option<&'static str> {
+        Some(match self {
+            Self::Intelligence => "intelligence_index",
+            Self::Coding => "coding_index",
+            Self::Math => "math_index",
+            Self::Gpqa => "gpqa",
+            Self::MmluPro => "mmlu_pro",
+            Self::Hle => "hle",
+            Self::LiveCodeBench => "livecodebench",
+            Self::Scicode => "scicode",
+            Self::Ifbench => "ifbench",
+            Self::Lcr => "lcr",
+            Self::TerminalBench => "terminalbench_hard",
+            Self::Tau2 => "tau2",
+            Self::Speed => "output_tps",
+            Self::Ttft => "ttft",
+            Self::Ttfat => "ttfat",
+            Self::PriceInput => "price_input",
+            Self::PriceOutput => "price_output",
+            Self::PriceBlended => "price_blended",
+            Self::Name | Self::ReleaseDate => return None,
+        })
+    }
+
+    fn extract(self, row: &ModelRow) -> Option<f64> {
         match self {
-            Self::Intelligence => entry.intelligence_index,
-            Self::Coding => entry.coding_index,
-            Self::Math => entry.math_index,
-            Self::Gpqa => entry.gpqa,
-            Self::MmluPro => entry.mmlu_pro,
-            Self::Hle => entry.hle,
-            Self::LiveCodeBench => entry.livecodebench,
-            Self::Scicode => entry.scicode,
-            Self::Ifbench => entry.ifbench,
-            Self::Lcr => entry.lcr,
-            Self::TerminalBench => entry.terminalbench_hard,
-            Self::Tau2 => entry.tau2,
-            Self::Speed => entry.output_tps,
-            Self::Ttft => entry.ttft,
-            Self::Ttfat => entry.ttfat,
-            Self::PriceInput => entry.price_input,
-            Self::PriceOutput => entry.price_output,
-            Self::PriceBlended => entry.price_blended,
             Self::Name => Some(0.0),
-            Self::ReleaseDate => entry
-                .release_date
-                .as_deref()
-                .and_then(parse_date_to_numeric),
+            Self::ReleaseDate => row.release_date.as_deref().and_then(parse_date_to_numeric),
+            _ => self
+                .metric_id()
+                .and_then(|id| row.scores.get(id))
+                .map(|cell| cell.value),
         }
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum SourceFilter {
+enum WeightsFilter {
     All,
     Open,
     Closed,
@@ -207,7 +214,7 @@ struct ListOptions {
     creator: Option<String>,
     sort: BenchmarkSort,
     descending: bool,
-    source_filter: SourceFilter,
+    weights_filter: WeightsFilter,
     reasoning_filter: ReasoningFilter,
     limit: Option<usize>,
 }
@@ -266,8 +273,8 @@ struct BenchmarkDetail<'a> {
 }
 
 enum ResolveEntry<'a> {
-    Single(&'a BenchmarkEntry),
-    Ambiguous(Vec<&'a BenchmarkEntry>),
+    Single(&'a ModelRow),
+    Ambiguous(Vec<&'a ModelRow>),
 }
 
 const PICKER_SORTS: [BenchmarkSort; 9] = [
@@ -282,10 +289,14 @@ const PICKER_SORTS: [BenchmarkSort; 9] = [
     BenchmarkSort::Name,
 ];
 
+/// Read a metric value (`scores[id].value`) from a model row.
+fn metric(row: &ModelRow, id: &str) -> Option<f64> {
+    row.scores.get(id).map(|cell| cell.value)
+}
+
 struct BenchmarkPicker<'a> {
-    entries: Vec<&'a BenchmarkEntry>,
-    visible_entries: Vec<&'a BenchmarkEntry>,
-    open_weights_map: &'a HashMap<String, bool>,
+    entries: Vec<&'a ModelRow>,
+    visible_entries: Vec<&'a ModelRow>,
     sort: BenchmarkSort,
     descending: bool,
     title: String,
@@ -296,8 +307,7 @@ struct BenchmarkPicker<'a> {
 
 impl<'a> BenchmarkPicker<'a> {
     fn new(
-        entries: Vec<&'a BenchmarkEntry>,
-        open_weights_map: &'a HashMap<String, bool>,
+        entries: Vec<&'a ModelRow>,
         sort: BenchmarkSort,
         descending: bool,
         title: String,
@@ -305,7 +315,6 @@ impl<'a> BenchmarkPicker<'a> {
         let mut picker = Self {
             entries,
             visible_entries: Vec::new(),
-            open_weights_map,
             sort,
             descending,
             title,
@@ -317,7 +326,7 @@ impl<'a> BenchmarkPicker<'a> {
         picker
     }
 
-    fn selected(&self) -> Option<&'a BenchmarkEntry> {
+    fn selected(&self) -> Option<&'a ModelRow> {
         self.state.selected().map(|idx| self.visible_entries[idx])
     }
 
@@ -352,12 +361,12 @@ impl<'a> BenchmarkPicker<'a> {
             .unwrap_or(0);
         self.sort = PICKER_SORTS[(current_idx + 1) % PICKER_SORTS.len()];
         self.descending = self.sort.default_descending();
-        self.rebuild_visible_entries(self.selected().map(|entry| entry.slug.as_str()));
+        self.rebuild_visible_entries(self.selected().map(|row| row.id.as_str()));
     }
 
     fn toggle_descending(&mut self) {
         self.descending = !self.descending;
-        self.rebuild_visible_entries(self.selected().map(|entry| entry.slug.as_str()));
+        self.rebuild_visible_entries(self.selected().map(|row| row.id.as_str()));
     }
 
     fn start_filter(&mut self) {
@@ -376,23 +385,19 @@ impl<'a> BenchmarkPicker<'a> {
 
     fn push_filter_char(&mut self, ch: char) {
         self.query.push(ch);
-        self.rebuild_visible_entries(self.selected().map(|entry| entry.slug.as_str()));
+        self.rebuild_visible_entries(self.selected().map(|row| row.id.as_str()));
     }
 
     fn pop_filter_char(&mut self) {
         self.query.pop();
-        self.rebuild_visible_entries(self.selected().map(|entry| entry.slug.as_str()));
+        self.rebuild_visible_entries(self.selected().map(|row| row.id.as_str()));
     }
 
     fn rebuild_visible_entries(&mut self, preserve_slug: Option<&str>) {
         self.visible_entries =
             filter_picker_entries(&self.entries, &self.query, self.sort, self.descending);
         let next_selected = preserve_slug
-            .and_then(|slug| {
-                self.visible_entries
-                    .iter()
-                    .position(|entry| entry.slug == slug)
-            })
+            .and_then(|slug| self.visible_entries.iter().position(|row| row.id == slug))
             .or_else(|| (!self.visible_entries.is_empty()).then_some(0));
         self.state.select(next_selected);
     }
@@ -406,29 +411,28 @@ impl<'a> BenchmarkPicker<'a> {
             .direction(Direction::Horizontal)
             .constraints([Constraint::Percentage(55), Constraint::Percentage(45)])
             .split(outer[0]);
-        let rows = self.visible_entries.iter().map(|entry| {
+        let rows = self.visible_entries.iter().map(|row| {
             use ratatui::text::Span;
 
-            let reasoning_cell = match entry.reasoning_status {
-                crate::benchmarks::ReasoningStatus::Reasoning => {
+            let reasoning_cell = match row.reasoning_status {
+                ReasoningStatus::Reasoning => {
                     TuiCell::from(Span::styled("R", Style::default().fg(Color::Cyan)))
                 }
-                crate::benchmarks::ReasoningStatus::Adaptive => {
+                ReasoningStatus::Adaptive => {
                     TuiCell::from(Span::styled("A", Style::default().fg(Color::Cyan)))
                 }
                 _ => TuiCell::from(""),
             };
-            let source_cell = match self.open_weights_map.get(&entry.slug).copied() {
+            let source_cell = match row.open_weights {
                 Some(true) => TuiCell::from(Span::styled("O", Style::default().fg(Color::Green))),
                 Some(false) => TuiCell::from(Span::styled("C", Style::default().fg(Color::Red))),
                 None => TuiCell::from(""),
             };
             TuiRow::new(vec![
-                TuiCell::from(truncate(&entry.display_name, 28)),
-                TuiCell::from(truncate(creator_label(entry), 14)),
+                TuiCell::from(truncate(&row.display_name, 28)),
+                TuiCell::from(truncate(creator_label(row), 14)),
                 TuiCell::from(
-                    entry
-                        .release_date
+                    row.release_date
                         .clone()
                         .unwrap_or_else(|| "\u{2014}".to_string()),
                 ),
@@ -491,7 +495,7 @@ impl<'a> BenchmarkPicker<'a> {
     fn preview_lines(&self) -> Vec<Line<'static>> {
         use ratatui::text::Span;
 
-        let Some(entry) = self.selected() else {
+        let Some(row) = self.selected() else {
             return vec![
                 Line::from("No matches"),
                 Line::from(""),
@@ -500,7 +504,7 @@ impl<'a> BenchmarkPicker<'a> {
         };
         let dim = Style::default().fg(Color::DarkGray);
         let label = |s: &str| -> Span<'static> { Span::styled(format!("{s}: "), dim) };
-        let metric = |v: Option<f64>| -> Span<'static> {
+        let metric_span = |v: Option<f64>| -> Span<'static> {
             match v {
                 Some(val) => Span::raw(format!("{val:.2}")),
                 None => Span::styled("\u{2014}", dim),
@@ -510,29 +514,29 @@ impl<'a> BenchmarkPicker<'a> {
         // Header
         let mut lines = vec![Line::from(vec![
             Span::styled(
-                entry.display_name.clone(),
+                row.display_name.clone(),
                 Style::default()
                     .fg(Color::White)
                     .add_modifier(Modifier::BOLD),
             ),
             Span::raw("  "),
-            Span::styled(entry.slug.clone(), dim),
+            Span::styled(row.id.clone(), dim),
         ])];
 
         // Categorical row: creator + reasoning + source
-        let reasoning_text = match entry.reasoning_status {
-            crate::benchmarks::ReasoningStatus::Reasoning => ("R", Color::Cyan),
-            crate::benchmarks::ReasoningStatus::Adaptive => ("A", Color::Cyan),
-            crate::benchmarks::ReasoningStatus::NonReasoning => ("NR", Color::DarkGray),
-            crate::benchmarks::ReasoningStatus::None => ("?", Color::DarkGray),
+        let reasoning_text = match row.reasoning_status {
+            ReasoningStatus::Reasoning => ("R", Color::Cyan),
+            ReasoningStatus::Adaptive => ("A", Color::Cyan),
+            ReasoningStatus::NonReasoning => ("NR", Color::DarkGray),
+            ReasoningStatus::None => ("?", Color::DarkGray),
         };
-        let source_text = match self.open_weights_map.get(&entry.slug).copied() {
+        let source_text = match row.open_weights {
             Some(true) => ("Open", Color::Green),
             Some(false) => ("Closed", Color::Red),
             None => ("\u{2014}", Color::DarkGray),
         };
         let mut meta_spans = vec![
-            Span::styled(entry.creator_name.clone(), dim),
+            Span::styled(row.creator_name.clone(), dim),
             Span::raw("  "),
             Span::styled(
                 reasoning_text.0.to_string(),
@@ -544,7 +548,7 @@ impl<'a> BenchmarkPicker<'a> {
                 Style::default().fg(source_text.1),
             ),
         ];
-        if let Some(ref date) = entry.release_date {
+        if let Some(ref date) = row.release_date {
             meta_spans.push(Span::raw("  "));
             meta_spans.push(Span::raw(date.clone()));
         }
@@ -554,53 +558,53 @@ impl<'a> BenchmarkPicker<'a> {
         lines.push(Line::from(""));
         lines.push(Line::from(vec![
             label("Intelligence"),
-            metric(entry.intelligence_index),
+            metric_span(metric(row, "intelligence_index")),
             Span::raw("  "),
             label("Coding"),
-            metric(entry.coding_index),
+            metric_span(metric(row, "coding_index")),
             Span::raw("  "),
             label("Math"),
-            metric(entry.math_index),
+            metric_span(metric(row, "math_index")),
         ]));
         lines.push(Line::from(vec![
             label("GPQA"),
-            metric(entry.gpqa),
+            metric_span(metric(row, "gpqa")),
             Span::raw("  "),
             label("HLE"),
-            metric(entry.hle),
+            metric_span(metric(row, "hle")),
             Span::raw("  "),
             label("MMLU-Pro"),
-            metric(entry.mmlu_pro),
+            metric_span(metric(row, "mmlu_pro")),
         ]));
         lines.push(Line::from(vec![
             label("LiveCode"),
-            metric(entry.livecodebench),
+            metric_span(metric(row, "livecodebench")),
             Span::raw("  "),
             label("SciCode"),
-            metric(entry.scicode),
+            metric_span(metric(row, "scicode")),
             Span::raw("  "),
             label("IFBench"),
-            metric(entry.ifbench),
+            metric_span(metric(row, "ifbench")),
         ]));
 
         // Performance + pricing
         lines.push(Line::from(""));
         lines.push(Line::from(vec![
             label("Tok/s"),
-            metric(entry.output_tps),
+            metric_span(metric(row, "output_tps")),
             Span::raw("  "),
             label("TTFT"),
-            metric(entry.ttft),
+            metric_span(metric(row, "ttft")),
             Span::raw("  "),
             label("Blended $/M"),
-            metric(entry.price_blended),
+            metric_span(metric(row, "price_blended")),
         ]));
         lines.push(Line::from(vec![
             label("Input $/M"),
-            metric(entry.price_input),
+            metric_span(metric(row, "price_input")),
             Span::raw("  "),
             label("Output $/M"),
-            metric(entry.price_output),
+            metric_span(metric(row, "price_output")),
         ]));
 
         lines
@@ -649,12 +653,12 @@ pub fn run_with_command(command: Option<BenchmarksCommand>) -> Result<()> {
                 } else {
                     sort.default_descending()
                 },
-                source_filter: if open {
-                    SourceFilter::Open
+                weights_filter: if open {
+                    WeightsFilter::Open
                 } else if closed {
-                    SourceFilter::Closed
+                    WeightsFilter::Closed
                 } else {
-                    SourceFilter::All
+                    WeightsFilter::All
                 },
                 reasoning_filter: if reasoning {
                     ReasoningFilter::Reasoning
@@ -677,23 +681,23 @@ pub fn run_with_command(command: Option<BenchmarksCommand>) -> Result<()> {
 }
 
 fn run_list(options: ListOptions, json: bool) -> Result<()> {
-    let loaded = load_benchmarks()?;
-    let entries = filter_entries(loaded.entries(), &loaded.open_weights_map, &options);
+    let file = load_benchmarks()?;
+    let entries = filter_entries(&file.models, &options);
 
     if json {
         let items: Vec<_> = entries
             .iter()
-            .map(|entry| BenchmarkListItem {
-                slug: entry.slug.as_str(),
-                name: entry.name.as_str(),
-                display_name: entry.display_name.as_str(),
-                creator: entry.creator.as_str(),
-                creator_name: creator_label(entry),
-                release_date: entry.release_date.as_deref(),
+            .map(|row| BenchmarkListItem {
+                slug: row.id.as_str(),
+                name: row.name.as_str(),
+                display_name: row.display_name.as_str(),
+                creator: row.creator.as_str(),
+                creator_name: creator_label(row),
+                release_date: row.release_date.as_deref(),
                 sort: options.sort.label(),
-                sort_value: options.sort.extract(entry),
-                open_weights: loaded.open_weights_map.get(&entry.slug).copied(),
-                reasoning: reasoning_label(entry),
+                sort_value: options.sort.extract(row),
+                open_weights: row.open_weights,
+                reasoning: reasoning_label(row),
             })
             .collect();
         println!("{}", serde_json::to_string_pretty(&items)?);
@@ -707,27 +711,19 @@ fn run_list(options: ListOptions, json: bool) -> Result<()> {
 
     if super::styles::is_tty() {
         let title = " Benchmark Picker ".to_string();
-        if let Some(entry) = pick_benchmark(
-            entries,
-            &loaded.open_weights_map,
-            options.sort,
-            options.descending,
-            title.as_str(),
-        )? {
-            print_entry_detail(entry, &loaded.open_weights_map, false)?;
+        if let Some(row) =
+            pick_benchmark(entries, options.sort, options.descending, title.as_str())?
+        {
+            print_entry_detail(row, false)?;
         }
         return Ok(());
     }
 
-    print_list_table(&entries, &loaded.open_weights_map, options.sort);
+    print_list_table(&entries, options.sort);
     Ok(())
 }
 
-fn print_list_table(
-    entries: &[&BenchmarkEntry],
-    open_weights_map: &HashMap<String, bool>,
-    sort: BenchmarkSort,
-) {
+fn print_list_table(entries: &[&ModelRow], sort: BenchmarkSort) {
     let mut table = ComfyTable::new();
     table.load_preset(UTF8_FULL_CONDENSED);
     table.set_header(vec![
@@ -740,16 +736,15 @@ fn print_list_table(
         "Release",
     ]);
 
-    for entry in entries {
+    for row in entries {
         table.add_row(vec![
-            entry.slug.clone(),
-            entry.display_name.clone(),
-            creator_label(entry).to_string(),
-            format_sort_value(sort, entry),
-            format_open_weights(open_weights_map.get(&entry.slug).copied()),
-            reasoning_label(entry).to_string(),
-            entry
-                .release_date
+            row.id.clone(),
+            row.display_name.clone(),
+            creator_label(row).to_string(),
+            format_sort_value(sort, row),
+            format_open_weights(row.open_weights),
+            reasoning_label(row).to_string(),
+            row.release_date
                 .clone()
                 .unwrap_or_else(|| "\u{2014}".to_string()),
         ]);
@@ -759,86 +754,59 @@ fn print_list_table(
 }
 
 fn run_show(model: &str, json: bool) -> Result<()> {
-    let loaded = load_benchmarks()?;
-    match resolve_entry(loaded.entries(), model)? {
-        ResolveEntry::Single(entry) => print_entry_detail(entry, &loaded.open_weights_map, json)?,
-        ResolveEntry::Ambiguous(entries) => {
+    let file = load_benchmarks()?;
+    match resolve_entry(&file.models, model)? {
+        ResolveEntry::Single(row) => print_entry_detail(row, json)?,
+        ResolveEntry::Ambiguous(rows) => {
             if json || !super::styles::is_tty() {
-                bail!("{}", ambiguous_matches_message(model, &entries));
+                bail!("{}", ambiguous_matches_message(model, &rows));
             }
 
             let title = format!(" Select Benchmark Match for \"{model}\" ");
-            if let Some(entry) = pick_benchmark(
-                entries,
-                &loaded.open_weights_map,
-                BenchmarkSort::ReleaseDate,
-                true,
-                &title,
-            )? {
-                print_entry_detail(entry, &loaded.open_weights_map, false)?;
+            if let Some(row) = pick_benchmark(rows, BenchmarkSort::ReleaseDate, true, &title)? {
+                print_entry_detail(row, false)?;
             }
         }
     }
     Ok(())
 }
 
-struct LoadedBenchmarks {
-    store: BenchmarkStore,
-    open_weights_map: HashMap<String, bool>,
-}
-
-impl LoadedBenchmarks {
-    fn entries(&self) -> &[BenchmarkEntry] {
-        self.store.entries()
+/// Fetch the AA source file via the v2 fetch lane and parse it.
+///
+/// AA is `SOURCES[0]`. The fetch runs on a one-shot blocking runtime so the CLI
+/// stays synchronous.
+//
+// TODO(phase-3): `ModelRow.open_weights` is `None` for AA here — the trait-based
+// openness enrichment is currently TUI-side only, so the `S` column renders an
+// em-dash. A later phase may call
+// `crate::benchmarks::apply_model_traits(&providers, &mut file.models)` here
+// (after `crate::api::fetch_providers()`) to populate it, matching the TUI.
+fn load_benchmarks() -> Result<SourceFile> {
+    let runtime = tokio::runtime::Runtime::new()?;
+    match runtime.block_on(fetch_source(&SOURCES[0])) {
+        Some(file) => Ok(file),
+        None => bail!("Failed to fetch benchmark data from the CDN"),
     }
 }
 
-fn load_benchmarks() -> Result<LoadedBenchmarks> {
-    let providers = crate::api::fetch_providers()?;
-    let provider_vec: Vec<_> = providers.into_iter().collect();
-
-    let runtime = tokio::runtime::Runtime::new()?;
-    let fetcher = BenchmarkFetcher::new();
-    let entries = match runtime.block_on(fetcher.fetch()) {
-        BenchmarkFetchResult::Fresh(entries) => entries,
-        BenchmarkFetchResult::Error => {
-            bail!("Failed to fetch benchmark data from the CDN")
-        }
-    };
-
-    let mut store = BenchmarkStore::from_entries(entries);
-    crate::benchmarks::apply_model_traits(&provider_vec, store.entries_mut());
-    let open_weights_map =
-        crate::benchmarks::build_open_weights_map(&provider_vec, store.entries());
-
-    Ok(LoadedBenchmarks {
-        store,
-        open_weights_map,
-    })
-}
-
-fn filter_entries<'a>(
-    entries: &'a [BenchmarkEntry],
-    open_weights_map: &HashMap<String, bool>,
-    options: &ListOptions,
-) -> Vec<&'a BenchmarkEntry> {
+fn filter_entries<'a>(models: &'a [ModelRow], options: &ListOptions) -> Vec<&'a ModelRow> {
     let search = options.search.as_ref().map(|s| s.to_lowercase());
     let creator = options.creator.as_ref().map(|s| s.to_lowercase());
 
-    let mut filtered: Vec<_> = entries
+    let mut filtered: Vec<_> = models
         .iter()
-        .filter(|entry| {
-            if !matches_source_filter(options.source_filter, entry, open_weights_map) {
+        .filter(|row| {
+            if !matches_weights_filter(options.weights_filter, row) {
                 return false;
             }
 
-            if !options.reasoning_filter.matches(entry) {
+            if !options.reasoning_filter.matches(row) {
                 return false;
             }
 
             if let Some(creator_filter) = &creator {
-                let creator_name = creator_label(entry).to_lowercase();
-                if !entry.creator.to_lowercase().contains(creator_filter)
+                let creator_name = creator_label(row).to_lowercase();
+                if !row.creator.to_lowercase().contains(creator_filter)
                     && !creator_name.contains(creator_filter)
                 {
                     return false;
@@ -846,11 +814,11 @@ fn filter_entries<'a>(
             }
 
             if let Some(search_query) = &search {
-                let matches = entry.slug.to_lowercase().contains(search_query)
-                    || entry.name.to_lowercase().contains(search_query)
-                    || entry.display_name.to_lowercase().contains(search_query)
-                    || entry.creator.to_lowercase().contains(search_query)
-                    || creator_label(entry).to_lowercase().contains(search_query);
+                let matches = row.id.to_lowercase().contains(search_query)
+                    || row.name.to_lowercase().contains(search_query)
+                    || row.display_name.to_lowercase().contains(search_query)
+                    || row.creator.to_lowercase().contains(search_query)
+                    || creator_label(row).to_lowercase().contains(search_query);
                 if !matches {
                     return false;
                 }
@@ -861,7 +829,7 @@ fn filter_entries<'a>(
         .collect();
 
     if !matches!(options.sort, BenchmarkSort::Name) {
-        filtered.retain(|entry| options.sort.extract(entry).is_some());
+        filtered.retain(|row| options.sort.extract(row).is_some());
     }
 
     filtered.sort_by(|a, b| {
@@ -885,88 +853,78 @@ fn filter_entries<'a>(
     filtered
 }
 
-fn matches_source_filter(
-    source_filter: SourceFilter,
-    entry: &BenchmarkEntry,
-    open_weights_map: &HashMap<String, bool>,
-) -> bool {
-    match source_filter {
-        SourceFilter::All => true,
-        SourceFilter::Open => open_weights_map.get(&entry.slug).copied().unwrap_or(false),
-        SourceFilter::Closed => open_weights_map
-            .get(&entry.slug)
-            .map(|&open| !open)
-            .unwrap_or(false),
+fn matches_weights_filter(weights_filter: WeightsFilter, row: &ModelRow) -> bool {
+    match weights_filter {
+        WeightsFilter::All => true,
+        WeightsFilter::Open => row.open_weights.unwrap_or(false),
+        WeightsFilter::Closed => row.open_weights.map(|open| !open).unwrap_or(false),
     }
 }
 
-fn resolve_entry<'a>(entries: &'a [BenchmarkEntry], query: &str) -> Result<ResolveEntry<'a>> {
+fn resolve_entry<'a>(models: &'a [ModelRow], query: &str) -> Result<ResolveEntry<'a>> {
     let query_lower = query.to_lowercase();
 
-    if let Some(entry) = entries
-        .iter()
-        .find(|entry| entry.slug.eq_ignore_ascii_case(query))
-    {
-        return Ok(ResolveEntry::Single(entry));
+    if let Some(row) = models.iter().find(|row| row.id.eq_ignore_ascii_case(query)) {
+        return Ok(ResolveEntry::Single(row));
     }
 
-    let exact_matches = matching_entries(entries, |entry| {
-        entry.name.eq_ignore_ascii_case(query) || entry.display_name.eq_ignore_ascii_case(query)
+    let exact_matches = matching_entries(models, |row| {
+        row.name.eq_ignore_ascii_case(query) || row.display_name.eq_ignore_ascii_case(query)
     });
     match exact_matches.as_slice() {
-        [entry] => return Ok(ResolveEntry::Single(entry)),
+        [row] => return Ok(ResolveEntry::Single(row)),
         [] => {}
         many => return Ok(ResolveEntry::Ambiguous(many.to_vec())),
     }
 
-    let matches = matching_entries(entries, |entry| {
-        entry.slug.to_lowercase().contains(&query_lower)
-            || entry.name.to_lowercase().contains(&query_lower)
-            || entry.display_name.to_lowercase().contains(&query_lower)
+    let matches = matching_entries(models, |row| {
+        row.id.to_lowercase().contains(&query_lower)
+            || row.name.to_lowercase().contains(&query_lower)
+            || row.display_name.to_lowercase().contains(&query_lower)
     });
 
     match matches.as_slice() {
         [] => bail!("No benchmark entry matched '{query}'"),
-        [entry] => Ok(ResolveEntry::Single(entry)),
+        [row] => Ok(ResolveEntry::Single(row)),
         many => Ok(ResolveEntry::Ambiguous(many.to_vec())),
     }
 }
 
-fn matching_entries<F>(entries: &[BenchmarkEntry], predicate: F) -> Vec<&BenchmarkEntry>
+fn matching_entries<F>(models: &[ModelRow], predicate: F) -> Vec<&ModelRow>
 where
-    F: Fn(&BenchmarkEntry) -> bool,
+    F: Fn(&ModelRow) -> bool,
 {
-    let mut matches: Vec<_> = entries.iter().filter(|entry| predicate(entry)).collect();
+    let mut matches: Vec<_> = models.iter().filter(|row| predicate(row)).collect();
     matches.sort_by(|a, b| {
         a.display_name
             .cmp(&b.display_name)
-            .then_with(|| a.slug.cmp(&b.slug))
+            .then_with(|| a.id.cmp(&b.id))
     });
     matches
 }
 
 fn filter_picker_entries<'a>(
-    entries: &[&'a BenchmarkEntry],
+    entries: &[&'a ModelRow],
     query: &str,
     sort: BenchmarkSort,
     descending: bool,
-) -> Vec<&'a BenchmarkEntry> {
+) -> Vec<&'a ModelRow> {
     let query = query.trim().to_lowercase();
     let mut visible: Vec<_> = entries
         .iter()
         .copied()
-        .filter(|entry| {
+        .filter(|row| {
             query.is_empty()
-                || entry.slug.to_lowercase().contains(&query)
-                || entry.name.to_lowercase().contains(&query)
-                || entry.display_name.to_lowercase().contains(&query)
-                || entry.creator.to_lowercase().contains(&query)
-                || creator_label(entry).to_lowercase().contains(&query)
+                || row.id.to_lowercase().contains(&query)
+                || row.name.to_lowercase().contains(&query)
+                || row.display_name.to_lowercase().contains(&query)
+                || row.creator.to_lowercase().contains(&query)
+                || creator_label(row).to_lowercase().contains(&query)
         })
         .collect();
 
     if !matches!(sort, BenchmarkSort::Name) {
-        visible.retain(|entry| sort.extract(entry).is_some());
+        visible.retain(|row| sort.extract(row).is_some());
     }
 
     visible.sort_by(|a, b| {
@@ -985,26 +943,26 @@ fn filter_picker_entries<'a>(
     visible
 }
 
-fn ambiguous_matches_message(query: &str, entries: &[&BenchmarkEntry]) -> String {
-    let suggestions = entries
+fn ambiguous_matches_message(query: &str, rows: &[&ModelRow]) -> String {
+    let suggestions = rows
         .iter()
         .take(5)
-        .map(|entry| entry.slug.as_str())
+        .map(|row| row.id.as_str())
         .collect::<Vec<_>>()
         .join(", ");
     format!("Benchmark query '{query}' was ambiguous; try a slug. Matches: {suggestions}")
 }
 
-fn creator_label(entry: &BenchmarkEntry) -> &str {
-    if entry.creator_name.is_empty() {
-        &entry.creator
+fn creator_label(row: &ModelRow) -> &str {
+    if row.creator_name.is_empty() {
+        &row.creator
     } else {
-        &entry.creator_name
+        &row.creator_name
     }
 }
 
-fn reasoning_label(entry: &BenchmarkEntry) -> &'static str {
-    match entry.reasoning_status {
+fn reasoning_label(row: &ModelRow) -> &'static str {
+    match row.reasoning_status {
         ReasoningStatus::Adaptive => "Adaptive",
         ReasoningStatus::Reasoning => "Reasoning",
         ReasoningStatus::NonReasoning => "Non-reasoning",
@@ -1012,14 +970,14 @@ fn reasoning_label(entry: &BenchmarkEntry) -> &'static str {
     }
 }
 
-fn format_sort_value(sort: BenchmarkSort, entry: &BenchmarkEntry) -> String {
+fn format_sort_value(sort: BenchmarkSort, row: &ModelRow) -> String {
     match sort {
-        BenchmarkSort::Name => entry.display_name.clone(),
-        BenchmarkSort::ReleaseDate => entry
+        BenchmarkSort::Name => row.display_name.clone(),
+        BenchmarkSort::ReleaseDate => row
             .release_date
             .clone()
             .unwrap_or_else(|| "\u{2014}".to_string()),
-        _ => format_metric(sort.extract(entry)),
+        _ => format_metric(sort.extract(row)),
     }
 }
 
@@ -1128,55 +1086,54 @@ fn print_detail(detail: &BenchmarkDetail<'_>) {
     println!("Blended $/M:  {}", format_metric(detail.price_blended));
 }
 
-fn build_detail<'a>(
-    entry: &'a BenchmarkEntry,
-    open_weights_map: &HashMap<String, bool>,
-) -> BenchmarkDetail<'a> {
+fn build_detail(row: &ModelRow) -> BenchmarkDetail<'_> {
     BenchmarkDetail {
-        slug: entry.slug.as_str(),
-        name: entry.name.as_str(),
-        display_name: entry.display_name.as_str(),
-        creator: entry.creator.as_str(),
-        creator_name: creator_label(entry),
-        creator_id: entry.creator_id.as_str(),
-        release_date: entry.release_date.as_deref(),
-        open_weights: open_weights_map.get(&entry.slug).copied(),
-        reasoning: reasoning_label(entry),
-        effort_level: entry.effort_level.as_deref(),
-        variant_tag: entry.variant_tag.as_deref(),
-        tool_call: entry.tool_call,
-        context_window: entry.context_window,
-        max_output: entry.max_output,
-        intelligence_index: entry.intelligence_index,
-        coding_index: entry.coding_index,
-        math_index: entry.math_index,
-        mmlu_pro: entry.mmlu_pro,
-        gpqa: entry.gpqa,
-        hle: entry.hle,
-        livecodebench: entry.livecodebench,
-        scicode: entry.scicode,
-        ifbench: entry.ifbench,
-        lcr: entry.lcr,
-        terminalbench_hard: entry.terminalbench_hard,
-        tau2: entry.tau2,
-        math_500: entry.math_500,
-        aime: entry.aime,
-        aime_25: entry.aime_25,
-        output_tps: entry.output_tps,
-        ttft: entry.ttft,
-        ttfat: entry.ttfat,
-        price_input: entry.price_input,
-        price_output: entry.price_output,
-        price_blended: entry.price_blended,
+        slug: row.id.as_str(),
+        name: row.name.as_str(),
+        display_name: row.display_name.as_str(),
+        creator: row.creator.as_str(),
+        creator_name: creator_label(row),
+        // Creator IDs are not carried in the v2 schema; the previous data file
+        // had an empty `creator_id` for every entry, so the Creator ID line was
+        // already suppressed in practice.
+        creator_id: "",
+        release_date: row.release_date.as_deref(),
+        open_weights: row.open_weights,
+        reasoning: reasoning_label(row),
+        effort_level: row.effort_level.as_deref(),
+        variant_tag: row.variant_tag.as_deref(),
+        // tool_call / max_output are not part of the v2 schema; only the TUI
+        // path consumed them and they were always absent in the CLI's detail
+        // output unless populated by traits matching.
+        tool_call: None,
+        context_window: row.context_window,
+        max_output: None,
+        intelligence_index: metric(row, "intelligence_index"),
+        coding_index: metric(row, "coding_index"),
+        math_index: metric(row, "math_index"),
+        mmlu_pro: metric(row, "mmlu_pro"),
+        gpqa: metric(row, "gpqa"),
+        hle: metric(row, "hle"),
+        livecodebench: metric(row, "livecodebench"),
+        scicode: metric(row, "scicode"),
+        ifbench: metric(row, "ifbench"),
+        lcr: metric(row, "lcr"),
+        terminalbench_hard: metric(row, "terminalbench_hard"),
+        tau2: metric(row, "tau2"),
+        math_500: metric(row, "math_500"),
+        aime: metric(row, "aime"),
+        aime_25: metric(row, "aime_25"),
+        output_tps: metric(row, "output_tps"),
+        ttft: metric(row, "ttft"),
+        ttfat: metric(row, "ttfat"),
+        price_input: metric(row, "price_input"),
+        price_output: metric(row, "price_output"),
+        price_blended: metric(row, "price_blended"),
     }
 }
 
-fn print_entry_detail(
-    entry: &BenchmarkEntry,
-    open_weights_map: &HashMap<String, bool>,
-    json: bool,
-) -> Result<()> {
-    let detail = build_detail(entry, open_weights_map);
+fn print_entry_detail(row: &ModelRow, json: bool) -> Result<()> {
+    let detail = build_detail(row);
     if json {
         println!("{}", serde_json::to_string_pretty(&detail)?);
     } else {
@@ -1186,19 +1143,12 @@ fn print_entry_detail(
 }
 
 fn pick_benchmark<'a>(
-    entries: Vec<&'a BenchmarkEntry>,
-    open_weights_map: &'a HashMap<String, bool>,
+    entries: Vec<&'a ModelRow>,
     sort: BenchmarkSort,
     descending: bool,
     title: &str,
-) -> Result<Option<&'a BenchmarkEntry>> {
-    let mut picker = BenchmarkPicker::new(
-        entries,
-        open_weights_map,
-        sort,
-        descending,
-        title.to_string(),
-    );
+) -> Result<Option<&'a ModelRow>> {
+    let mut picker = BenchmarkPicker::new(entries, sort, descending, title.to_string());
     let mut terminal = PickerTerminal::new()?;
 
     loop {
@@ -1245,101 +1195,111 @@ fn pick_benchmark<'a>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::benchmarks::schema::ScoreCell;
+    use std::collections::BTreeMap;
 
-    fn make_entry(
-        slug: &str,
+    fn cell(value: f64) -> ScoreCell {
+        ScoreCell {
+            value,
+            date: None,
+            ci: None,
+        }
+    }
+
+    fn make_row(
+        id: &str,
         display_name: &str,
         creator: &str,
         creator_name: &str,
         intelligence_index: Option<f64>,
-    ) -> BenchmarkEntry {
-        BenchmarkEntry {
-            id: slug.to_string(),
+    ) -> ModelRow {
+        let mut scores: BTreeMap<String, ScoreCell> = BTreeMap::new();
+        if let Some(v) = intelligence_index {
+            scores.insert("intelligence_index".to_string(), cell(v));
+        }
+        scores.insert("coding_index".to_string(), cell(50.0));
+        scores.insert("math_index".to_string(), cell(55.0));
+        scores.insert("mmlu_pro".to_string(), cell(60.0));
+        scores.insert("gpqa".to_string(), cell(61.0));
+        scores.insert("hle".to_string(), cell(62.0));
+        scores.insert("livecodebench".to_string(), cell(63.0));
+        scores.insert("scicode".to_string(), cell(64.0));
+        scores.insert("ifbench".to_string(), cell(65.0));
+        scores.insert("lcr".to_string(), cell(66.0));
+        scores.insert("terminalbench_hard".to_string(), cell(67.0));
+        scores.insert("tau2".to_string(), cell(68.0));
+        scores.insert("math_500".to_string(), cell(69.0));
+        scores.insert("aime".to_string(), cell(70.0));
+        scores.insert("aime_25".to_string(), cell(71.0));
+        scores.insert("output_tps".to_string(), cell(72.0));
+        scores.insert("ttft".to_string(), cell(1.5));
+        scores.insert("ttfat".to_string(), cell(2.5));
+        scores.insert("price_input".to_string(), cell(3.5));
+        scores.insert("price_output".to_string(), cell(4.5));
+        scores.insert("price_blended".to_string(), cell(5.5));
+
+        ModelRow {
+            id: id.to_string(),
             name: display_name.to_string(),
-            slug: slug.to_string(),
+            display_name: display_name.to_string(),
             creator: creator.to_string(),
-            creator_id: String::new(),
             creator_name: creator_name.to_string(),
             release_date: Some("2025-01-01".to_string()),
-            intelligence_index,
-            coding_index: Some(50.0),
-            math_index: Some(55.0),
-            mmlu_pro: Some(60.0),
-            gpqa: Some(61.0),
-            hle: Some(62.0),
-            livecodebench: Some(63.0),
-            scicode: Some(64.0),
-            ifbench: Some(65.0),
-            lcr: Some(66.0),
-            terminalbench_hard: Some(67.0),
-            tau2: Some(68.0),
-            math_500: Some(69.0),
-            aime: Some(70.0),
-            aime_25: Some(71.0),
-            output_tps: Some(72.0),
-            ttft: Some(1.5),
-            ttfat: Some(2.5),
-            price_input: Some(3.5),
-            price_output: Some(4.5),
-            price_blended: Some(5.5),
             reasoning_status: ReasoningStatus::None,
             effort_level: None,
             variant_tag: None,
-            display_name: display_name.to_string(),
-            tool_call: Some(true),
+            open_weights: None,
             context_window: Some(200_000),
-            max_output: Some(8_000),
+            scores,
         }
     }
 
     #[test]
     fn filter_entries_applies_sort_filters_and_limit() {
-        let mut alpha = make_entry("alpha", "Alpha", "openai", "OpenAI", Some(90.0));
+        let mut alpha = make_row("alpha", "Alpha", "openai", "OpenAI", Some(90.0));
         alpha.reasoning_status = ReasoningStatus::Reasoning;
+        alpha.open_weights = Some(false);
 
-        let mut beta = make_entry("beta", "Beta", "meta", "Meta", Some(80.0));
+        let mut beta = make_row("beta", "Beta", "meta", "Meta", Some(80.0));
         beta.reasoning_status = ReasoningStatus::NonReasoning;
+        beta.open_weights = Some(true);
 
-        let gamma = make_entry("gamma", "Gamma", "openai", "OpenAI", None);
+        let gamma = make_row("gamma", "Gamma", "openai", "OpenAI", None);
 
-        let entries = vec![beta.clone(), gamma, alpha.clone()];
-        let open_weights_map =
-            HashMap::from([(alpha.slug.clone(), false), (beta.slug.clone(), true)]);
+        let models = vec![beta.clone(), gamma, alpha.clone()];
 
         let filtered = filter_entries(
-            &entries,
-            &open_weights_map,
+            &models,
             &ListOptions {
                 search: Some("a".to_string()),
                 creator: Some("openai".to_string()),
                 sort: BenchmarkSort::Intelligence,
                 descending: true,
-                source_filter: SourceFilter::Closed,
+                weights_filter: WeightsFilter::Closed,
                 reasoning_filter: ReasoningFilter::Reasoning,
                 limit: Some(5),
             },
         );
 
         assert_eq!(filtered.len(), 1);
-        assert_eq!(filtered[0].slug, "alpha");
+        assert_eq!(filtered[0].id, "alpha");
     }
 
     #[test]
     fn filter_entries_sorts_name_ascending() {
-        let entries = vec![
-            make_entry("beta", "Beta", "meta", "Meta", Some(80.0)),
-            make_entry("alpha", "Alpha", "openai", "OpenAI", Some(90.0)),
+        let models = vec![
+            make_row("beta", "Beta", "meta", "Meta", Some(80.0)),
+            make_row("alpha", "Alpha", "openai", "OpenAI", Some(90.0)),
         ];
 
         let filtered = filter_entries(
-            &entries,
-            &HashMap::new(),
+            &models,
             &ListOptions {
                 search: None,
                 creator: None,
                 sort: BenchmarkSort::Name,
                 descending: false,
-                source_filter: SourceFilter::All,
+                weights_filter: WeightsFilter::All,
                 reasoning_filter: ReasoningFilter::All,
                 limit: None,
             },
@@ -1351,9 +1311,9 @@ mod tests {
 
     #[test]
     fn resolve_entry_prefers_exact_slug_then_unique_partial() {
-        let entries = vec![
-            make_entry("gpt-4o", "GPT-4o", "openai", "OpenAI", Some(90.0)),
-            make_entry(
+        let models = vec![
+            make_row("gpt-4o", "GPT-4o", "openai", "OpenAI", Some(90.0)),
+            make_row(
                 "claude-sonnet-4",
                 "Claude Sonnet 4",
                 "anthropic",
@@ -1362,12 +1322,12 @@ mod tests {
             ),
         ];
 
-        match resolve_entry(&entries, "gpt-4o").unwrap() {
-            ResolveEntry::Single(entry) => assert_eq!(entry.display_name, "GPT-4o"),
+        match resolve_entry(&models, "gpt-4o").unwrap() {
+            ResolveEntry::Single(row) => assert_eq!(row.display_name, "GPT-4o"),
             ResolveEntry::Ambiguous(_) => panic!("expected exact slug to resolve to a single row"),
         }
-        match resolve_entry(&entries, "Sonnet").unwrap() {
-            ResolveEntry::Single(entry) => assert_eq!(entry.display_name, "Claude Sonnet 4"),
+        match resolve_entry(&models, "Sonnet").unwrap() {
+            ResolveEntry::Single(row) => assert_eq!(row.display_name, "Claude Sonnet 4"),
             ResolveEntry::Ambiguous(_) => {
                 panic!("expected unique partial match to resolve to a single row")
             }
@@ -1376,15 +1336,15 @@ mod tests {
 
     #[test]
     fn resolve_entry_returns_ambiguous_partial_matches() {
-        let entries = vec![
-            make_entry(
+        let models = vec![
+            make_row(
                 "claude-sonnet-4",
                 "Claude Sonnet 4",
                 "anthropic",
                 "Anthropic",
                 Some(88.0),
             ),
-            make_entry(
+            make_row(
                 "claude-opus-4",
                 "Claude Opus 4",
                 "anthropic",
@@ -1393,27 +1353,27 @@ mod tests {
             ),
         ];
 
-        match resolve_entry(&entries, "Claude").unwrap() {
+        match resolve_entry(&models, "Claude").unwrap() {
             ResolveEntry::Single(_) => panic!("expected ambiguous partial query"),
             ResolveEntry::Ambiguous(matches) => {
                 assert_eq!(matches.len(), 2);
-                assert_eq!(matches[0].slug, "claude-opus-4");
-                assert_eq!(matches[1].slug, "claude-sonnet-4");
+                assert_eq!(matches[0].id, "claude-opus-4");
+                assert_eq!(matches[1].id, "claude-sonnet-4");
             }
         }
     }
 
     #[test]
     fn resolve_entry_returns_ambiguous_exact_display_matches() {
-        let entries = vec![
-            make_entry(
+        let models = vec![
+            make_row(
                 "claude-sonnet-4-6-adaptive",
                 "Claude Sonnet 4.6",
                 "anthropic",
                 "Anthropic",
                 Some(88.0),
             ),
-            make_entry(
+            make_row(
                 "claude-sonnet-4-6-non-reasoning",
                 "Claude Sonnet 4.6",
                 "anthropic",
@@ -1422,23 +1382,23 @@ mod tests {
             ),
         ];
 
-        match resolve_entry(&entries, "Claude Sonnet 4.6").unwrap() {
+        match resolve_entry(&models, "Claude Sonnet 4.6").unwrap() {
             ResolveEntry::Single(_) => panic!("expected ambiguous exact display-name query"),
             ResolveEntry::Ambiguous(matches) => {
                 assert_eq!(matches.len(), 2);
-                assert_eq!(matches[0].slug, "claude-sonnet-4-6-adaptive");
-                assert_eq!(matches[1].slug, "claude-sonnet-4-6-non-reasoning");
+                assert_eq!(matches[0].id, "claude-sonnet-4-6-adaptive");
+                assert_eq!(matches[1].id, "claude-sonnet-4-6-non-reasoning");
             }
         }
     }
 
     #[test]
     fn ambiguous_matches_message_lists_candidate_slugs() {
-        let entries = [
-            make_entry("alpha", "Alpha", "openai", "OpenAI", Some(90.0)),
-            make_entry("beta", "Beta", "openai", "OpenAI", Some(80.0)),
+        let models = [
+            make_row("alpha", "Alpha", "openai", "OpenAI", Some(90.0)),
+            make_row("beta", "Beta", "openai", "OpenAI", Some(80.0)),
         ];
-        let matches = [&entries[0], &entries[1]];
+        let matches = [&models[0], &models[1]];
 
         let message = ambiguous_matches_message("a", &matches);
         assert!(message.contains("ambiguous"));
@@ -1448,15 +1408,15 @@ mod tests {
 
     #[test]
     fn filter_picker_entries_applies_live_query() {
-        let entries = [
-            make_entry(
+        let models = [
+            make_row(
                 "claude-opus",
                 "Claude Opus",
                 "anthropic",
                 "Anthropic",
                 Some(90.0),
             ),
-            make_entry(
+            make_row(
                 "gpt-5-3-codex",
                 "GPT-5.3 Codex",
                 "openai",
@@ -1464,24 +1424,38 @@ mod tests {
                 Some(88.0),
             ),
         ];
-        let selected = entries.iter().collect::<Vec<_>>();
+        let selected = models.iter().collect::<Vec<_>>();
 
         let filtered = filter_picker_entries(&selected, "claude", BenchmarkSort::Name, false);
         assert_eq!(filtered.len(), 1);
-        assert_eq!(filtered[0].slug, "claude-opus");
+        assert_eq!(filtered[0].id, "claude-opus");
     }
 
     #[test]
     fn filter_picker_entries_resorts_by_requested_metric() {
-        let entries = [
-            make_entry("alpha", "Alpha", "openai", "OpenAI", Some(80.0)),
-            make_entry("beta", "Beta", "openai", "OpenAI", Some(90.0)),
+        let models = [
+            make_row("alpha", "Alpha", "openai", "OpenAI", Some(80.0)),
+            make_row("beta", "Beta", "openai", "OpenAI", Some(90.0)),
         ];
-        let selected = entries.iter().collect::<Vec<_>>();
+        let selected = models.iter().collect::<Vec<_>>();
 
         let filtered = filter_picker_entries(&selected, "", BenchmarkSort::Intelligence, true);
-        assert_eq!(filtered[0].slug, "beta");
-        assert_eq!(filtered[1].slug, "alpha");
+        assert_eq!(filtered[0].id, "beta");
+        assert_eq!(filtered[1].id, "alpha");
+    }
+
+    #[test]
+    fn extract_reads_metric_from_score_map() {
+        let row = make_row("x", "X", "openai", "OpenAI", Some(42.0));
+        assert_eq!(BenchmarkSort::Intelligence.extract(&row), Some(42.0));
+        assert_eq!(BenchmarkSort::Speed.extract(&row), Some(72.0));
+        assert_eq!(BenchmarkSort::PriceBlended.extract(&row), Some(5.5));
+        assert_eq!(BenchmarkSort::ReleaseDate.extract(&row), Some(20_250_101.0));
+        assert_eq!(BenchmarkSort::Name.extract(&row), Some(0.0));
+
+        let mut bare = make_row("y", "Y", "openai", "OpenAI", None);
+        bare.scores.clear();
+        assert_eq!(BenchmarkSort::Intelligence.extract(&bare), None);
     }
 
     #[test]

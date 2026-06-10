@@ -12,8 +12,11 @@ use ratatui::{
     Frame,
 };
 
-use super::app::RadarPreset;
-use crate::benchmarks::BenchmarkEntry;
+use crate::benchmarks::multi::{format_metric_value, metric_indices_in_group, radar_groups};
+use crate::benchmarks::schema::{MetricDef, ModelRow, SourceFile};
+
+/// Maximum number of axes a single radar group can render.
+const MAX_AXES: usize = 6;
 
 /// Compute N spoke angles starting at top (-PI/2), going clockwise.
 pub fn spoke_angles(n: usize) -> Vec<f64> {
@@ -39,124 +42,54 @@ pub fn polygon_vertices(
         .collect()
 }
 
-pub struct RadarAxis {
-    pub label: &'static str,
-    pub short: &'static str,
-    pub key: &'static str,
-    pub extract: fn(&BenchmarkEntry) -> Option<f64>,
+/// An axis on the radar chart, derived from a single source metric.
+struct RadarAxis<'a> {
+    /// Index into `file.metrics`.
+    metric_idx: usize,
+    metric: &'a MetricDef,
 }
 
-pub fn axes_for_preset(preset: RadarPreset) -> Vec<RadarAxis> {
-    match preset {
-        RadarPreset::Agentic => vec![
-            RadarAxis {
-                label: "Coding",
-                short: "Cod",
-                key: "coding_index",
-                extract: |e| e.coding_index,
-            },
-            RadarAxis {
-                label: "LiveCodeBench",
-                short: "LC",
-                key: "livecodebench",
-                extract: |e| e.livecodebench,
-            },
-            RadarAxis {
-                label: "SciCode",
-                short: "SC",
-                key: "scicode",
-                extract: |e| e.scicode,
-            },
-            RadarAxis {
-                label: "TerminalBench",
-                short: "TB",
-                key: "terminalbench_hard",
-                extract: |e| e.terminalbench_hard,
-            },
-            RadarAxis {
-                label: "IFBench",
-                short: "IF",
-                key: "ifbench",
-                extract: |e| e.ifbench,
-            },
-            RadarAxis {
-                label: "Long Context Reasoning",
-                short: "LCR",
-                key: "lcr",
-                extract: |e| e.lcr,
-            },
-        ],
-        RadarPreset::Academic => vec![
-            RadarAxis {
-                label: "GPQA Diamond",
-                short: "GQ",
-                key: "gpqa",
-                extract: |e| e.gpqa,
-            },
-            RadarAxis {
-                label: "MMLU-Pro",
-                short: "MM",
-                key: "mmlu_pro",
-                extract: |e| e.mmlu_pro,
-            },
-            RadarAxis {
-                label: "Humanity's Last Exam",
-                short: "HLE",
-                key: "hle",
-                extract: |e| e.hle,
-            },
-            RadarAxis {
-                label: "MATH-500",
-                short: "M5",
-                key: "math_500",
-                extract: |e| e.math_500,
-            },
-            RadarAxis {
-                label: "AIME '24",
-                short: "AI",
-                key: "aime",
-                extract: |e| e.aime,
-            },
-            RadarAxis {
-                label: "AIME '25",
-                short: "A25",
-                key: "aime_25",
-                extract: |e| e.aime_25,
-            },
-        ],
-        RadarPreset::Indexes => vec![
-            RadarAxis {
-                label: "Intel",
-                short: "Int",
-                key: "intelligence_index",
-                extract: |e| e.intelligence_index,
-            },
-            RadarAxis {
-                label: "Coding",
-                short: "Cod",
-                key: "coding_index",
-                extract: |e| e.coding_index,
-            },
-            RadarAxis {
-                label: "Math",
-                short: "Mth",
-                key: "math_index",
-                extract: |e| e.math_index,
-            },
-        ],
-    }
+/// Build the radar axes for the active group: the first [`MAX_AXES`]
+/// `higher_is_better` metrics of the group selected by `radar_group`.
+fn axes_for_group(file: &SourceFile, radar_group: usize) -> Vec<RadarAxis<'_>> {
+    let groups = radar_groups(file);
+    let Some(group) = groups.get(radar_group) else {
+        return Vec::new();
+    };
+    metric_indices_in_group(file, group)
+        .into_iter()
+        .filter_map(|mi| file.metrics.get(mi).map(|m| (mi, m)))
+        .filter(|(_, m)| m.higher_is_better)
+        .take(MAX_AXES)
+        .map(|(metric_idx, metric)| RadarAxis { metric_idx, metric })
+        .collect()
+}
+
+/// The active group name (used in the panel title), or `"—"` when none.
+fn active_group_label(file: &SourceFile, radar_group: usize) -> String {
+    radar_groups(file)
+        .get(radar_group)
+        .cloned()
+        .unwrap_or_else(|| "\u{2014}".to_string())
 }
 
 /// Draw the radar chart in the given area.
 pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
-    let axes = axes_for_preset(app.benchmarks_app.radar_preset);
-    let preset_label = app.benchmarks_app.radar_preset.label();
+    let Some(file) = app.active_benchmark_file() else {
+        let block = Block::default().borders(Borders::ALL).title(" Radar ");
+        f.render_widget(block, area);
+        return;
+    };
+
+    let radar_group = app.benchmarks_app.radar_group;
+    let group_label = active_group_label(file, radar_group);
+    let axes = axes_for_group(file, radar_group);
 
     // Empty guard: need at least 3 axes and at least one selection
     if axes.len() < 3 || app.selections.is_empty() {
         let block = Block::default()
             .borders(Borders::ALL)
-            .title(format!(" Radar [{preset_label}] "));
+            .title(format!(" Radar [{group_label}] "));
         f.render_widget(block, area);
         return;
     }
@@ -164,13 +97,18 @@ pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
     let angles = spoke_angles(axes.len());
     let radius: f64 = 45.0;
 
-    // Pre-compute max values for normalization (MUST be outside paint() closure)
-    let entries = app.benchmark_store.entries();
-    let mut max_values: HashMap<&str, f64> = HashMap::new();
-    for entry in entries.iter() {
+    // Helper: extract the raw value of an axis metric for a model.
+    let axis_value = |axis: &RadarAxis, model: &ModelRow| -> Option<f64> {
+        model.scores.get(&axis.metric.id).map(|cell| cell.value)
+    };
+
+    // Pre-compute max values for normalization (MUST be outside paint() closure),
+    // keyed by metric index so duplicate labels don't collide.
+    let mut max_values: HashMap<usize, f64> = HashMap::new();
+    for model in file.models.iter() {
         for ax in &axes {
-            if let Some(v) = (ax.extract)(entry) {
-                let current = max_values.entry(ax.key).or_insert(0.0);
+            if let Some(v) = axis_value(ax, model) {
+                let current = max_values.entry(ax.metric_idx).or_insert(0.0);
                 if v > *current {
                     *current = v;
                 }
@@ -192,11 +130,7 @@ pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
         .map(|(&a, ax)| {
             let lx = label_offset * a.cos();
             let ly = label_offset * a.sin();
-            let full = if ax.short == ax.label {
-                ax.label.to_string()
-            } else {
-                format!("{} ({})", ax.label, ax.short)
-            };
+            let full = ax.metric.label.clone();
             // Wrap labels longer than 16 chars at the last space before the limit
             if full.len() <= 16 {
                 vec![(lx, ly, full)]
@@ -215,18 +149,19 @@ pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
     let mut polygons: Vec<(Vec<(f64, f64)>, Color)> = Vec::new();
     let mut legend_entries: Vec<(String, Color, Vec<Option<f64>>)> = Vec::new();
 
-    for (sel_idx, &store_idx) in app.selections.iter().enumerate() {
-        if let Some(entry) = entries.get(store_idx) {
+    for (sel_idx, &model_idx) in app.selections.iter().enumerate() {
+        if let Some(model) = file.models.get(model_idx) {
             let color = super::render::compare_colors(sel_idx);
 
-            let raw_values: Vec<Option<f64>> = axes.iter().map(|ax| (ax.extract)(entry)).collect();
+            let raw_values: Vec<Option<f64>> =
+                axes.iter().map(|ax| axis_value(ax, model)).collect();
 
             // Normalize values for this model
             let values: Vec<f64> = axes
                 .iter()
                 .map(|ax| {
-                    let raw = (ax.extract)(entry).unwrap_or(0.0);
-                    let max = max_values.get(ax.key).copied().unwrap_or(1.0);
+                    let raw = axis_value(ax, model).unwrap_or(0.0);
+                    let max = max_values.get(&ax.metric_idx).copied().unwrap_or(1.0);
                     if max > 0.0 {
                         raw / max
                     } else {
@@ -237,16 +172,16 @@ pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
 
             let vertices = polygon_vertices(0.0, 0.0, radius, &angles, &values);
             polygons.push((vertices, color));
-            legend_entries.push((entry.display_name.clone(), color, raw_values));
+            legend_entries.push((model.display_name.clone(), color, raw_values));
         }
     }
 
-    // Compute average polygon (baseline reference) — always uses all entries
+    // Compute average polygon (baseline reference) — always uses all models
     let avg_values: Vec<f64> = axes
         .iter()
         .map(|ax| {
-            let (sum, count) = entries.iter().fold((0.0, 0usize), |(s, c), entry| {
-                if let Some(v) = (ax.extract)(entry) {
+            let (sum, count) = file.models.iter().fold((0.0, 0usize), |(s, c), model| {
+                if let Some(v) = axis_value(ax, model) {
                     (s + v, c + 1)
                 } else {
                     (s, c)
@@ -254,7 +189,7 @@ pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
             });
             if count > 0 {
                 let raw_avg = sum / count as f64;
-                let max = max_values.get(ax.key).copied().unwrap_or(1.0);
+                let max = max_values.get(&ax.metric_idx).copied().unwrap_or(1.0);
                 if max > 0.0 {
                     raw_avg / max
                 } else {
@@ -270,8 +205,8 @@ pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
     let avg_raw_values: Vec<f64> = axes
         .iter()
         .map(|ax| {
-            let (sum, count) = entries.iter().fold((0.0, 0usize), |(s, c), entry| {
-                if let Some(v) = (ax.extract)(entry) {
+            let (sum, count) = file.models.iter().fold((0.0, 0usize), |(s, c), model| {
+                if let Some(v) = axis_value(ax, model) {
                     (s + v, c + 1)
                 } else {
                     (s, c)
@@ -313,7 +248,7 @@ pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
             Block::default()
                 .borders(Borders::ALL)
                 .border_style(Style::default().fg(radar_border))
-                .title(format!(" Radar [{preset_label}] ")),
+                .title(format!(" Radar [{group_label}] ")),
         )
         .x_bounds([-65.0, 65.0])
         .y_bounds([-62.0, 62.0])
@@ -378,13 +313,16 @@ pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
     if let Some(leg_area) = legend_area {
         use crate::tui::widgets::comparison_legend::{ComparisonLegend, LegendEntry, LegendMetric};
 
-        let fmt_axis_val = |v: Option<f64>, key: &str| -> String {
+        let fmt_axis_val = |v: Option<f64>, axis: &RadarAxis| -> String {
             match v {
-                Some(val) if key.ends_with("_index") => format!("{:.1}", val),
-                Some(val) => format!("{:.1}%", val * 100.0),
+                Some(val) => format_metric_value(axis.metric.kind, val),
                 None => "\u{2014}".into(),
             }
         };
+
+        // Short per-axis labels for the legend column headers: truncate the metric
+        // label to keep the table compact.
+        let short_label = |label: &str| -> String { label.chars().take(5).collect::<String>() };
 
         let mut entries: Vec<LegendEntry> = legend_entries
             .iter()
@@ -394,8 +332,8 @@ pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
                     .enumerate()
                     .map(|(i, ax)| {
                         LegendMetric::new(
-                            ax.short.to_string(),
-                            fmt_axis_val(raw_vals.get(i).copied().flatten(), ax.key),
+                            short_label(&ax.metric.label),
+                            fmt_axis_val(raw_vals.get(i).copied().flatten(), ax),
                         )
                     })
                     .collect();
@@ -411,8 +349,8 @@ pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
             .enumerate()
             .map(|(i, ax)| {
                 LegendMetric::new(
-                    ax.short.to_string(),
-                    fmt_axis_val(Some(avg_raw_values[i]), ax.key),
+                    short_label(&ax.metric.label),
+                    fmt_axis_val(Some(avg_raw_values[i]), ax),
                 )
                 .value_style(avg_style)
             })
@@ -432,6 +370,8 @@ pub fn draw_radar(f: &mut Frame, area: Rect, app: &crate::tui::app::App) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::benchmarks::schema::{MetricKind, ReasoningStatus, ScoreCell, SourceMeta};
+    use std::collections::BTreeMap;
 
     #[test]
     fn spoke_angles_start_at_top() {
@@ -467,5 +407,116 @@ mod tests {
             assert!((x - 50.0).abs() < 1e-10);
             assert!((y - 50.0).abs() < 1e-10);
         }
+    }
+
+    fn meta() -> SourceMeta {
+        SourceMeta {
+            id: "test".into(),
+            name: "Test".into(),
+            url: "https://example.com".into(),
+            fetched_at: "2026-06-10T00:00:00+00:00".into(),
+            verified: true,
+        }
+    }
+
+    fn metric(id: &str, kind: MetricKind, group: &str, hib: bool) -> MetricDef {
+        MetricDef {
+            id: id.into(),
+            label: id.to_uppercase(),
+            kind,
+            group: group.into(),
+            higher_is_better: hib,
+            last_updated: None,
+        }
+    }
+
+    fn model(id: &str, scores: &[(&str, f64)]) -> ModelRow {
+        let mut score_map = BTreeMap::new();
+        for (mid, v) in scores {
+            score_map.insert(
+                (*mid).to_string(),
+                ScoreCell {
+                    value: *v,
+                    date: None,
+                    ci: None,
+                },
+            );
+        }
+        ModelRow {
+            id: id.into(),
+            name: id.into(),
+            display_name: id.into(),
+            creator: "openai".into(),
+            creator_name: "OpenAI".into(),
+            release_date: None,
+            reasoning_status: ReasoningStatus::None,
+            effort_level: None,
+            variant_tag: None,
+            open_weights: None,
+            context_window: None,
+            scores: score_map,
+        }
+    }
+
+    /// A file with one radar-eligible group ("Indexes": 3 higher-is-better
+    /// metrics) and one non-eligible group ("Pricing": lower-is-better).
+    fn sample_file() -> SourceFile {
+        SourceFile {
+            source: meta(),
+            metrics: vec![
+                metric("intelligence_index", MetricKind::Index, "Indexes", true),
+                metric("coding_index", MetricKind::Index, "Indexes", true),
+                metric("math_index", MetricKind::Index, "Indexes", true),
+                metric("price_input", MetricKind::UsdPerMTok, "Pricing", false),
+            ],
+            models: vec![model(
+                "alpha",
+                &[
+                    ("intelligence_index", 70.0),
+                    ("coding_index", 60.0),
+                    ("math_index", 50.0),
+                ],
+            )],
+        }
+    }
+
+    #[test]
+    fn axes_for_group_filters_to_higher_is_better() {
+        let file = sample_file();
+        // Group 0 = "Indexes" (Pricing is not radar-eligible, so it's not group 0).
+        let axes = axes_for_group(&file, 0);
+        assert_eq!(axes.len(), 3);
+        assert_eq!(axes[0].metric_idx, 0);
+        assert_eq!(axes[2].metric_idx, 2);
+    }
+
+    #[test]
+    fn axes_for_group_caps_at_max_axes() {
+        let mut file = sample_file();
+        // Add 5 more higher-is-better metrics to "Indexes" (total 8) and confirm
+        // the axis count caps at MAX_AXES.
+        for i in 0..5 {
+            file.metrics.push(metric(
+                &format!("extra_{i}"),
+                MetricKind::Index,
+                "Indexes",
+                true,
+            ));
+        }
+        let axes = axes_for_group(&file, 0);
+        assert_eq!(axes.len(), MAX_AXES);
+    }
+
+    #[test]
+    fn axes_for_group_out_of_range_is_empty() {
+        let file = sample_file();
+        assert!(axes_for_group(&file, 99).is_empty());
+    }
+
+    #[test]
+    fn active_group_label_resolves() {
+        let file = sample_file();
+        assert_eq!(active_group_label(&file, 0), "Indexes");
+        assert_eq!(active_group_label(&file, 99), "\u{2014}");
     }
 }
