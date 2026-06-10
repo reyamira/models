@@ -2,6 +2,8 @@
 name = "modelsdev"
 version = "0.11.52"
 edition = "2021"
+# The `transform` [[bin]] makes bare `cargo run` ambiguous without this.
+default-run = "models"
 description = "A fast TUI and CLI for browsing AI models, benchmarks, and coding agents"
 license = "MIT"
 repository = "https://github.com/reyamira/models"
