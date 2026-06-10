@@ -1,0 +1,1370 @@
+{
+  "source": {
+    "id": "arena",
+    "name": "Arena",
+    "url": "https://arena.ai",
+    "fetched_at": "2026-06-10T22:33:27.206793291+00:00",
+    "verified": true
+  },
+  "metrics": [
+    {
+      "id": "elo_text",
+      "label": "Text",
+      "kind": "elo",
+      "group": "Arena Elo",
+      "last_updated": "2026-06-05"
+    },
+    {
+      "id": "elo_vision",
+      "label": "Vision",
+      "kind": "elo",
+      "group": "Arena Elo",
+      "last_updated": "2026-06-05"
+    },
+    {
+      "id": "elo_code",
+      "label": "Code",
+      "kind": "elo",
+      "group": "Arena Elo",
+      "last_updated": "2026-06-10"
+    },
+    {
+      "id": "elo_agent",
+      "label": "Agent",
+      "kind": "elo",
+      "group": "Arena Elo",
+      "last_updated": "2026-06-09"
+    },
+    {
+      "id": "elo_search",
+      "label": "Search",
+      "kind": "elo",
+      "group": "Arena Elo",
+      "last_updated": "2026-06-10"
+    },
+    {
+      "id": "elo_document",
+      "label": "Document",
+      "kind": "elo",
+      "group": "Arena Elo",
+      "last_updated": "2026-06-10"
+    }
+  ],
+  "models": [
+    {
+      "id": "api-gpt-4o-search",
+      "name": "api-gpt-4o-search",
+      "display_name": "api-gpt-4o-search",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1006.0,
+          "date": "2026-06-10",
+          "ci": 11.0
+        }
+      }
+    },
+    {
+      "id": "claude-haiku-4-5-20251001",
+      "name": "claude-haiku-4-5-20251001",
+      "display_name": "claude-haiku-4-5-20251001",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1417.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-1-search",
+      "name": "claude-opus-4-1-search",
+      "display_name": "claude-opus-4-1-search",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1148.0,
+          "date": "2026-06-10",
+          "ci": 5.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-5-20251101",
+      "name": "claude-opus-4-5-20251101",
+      "display_name": "claude-opus-4-5-20251101",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1461.0,
+          "date": "2026-06-10",
+          "ci": 10.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-5-20251101-thinking-32k",
+      "name": "claude-opus-4-5-20251101-thinking-32k",
+      "display_name": "claude-opus-4-5-20251101-thinking-32k",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "reasoning_status": "Reasoning",
+      "open_weights": false,
+      "scores": {
+        "elo_text": {
+          "value": 1473.0,
+          "date": "2026-06-05",
+          "ci": 4.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-5-search",
+      "name": "claude-opus-4-5-search",
+      "display_name": "claude-opus-4-5-search",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1182.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-6",
+      "name": "claude-opus-4-6",
+      "display_name": "claude-opus-4-6",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1538.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        },
+        "elo_document": {
+          "value": 1509.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        },
+        "elo_text": {
+          "value": 1498.0,
+          "date": "2026-06-05",
+          "ci": 4.0
+        },
+        "elo_vision": {
+          "value": 1296.0,
+          "date": "2026-06-05",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-6-search",
+      "name": "claude-opus-4-6-search",
+      "display_name": "claude-opus-4-6-search",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1251.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-6-thinking",
+      "name": "claude-opus-4-6-thinking",
+      "display_name": "claude-opus-4-6-thinking",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "reasoning_status": "Reasoning",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1543.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        },
+        "elo_document": {
+          "value": 1507.0,
+          "date": "2026-06-10",
+          "ci": 8.0
+        },
+        "elo_text": {
+          "value": 1504.0,
+          "date": "2026-06-05",
+          "ci": 4.0
+        },
+        "elo_vision": {
+          "value": 1303.0,
+          "date": "2026-06-05",
+          "ci": 8.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-7",
+      "name": "claude-opus-4-7",
+      "display_name": "claude-opus-4-7",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1557.0,
+          "date": "2026-06-10",
+          "ci": 9.0
+        },
+        "elo_document": {
+          "value": 1499.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        },
+        "elo_search": {
+          "value": 1237.0,
+          "date": "2026-06-10",
+          "ci": 8.0
+        },
+        "elo_text": {
+          "value": 1493.0,
+          "date": "2026-06-05",
+          "ci": 5.0
+        },
+        "elo_vision": {
+          "value": 1300.0,
+          "date": "2026-06-05",
+          "ci": 8.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-7-thinking",
+      "name": "claude-opus-4-7-thinking",
+      "display_name": "claude-opus-4-7-thinking",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "reasoning_status": "Reasoning",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1567.0,
+          "date": "2026-06-10",
+          "ci": 9.0
+        },
+        "elo_document": {
+          "value": 1495.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        },
+        "elo_text": {
+          "value": 1501.0,
+          "date": "2026-06-05",
+          "ci": 5.0
+        },
+        "elo_vision": {
+          "value": 1308.0,
+          "date": "2026-06-05",
+          "ci": 8.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-8",
+      "name": "claude-opus-4-8",
+      "display_name": "claude-opus-4-8",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1545.0,
+          "date": "2026-06-10",
+          "ci": 14.0
+        },
+        "elo_document": {
+          "value": 1476.0,
+          "date": "2026-06-10",
+          "ci": 13.0
+        },
+        "elo_text": {
+          "value": 1479.0,
+          "date": "2026-06-05",
+          "ci": 8.0
+        },
+        "elo_vision": {
+          "value": 1279.0,
+          "date": "2026-06-05",
+          "ci": 12.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-8-thinking",
+      "name": "claude-opus-4-8-thinking",
+      "display_name": "claude-opus-4-8-thinking",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "reasoning_status": "Reasoning",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1552.0,
+          "date": "2026-06-10",
+          "ci": 16.0
+        },
+        "elo_document": {
+          "value": 1471.0,
+          "date": "2026-06-10",
+          "ci": 12.0
+        },
+        "elo_text": {
+          "value": 1482.0,
+          "date": "2026-06-05",
+          "ci": 8.0
+        },
+        "elo_vision": {
+          "value": 1294.0,
+          "date": "2026-06-05",
+          "ci": 13.0
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-search",
+      "name": "claude-opus-4-search",
+      "display_name": "claude-opus-4-search",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1128.0,
+          "date": "2026-06-10",
+          "ci": 5.0
+        }
+      }
+    },
+    {
+      "id": "claude-sonnet-4-5-20250929",
+      "name": "claude-sonnet-4-5-20250929",
+      "display_name": "claude-sonnet-4-5-20250929",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1450.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "claude-sonnet-4-5-search",
+      "name": "claude-sonnet-4-5-search",
+      "display_name": "claude-sonnet-4-5-search",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1152.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "claude-sonnet-4-6",
+      "name": "claude-sonnet-4-6",
+      "display_name": "claude-sonnet-4-6",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1522.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        },
+        "elo_document": {
+          "value": 1487.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        },
+        "elo_vision": {
+          "value": 1278.0,
+          "date": "2026-06-05",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "claude-sonnet-4-6-search",
+      "name": "claude-sonnet-4-6-search",
+      "display_name": "claude-sonnet-4-6-search",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1219.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "diffbot-small-xl",
+      "name": "diffbot-small-xl",
+      "display_name": "diffbot-small-xl",
+      "creator": "diffbot",
+      "creator_name": "Diffbot",
+      "open_weights": true,
+      "scores": {
+        "elo_search": {
+          "value": 1024.0,
+          "date": "2026-06-10",
+          "ci": 8.0
+        }
+      }
+    },
+    {
+      "id": "dola-seed-2.0-pro",
+      "name": "dola-seed-2.0-pro",
+      "display_name": "dola-seed-2.0-pro",
+      "creator": "bytedance",
+      "creator_name": "Bytedance",
+      "open_weights": false,
+      "scores": {
+        "elo_vision": {
+          "value": 1258.0,
+          "date": "2026-06-05",
+          "ci": 8.0
+        }
+      }
+    },
+    {
+      "id": "ernie-5.1",
+      "name": "ernie-5.1",
+      "display_name": "ernie-5.1",
+      "creator": "baidu",
+      "creator_name": "Baidu",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1226.0,
+          "date": "2026-06-10",
+          "ci": 12.0
+        }
+      }
+    },
+    {
+      "id": "gemini-2.5-pro",
+      "name": "gemini-2.5-pro",
+      "display_name": "gemini-2.5-pro",
+      "creator": "google",
+      "creator_name": "Google",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1421.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        },
+        "elo_vision": {
+          "value": 1246.0,
+          "date": "2026-06-05",
+          "ci": 5.0
+        }
+      }
+    },
+    {
+      "id": "gemini-2.5-pro-grounding",
+      "name": "gemini-2.5-pro-grounding",
+      "display_name": "gemini-2.5-pro-grounding",
+      "creator": "google",
+      "creator_name": "Google",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1143.0,
+          "date": "2026-06-10",
+          "ci": 5.0
+        }
+      }
+    },
+    {
+      "id": "gemini-3-flash",
+      "name": "gemini-3-flash",
+      "display_name": "gemini-3-flash",
+      "creator": "google",
+      "creator_name": "Google",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1413.0,
+          "date": "2026-06-10",
+          "ci": 9.0
+        },
+        "elo_text": {
+          "value": 1473.0,
+          "date": "2026-06-05",
+          "ci": 4.0
+        },
+        "elo_vision": {
+          "value": 1271.0,
+          "date": "2026-06-05",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "gemini-3-flash-(thinking-minimal)",
+      "name": "gemini-3-flash (thinking-minimal)",
+      "display_name": "gemini-3-flash",
+      "creator": "google",
+      "creator_name": "Google",
+      "reasoning_status": "Reasoning",
+      "open_weights": false,
+      "scores": {
+        "elo_vision": {
+          "value": 1256.0,
+          "date": "2026-06-05",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "gemini-3-flash-grounding",
+      "name": "gemini-3-flash-grounding",
+      "display_name": "gemini-3-flash-grounding",
+      "creator": "google",
+      "creator_name": "Google",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1206.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "gemini-3-pro",
+      "name": "gemini-3-pro",
+      "display_name": "gemini-3-pro",
+      "creator": "google",
+      "creator_name": "Google",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1433.0,
+          "date": "2026-06-10",
+          "ci": 9.0
+        },
+        "elo_text": {
+          "value": 1486.0,
+          "date": "2026-06-05",
+          "ci": 4.0
+        },
+        "elo_vision": {
+          "value": 1289.0,
+          "date": "2026-06-05",
+          "ci": 8.0
+        }
+      }
+    },
+    {
+      "id": "gemini-3-pro-grounding",
+      "name": "gemini-3-pro-grounding",
+      "display_name": "gemini-3-pro-grounding",
+      "creator": "google",
+      "creator_name": "Google",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1208.0,
+          "date": "2026-06-10",
+          "ci": 5.0
+        }
+      }
+    },
+    {
+      "id": "gemini-3.1-pro-grounding",
+      "name": "gemini-3.1-pro-grounding",
+      "display_name": "gemini-3.1-pro-grounding",
+      "creator": "google",
+      "creator_name": "Google",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1216.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "gemini-3.1-pro-preview",
+      "name": "gemini-3.1-pro-preview",
+      "display_name": "gemini-3.1-pro-preview",
+      "creator": "google",
+      "creator_name": "Google",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1439.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        },
+        "elo_text": {
+          "value": 1488.0,
+          "date": "2026-06-05",
+          "ci": 4.0
+        },
+        "elo_vision": {
+          "value": 1278.0,
+          "date": "2026-06-05",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "gemini-3.5-flash",
+      "name": "gemini-3.5-flash",
+      "display_name": "gemini-3.5-flash",
+      "creator": "google",
+      "creator_name": "Google",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1506.0,
+          "date": "2026-06-10",
+          "ci": 13.0
+        },
+        "elo_text": {
+          "value": 1477.0,
+          "date": "2026-06-05",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "gemma-4-31b",
+      "name": "gemma-4-31b",
+      "display_name": "gemma-4-31b",
+      "creator": "google",
+      "creator_name": "Google",
+      "open_weights": true,
+      "scores": {
+        "elo_document": {
+          "value": 1424.0,
+          "date": "2026-06-10",
+          "ci": 9.0
+        },
+        "elo_vision": {
+          "value": 1253.0,
+          "date": "2026-06-05",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "glm-5.1",
+      "name": "glm-5.1",
+      "display_name": "glm-5.1",
+      "creator": "z.ai",
+      "creator_name": "Z.ai",
+      "open_weights": true,
+      "scores": {
+        "elo_code": {
+          "value": 1532.0,
+          "date": "2026-06-10",
+          "ci": 11.0
+        },
+        "elo_text": {
+          "value": 1475.0,
+          "date": "2026-06-05",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "glm-5v-turbo",
+      "name": "glm-5v-turbo",
+      "display_name": "glm-5v-turbo",
+      "creator": "z.ai",
+      "creator_name": "Z.ai",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1409.0,
+          "date": "2026-06-10",
+          "ci": 23.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5-search",
+      "name": "gpt-5-search",
+      "display_name": "gpt-5-search",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1134.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.1",
+      "name": "gpt-5.1",
+      "display_name": "gpt-5.1",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1401.0,
+          "date": "2026-06-10",
+          "ci": 9.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.1-high",
+      "name": "gpt-5.1-high",
+      "display_name": "gpt-5.1-high",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_vision": {
+          "value": 1250.0,
+          "date": "2026-06-05",
+          "ci": 8.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.1-search",
+      "name": "gpt-5.1-search",
+      "display_name": "gpt-5.1-search",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1199.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.2",
+      "name": "gpt-5.2",
+      "display_name": "gpt-5.2",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1401.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.2-chat-latest-20260210",
+      "name": "gpt-5.2-chat-latest-20260210",
+      "display_name": "gpt-5.2-chat-latest-20260210",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_text": {
+          "value": 1476.0,
+          "date": "2026-06-05",
+          "ci": 4.0
+        },
+        "elo_vision": {
+          "value": 1279.0,
+          "date": "2026-06-05",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.2-high",
+      "name": "gpt-5.2-high",
+      "display_name": "gpt-5.2-high",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1405.0,
+          "date": "2026-06-10",
+          "ci": 9.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.2-search",
+      "name": "gpt-5.2-search",
+      "display_name": "gpt-5.2-search",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1210.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.2-search-non-reasoning",
+      "name": "gpt-5.2-search-non-reasoning",
+      "display_name": "gpt-5.2-search-non-reasoning",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1177.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.4",
+      "name": "gpt-5.4",
+      "display_name": "gpt-5.4",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1472.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        },
+        "elo_vision": {
+          "value": 1275.0,
+          "date": "2026-06-05",
+          "ci": 8.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.4-high",
+      "name": "gpt-5.4-high",
+      "display_name": "gpt-5.4-high",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_text": {
+          "value": 1479.0,
+          "date": "2026-06-05",
+          "ci": 4.0
+        },
+        "elo_vision": {
+          "value": 1283.0,
+          "date": "2026-06-05",
+          "ci": 8.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.4-mini-high",
+      "name": "gpt-5.4-mini-high",
+      "display_name": "gpt-5.4-mini-high",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_vision": {
+          "value": 1259.0,
+          "date": "2026-06-05",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.4-search",
+      "name": "gpt-5.4-search",
+      "display_name": "gpt-5.4-search",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1199.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.5",
+      "name": "gpt-5.5",
+      "display_name": "gpt-5.5",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1487.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        },
+        "elo_text": {
+          "value": 1474.0,
+          "date": "2026-06-05",
+          "ci": 5.0
+        },
+        "elo_vision": {
+          "value": 1286.0,
+          "date": "2026-06-05",
+          "ci": 9.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.5-high",
+      "name": "gpt-5.5-high",
+      "display_name": "gpt-5.5-high",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1488.0,
+          "date": "2026-06-10",
+          "ci": 8.0
+        },
+        "elo_text": {
+          "value": 1482.0,
+          "date": "2026-06-05",
+          "ci": 5.0
+        },
+        "elo_vision": {
+          "value": 1282.0,
+          "date": "2026-06-05",
+          "ci": 9.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.5-instant",
+      "name": "gpt-5.5-instant",
+      "display_name": "gpt-5.5-instant",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1402.0,
+          "date": "2026-06-10",
+          "ci": 8.0
+        },
+        "elo_vision": {
+          "value": 1275.0,
+          "date": "2026-06-05",
+          "ci": 9.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.5-search",
+      "name": "gpt-5.5-search",
+      "display_name": "gpt-5.5-search",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1239.0,
+          "date": "2026-06-10",
+          "ci": 8.0
+        }
+      }
+    },
+    {
+      "id": "gpt-5.5-xhigh-(codex-harness)",
+      "name": "gpt-5.5-xhigh (codex-harness)",
+      "display_name": "gpt-5.5-xhigh",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "variant_tag": "codex-harness",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1502.0,
+          "date": "2026-06-10",
+          "ci": 9.0
+        }
+      }
+    },
+    {
+      "id": "grok-4-1-fast-search",
+      "name": "grok-4-1-fast-search",
+      "display_name": "grok-4-1-fast-search",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1175.0,
+          "date": "2026-06-10",
+          "ci": 5.0
+        }
+      }
+    },
+    {
+      "id": "grok-4-fast-search",
+      "name": "grok-4-fast-search",
+      "display_name": "grok-4-fast-search",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1172.0,
+          "date": "2026-06-10",
+          "ci": 4.0
+        }
+      }
+    },
+    {
+      "id": "grok-4-search",
+      "name": "grok-4-search",
+      "display_name": "grok-4-search",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1143.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "grok-4.20-beta-0309-reasoning",
+      "name": "grok-4.20-beta-0309-reasoning",
+      "display_name": "grok-4.20-beta-0309-reasoning",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "reasoning_status": "Reasoning",
+      "open_weights": false,
+      "scores": {
+        "elo_document": {
+          "value": 1408.0,
+          "date": "2026-06-10",
+          "ci": 8.0
+        },
+        "elo_text": {
+          "value": 1473.0,
+          "date": "2026-06-05",
+          "ci": 4.0
+        },
+        "elo_vision": {
+          "value": 1253.0,
+          "date": "2026-06-05",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "grok-4.20-beta1",
+      "name": "grok-4.20-beta1",
+      "display_name": "grok-4.20-beta1",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1193.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        },
+        "elo_text": {
+          "value": 1474.0,
+          "date": "2026-06-05",
+          "ci": 5.0
+        }
+      }
+    },
+    {
+      "id": "grok-4.20-multi-agent-beta-0309",
+      "name": "grok-4.20-multi-agent-beta-0309",
+      "display_name": "grok-4.20-multi-agent-beta-0309",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1209.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        },
+        "elo_vision": {
+          "value": 1247.0,
+          "date": "2026-06-05",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "grok-4.3",
+      "name": "grok-4.3",
+      "display_name": "grok-4.3",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1189.0,
+          "date": "2026-06-10",
+          "ci": 8.0
+        },
+        "elo_vision": {
+          "value": 1249.0,
+          "date": "2026-06-05",
+          "ci": 9.0
+        }
+      }
+    },
+    {
+      "id": "kimi-k2.5-thinking",
+      "name": "kimi-k2.5-thinking",
+      "display_name": "kimi-k2.5-thinking",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
+      "scores": {
+        "elo_document": {
+          "value": 1429.0,
+          "date": "2026-06-10",
+          "ci": 7.0
+        },
+        "elo_vision": {
+          "value": 1247.0,
+          "date": "2026-06-05",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "kimi-k2.6",
+      "name": "kimi-k2.6",
+      "display_name": "kimi-k2.6",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
+      "open_weights": true,
+      "scores": {
+        "elo_code": {
+          "value": 1516.0,
+          "date": "2026-06-10",
+          "ci": 9.0
+        },
+        "elo_document": {
+          "value": 1450.0,
+          "date": "2026-06-10",
+          "ci": 9.0
+        },
+        "elo_vision": {
+          "value": 1261.0,
+          "date": "2026-06-05",
+          "ci": 8.0
+        }
+      }
+    },
+    {
+      "id": "minimax-m3",
+      "name": "minimax-m3",
+      "display_name": "minimax-m3",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1528.0,
+          "date": "2026-06-10",
+          "ci": 16.0
+        },
+        "elo_document": {
+          "value": 1438.0,
+          "date": "2026-06-10",
+          "ci": 12.0
+        }
+      }
+    },
+    {
+      "id": "muse-spark",
+      "name": "muse-spark",
+      "display_name": "muse-spark",
+      "creator": "meta",
+      "creator_name": "Meta",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1508.0,
+          "date": "2026-06-10",
+          "ci": 16.0
+        },
+        "elo_document": {
+          "value": 1440.0,
+          "date": "2026-06-10",
+          "ci": 18.0
+        },
+        "elo_text": {
+          "value": 1489.0,
+          "date": "2026-06-05",
+          "ci": 6.0
+        },
+        "elo_vision": {
+          "value": 1295.0,
+          "date": "2026-06-05",
+          "ci": 10.0
+        }
+      }
+    },
+    {
+      "id": "o3-search",
+      "name": "o3-search",
+      "display_name": "o3-search",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1144.0,
+          "date": "2026-06-10",
+          "ci": 5.0
+        }
+      }
+    },
+    {
+      "id": "ppl-sonar-pro-high",
+      "name": "ppl-sonar-pro-high",
+      "display_name": "ppl-sonar-pro-high",
+      "creator": "perplexity-ai",
+      "creator_name": "Perplexity AI",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1130.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "ppl-sonar-reasoning-pro-high",
+      "name": "ppl-sonar-reasoning-pro-high",
+      "display_name": "ppl-sonar-reasoning-pro-high",
+      "creator": "perplexity-ai",
+      "creator_name": "Perplexity AI",
+      "reasoning_status": "Reasoning",
+      "open_weights": false,
+      "scores": {
+        "elo_search": {
+          "value": 1139.0,
+          "date": "2026-06-10",
+          "ci": 6.0
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-397b-a17b",
+      "name": "qwen3.5-397b-a17b",
+      "display_name": "qwen3.5-397b-a17b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "open_weights": true,
+      "scores": {
+        "elo_vision": {
+          "value": 1249.0,
+          "date": "2026-06-05",
+          "ci": 7.0
+        }
+      }
+    },
+    {
+      "id": "qwen3.7-max-20260517",
+      "name": "qwen3.7-max-20260517",
+      "display_name": "qwen3.7-max-20260517",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "open_weights": false,
+      "scores": {
+        "elo_code": {
+          "value": 1537.0,
+          "date": "2026-06-10",
+          "ci": 13.0
+        }
+      }
+    },
+    {
+      "id": "qwen3.7-max-preview",
+      "name": "qwen3.7-max-preview",
+      "display_name": "qwen3.7-max-preview",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "open_weights": false,
+      "scores": {
+        "elo_text": {
+          "value": 1474.0,
+          "date": "2026-06-05",
+          "ci": 10.0
+        }
+      }
+    },
+    {
+      "id": "qwen3.7-plus-preview",
+      "name": "qwen3.7-plus-preview",
+      "display_name": "qwen3.7-plus-preview",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "open_weights": false,
+      "scores": {
+        "elo_vision": {
+          "value": 1263.0,
+          "date": "2026-06-05",
+          "ci": 11.0
+        }
+      }
+    }
+  ]
+}

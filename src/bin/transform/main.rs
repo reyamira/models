@@ -13,6 +13,9 @@
 mod schema;
 
 mod aa;
+mod arena;
+mod epoch;
+mod llmstats;
 
 use std::path::PathBuf;
 use std::process::ExitCode;
@@ -39,12 +42,46 @@ enum Command {
         #[arg(short, long)]
         output: PathBuf,
     },
+    /// Transform an Arena leaderboard snapshot directory (6 board JSONs).
+    Arena {
+        /// Directory holding the per-board JSON files (text/vision/code/...).
+        input: PathBuf,
+        /// Output path for the generated `SourceFile` JSON.
+        #[arg(short, long)]
+        output: PathBuf,
+    },
+    /// Transform an unzipped Epoch AI benchmark CSV directory.
+    Epoch {
+        /// Directory holding the per-benchmark Epoch CSVs.
+        input: PathBuf,
+        /// Output path for the generated `SourceFile` JSON.
+        #[arg(short, long)]
+        output: PathBuf,
+    },
+    /// Transform collected LLM Stats `/v1/rankings` (+ optional `/v1/models`).
+    Llmstats {
+        /// Assembled `/v1/rankings` responses (`{"rankings": [...]}`).
+        rankings: PathBuf,
+        /// Optional `/v1/models` list (`{"models": [...]}`) for metadata enrichment.
+        #[arg(short, long)]
+        models: Option<PathBuf>,
+        /// Output path for the generated `SourceFile` JSON.
+        #[arg(short, long)]
+        output: PathBuf,
+    },
 }
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
     let result = match cli.command {
         Command::Aa { input, output } => aa::run(&input, &output),
+        Command::Arena { input, output } => arena::run(&input, &output),
+        Command::Epoch { input, output } => epoch::run(&input, &output),
+        Command::Llmstats {
+            rankings,
+            models,
+            output,
+        } => llmstats::run(&rankings, models.as_deref(), &output),
     };
 
     match result {

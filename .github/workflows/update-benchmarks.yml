@@ -1,7 +1,12 @@
 name: Update Benchmark Data
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      refresh_all:
+        description: "Bypass the twice-daily gate and regenerate Arena + Epoch this run"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -21,7 +26,32 @@ jobs:
       - name: Cache Rust build
         uses: Swatinem/rust-cache@v2
 
+      # Arena + Epoch update daily upstream and Epoch's ZIP is multi-MB, so they
+      # are gated to twice daily: the :17 run (minute < 30) at UTC hour 06 or 18.
+      # The workflow_dispatch `refresh_all` boolean bypasses the gate so the
+      # first post-merge dispatch can bootstrap all four files at once.
+      - name: Decide whether to refresh Arena + Epoch
+        id: gate
+        run: |
+          hour=$(date -u +%H)
+          minute=$(date -u +%M)
+          refresh_all="${{ github.event.inputs.refresh_all }}"
+          do_heavy=false
+          if [ "$refresh_all" = "true" ]; then
+            do_heavy=true
+            echo "refresh_all=true -> regenerating Arena + Epoch"
+          elif { [ "$hour" = "06" ] || [ "$hour" = "18" ]; } && [ "$minute" -lt 30 ]; then
+            do_heavy=true
+            echo "twice-daily gate open (UTC ${hour}:${minute}) -> regenerating Arena + Epoch"
+          else
+            echo "twice-daily gate closed (UTC ${hour}:${minute}) -> leaving Arena + Epoch files in place"
+          fi
+          echo "do_heavy=$do_heavy" >> "$GITHUB_OUTPUT"
+
+      # --- AA: runs every trigger (legacy lane + v2) ------------------------
       - name: Fetch benchmark data from Artificial Analysis API
+        id: aa
+        continue-on-error: true
         env:
           AA_API_KEY: ${{ secrets.AA_API_KEY }}
         run: |
@@ -63,14 +93,108 @@ jobs:
           echo "Fetched $(jq length data/benchmarks.json) entries"
 
       - name: Generate v2 AA source file
+        if: steps.aa.outcome == 'success'
+        continue-on-error: true
         run: |
           mkdir -p data/v2
           cargo run --features pipeline --bin transform -- aa aa_raw.json -o data/v2/aa.json
 
+      # --- LLM Stats: runs every trigger (bounded paged fetch) --------------
+      # `/v1/rankings` is hard-capped at limit=50 (limit>50 silently returns an
+      # empty list); `/v1/models` is cursor-paginated. Both loops are bounded.
+      - name: Fetch + generate v2 LLM Stats source file
+        id: llmstats
+        continue-on-error: true
+        env:
+          LLM_STATS_API_KEY: ${{ secrets.LLM_STATS_API_KEY }}
+        run: |
+          set -euo pipefail
+          base="https://api.llm-stats.com/stats/v1"
+          auth="Authorization: Bearer $LLM_STATS_API_KEY"
+
+          # 11 curated categories -> one RankingsResponse each, assembled into
+          # { "rankings": [ ... ] }.
+          cats="agents code finance frontend_development general healthcare legal math multimodal reasoning vision"
+          : > rankings_parts.json
+          for cat in $cats; do
+            curl -sf -H "$auth" "$base/rankings?category=$cat&limit=50" >> rankings_parts.json
+            echo >> rankings_parts.json
+          done
+          jq -s '{ rankings: . }' rankings_parts.json > llmstats_rankings.json
+
+          # /v1/models, cursor-paginated, bounded to <10 pages -> { "models": [...] }.
+          : > models_parts.json
+          cursor=""
+          page=0
+          while [ "$page" -lt 10 ]; do
+            if [ -z "$cursor" ]; then
+              resp=$(curl -sf -H "$auth" "$base/models?limit=50")
+            else
+              resp=$(curl -sf -H "$auth" "$base/models?limit=50&cursor=$cursor")
+            fi
+            echo "$resp" | jq -c '.models[]?' >> models_parts.json
+            cursor=$(echo "$resp" | jq -r '.next_cursor // empty')
+            page=$((page + 1))
+            [ -z "$cursor" ] && break
+          done
+          jq -s '{ models: . }' models_parts.json > llmstats_models.json
+
+          mkdir -p data/v2
+          cargo run --features pipeline --bin transform -- \
+            llmstats llmstats_rankings.json --models llmstats_models.json -o data/v2/llmstats.json
+
+      # --- Arena: twice-daily gated ----------------------------------------
+      - name: Fetch + generate v2 Arena source file
+        id: arena
+        if: steps.gate.outputs.do_heavy == 'true'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          repo="https://raw.githubusercontent.com/oolong-tea-2026/arena-ai-leaderboards/main"
+
+          # latest.json points at the newest snapshot directory ({path, date}).
+          snapshot=$(curl -sf "$repo/data/latest.json" | jq -r '.path // .date // empty')
+          if [ -z "$snapshot" ]; then
+            echo "could not resolve Arena snapshot pointer" >&2
+            exit 1
+          fi
+          echo "Arena snapshot: $snapshot"
+
+          mkdir -p arena_boards
+          for board in text vision code agent search document; do
+            curl -sf "$repo/data/$snapshot/$board.json" -o "arena_boards/$board.json" || \
+              echo "warning: Arena board $board missing in snapshot $snapshot" >&2
+          done
+
+          mkdir -p data/v2
+          cargo run --features pipeline --bin transform -- arena arena_boards -o data/v2/arena.json
+
+      # --- Epoch: twice-daily gated ----------------------------------------
+      - name: Fetch + generate v2 Epoch source file
+        id: epoch
+        if: steps.gate.outputs.do_heavy == 'true'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          tmp=$(mktemp -d)
+          curl -sf "https://epoch.ai/data/benchmark_data.zip" -o "$tmp/benchmark_data.zip"
+          unzip -q -o "$tmp/benchmark_data.zip" -d "$tmp/csv"
+
+          # The ZIP may unpack into a nested directory; transform reads a dir of
+          # CSVs, so locate the directory actually containing the .csv files.
+          csv_dir="$tmp/csv"
+          if [ -z "$(find "$csv_dir" -maxdepth 1 -name '*.csv' -print -quit)" ]; then
+            csv_dir=$(dirname "$(find "$tmp/csv" -name '*.csv' -print -quit)")
+          fi
+
+          mkdir -p data/v2
+          cargo run --features pipeline --bin transform -- epoch "$csv_dir" -o data/v2/epoch.json
+
+      # --- Commit + purge (failure-isolated: each file staged best-effort) ---
       - name: Commit and push if changed
         id: commit
         run: |
-          git add data/benchmarks.json data/v2/aa.json
+          git add data/benchmarks.json data/v2/ || true
           git diff --cached --quiet && echo "changed=false" >> "$GITHUB_OUTPUT" && exit 0
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -83,3 +207,6 @@ jobs:
         run: |
           curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/benchmarks.json" || true
           curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/v2/aa.json" || true
+          curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/v2/epoch.json" || true
+          curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/v2/arena.json" || true
+          curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/v2/llmstats.json" || true

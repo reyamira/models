@@ -1399,7 +1399,7 @@ mod tests {
 
     #[test]
     fn test_cycle_data_source_clears_selections() {
-        // With a single compiled-in source, cycling wraps back to index 0 and
+        // Cycling to the next compiled-in source advances `active_source` and
         // clears the shared selection vec (per the switch contract).
         let mut app = make_test_app();
         app.toggle_selection(1);
@@ -1407,7 +1407,7 @@ mod tests {
         assert_eq!(app.selections.len(), 2);
         app.update(Message::CycleDataSourceNext);
         assert!(app.selections.is_empty());
-        assert_eq!(app.benchmarks_app.active_source, 0);
+        assert_eq!(app.benchmarks_app.active_source, 1);
     }
 
     #[test]

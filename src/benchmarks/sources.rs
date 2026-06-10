@@ -33,10 +33,33 @@ pub struct SourceDescriptor {
 }
 
 /// Compiled-in list of all known data sources. Order is display order.
-pub const SOURCES: &[SourceDescriptor] = &[SourceDescriptor {
-    id: "aa",
-    name: "Artificial Analysis",
-    url: "https://artificialanalysis.ai",
-    data_url: "https://cdn.jsdelivr.net/gh/reyamira/models@main/data/v2/aa.json",
-    verified: true,
-}];
+pub const SOURCES: &[SourceDescriptor] = &[
+    SourceDescriptor {
+        id: "aa",
+        name: "Artificial Analysis",
+        url: "https://artificialanalysis.ai",
+        data_url: "https://cdn.jsdelivr.net/gh/reyamira/models@main/data/v2/aa.json",
+        verified: true,
+    },
+    SourceDescriptor {
+        id: "epoch",
+        name: "Epoch AI",
+        url: "https://epoch.ai",
+        data_url: "https://cdn.jsdelivr.net/gh/reyamira/models@main/data/v2/epoch.json",
+        verified: true,
+    },
+    SourceDescriptor {
+        id: "arena",
+        name: "Arena",
+        url: "https://arena.ai",
+        data_url: "https://cdn.jsdelivr.net/gh/reyamira/models@main/data/v2/arena.json",
+        verified: true,
+    },
+    SourceDescriptor {
+        id: "llmstats",
+        name: "LLM Stats",
+        url: "https://llm-stats.com",
+        data_url: "https://cdn.jsdelivr.net/gh/reyamira/models@main/data/v2/llmstats.json",
+        verified: false,
+    },
+];

@@ -1224,8 +1224,13 @@ mod tests {
     }
 
     fn store_with(file: SourceFile) -> MultiStore {
+        // Load the same sample file into every registered source slot so that
+        // cycling/switching lands on a slot that always has a file regardless of
+        // how many sources the registry compiles in.
         let mut store = MultiStore::new();
-        store.set_loaded(0, file);
+        for idx in 0..store.sources.len() {
+            store.set_loaded(idx, file.clone());
+        }
         store
     }
 
@@ -1442,9 +1447,11 @@ mod tests {
         app.selected = 0;
         app.show_detail_overlay = true;
 
-        // Only one source -> switch wraps back to index 0 and resets.
+        // Switching forward advances to the next registered source and resets
+        // per-source view state. With the same sample file loaded into every
+        // slot, the rebuild assertions below hold regardless of the landed index.
         app.switch_source(&store, true);
-        assert_eq!(app.active_source, 0);
+        assert_eq!(app.active_source, 1);
         assert!(app.search_query.is_empty());
         assert_eq!(app.source_filter, SourceFilter::All);
         assert_eq!(app.reasoning_filter, ReasoningFilter::All);

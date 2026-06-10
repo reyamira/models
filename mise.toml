@@ -85,13 +85,13 @@ echo "Updated data/benchmarks.json ($(jq length data/benchmarks.json) entries)"
 """
 
 [tasks.refresh-sources]
-description = "Fetch AA data and regenerate v2 source files"
+description = "Fetch AA/Arena/Epoch/LLM Stats data and regenerate all v2 source files"
 run = """
 #!/usr/bin/env bash
 set -euo pipefail
 
 if [ ! -f .env ]; then
-  echo "Error: .env file not found. Create one with AA_API_KEY=your_key"
+  echo "Error: .env file not found. Create one with AA_API_KEY=... and LLM_STATS_API_KEY=..."
   exit 1
 fi
 
@@ -101,9 +101,14 @@ if [ -z "${AA_API_KEY:-}" ]; then
   echo "Error: AA_API_KEY not set in .env"
   exit 1
 fi
+if [ -z "${LLM_STATS_API_KEY:-}" ]; then
+  echo "Error: LLM_STATS_API_KEY not set in .env"
+  exit 1
+fi
 
 raw=$(mktemp)
-trap 'rm -f "$raw"' EXIT
+work=$(mktemp -d)
+trap 'rm -f "$raw"; rm -rf "$work"' EXIT
 
 echo "Fetching from Artificial Analysis API..."
 xh GET https://artificialanalysis.ai/api/v2/data/llms/models X-API-Key:"$AA_API_KEY" > "$raw"
@@ -143,8 +148,64 @@ jq '[.data[] | {
 mkdir -p data/v2
 cargo run --features pipeline --bin transform -- aa "$raw" -o data/v2/aa.json
 
+# --- Arena: latest.json -> snapshot dir -> 6 board JSONs --------------------
+echo "Fetching Arena leaderboard snapshot..."
+arena_repo="https://raw.githubusercontent.com/oolong-tea-2026/arena-ai-leaderboards/main"
+snapshot=$(curl -sf "$arena_repo/data/latest.json" | jq -r '.path // .date // empty')
+if [ -z "$snapshot" ]; then
+  echo "Error: could not resolve Arena snapshot pointer from latest.json"
+  exit 1
+fi
+mkdir -p "$work/arena_boards"
+for board in text vision code agent search document; do
+  curl -sf "$arena_repo/data/$snapshot/$board.json" -o "$work/arena_boards/$board.json" \
+    || echo "warning: Arena board $board missing in snapshot $snapshot"
+done
+cargo run --features pipeline --bin transform -- arena "$work/arena_boards" -o data/v2/arena.json
+
+# --- Epoch: download ZIP -> unzip -> transform -----------------------------
+echo "Fetching Epoch AI benchmark ZIP..."
+curl -sf "https://epoch.ai/data/benchmark_data.zip" -o "$work/epoch.zip"
+unzip -q -o "$work/epoch.zip" -d "$work/epoch_csv"
+epoch_dir="$work/epoch_csv"
+if [ -z "$(find "$epoch_dir" -maxdepth 1 -name '*.csv' -print -quit)" ]; then
+  epoch_dir=$(dirname "$(find "$work/epoch_csv" -name '*.csv' -print -quit)")
+fi
+cargo run --features pipeline --bin transform -- epoch "$epoch_dir" -o data/v2/epoch.json
+
+# --- LLM Stats: bounded paged fetch (key sourced, never echoed) ------------
+echo "Fetching LLM Stats rankings + models..."
+ls_base="https://api.llm-stats.com/stats/v1"
+ls_auth="Authorization: Bearer $LLM_STATS_API_KEY"
+: > "$work/ls_rankings_parts.json"
+for cat in agents code finance frontend_development general healthcare legal math multimodal reasoning vision; do
+  curl -sf -H "$ls_auth" "$ls_base/rankings?category=$cat&limit=50" >> "$work/ls_rankings_parts.json"
+  echo >> "$work/ls_rankings_parts.json"
+done
+jq -s '{ rankings: . }' "$work/ls_rankings_parts.json" > "$work/ls_rankings.json"
+: > "$work/ls_models_parts.json"
+cursor=""
+page=0
+while [ "$page" -lt 10 ]; do
+  if [ -z "$cursor" ]; then
+    resp=$(curl -sf -H "$ls_auth" "$ls_base/models?limit=50")
+  else
+    resp=$(curl -sf -H "$ls_auth" "$ls_base/models?limit=50&cursor=$cursor")
+  fi
+  echo "$resp" | jq -c '.models[]?' >> "$work/ls_models_parts.json"
+  cursor=$(echo "$resp" | jq -r '.next_cursor // empty')
+  page=$((page + 1))
+  [ -z "$cursor" ] && break
+done
+jq -s '{ models: . }' "$work/ls_models_parts.json" > "$work/ls_models.json"
+cargo run --features pipeline --bin transform -- \
+  llmstats "$work/ls_rankings.json" --models "$work/ls_models.json" -o data/v2/llmstats.json
+
 echo "Updated data/benchmarks.json ($(jq length data/benchmarks.json) entries)"
 echo "Updated data/v2/aa.json ($(jq '.models | length' data/v2/aa.json) models)"
+echo "Updated data/v2/arena.json ($(jq '.models | length' data/v2/arena.json) models)"
+echo "Updated data/v2/epoch.json ($(jq '.models | length' data/v2/epoch.json) models)"
+echo "Updated data/v2/llmstats.json ($(jq '.models | length' data/v2/llmstats.json) models)"
 """
 
 [tools]

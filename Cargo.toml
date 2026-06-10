@@ -22,7 +22,7 @@ path = "src/bin/transform/main.rs"
 required-features = ["pipeline"]
 
 [features]
-pipeline = []
+pipeline = ["dep:csv"]
 
 [dependencies]
 # CLI
@@ -87,6 +87,11 @@ comrak = { version = "0.36", default-features = false }
 
 # Date/time handling
 chrono = { version = "0.4", features = ["serde"] }
+
+# CSV parsing — ONLY for the `pipeline` feature's `transform epoch` (RFC-4180
+# quoting / embedded newlines in Epoch CSVs). Optional + feature-gated so the
+# published `models` binary never links it.
+csv = { version = "1", optional = true }
 
 # Terminal styling (used for dialoguer theme)
 console = "0.15"
