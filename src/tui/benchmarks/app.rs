@@ -1800,6 +1800,11 @@ mod tests {
         // Name sort so dateless gamma-1 stays in the filtered view.
         app.quick_sort(SortKey::Name, &file);
         app.sort_descending = true;
+        // An active SEARCH that narrows the list to gamma-1 only; it must survive
+        // the state-preserving rebuild and re-apply against the refreshed file.
+        app.search_query = "gamma".to_string();
+        app.rebuild_after_filter_change(&file);
+        assert_eq!(app.filtered_indices.len(), 1);
         // Select gamma-1 (the model we'll track across the rebuild).
         let gamma_pos = app
             .filtered_indices
@@ -1820,6 +1825,9 @@ mod tests {
         // Sort + direction preserved.
         assert_eq!(app.sort_key, SortKey::Name);
         assert!(app.sort_descending);
+        // SEARCH preserved + re-applied: still only gamma-1 in the filtered view.
+        assert_eq!(app.search_query, "gamma");
+        assert_eq!(app.filtered_indices.len(), 1);
         // Selected model preserved by id.
         assert_eq!(app.current_model(&refreshed).unwrap().id, "gamma-1");
     }

@@ -1963,11 +1963,15 @@ mod tests {
             app.benchmarks_app.rebuild(f);
         }
 
-        // Set a Name sort (descending) and a search; select gamma by id.
+        // Set a Name sort (descending), an active SEARCH narrowing to gamma, and
+        // select gamma by id. Search + sort + selection must all survive refresh.
         app.benchmarks_app.sort_key = SortKey::Name;
         app.benchmarks_app.sort_descending = true;
+        app.benchmarks_app.search_query = "gamma".to_string();
         app.benchmarks_app
             .rebuild_after_filter_change(app.multi_store.file(0).unwrap());
+        // Search narrows the filtered view to gamma only.
+        assert_eq!(app.benchmarks_app.filtered_indices.len(), 1);
         app.selections = vec![2]; // gamma in old file
 
         // Refreshed file reorders models: gamma now at index 0.
@@ -1977,6 +1981,16 @@ mod tests {
         // Sort + direction preserved.
         assert_eq!(app.benchmarks_app.sort_key, SortKey::Name);
         assert!(app.benchmarks_app.sort_descending);
+        // SEARCH preserved + re-applied against the refreshed file.
+        assert_eq!(app.benchmarks_app.search_query, "gamma");
+        assert_eq!(app.benchmarks_app.filtered_indices.len(), 1);
+        assert_eq!(
+            app.benchmarks_app
+                .current_model(app.multi_store.file(0).unwrap())
+                .unwrap()
+                .id,
+            "gamma"
+        );
         // Selection remapped by id: gamma moved to index 0.
         assert_eq!(app.selections, vec![0]);
         assert!(app
