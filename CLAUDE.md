@@ -49,7 +49,7 @@ Each module has its own `CLAUDE.md` with detailed documentation. Top-level highl
 
 - `src/formatting.rs` — shared utilities: `truncate`, `parse_date`, `format_tokens`, `format_stars`, `EM_DASH`, `cmp_opt_f64`
 - `src/data.rs` — Provider/Model data structures from models.dev API
-- `src/config.rs` — user config file (agents, cache, display, aliases settings). `AliasesConfig` struct + `AliasKind` enum for symlink routing
+- `src/config.rs` — user config file (agents, cache, display, aliases, benchmarks settings). `AliasesConfig` struct + `AliasKind` enum for symlink routing; `BenchmarksConfig.columns` persists the benchmarks tab's visible metric columns per source (metric ids, not indices)
 - `src/provider_category.rs` — provider categorization logic
 - `src/benchmarks/` — `schema.rs` (v2 `SourceFile`/`MetricDef`/`ModelRow`/`ScoreCell` — shared with the transform bin via `#[path]`), `multi.rs` (`MultiStore`, `SortKey`, registry-driven view helpers: kind formatting, group ordering, radar groups, default sort, reasoning filter), `sources.rs` (compile-time `SourceDescriptor` registry of the 4 sources), `fetch.rs` (per-source CDN fetcher + `MODELS_DATA_BASE_URL` override), `traits.rs` (AA Jaro-Winkler matching + generic `enrich_from_models_dev`/`creator_openness` for non-AA sources). `store.rs`/`BenchmarkStore`/`BenchmarkEntry` are GONE
 - `src/bin/transform/` — offline data-pipeline bin (feature `pipeline`): `main.rs` (clap subcommands) + `aa.rs`/`arena.rs`/`epoch.rs`/`llmstats.rs`. See `src/bin/transform/CLAUDE.md`

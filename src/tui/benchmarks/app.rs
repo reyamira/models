@@ -1486,6 +1486,29 @@ impl BenchmarksApp {
         self.column_picker_pending = Vec::new();
     }
 
+    /// Resolve saved column metric **ids** (from config) onto `visible_columns`
+    /// indices for `file`, in file order. Ids whose metric no longer exists are
+    /// silently dropped — Epoch's auto-prune retires metrics between pipeline
+    /// runs, so a stale id is expected, not an error.
+    pub fn apply_saved_columns(&mut self, file: &SourceFile, saved: &[String]) {
+        self.visible_columns = file
+            .metrics
+            .iter()
+            .enumerate()
+            .filter(|(_, m)| saved.contains(&m.id))
+            .map(|(i, _)| i)
+            .collect();
+    }
+
+    /// The current `visible_columns` as metric **ids** (the stable handle the
+    /// config persists — indices shift when a source's metric set changes).
+    pub fn visible_column_ids(&self, file: &SourceFile) -> Vec<String> {
+        self.visible_columns
+            .iter()
+            .filter_map(|&i| file.metrics.get(i).map(|m| m.id.clone()))
+            .collect()
+    }
+
     /// Compute the effective set of column metric indices to render in the
     /// browse-mode list:
     ///
@@ -1713,6 +1736,23 @@ mod tests {
         app.sort_key = key;
         app.sort_descending = BenchmarksApp::default_descending(file, key);
         app.update_filtered(file);
+    }
+
+    #[test]
+    fn apply_saved_columns_resolves_file_order_and_drops_stale() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        // Saved order is gpqa-first, but resolution is FILE order; the unknown
+        // id drops silently (Epoch auto-prune retires metrics between runs).
+        app.apply_saved_columns(
+            &file,
+            &[
+                "gpqa".to_string(),
+                "retired-metric".to_string(),
+                "intelligence_index".to_string(),
+            ],
+        );
+        assert_eq!(app.visible_columns, vec![0, 3]);
     }
 
     #[test]

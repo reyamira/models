@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 /// Routing discriminant for symlink aliases -- not a config field, not serde-derived.
@@ -57,6 +57,21 @@ pub struct Config {
     pub status: StatusConfig,
     #[serde(default)]
     pub aliases: AliasesConfig,
+    #[serde(default)]
+    pub benchmarks: BenchmarksConfig,
+}
+
+/// Benchmarks-tab persistence.
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct BenchmarksConfig {
+    /// Visible metric columns per data-source id (`aa` / `epoch` / `arena` /
+    /// `llmstats`), saved when the column picker applies. Values are metric
+    /// **ids**, not indices — Epoch's auto-prune shifts metric positions
+    /// between pipeline runs, so ids are the stable handle. Ids whose metric
+    /// no longer exists in the loaded file are silently dropped at resolve
+    /// time.
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub columns: HashMap<String, Vec<String>>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -294,6 +309,24 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn benchmarks_columns_roundtrip_and_default_empty() {
+        let mut config = Config::default();
+        config
+            .benchmarks
+            .columns
+            .insert("aa".to_string(), vec!["gpqa".to_string()]);
+        let serialized = toml::to_string_pretty(&config).unwrap();
+        let back: Config = toml::from_str(&serialized).unwrap();
+        assert_eq!(
+            back.benchmarks.columns.get("aa").unwrap(),
+            &vec!["gpqa".to_string()]
+        );
+        // A config without the [benchmarks] section deserializes to empty.
+        let none: Config = toml::from_str("").unwrap();
+        assert!(none.benchmarks.columns.is_empty());
+    }
 
     #[test]
     fn test_default_config() {

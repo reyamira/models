@@ -40,6 +40,7 @@ fn finalize_loaded_source(app: &mut App, idx: usize) {
         if let Some(file) = app.multi_store.file(idx) {
             app.benchmarks_app.rebuild(file);
         }
+        app.restore_saved_columns(idx);
     }
 }
 
@@ -373,6 +374,64 @@ impl App {
         {
             self.benchmarks_app.focus = super::benchmarks::BenchmarkFocus::List;
         }
+        // reset_for_source cleared visible_columns; restore this source's saved
+        // selection from config (no-op while the source is still unloaded — the
+        // restore re-runs in finalize_loaded_source when the file lands).
+        self.restore_saved_columns(new_active);
+    }
+
+    /// Restore `visible_columns` for source `idx` from the config-persisted
+    /// metric ids (per-source `[benchmarks.columns]`). No-op when the source
+    /// isn't loaded or nothing is saved for it.
+    fn restore_saved_columns(&mut self, idx: usize) {
+        let Some(source_id) = self.multi_store.sources.get(idx).map(|s| s.descriptor.id) else {
+            return;
+        };
+        let Some(saved) = self.config.benchmarks.columns.get(source_id) else {
+            return;
+        };
+        let saved = saved.clone();
+        if let Some(file) = self.multi_store.file(idx) {
+            self.benchmarks_app.apply_saved_columns(file, &saved);
+        }
+    }
+
+    /// Mirror the active source's `visible_columns` into the in-memory config
+    /// (as metric ids). An empty selection removes the source's entry so the
+    /// config file doesn't accumulate `aa = []` noise. Returns `false` when
+    /// there was nothing to sync (source unloaded / unknown index). Disk IO
+    /// lives in `persist_visible_columns` so tests can assert the mutation
+    /// without touching the real config file.
+    fn sync_visible_columns_to_config(&mut self) -> bool {
+        let idx = self.benchmarks_app.active_source;
+        let Some(source_id) = self.multi_store.sources.get(idx).map(|s| s.descriptor.id) else {
+            return false;
+        };
+        let Some(file) = self.multi_store.file(idx) else {
+            return false;
+        };
+        let ids = self.benchmarks_app.visible_column_ids(file);
+        if ids.is_empty() {
+            self.config.benchmarks.columns.remove(source_id);
+        } else {
+            self.config
+                .benchmarks
+                .columns
+                .insert(source_id.to_string(), ids);
+        }
+        true
+    }
+
+    /// Sync the active source's column selection into the config and write it
+    /// to disk, reporting the outcome on the status bar.
+    fn persist_visible_columns(&mut self) {
+        if !self.sync_visible_columns_to_config() {
+            return;
+        }
+        match self.config.save() {
+            Ok(()) => self.set_status("Columns saved".to_string()),
+            Err(e) => self.set_status(format!("Failed to save columns: {e}")),
+        }
     }
 
     /// Apply the result of an `r`-triggered refresh of source `idx`.
@@ -428,6 +487,9 @@ impl App {
                         self.benchmarks_app
                             .rebuild_preserving(new_file, prev_model_id);
                     }
+                    // Re-resolve saved columns by id against the refreshed file
+                    // (more robust than the index prune when metrics moved).
+                    self.restore_saved_columns(idx);
                     self.benchmarks_app
                         .update_bottom_view(self.selections.len());
                     if self.selections.len() < 2
@@ -1288,6 +1350,8 @@ impl App {
             }
             Message::ColumnPickerSave => {
                 self.benchmarks_app.column_picker_save();
+                // Persist the (possibly empty) selection per source as metric ids.
+                self.persist_visible_columns();
             }
             Message::ColumnPickerCancel => {
                 self.benchmarks_app.column_picker_cancel();
@@ -2106,6 +2170,50 @@ mod tests {
         app.selections = vec![0, 1];
         app.update(Message::CycleDataSourceNext);
         assert_eq!(app.selections, vec![0]);
+    }
+
+    #[test]
+    fn column_sync_persists_ids_and_clears_empty_entry() {
+        let file0 = bm_file_reasoning("aa", &["alpha"]);
+        let mut app = make_test_app();
+        app.multi_store.set_loaded(0, file0);
+        app.benchmarks_app.active_source = 0;
+        // Select the "coding" column (index 1) and sync.
+        app.benchmarks_app.visible_columns = vec![1];
+        assert!(app.sync_visible_columns_to_config());
+        assert_eq!(
+            app.config.benchmarks.columns.get("aa").map(Vec::as_slice),
+            Some(&["coding".to_string()][..])
+        );
+        // Clearing the selection removes the entry (no `aa = []` noise).
+        app.benchmarks_app.visible_columns.clear();
+        assert!(app.sync_visible_columns_to_config());
+        assert!(!app.config.benchmarks.columns.contains_key("aa"));
+    }
+
+    #[test]
+    fn switch_restores_saved_columns_per_source() {
+        let file0 = bm_file_reasoning("aa", &["alpha"]);
+        let file1 = bm_file_reasoning("epoch", &["alpha"]);
+        let mut app = app_with_two_sources(file0, file1);
+        app.config
+            .benchmarks
+            .columns
+            .insert("aa".to_string(), vec!["intelligence".to_string()]);
+        // Saved epoch entry carries one live id and one stale id (a metric the
+        // source no longer ships) — the stale one must drop silently.
+        app.config.benchmarks.columns.insert(
+            "epoch".to_string(),
+            vec!["coding".to_string(), "long-gone".to_string()],
+        );
+
+        app.update(Message::CycleDataSourceNext);
+        assert_eq!(app.benchmarks_app.active_source, 1);
+        assert_eq!(app.benchmarks_app.visible_columns, vec![1]);
+
+        app.update(Message::CycleDataSourcePrev);
+        assert_eq!(app.benchmarks_app.active_source, 0);
+        assert_eq!(app.benchmarks_app.visible_columns, vec![0]);
     }
 
     #[test]

@@ -573,6 +573,10 @@ fn run_app(
                     // Picker save sets its own status message via app.update
                     last_status_time = Some(std::time::Instant::now());
                 }
+                app::Message::ColumnPickerSave => {
+                    // Column persistence sets its own status via app.update
+                    last_status_time = Some(std::time::Instant::now());
+                }
                 app::Message::ToggleBenchmarkSelection => {
                     // Look up the model name for the status message
                     if let Some(&store_idx) = app

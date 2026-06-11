@@ -17,7 +17,7 @@ sidebar) rendered from per-source `MetricDef`s rather than hardcoded field names
 - Sources load progressively; selecting a still-loading/failed source shows the standard loading/error state.
 
 ## Column picker (`C`, browse mode)
-- `visible_columns: Vec<usize>` (metric indices, file order, default empty, session-only; reset on source switch, out-of-range pruned on refresh) + picker state (`show_column_picker`/`column_picker_selected`/`column_picker_pending` — Enter applies the pending set, Esc discards). `C` guarded to browse mode in event.rs; `handle_column_picker_keys` intercepts all keys (incl. `q`) while open.
+- `visible_columns: Vec<usize>` (metric indices, file order, default empty; **persisted** — picker save mirrors the selection into `config.benchmarks.columns` as per-source metric ids and writes config.toml; switch/first-load/refresh re-resolve saved ids via `App::restore_saved_columns`/`apply_saved_columns`, dropping stale ids) + picker state (`show_column_picker`/`column_picker_selected`/`column_picker_pending` — Enter applies the pending set, Esc discards). `C` guarded to browse mode in event.rs; `handle_column_picker_keys` intercepts all keys (incl. `q`) while open.
 - `effective_columns()` = visible columns plus the active sort `Metric(i)` appended when absent; ReleaseDate sort keeps the Released column; Name sort adds nothing. Metric columns are 11 wide, headers via `multi::short_label` (curated `short_label` else truncated label), sorted column's header Cyan+BOLD. Width cap keeps the name column ≥ 10 chars and drops excess visible columns from the right — the sort column always survives (resolved from `sort_key`, not by position).
 
 ## Glossary popup (`i`)
