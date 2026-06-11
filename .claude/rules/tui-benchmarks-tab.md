@@ -60,7 +60,7 @@ One line above all content (`draw_source_bar`). Left: a bracketed label per `SOU
 
 **Right — active source freshness** (right-aligned, omitted unless the active source is loaded):
 - `fetched {relative}` in `Color::DarkGray` (relative time from `SourceMeta.fetched_at`)
-- ` self-reported` in `Color::Yellow` when `SourceMeta.verified == false` (LLM Stats)
+- ` self-reported` in `Color::Yellow` when `SourceMeta.verified == false` (generic mechanism; **no source currently sets `verified == false`** — LLM Stats was flipped to verified on 2026-06-11, so this badge is dormant)
 
 ---
 

@@ -106,7 +106,10 @@ Each sub-module exposes `run(...) -> Result<(), String>`. `main` maps `Ok` →
   input `/v1/models` (cursor-paginated), joined on rankings `model_id` == models
   `id`. A model in rankings but absent from `/v1/models` still appears (metadata
   `None`, `creator_name` falls back to the org slug).
-- `source.verified = false` ⇒ the TUI renders the self-reported badge.
+- `source.verified = true` ⇒ no self-reported badge. LLM Stats aggregates
+  third-party benchmark results and its methodology excludes provider
+  self-reported numbers from the ingested rankings, so it is verified like the
+  other sources (flipped from `false` on 2026-06-11; plan amendment).
 
 ## If-changed write semantics
 

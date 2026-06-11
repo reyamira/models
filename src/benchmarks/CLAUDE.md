@@ -12,7 +12,10 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
   the TUI/CLI deserialize and the transform bin emits.
   - `SourceFile { source: SourceMeta, metrics: Vec<MetricDef>, models: Vec<ModelRow> }`
   - `SourceMeta { id, name, url, fetched_at, verified }` — `verified == false` ⇒
-    "self-reported" badge (LLM Stats).
+    "self-reported" badge. **All four sources currently set `verified == true`**
+    (LLM Stats was flipped to `true` on 2026-06-11 — it aggregates third-party
+    results, not provider self-reported numbers), so the badge is generic
+    forward-compat machinery with no live user today.
   - `MetricDef { id, label, kind, group, higher_is_better, last_updated, description }`
     — `metrics` order = display order; `group` is the section header in
     Detail/H2H and the radar-preset grouping; `description` is the curated
@@ -68,7 +71,7 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
 
 - **sources.rs** — compile-time `SourceDescriptor` registry. `SOURCES` is a
   4-entry `const` slice in display order: `aa` (verified), `epoch` (verified),
-  `arena` (verified), `llmstats` (unverified). Each entry carries `id`
+  `arena` (verified), `llmstats` (verified). Each entry carries `id`
   (= `data/v2/` filename stem), `name`, `url`, `data_url` (jsDelivr `@main`), and
   `verified`. Only the source list is compiled in; metric definitions stay
   data-driven in the files. `url`/`verified` are part of the binding contract but

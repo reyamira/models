@@ -17,8 +17,10 @@
 //!   input (`/v1/models`, cursor-paginated). The join key is rankings
 //!   `model_id` == models `id`.
 //!
-//! `source.verified = false` — these are imported/self-reported numbers; the
-//! TUI renders the self-reported badge off this flag.
+//! `source.verified = true` — LLM Stats aggregates third-party benchmark
+//! results, and its published methodology excludes provider self-reported
+//! numbers from the rankings ingested here, so no "self-reported" badge is
+//! shown (plan amendment 2026-06-11; was previously `false`).
 //!
 //! Input contract (assembled by the workflow's bounded fetch loop):
 //! - `rankings`: a single JSON object `{ "rankings": [ <RankingsResponse>, ... ] }`
@@ -389,7 +391,12 @@ fn build_source_file(rankings: RawRankingsFile, models: Option<RawModelsFile>) -
             name: "LLM Stats".to_string(),
             url: "https://llm-stats.com".to_string(),
             fetched_at: chrono::Utc::now().to_rfc3339(),
-            verified: false,
+            // LLM Stats aggregates third-party benchmark results; its published
+            // methodology excludes provider self-reported numbers from the
+            // rankings we ingest, so it is marked verified like the other
+            // sources (no "self-reported" badge). See the multi-source plan
+            // amendment (2026-06-11).
+            verified: true,
         },
         metrics: metric_defs(&last_updated),
         models,
@@ -615,12 +622,15 @@ mod tests {
     }
 
     #[test]
-    fn source_meta_is_llmstats_and_unverified() {
+    fn source_meta_is_llmstats_and_verified() {
         let sf = parse_fixture_with_models();
         assert_eq!(sf.source.id, "llmstats");
         assert_eq!(sf.source.name, "LLM Stats");
         assert_eq!(sf.source.url, "https://llm-stats.com");
-        assert!(!sf.source.verified, "llmstats is self-reported");
+        assert!(
+            sf.source.verified,
+            "llmstats aggregates third-party results — no self-reported badge"
+        );
         assert!(!sf.source.fetched_at.is_empty());
     }
 

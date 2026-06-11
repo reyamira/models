@@ -60,6 +60,9 @@ pub const SOURCES: &[SourceDescriptor] = &[
         name: "LLM Stats",
         url: "https://llm-stats.com",
         data_url: "https://cdn.jsdelivr.net/gh/reyamira/models@main/data/v2/llmstats.json",
-        verified: false,
+        // Aggregates third-party benchmark results; its methodology excludes
+        // provider self-reported numbers from the ingested rankings, so it is
+        // verified like the others (plan amendment 2026-06-11).
+        verified: true,
     },
 ];
