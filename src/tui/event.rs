@@ -173,6 +173,7 @@ fn handle_models_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
         KeyCode::Char('D') => Some(Message::CopyProviderDoc),
         KeyCode::Char('A') => Some(Message::CopyProviderApi),
         KeyCode::Char('o') => Some(Message::OpenProviderDoc),
+        KeyCode::Char('r') => Some(Message::RefreshModels),
         KeyCode::Char('s') => Some(Message::CycleSort),
         KeyCode::Char('S') => Some(Message::ToggleSortDir),
         KeyCode::Char('1') => Some(Message::ToggleReasoning),
@@ -251,6 +252,7 @@ fn handle_agents_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
     match code {
         KeyCode::Char('o') => Some(Message::OpenAgentDocs),
         KeyCode::Char('r') => Some(Message::OpenAgentRepo),
+        KeyCode::Char('R') => Some(Message::RefreshAgents),
         KeyCode::Char('c') => Some(Message::CopyAgentName),
         KeyCode::Char('1') => Some(Message::ToggleInstalledFilter),
         KeyCode::Char('2') => Some(Message::ToggleCliFilter),

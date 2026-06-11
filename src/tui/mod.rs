@@ -94,6 +94,9 @@ struct RuntimeHandles {
     /// `r`-triggered active-source refetch results: `(source_idx, Option<SourceFile>)`.
     refresh_rx: mpsc::Receiver<(usize, Option<SourceFile>)>,
     refresh_tx: mpsc::Sender<(usize, Option<SourceFile>)>,
+    /// `r`-triggered models.dev refetch result.
+    models_refresh_rx: mpsc::Receiver<Option<crate::data::ProvidersMap>>,
+    models_refresh_tx: mpsc::Sender<Option<crate::data::ProvidersMap>>,
     /// Final URL opened by an async benchmark-url task (Epoch 404-fallback path).
     url_rx: mpsc::Receiver<String>,
     url_tx: mpsc::Sender<String>,
@@ -155,36 +158,16 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
     let (tx, rx) = mpsc::channel(100);
 
     // Spawn background GitHub fetches for agents (non-blocking)
-    // Uses conditional fetches with ETag to avoid re-downloading unchanged data
+    // Uses conditional fetches with ETag to avoid re-downloading unchanged data.
+    // Uses the shared `spawn_agent_fetches` helper so the refresh path (`R`) is
+    // identical.
     let fetch_handles = if let Some(ref agents_app) = app.agents_app {
-        let tracked_entries: Vec<_> = agents_app.entries.iter().filter(|e| e.tracked).collect();
-        let mut handles = Vec::with_capacity(tracked_entries.len());
-
-        for entry in tracked_entries {
-            let tx = tx.clone();
-            let client = client.clone();
-            let id = entry.id.clone();
-            let repo = entry.agent.repo.clone();
-            let cache = disk_cache.clone();
-
-            let handle = tokio::spawn(async move {
-                let result = match client.fetch_conditional(&repo).await {
-                    ConditionalFetchResult::Fresh(data, _etag) => FetchResult::Success(id, data),
-                    ConditionalFetchResult::NotModified => {
-                        let cache_guard = cache.read().await;
-                        if let Some(cached) = cache_guard.get(&repo) {
-                            FetchResult::Success(id, cached.data.clone().into())
-                        } else {
-                            FetchResult::Failure(id, "Cache miss on NotModified".to_string())
-                        }
-                    }
-                    ConditionalFetchResult::Error(e) => FetchResult::Failure(id, e),
-                };
-                let _ = tx.send(result).await;
-            });
-            handles.push(handle);
-        }
-        handles
+        spawn_agent_fetches(
+            &agents_app.entries,
+            tx.clone(),
+            client.clone(),
+            disk_cache.clone(),
+        )
     } else {
         Vec::new()
     };
@@ -225,6 +208,7 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
     };
     let (url_tx, url_rx) = mpsc::channel(8);
     let (refresh_tx, refresh_rx) = mpsc::channel(SOURCES.len().max(1));
+    let (models_refresh_tx, models_refresh_rx) = mpsc::channel(2);
     let runtime_handles = RuntimeHandles {
         github_rx: rx,
         github_tx: tx,
@@ -233,6 +217,8 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
         bench_rx,
         refresh_rx,
         refresh_tx,
+        models_refresh_rx,
+        models_refresh_tx,
         url_rx,
         url_tx,
         status: status_runtime,
@@ -261,6 +247,54 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
     terminal.show_cursor()?;
 
     result
+}
+
+/// Spawn conditional GitHub fetches for tracked agents — used both at startup
+/// and when `R` is pressed on the Agents tab. Only spawns for entries that are
+/// `tracked` and in a `Loading` or `NotStarted` fetch state. Each fetch posts
+/// its result to `tx`. Returns the spawned task handles so the caller can abort
+/// them on shutdown if needed.
+fn spawn_agent_fetches(
+    entries: &[crate::agents::AgentEntry],
+    tx: mpsc::Sender<FetchResult>,
+    client: AsyncGitHubClient,
+    cache: Arc<RwLock<GitHubCache>>,
+) -> Vec<tokio::task::JoinHandle<()>> {
+    use crate::agents::FetchStatus;
+    let mut handles = Vec::new();
+    for entry in entries.iter().filter(|e| {
+        e.tracked
+            && matches!(
+                e.fetch_status,
+                FetchStatus::Loading | FetchStatus::NotStarted
+            )
+    }) {
+        let tx = tx.clone();
+        let client = client.clone();
+        let id = entry.id.clone();
+        let repo = entry.agent.repo.clone();
+        let cache = cache.clone();
+
+        let handle = tokio::spawn(async move {
+            let result = match client.fetch_conditional(&repo).await {
+                crate::agents::ConditionalFetchResult::Fresh(data, _etag) => {
+                    FetchResult::Success(id, data)
+                }
+                crate::agents::ConditionalFetchResult::NotModified => {
+                    let cache_guard = cache.read().await;
+                    if let Some(cached) = cache_guard.get(&repo) {
+                        FetchResult::Success(id, cached.data.clone().into())
+                    } else {
+                        FetchResult::Failure(id, "Cache miss on NotModified".to_string())
+                    }
+                }
+                crate::agents::ConditionalFetchResult::Error(e) => FetchResult::Failure(id, e),
+            };
+            let _ = tx.send(result).await;
+        });
+        handles.push(handle);
+    }
+    handles
 }
 
 fn run_app(
@@ -334,6 +368,12 @@ fn run_app(
         // (Refreshed / Failed to refresh).
         while let Ok((idx, result)) = runtime.refresh_rx.try_recv() {
             app.update(app::Message::DataSourceRefreshed(idx, result));
+            last_status_time = Some(std::time::Instant::now());
+        }
+
+        // Drain `r`-triggered models.dev refresh results.
+        while let Ok(result) = runtime.models_refresh_rx.try_recv() {
+            app.update(app::Message::ProvidersRefreshed(result));
             last_status_time = Some(std::time::Instant::now());
         }
 
@@ -618,6 +658,37 @@ fn run_app(
                         app.set_status(format!("Refreshing {name}…"));
                         last_status_time = Some(std::time::Instant::now());
                     }
+                }
+                app::Message::RefreshModels => {
+                    // Spawn an async models.dev refetch. Runs the blocking
+                    // reqwest call in a `spawn_blocking` wrapper so the event
+                    // loop is never blocked. Result arrives via `ProvidersRefreshed`.
+                    let models_refresh_tx = runtime.models_refresh_tx.clone();
+                    tokio::spawn(async move {
+                        let result =
+                            tokio::task::spawn_blocking(|| crate::api::fetch_providers().ok())
+                                .await
+                                .unwrap_or(None);
+                        let _ = models_refresh_tx.send(result).await;
+                    });
+                    app.set_status("Refreshing models.dev…".to_string());
+                    last_status_time = Some(std::time::Instant::now());
+                }
+                app::Message::RefreshAgents => {
+                    // The `app.update()` call below marks tracked entries Loading,
+                    // increments the pending counter, and sets the status message.
+                    // Here we only spawn the actual fetches using the shared helper.
+                    // ETag conditional requests make unchanged repos cheap
+                    // (NotModified → cache hit).
+                    if let Some(ref agents_app) = app.agents_app {
+                        spawn_agent_fetches(
+                            &agents_app.entries,
+                            runtime.github_tx.clone(),
+                            runtime.client.clone(),
+                            runtime.disk_cache.clone(),
+                        );
+                    }
+                    last_status_time = Some(std::time::Instant::now());
                 }
                 _ => {}
             }

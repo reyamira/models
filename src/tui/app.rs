@@ -250,6 +250,15 @@ pub enum Message {
     // Data-source switcher (benchmarks tab): `{` / `}` cycle prev/next
     CycleDataSourcePrev,
     CycleDataSourceNext,
+    // `r` on Models tab — re-fetch models.dev data. The fetch is spawned in
+    // the main loop; its result arrives as `ProvidersRefreshed`.
+    RefreshModels,
+    /// Result of an `r`-triggered models.dev refetch. `Some(map)` => swap in
+    /// the new providers and state-preservingly rebuild; `None` => keep the
+    /// current providers, report a non-fatal failure.
+    ProvidersRefreshed(Option<crate::data::ProvidersMap>),
+    // `R` on Agents tab — re-trigger GitHub fetches for tracked agents.
+    RefreshAgents,
     // `r` — re-fetch the active source (stale-while-revalidate). The fetch is
     // spawned in the main loop; its result arrives as `DataSourceRefreshed`.
     RefreshBenchmarkSource,
@@ -433,6 +442,85 @@ impl App {
                 // Keep the existing loaded file: a refresh failure must not
                 // discard good data (do NOT set_failed here).
                 self.set_status(format!("Failed to refresh {name} — keeping current data"));
+            }
+        }
+    }
+
+    /// Apply the result of an `r`-triggered models.dev refetch.
+    ///
+    /// `Some(map)` => replace `app.providers`, rebuild the models sub-app
+    /// state-preservingly (keep search, filters, sort; try to keep the
+    /// selected provider and model by id, falling back to index 0).
+    ///
+    /// `None` => keep the existing providers untouched; set a non-fatal
+    /// failure status.
+    ///
+    /// Note: already-loaded benchmark sources keep the trait fields applied
+    /// at their original load time — re-enrichment on a models refresh is out
+    /// of scope (see plan §3.1).
+    pub fn apply_models_refresh(&mut self, result: Option<crate::data::ProvidersMap>) {
+        match result {
+            Some(map) => {
+                let mut providers: Vec<(String, crate::data::Provider)> = map.into_iter().collect();
+                providers.sort_by(|a, b| a.0.cmp(&b.0));
+                let n = providers.iter().map(|(_, p)| p.models.len()).sum::<usize>();
+
+                // Snapshot current selection state for restore-by-id logic.
+                let prev_provider_id: Option<String> = self
+                    .models_app
+                    .selected_provider_data(&self.providers)
+                    .map(|(id, _)| id.clone());
+                let prev_model_id: Option<String> =
+                    self.models_app.current_model().map(|e| e.id.clone());
+
+                self.providers = providers;
+                // Rebuild state (preserves search, filters, sort; resets
+                // selection to index 0 as a conservative fallback, then we
+                // try to restore by id below).
+                self.models_app.update_provider_list(&self.providers);
+                self.models_app.update_filtered_models(&self.providers);
+
+                // Attempt to restore the selected provider by id.
+                if let Some(ref pid) = prev_provider_id {
+                    if let Some(new_pos) =
+                        self.models_app
+                            .provider_list_items
+                            .iter()
+                            .position(|item| match item {
+                                crate::tui::models::app::ProviderListItem::Provider(idx, _) => {
+                                    self.providers.get(*idx).is_some_and(|(id, _)| id == pid)
+                                }
+                                _ => false,
+                            })
+                    {
+                        self.models_app
+                            .select_provider_at_index(new_pos, &self.providers);
+                    } else {
+                        self.models_app.select_provider_at_index(0, &self.providers);
+                    }
+                } else {
+                    // Was on "All" — keep it.
+                    self.models_app.provider_list_state.select(Some(0));
+                    self.models_app.update_filtered_models(&self.providers);
+                }
+
+                // Attempt to restore the selected model by id.
+                if let Some(ref mid) = prev_model_id {
+                    if let Some(new_idx) = self
+                        .models_app
+                        .filtered_models()
+                        .iter()
+                        .position(|e| &e.id == mid)
+                    {
+                        self.models_app.selected_model = new_idx;
+                        self.models_app.model_list_state.select(Some(new_idx + 1));
+                    }
+                }
+                self.models_app.reset_detail_scroll();
+                self.set_status(format!("Refreshed models ({} models)", n));
+            }
+            None => {
+                self.set_status("Failed to refresh models — keeping current data".to_string());
             }
         }
     }
@@ -1215,6 +1303,32 @@ impl App {
             }
             Message::DataSourceRefreshed(idx, result) => {
                 self.apply_source_refresh(idx, result);
+            }
+            Message::RefreshModels => {
+                // Fetch is spawned in the main loop; status updated there since
+                // the runtime isn't accessible from update().
+            }
+            Message::ProvidersRefreshed(result) => {
+                self.apply_models_refresh(result);
+            }
+            Message::RefreshAgents => {
+                // Mark tracked agents as Loading and increment the pending
+                // counter before the spawn loop fires in the main loop.
+                if let Some(ref mut agents_app) = self.agents_app {
+                    let mut count = 0usize;
+                    for entry in &mut agents_app.entries {
+                        if entry.tracked {
+                            entry.fetch_status = crate::agents::FetchStatus::Loading;
+                            count += 1;
+                        }
+                    }
+                    if count > 0 {
+                        agents_app.pending_github_fetches =
+                            agents_app.pending_github_fetches.saturating_add(count);
+                        agents_app.loading_github = true;
+                    }
+                }
+                self.set_status("Refreshing agents\u{2026}".to_string());
             }
             Message::ToggleBenchmarkSelection => {
                 if let Some(&store_idx) = self
@@ -2108,5 +2222,196 @@ mod tests {
         assert_eq!(app.benchmarks_app.sort_key, default_sort(new_file));
         // default_sort here is ReleaseDate (models carry dates).
         assert_eq!(app.benchmarks_app.sort_key, TestSortKey::ReleaseDate);
+    }
+
+    // --- Phase 3: Models tab `r` refresh and Agents tab `R` refresh ---
+
+    fn make_providers_map_with(provider_id: &str, model_ids: &[&str]) -> crate::data::ProvidersMap {
+        use crate::data::{Model, Provider};
+        let models: HashMap<String, Model> = model_ids
+            .iter()
+            .map(|id| {
+                (
+                    (*id).to_string(),
+                    Model {
+                        id: (*id).to_string(),
+                        name: (*id).to_string(),
+                        family: None,
+                        release_date: None,
+                        reasoning: false,
+                        tool_call: false,
+                        attachment: false,
+                        temperature: false,
+                        modalities: None,
+                        open_weights: false,
+                        cost: None,
+                        limit: None,
+                        last_updated: None,
+                        knowledge: None,
+                        status: None,
+                    },
+                )
+            })
+            .collect();
+        let mut map = HashMap::new();
+        map.insert(
+            provider_id.to_string(),
+            Provider {
+                id: provider_id.to_string(),
+                name: provider_id.to_string(),
+                doc: None,
+                api: None,
+                npm: None,
+                env: vec![],
+                models,
+            },
+        );
+        map
+    }
+
+    #[test]
+    fn providers_refreshed_none_keeps_old_providers() {
+        let initial = make_providers_map_with("openai", &["gpt-4", "gpt-3.5"]);
+        let mut app = App::new(initial, None, None);
+        let before_count = app.providers.len();
+
+        // A None result must not discard the existing providers.
+        app.update(Message::ProvidersRefreshed(None));
+
+        assert_eq!(app.providers.len(), before_count);
+        assert!(app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("keeping current data"));
+    }
+
+    #[test]
+    fn providers_refreshed_some_swaps_and_sets_status() {
+        let initial = make_providers_map_with("openai", &["gpt-4"]);
+        let mut app = App::new(initial, None, None);
+
+        let refreshed = make_providers_map_with("openai", &["gpt-4", "gpt-4o", "gpt-4-mini"]);
+        app.update(Message::ProvidersRefreshed(Some(refreshed)));
+
+        // Provider list now reflects the new data.
+        assert!(app.providers.iter().any(|(id, _)| id == "openai"));
+        let total: usize = app.providers.iter().map(|(_, p)| p.models.len()).sum();
+        assert_eq!(total, 3);
+        let status = app.status_message.as_deref().unwrap();
+        assert!(status.contains("Refreshed models"), "status was: {status}");
+        assert!(status.contains("3 models"), "status was: {status}");
+    }
+
+    #[test]
+    fn providers_refreshed_preserves_search_filter_sort() {
+        use crate::tui::models::app::SortOrder;
+        let initial = make_providers_map_with("openai", &["gpt-4", "gpt-4o"]);
+        let mut app = App::new(initial, None, None);
+
+        // Set up non-default state that must survive the refresh.
+        app.models_app.search_query = "gpt-4".to_string();
+        app.models_app.filters.reasoning = true;
+        app.models_app.sort_order = SortOrder::Cost;
+
+        let refreshed = make_providers_map_with("openai", &["gpt-4", "gpt-4o", "o3"]);
+        app.update(Message::ProvidersRefreshed(Some(refreshed)));
+
+        assert_eq!(app.models_app.search_query, "gpt-4");
+        assert!(app.models_app.filters.reasoning);
+        assert_eq!(app.models_app.sort_order, SortOrder::Cost);
+    }
+
+    #[test]
+    fn refresh_agents_sets_tracked_entries_loading_and_increments_counter() {
+        use crate::agents::{Agent, AgentsFile, FetchStatus};
+        let agents_file = {
+            let mut agents = HashMap::new();
+            for id in &["alpha", "beta", "gamma"] {
+                agents.insert(
+                    id.to_string(),
+                    Agent {
+                        name: id.to_string(),
+                        repo: format!("owner/{id}"),
+                        categories: vec![],
+                        installation_method: None,
+                        pricing: None,
+                        supported_providers: vec![],
+                        platform_support: vec![],
+                        open_source: true,
+                        cli_binary: None,
+                        alt_binaries: vec![],
+                        version_command: vec![],
+                        version_regex: None,
+                        config_files: vec![],
+                        homepage: None,
+                        docs: None,
+                    },
+                );
+            }
+            AgentsFile {
+                schema_version: 1,
+                last_scraped: None,
+                scrape_source: None,
+                agents,
+            }
+        };
+
+        let mut config = Config::default();
+        // Track alpha and beta; leave gamma untracked.
+        config.agents.tracked = HashSet::from(["alpha".to_string(), "beta".to_string()]);
+        config.agents.excluded = HashSet::new();
+        config.agents.custom.clear();
+
+        let mut app = App::new(HashMap::new(), Some(&agents_file), Some(config));
+
+        // Force all entries to Loaded so we can verify they're re-set to Loading.
+        if let Some(ref mut agents_app) = app.agents_app {
+            for entry in &mut agents_app.entries {
+                entry.fetch_status = FetchStatus::Loaded;
+            }
+            agents_app.pending_github_fetches = 0;
+            agents_app.loading_github = false;
+        }
+
+        app.update(Message::RefreshAgents);
+
+        let agents_app = app.agents_app.as_ref().expect("agents_app");
+        let tracked_ids: Vec<&str> = agents_app
+            .entries
+            .iter()
+            .filter(|e| e.tracked)
+            .map(|e| e.id.as_str())
+            .collect();
+        // All tracked entries are now Loading.
+        for entry in agents_app.entries.iter().filter(|e| e.tracked) {
+            assert_eq!(
+                entry.fetch_status,
+                FetchStatus::Loading,
+                "tracked entry {} should be Loading",
+                entry.id
+            );
+        }
+        // Untracked entries are not Loading.
+        for entry in agents_app.entries.iter().filter(|e| !e.tracked) {
+            assert_ne!(
+                entry.fetch_status,
+                FetchStatus::Loading,
+                "untracked entry {} should NOT be Loading",
+                entry.id
+            );
+        }
+        // Pending counter reflects tracked count.
+        assert_eq!(
+            agents_app.pending_github_fetches,
+            tracked_ids.len(),
+            "pending counter should equal tracked count"
+        );
+        assert!(agents_app.loading_github, "loading_github should be true");
+        assert!(app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("Refreshing agents"));
     }
 }
