@@ -427,6 +427,11 @@ fn run_app(
         }
 
         if let Some(msg) = event::handle_events(app)? {
+            // Set when RefreshAgents is seen — spawn must run AFTER app.update()
+            // marks tracked entries Loading (so the filter in spawn_agent_fetches
+            // matches them). See ordering note below.
+            let mut need_refresh_agents = false;
+
             // Handle clipboard operations and set status with timer
             match &msg {
                 app::Message::CopyFull => {
@@ -675,19 +680,11 @@ fn run_app(
                     last_status_time = Some(std::time::Instant::now());
                 }
                 app::Message::RefreshAgents => {
-                    // The `app.update()` call below marks tracked entries Loading,
-                    // increments the pending counter, and sets the status message.
-                    // Here we only spawn the actual fetches using the shared helper.
-                    // ETag conditional requests make unchanged repos cheap
-                    // (NotModified → cache hit).
-                    if let Some(ref agents_app) = app.agents_app {
-                        spawn_agent_fetches(
-                            &agents_app.entries,
-                            runtime.github_tx.clone(),
-                            runtime.client.clone(),
-                            runtime.disk_cache.clone(),
-                        );
-                    }
+                    // app.update() (below) must run first — it marks tracked entries
+                    // Loading so spawn_agent_fetches' filter can match them. Spawning
+                    // here, before update(), would race against Loaded entries and
+                    // dispatch zero fetches. Set the flag; spawn after update().
+                    need_refresh_agents = true;
                     last_status_time = Some(std::time::Instant::now());
                 }
                 _ => {}
@@ -695,6 +692,21 @@ fn run_app(
 
             if !app.update(msg) {
                 return Ok(());
+            }
+
+            // Post-update: spawn fetches now that app.update(RefreshAgents) has
+            // flipped tracked entries to Loading. spawn_agent_fetches filters on
+            // Loading | NotStarted, so this ordering is required for the refresh
+            // to actually dispatch network requests after the initial load.
+            if need_refresh_agents {
+                if let Some(ref agents_app) = app.agents_app {
+                    spawn_agent_fetches(
+                        &agents_app.entries,
+                        runtime.github_tx.clone(),
+                        runtime.client.clone(),
+                        runtime.disk_cache.clone(),
+                    );
+                }
             }
         }
     }

@@ -2322,6 +2322,16 @@ mod tests {
         assert_eq!(app.models_app.sort_order, SortOrder::Cost);
     }
 
+    /// Verifies the in-process state transitions from `Message::RefreshAgents`:
+    /// tracked entries must be flipped to `Loading` and the pending counter
+    /// incremented **before** `spawn_agent_fetches` is called in `mod.rs`.
+    ///
+    /// This ordering is load-bearing: `spawn_agent_fetches` filters on
+    /// `Loading | NotStarted`, so it must run after this state flip — not
+    /// before, as was the bug (review round 1, phase 3). The unit test cannot
+    /// cover the async dispatch path; that relies on the `need_refresh_agents`
+    /// flag pattern in `run_app` (mod.rs) ensuring the spawn executes
+    /// post-`app.update()`.
     #[test]
     fn refresh_agents_sets_tracked_entries_loading_and_increments_counter() {
         use crate::agents::{Agent, AgentsFile, FetchStatus};
