@@ -31,7 +31,7 @@ sidebar) rendered from per-source `MetricDef`s rather than hardcoded field names
 
 ## Filters & creator grouping
 - Reasoning filter (`7`) is auto-hidden (key no-op, footer/help row omitted) when no model in the active source carries a reasoning status. Open-weights filter (`4`, `CycleBenchmarkSource`/`SourceFilter` — the open/closed *weights* filter, **not** the data source) + O/C indicators come from `ModelRow.open_weights` (AA via `apply_model_traits`, others via `enrich_from_models_dev`/`creator_openness`); em-dash where unknown.
-- Region grouping (`5`): US, China, Europe, Middle East, South Korea, Canada, Other. Type grouping (`6`): Startup, Giant, Research. Group headers are non-selectable separators (same pattern as Models tab).
+- Region grouping (`5`): US, China, Europe, Middle East, South Korea, Canada, India, Other. Type grouping (`6`): Startup, Giant, Research. Group headers are non-selectable separators (same pattern as Models tab). Classification is **table-driven** (`CreatorClass`/`CREATOR_CLASSES` in `app.rs`): one entity per row with `region` + `ctype` + all per-source slug aliases; `CreatorRegion::from_creator` and `CreatorType::from_creator` both resolve through the shared `creator_class` lookup so region/type can't drift apart.
 
 ## Gotchas
 - `SourceFilter`/`CycleBenchmarkSource` are the open/closed-**weights** filter — the **data**-source switcher uses `active_source` + `CycleDataSourcePrev`/`CycleDataSourceNext`. Do not conflate them.

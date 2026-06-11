@@ -90,9 +90,11 @@ Each sub-module exposes `run(...) -> Result<(), String>`. `main` maps `Ok` →
   UI absorbs it. `metric_meta` is therefore a *superset* lookup (unknown stems →
   humanized label + `"Academic"` group). The static group map keeps each radar
   group (Frontier / Agentic / Academic) at 3–6 higher_is_better metrics.
-- `Organization`/`Country` are present in the header but empty in every row of
-  the current export — the mapping still reads them (`creator` ← slugified
-  `Organization`), it just yields empty strings today.
+- `Organization` often lists several contributing orgs comma-separated (e.g.
+  `"Google DeepMind,Google"` or `"DeepSeek,Peking University"`); the transform
+  takes only the **primary org** (before the first comma) for `creator` (slugified)
+  / `creator_name`, so the creators list isn't polluted with composite multi-org
+  slugs that never match the region/type tables. `Country` is unused.
 
 ### `llmstats.rs`
 - The plan's "~11 category scores" are **rankings, not scores.** `/v1/scores` is

@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
 use ratatui::style::Color;
 use ratatui::widgets::ListState;
@@ -92,6 +93,7 @@ pub enum CreatorRegion {
     MiddleEast,
     SouthKorea,
     Canada,
+    India,
     Other,
 }
 
@@ -104,6 +106,7 @@ impl CreatorRegion {
             Self::MiddleEast => "Middle East",
             Self::SouthKorea => "S. Korea",
             Self::Canada => "Canada",
+            Self::India => "India",
             Self::Other => "Other",
         }
     }
@@ -116,6 +119,7 @@ impl CreatorRegion {
             Self::MiddleEast => "ME",
             Self::SouthKorea => "KR",
             Self::Canada => "CA",
+            Self::India => "IN",
             Self::Other => "??",
         }
     }
@@ -128,6 +132,7 @@ impl CreatorRegion {
             Self::MiddleEast => Color::Yellow,
             Self::SouthKorea => Color::Cyan,
             Self::Canada => Color::Green,
+            Self::India => Color::Rgb(255, 153, 51), // saffron
             Self::Other => Color::DarkGray,
         }
     }
@@ -140,34 +145,17 @@ impl CreatorRegion {
             "Middle East" => Some(Self::MiddleEast),
             "S. Korea" => Some(Self::SouthKorea),
             "Canada" => Some(Self::Canada),
+            "India" => Some(Self::India),
             "Other" => Some(Self::Other),
             _ => None,
         }
     }
 
+    /// HQ region for a creator slug, resolved through the shared
+    /// [`creator_class`] table (handles cross-source slug aliases). Unknown
+    /// slugs fall back to `Other`.
     pub fn from_creator(slug: &str) -> Self {
-        match slug {
-            // United States
-            "openai" | "anthropic" | "google" | "meta" | "xai" | "aws" | "nvidia"
-            | "perplexity" | "azure" | "ibm" | "databricks" | "servicenow" | "snowflake"
-            | "liquidai" | "nous-research" | "ai2" | "prime-intellect" | "deepcogito"
-            | "reka-ai" => Self::US,
-            // China
-            "deepseek" | "alibaba" | "kimi" | "minimax" | "stepfun" | "baidu"
-            | "bytedance_seed" | "xiaomi" | "inclusionai" | "kwaikat" | "zai" | "openchat" => {
-                Self::China
-            }
-            // Europe
-            "mistral" => Self::Europe,
-            // Middle East (UAE, Israel)
-            "tii-uae" | "mbzuai" | "ai21-labs" => Self::MiddleEast,
-            // South Korea
-            "naver" | "korea-telecom" | "lg" | "upstage" | "motif-technologies" => Self::SouthKorea,
-            // Canada
-            "cohere" => Self::Canada,
-            // Other
-            _ => Self::Other,
-        }
+        creator_class(slug).map_or(Self::Other, |(region, _)| region)
     }
 }
 
@@ -221,18 +209,133 @@ impl CreatorType {
         }
     }
 
+    /// Organization type for a creator slug, resolved through the shared
+    /// [`creator_class`] table. Unknown slugs fall back to `Startup` (the most
+    /// common type for an unrecognized AI model creator).
     pub fn from_creator(slug: &str) -> Self {
-        match slug {
-            // Big tech / large corporations
-            "google" | "meta" | "aws" | "nvidia" | "alibaba" | "azure" | "ibm" | "servicenow"
-            | "snowflake" | "baidu" | "bytedance_seed" | "xiaomi" | "naver" | "korea-telecom"
-            | "lg" | "kwaikat" | "databricks" | "zai" | "inclusionai" => Self::Giant,
-            // Research labs / institutes / nonprofits
-            "tii-uae" | "mbzuai" | "nous-research" | "ai2" | "openchat" => Self::Research,
-            // AI-focused startups (default)
-            _ => Self::Startup,
-        }
+        creator_class(slug).map_or(Self::Startup, |(_, ctype)| ctype)
     }
+}
+
+/// One creator entity: its HQ region, organization type, and every per-source
+/// slug that refers to it. The four sources name the same lab differently
+/// (Alibaba is `alibaba` in AA but `qwen` in LLM Stats; Amazon is `aws` vs
+/// `amazon`; Moonshot is `kimi`/`moonshot`/`moonshotai`), so each entity lists
+/// all known aliases — classification keys on whichever slug the active source
+/// uses (no cross-source merging is needed; one source uses one slug).
+///
+/// `region` is factual (HQ country). `ctype` is a judgment call at the margins,
+/// applied by this convention (documented so the boundary can be corrected):
+///
+/// - `Giant` — a pre-existing large corporation/conglomerate where AI/LLMs are
+///   NOT the core business (Google, Meta, Amazon, telecoms…).
+/// - `Research` — an academic institution, university, nonprofit, or research
+///   institute.
+/// - `Startup` — an AI-first company, regardless of size (OpenAI, DeepSeek…).
+struct CreatorClass {
+    region: CreatorRegion,
+    ctype: CreatorType,
+    slugs: &'static [&'static str],
+}
+
+use CreatorRegion as R;
+use CreatorType as T;
+
+#[rustfmt::skip]
+static CREATOR_CLASSES: &[CreatorClass] = &[
+    // ---- United States ----
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["openai"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["anthropic"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["google", "google-deepmind"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["meta", "meta-ai", "llama"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["xai"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["amazon", "aws"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["microsoft", "microsoft-research", "azure"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["nvidia"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["perplexity", "perplexity-ai"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["ibm"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["salesforce"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["servicenow"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["snowflake"] },
+    // Databricks: data+AI is its core business, so by the convention's operative
+    // clause ("Giant = AI NOT core") it's Startup despite its size (judgment call).
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["databricks"] },
+    CreatorClass { region: R::US, ctype: T::Research, slugs: &["ai2", "allen-institute-for-ai"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["nous-research"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["liquidai"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["prime-intellect"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["reka-ai"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["deepcogito"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["diffbot"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["cerebras-systems"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["mosaicml"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["hugging-face"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["inception"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["arcee"] },
+    // Abacus.AI — US ML/agent platform; appears as an enriched models.dev
+    // provider id for some empty-creator rows.
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["abacus"] },
+    // ---- China ----
+    // Alibaba / Qwen — incl. models.dev regional + coding-plan provider-id
+    // variants that the runtime enrichment can assign as the creator.
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["alibaba", "qwen", "alibaba-cn", "alibaba-coding-plan", "alibaba-coding-plan-cn"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["deepseek"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["baidu"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["bytedance", "bytedance_seed"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["tencent"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["xiaomi"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["kimi", "moonshot", "moonshotai", "moonshotai-cn"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["minimax", "minimax-cn", "minimax-coding-plan", "minimax-cn-coding-plan"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["stepfun"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["zai", "z.ai", "z-ai-zhipu-ai", "zai-org", "zhipuai", "zhipuai-coding-plan", "zai-coding-plan"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["01-ai"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["baichuan"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["inclusionai"] },
+    CreatorClass { region: R::China, ctype: T::Research, slugs: &["openbmb"] },
+    CreatorClass { region: R::China, ctype: T::Research, slugs: &["openchat"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["china-mobile"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["meituan"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["kwaikat"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["longcat"] },
+    // Nanbeige: LLM lab inside BOSS Zhipin / Kanzhun (a non-AI recruitment
+    // giant) -> Giant per the "lab inside non-AI giant" convention.
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["nanbeige"] },
+    CreatorClass { region: R::China, ctype: T::Research, slugs: &["tsinghua-university"] },
+    // ---- Europe ----
+    CreatorClass { region: R::Europe, ctype: T::Startup,  slugs: &["mistral", "mistral-ai"] },
+    CreatorClass { region: R::Europe, ctype: T::Startup,  slugs: &["stability-ai"] },
+    CreatorClass { region: R::Europe, ctype: T::Research, slugs: &["swiss-ai-initiative"] },
+    // ---- Middle East ----
+    CreatorClass { region: R::MiddleEast, ctype: T::Research, slugs: &["tii-uae", "technology-innovation-institute"] },
+    CreatorClass { region: R::MiddleEast, ctype: T::Research, slugs: &["mbzuai"] },
+    CreatorClass { region: R::MiddleEast, ctype: T::Startup,  slugs: &["ai21-labs"] },
+    // ---- South Korea ----
+    CreatorClass { region: R::SouthKorea, ctype: T::Giant,   slugs: &["naver"] },
+    CreatorClass { region: R::SouthKorea, ctype: T::Giant,   slugs: &["korea-telecom"] },
+    CreatorClass { region: R::SouthKorea, ctype: T::Giant,   slugs: &["lg"] },
+    CreatorClass { region: R::SouthKorea, ctype: T::Startup, slugs: &["upstage"] },
+    CreatorClass { region: R::SouthKorea, ctype: T::Startup, slugs: &["motif-technologies"] },
+    CreatorClass { region: R::SouthKorea, ctype: T::Startup, slugs: &["trillionlabs"] },
+    // ---- Canada ----
+    CreatorClass { region: R::Canada, ctype: T::Startup, slugs: &["cohere"] },
+    // ---- India ----
+    CreatorClass { region: R::India, ctype: T::Startup, slugs: &["sarvam", "sarvamai"] },
+];
+
+/// Resolve a creator slug to its `(region, type)` via the shared table. Built
+/// once into a slug→class map. Returns `None` for unrecognized slugs.
+fn creator_class(slug: &str) -> Option<(CreatorRegion, CreatorType)> {
+    static MAP: LazyLock<HashMap<&'static str, (CreatorRegion, CreatorType)>> =
+        LazyLock::new(|| {
+            let mut m = HashMap::new();
+            for c in CREATOR_CLASSES {
+                for s in c.slugs {
+                    m.insert(*s, (c.region, c.ctype));
+                }
+            }
+            m
+        });
+    MAP.get(slug).copied()
 }
 
 /// Pre-computed creator info: display name and model counts.
@@ -591,6 +694,7 @@ impl BenchmarksApp {
                     CreatorRegion::MiddleEast,
                     CreatorRegion::SouthKorea,
                     CreatorRegion::Canada,
+                    CreatorRegion::India,
                     CreatorRegion::Other,
                 ];
                 for region in &regions {
@@ -1160,6 +1264,50 @@ mod tests {
     use super::*;
     use crate::benchmarks::schema::{MetricDef, ReasoningStatus, ScoreCell, SourceMeta};
     use std::collections::BTreeMap;
+
+    #[test]
+    fn creator_classes_have_no_duplicate_slugs() {
+        let mut seen = std::collections::HashSet::new();
+        for c in CREATOR_CLASSES {
+            for s in c.slugs {
+                assert!(seen.insert(*s), "duplicate slug in CREATOR_CLASSES: {s}");
+            }
+        }
+    }
+
+    #[test]
+    fn cross_source_aliases_classify_consistently() {
+        // The same lab is named differently per source — all aliases must land
+        // on the same (region, type).
+        // Alibaba / Qwen.
+        assert_eq!(CreatorRegion::from_creator("alibaba"), CreatorRegion::China);
+        assert_eq!(CreatorRegion::from_creator("qwen"), CreatorRegion::China);
+        assert_eq!(CreatorType::from_creator("qwen"), CreatorType::Giant);
+        // Amazon: AA `aws` vs models.dev/llmstats `amazon`.
+        assert_eq!(CreatorRegion::from_creator("aws"), CreatorRegion::US);
+        assert_eq!(CreatorRegion::from_creator("amazon"), CreatorRegion::US);
+        assert_eq!(CreatorType::from_creator("amazon"), CreatorType::Giant);
+        // Moonshot: `kimi` (AA) / `moonshot` (Arena/Epoch) / `moonshotai` (llmstats).
+        for s in ["kimi", "moonshot", "moonshotai"] {
+            assert_eq!(CreatorRegion::from_creator(s), CreatorRegion::China, "{s}");
+            assert_eq!(CreatorType::from_creator(s), CreatorType::Startup, "{s}");
+        }
+        // Sarvam -> India (newly added region).
+        assert_eq!(CreatorRegion::from_creator("sarvam"), CreatorRegion::India);
+        assert_eq!(
+            CreatorRegion::from_creator("sarvamai"),
+            CreatorRegion::India
+        );
+        // Unknown slug -> Other / Startup defaults.
+        assert_eq!(
+            CreatorRegion::from_creator("totally-unknown-xyz"),
+            CreatorRegion::Other
+        );
+        assert_eq!(
+            CreatorType::from_creator("totally-unknown-xyz"),
+            CreatorType::Startup
+        );
+    }
 
     fn meta() -> SourceMeta {
         SourceMeta {

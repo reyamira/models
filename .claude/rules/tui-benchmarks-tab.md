@@ -192,9 +192,12 @@ Curated per-benchmark descriptions for the active source. State `show_glossary` 
 | Middle East | `Color::Yellow` |
 | South Korea | `Color::Cyan` |
 | Canada | `Color::Green` |
+| India | `Color::Rgb(255, 153, 51)` (saffron) |
 | Other | `Color::DarkGray` |
 
 Region grouping key `[5]`: `Color::Yellow` when active, `Color::DarkGray` when not.
+
+**Creator classification** is table-driven (`CreatorClass` / `CREATOR_CLASSES` in `app.rs`): one entity per row carrying its `region`, `ctype`, and every per-source slug alias (the four sources name the same lab differently — `alibaba`/`qwen`, `aws`/`amazon`, `kimi`/`moonshot`/`moonshotai`, plus models.dev provider-id variants like `*-coding-plan` that the runtime enrichment can assign to empty-creator rows). `CreatorRegion::from_creator` / `CreatorType::from_creator` both resolve through this one table (`creator_class`), so region and type can't disagree. `region` is factual (HQ country); `ctype` (Giant/Startup/Research) is a documented convention — Giant = pre-existing large corp where AI isn't core; Research = academic/nonprofit/institute; Startup = AI-first company regardless of size. Unknown slugs fall back to `Other`/`Startup`.
 
 **Type grouping colors** (`[6]`):
 

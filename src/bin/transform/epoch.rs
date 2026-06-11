@@ -613,9 +613,14 @@ fn parse_csv(stem: &str, path: &Path) -> Result<ParsedCsv, String> {
             .and_then(|i| rec.get(i).and_then(|c| parse_date(c)))
             .map(|d| d.format("%Y-%m-%d").to_string());
 
+        // Epoch's `Organization` cell often lists several contributing orgs
+        // comma-separated (e.g. "Google DeepMind,Google" or "DeepSeek,Peking
+        // University"); the first is the primary developer. Use it alone for the
+        // creator slug/name so the creators list isn't polluted with multi-org
+        // composite slugs (which also never match the region/type tables).
         let org = org_idx
             .and_then(|i| rec.get(i))
-            .map(|s| s.trim().to_string())
+            .map(|s| s.split(',').next().unwrap_or(s).trim().to_string())
             .unwrap_or_default();
 
         let entry = models.entry(cleaned.slug.clone());
@@ -1390,6 +1395,27 @@ mod tests {
             assert_eq!(m.creator, "");
             assert_eq!(m.creator_name, "");
         }
+    }
+
+    #[test]
+    fn multi_org_collapses_to_primary_org() {
+        // Epoch lists every contributing org comma-separated; only the first
+        // (primary developer) becomes the creator, so the creators list isn't
+        // polluted with composite multi-org slugs.
+        let dir = std::env::temp_dir().join(format!("epoch_primary_org_{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("test_bench.csv");
+        std::fs::write(
+            &path,
+            "Model version,Score,Organization,Release date\n\
+             test-model,0.5,\"Google DeepMind,Google\",2026-05-01\n",
+        )
+        .unwrap();
+        let parsed = parse_csv("test_bench", &path).expect("parse");
+        let accum = parsed.models.get("test-model").expect("row present");
+        assert_eq!(accum.row.creator, "google-deepmind");
+        assert_eq!(accum.row.creator_name, "Google DeepMind");
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]
