@@ -27,16 +27,56 @@ use crate::schema::{
 // 6 axes = exactly one clean radar preset (>= 3 higher_is_better metrics).
 // ---------------------------------------------------------------------------
 
-/// One board: (file stem, metric id, metric label).
-type BoardEntry = (&'static str, &'static str, &'static str);
+/// One board: (file stem, metric id, metric label, description).
+type BoardEntry = (&'static str, &'static str, &'static str, &'static str);
 
 const BOARDS: &[BoardEntry] = &[
-    ("text", "elo_text", "Text"),
-    ("vision", "elo_vision", "Vision"),
-    ("code", "elo_code", "Code"),
-    ("agent", "elo_agent", "Agent"),
-    ("search", "elo_search", "Search"),
-    ("document", "elo_document", "Document"),
+    (
+        "text",
+        "elo_text",
+        "Text",
+        "Arena's general text-chat board: humans pick the better of two blind side-by-side \
+         responses across conversation, writing, and instruction-following. Score is an Elo \
+         rating from those votes; higher is better.",
+    ),
+    (
+        "vision",
+        "elo_vision",
+        "Vision",
+        "Human-preference ranking for image and visual understanding: voters compare two \
+         models answering image-based queries. Score is an Elo rating from those votes; \
+         higher is better.",
+    ),
+    (
+        "code",
+        "elo_code",
+        "Code",
+        "Human-preference ranking for code generation and web development: voters compare two \
+         models' programming outputs side by side. Score is an Elo rating from those votes; \
+         higher is better.",
+    ),
+    (
+        "agent",
+        "elo_agent",
+        "Agent",
+        "Human-preference ranking for agentic, autonomous task completion. Score is an Elo \
+         rating from blind side-by-side votes; higher is better.",
+    ),
+    (
+        "search",
+        "elo_search",
+        "Search",
+        "Human-preference ranking for search-augmented answers that combine retrieval with \
+         language understanding. Score is an Elo rating from blind side-by-side votes; higher \
+         is better.",
+    ),
+    (
+        "document",
+        "elo_document",
+        "Document",
+        "Human-preference ranking for document and PDF understanding. Score is an Elo rating \
+         from blind side-by-side votes; higher is better.",
+    ),
 ];
 
 /// Single group name — all 6 Elo metrics live here, forming one radar preset.
@@ -151,7 +191,7 @@ fn build_source_file(boards: Vec<(BoardEntry, RawBoard)>) -> SourceFile {
     // Metric defs: one per PRESENT board, in BOARDS display order. Each carries
     // that board's resolved date as `last_updated`.
     let mut metrics: Vec<MetricDef> = Vec::new();
-    for ((_stem, id, label), board) in &boards {
+    for ((_stem, id, label, description), board) in &boards {
         let date = board_date(&board.meta);
         metrics.push(MetricDef {
             id: (*id).to_string(),
@@ -160,7 +200,7 @@ fn build_source_file(boards: Vec<(BoardEntry, RawBoard)>) -> SourceFile {
             group: GROUP.to_string(),
             higher_is_better: true,
             last_updated: if date.is_empty() { None } else { Some(date) },
-            description: None,
+            description: Some((*description).to_string()),
         });
     }
 
@@ -171,7 +211,7 @@ fn build_source_file(boards: Vec<(BoardEntry, RawBoard)>) -> SourceFile {
     // them into one row instead of emitting id-colliding duplicates.
     let mut rows: BTreeMap<String, MergeRow> = BTreeMap::new();
     let mut order = 0usize;
-    for ((_stem, metric_id, _label), board) in &boards {
+    for ((_stem, metric_id, _label, _description), board) in &boards {
         let date = board_date(&board.meta);
         for raw in &board.models {
             let entry = rows.entry(slugify(&raw.model)).or_insert_with(|| {
@@ -286,7 +326,7 @@ fn merge_to_row(row: MergeRow) -> ModelRow {
 fn read_boards(input_dir: &Path) -> Result<Vec<(BoardEntry, RawBoard)>, String> {
     let mut boards = Vec::new();
     for &entry in BOARDS {
-        let (stem, _id, _label) = entry;
+        let (stem, _id, _label, _description) = entry;
         let path = input_dir.join(format!("{stem}.json"));
         let text = match std::fs::read_to_string(&path) {
             Ok(t) => t,
@@ -445,6 +485,18 @@ mod tests {
             assert_eq!(m.kind, MetricKind::Elo);
             assert_eq!(m.group, "Arena Elo");
             assert!(m.higher_is_better);
+        }
+    }
+
+    #[test]
+    fn every_metric_has_a_nonempty_description() {
+        let sf = parse_fixture();
+        for m in &sf.metrics {
+            let d = m
+                .description
+                .as_deref()
+                .unwrap_or_else(|| panic!("metric {} has no description", m.id));
+            assert!(d.len() > 20, "metric {} description too short", m.id);
         }
     }
 

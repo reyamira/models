@@ -49,34 +49,166 @@ const PRUNE_DAYS: i64 = 60;
 // metrics so it renders as a radar preset (>=3 hib, first 6 are axes).
 // ---------------------------------------------------------------------------
 
-/// `(label, kind, group)` for a known CSV stem.
-type MetricMeta = (&'static str, MetricKind, &'static str);
+/// `(label, kind, group, description)` for a known CSV stem.
+type MetricMeta = (&'static str, MetricKind, &'static str, &'static str);
 
-/// Label + kind + group overrides keyed by CSV filename stem.
+/// Label + kind + group + description overrides keyed by CSV filename stem.
 fn metric_meta(stem: &str) -> Option<MetricMeta> {
     let m: MetricMeta = match stem {
         // ---- Frontier (hardest reasoning / capability frontier) ----
-        "epoch_capabilities_index" => ("Epoch Capabilities Index", MetricKind::Index, "Frontier"),
-        "frontiermath" => ("FrontierMath", MetricKind::Percentage, "Frontier"),
-        "frontiermath_tier_4" => ("FrontierMath Tier 4", MetricKind::Percentage, "Frontier"),
-        "arc_agi" => ("ARC-AGI", MetricKind::Percentage, "Frontier"),
-        "arc_agi_2" => ("ARC-AGI-2", MetricKind::Percentage, "Frontier"),
-        "hle" => ("Humanity's Last Exam", MetricKind::Percentage, "Frontier"),
+        "epoch_capabilities_index" => (
+            "Epoch Capabilities Index",
+            MetricKind::Index,
+            "Frontier",
+            "Epoch's composite that stitches 40+ benchmarks into one general-capability scale \
+             using Item Response Theory, so models stay comparable as individual benchmarks \
+             saturate. Open-ended linear scale with no maximum (recent frontier models score ~130-160); higher is better.",
+        ),
+        "frontiermath" => (
+            "FrontierMath",
+            MetricKind::Percentage,
+            "Frontier",
+            "Hundreds of original, expert-crafted research-level math problems spanning number \
+             theory, analysis, algebraic geometry, and more — each taking specialists hours to \
+             days. Scored as accuracy (% of problems solved); higher is better.",
+        ),
+        "frontiermath_tier_4" => (
+            "FrontierMath Tier 4",
+            MetricKind::Percentage,
+            "Frontier",
+            "The 50 hardest, research-level problems of FrontierMath — its most difficult \
+             expansion tier. Scored as accuracy (% of problems solved); higher is better.",
+        ),
+        "arc_agi" => (
+            "ARC-AGI",
+            MetricKind::Percentage,
+            "Frontier",
+            "Abstract visual grid puzzles where the model must infer a transformation rule from \
+             a few input-output demonstrations and apply it to a novel case. Scored as accuracy \
+             (% of tasks solved); higher is better.",
+        ),
+        "arc_agi_2" => (
+            "ARC-AGI-2",
+            MetricKind::Percentage,
+            "Frontier",
+            "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing \
+             compositional and symbolic reasoning, two attempts per task (pass@2). Scored as \
+             accuracy (% of tasks solved); higher is better.",
+        ),
+        "hle" => (
+            "Humanity's Last Exam",
+            MetricKind::Percentage,
+            "Frontier",
+            "Expert-authored questions across 100+ academic subjects, requiring graduate-level \
+             knowledge that cannot be quickly looked up online. Scored as accuracy (% correct); \
+             higher is better.",
+        ),
         // ---- Agentic (coding / agent / tool-use) ----
-        "swe_bench_verified" => ("SWE-bench Verified", MetricKind::Percentage, "Agentic"),
-        "terminalbench" => ("Terminal-Bench", MetricKind::Percentage, "Agentic"),
-        "gso" => ("GSO", MetricKind::Percentage, "Agentic"),
-        "apex_agents" => ("APEX Agents", MetricKind::Percentage, "Agentic"),
-        "posttrainbench" => ("PostTrainBench", MetricKind::Percentage, "Agentic"),
-        "weirdml" => ("WeirdML", MetricKind::Percentage, "Agentic"),
-        "aider_polyglot" => ("Aider Polyglot", MetricKind::Percentage, "Agentic"),
-        "gdpval" => ("GDPval", MetricKind::Percentage, "Agentic"),
+        "swe_bench_verified" => (
+            "SWE-bench Verified",
+            MetricKind::Percentage,
+            "Agentic",
+            "Real-world software engineering: the model is given a repository and a GitHub issue \
+             from popular Python projects and must edit the codebase to fix it, graded by unit \
+             tests. Scored as % of issues resolved; higher is better.",
+        ),
+        "terminalbench" => (
+            "Terminal-Bench",
+            MetricKind::Percentage,
+            "Agentic",
+            "Agentic command-line tasks the model completes autonomously inside a sandboxed \
+             Docker terminal, checked by a test script. Scored as % of tasks solved; higher is \
+             better.",
+        ),
+        "gso" => (
+            "GSO",
+            MetricKind::Percentage,
+            "Agentic",
+            "Software performance engineering: the model rewrites real GitHub code to speed it \
+             up. Scored OPT@K (% of trials reaching at least 95% of the human speed-up); higher \
+             is better.",
+        ),
+        "apex_agents" => (
+            "APEX Agents",
+            MetricKind::Percentage,
+            "Agentic",
+            "Professional deliverables across investment banking, consulting, law, and primary \
+             care that would take practitioners hours, graded against pass/fail rubric criteria. \
+             Scored as % of rubric criteria satisfied; higher is better.",
+        ),
+        "posttrainbench" => (
+            "PostTrainBench",
+            MetricKind::Percentage,
+            "Agentic",
+            "AI R&D automation: a CLI agent must post-train a small base LLM on a single GPU \
+             within a time budget to raise its downstream scores. Scored as the average \
+             improvement across base models and evaluations; higher is better.",
+        ),
+        "weirdml" => (
+            "WeirdML",
+            MetricKind::Percentage,
+            "Agentic",
+            "Unconventional machine-learning engineering tasks where the agent must write and \
+             run code to train a model on provided data, with several iterations allowed. Scored \
+             as accuracy on the held-out task; higher is better.",
+        ),
+        "aider_polyglot" => (
+            "Aider Polyglot",
+            MetricKind::Percentage,
+            "Agentic",
+            "Multi-language code editing on Exercism problems (C++, Go, Java, JavaScript, \
+             Python, Rust) with a second attempt after seeing test failures. Scored as % of \
+             exercises passing; higher is better.",
+        ),
+        "gdpval" => (
+            "GDPval",
+            MetricKind::Percentage,
+            "Agentic",
+            "Economically valuable real-world deliverables drawn from 44 occupations across \
+             nine U.S. sectors, judged by experts in blind comparisons against human work. \
+             Scored as win-rate versus the human baseline; higher is better.",
+        ),
         // ---- Academic (general reasoning / knowledge / math) ----
-        "gpqa_diamond" => ("GPQA Diamond", MetricKind::Percentage, "Academic"),
-        "simpleqa_verified" => ("SimpleQA Verified", MetricKind::Percentage, "Academic"),
-        "otis_mock_aime_2024_2025" => ("OTIS Mock AIME", MetricKind::Percentage, "Academic"),
-        "chess_puzzles" => ("Chess Puzzles", MetricKind::Percentage, "Academic"),
-        "simplebench" => ("SimpleBench", MetricKind::Percentage, "Academic"),
+        "gpqa_diamond" => (
+            "GPQA Diamond",
+            MetricKind::Percentage,
+            "Academic",
+            "198 'Google-proof' graduate-level biology, chemistry, and physics questions that \
+             stump non-experts even with web access. Scored as accuracy (% correct); higher is \
+             better.",
+        ),
+        "simpleqa_verified" => (
+            "SimpleQA Verified",
+            MetricKind::Percentage,
+            "Academic",
+            "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, \
+             measuring parametric knowledge and resistance to hallucination. Scored as accuracy \
+             (% answered correctly); higher is better.",
+        ),
+        "otis_mock_aime_2024_2025" => (
+            "OTIS Mock AIME",
+            MetricKind::Percentage,
+            "Academic",
+            "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams \
+             (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. \
+             Scored as accuracy (% correct); higher is better.",
+        ),
+        "chess_puzzles" => (
+            "Chess Puzzles",
+            MetricKind::Percentage,
+            "Academic",
+            "100 programmatically generated chess positions (in FEN) where the model must name \
+             the single best move as judged by Stockfish. Scored as accuracy (% of positions \
+             with the correct move); higher is better.",
+        ),
+        "simplebench" => (
+            "SimpleBench",
+            MetricKind::Percentage,
+            "Academic",
+            "Common-sense reasoning 'trick' questions about space, time, and social cues that \
+             are easy for people (84% human baseline) but hard for models. Scored as accuracy \
+             (% correct); higher is better.",
+        ),
         _ => return None,
     };
     Some(m)
@@ -97,13 +229,31 @@ fn humanize(stem: &str) -> String {
         .join(" ")
 }
 
-/// Resolve `(label, known_kind, group)` for a stem. For an UNKNOWN stem the
-/// `known_kind` is `None` (kind inferred from the data via [`infer_kind`]), the
-/// label is humanized, and the group defaults to `Academic`.
-fn resolve_metric_meta(stem: &str) -> (String, Option<MetricKind>, String) {
+/// Resolved metric metadata for a stem. For an UNKNOWN stem `kind` is `None`
+/// (inferred from the data via [`infer_kind`]), the label is humanized, the
+/// group defaults to `Academic`, and there is no curated `description`.
+struct ResolvedMeta {
+    label: String,
+    kind: Option<MetricKind>,
+    group: String,
+    description: Option<String>,
+}
+
+/// Resolve label / kind / group / description for a stem.
+fn resolve_metric_meta(stem: &str) -> ResolvedMeta {
     match metric_meta(stem) {
-        Some((label, kind, group)) => (label.to_string(), Some(kind), group.to_string()),
-        None => (humanize(stem), None, "Academic".to_string()),
+        Some((label, kind, group, description)) => ResolvedMeta {
+            label: label.to_string(),
+            kind: Some(kind),
+            group: group.to_string(),
+            description: Some(description.to_string()),
+        },
+        None => ResolvedMeta {
+            label: humanize(stem),
+            kind: None,
+            group: "Academic".to_string(),
+            description: None,
+        },
     }
 }
 
@@ -393,7 +543,12 @@ fn parse_csv(stem: &str, path: &Path) -> Result<ParsedCsv, String> {
     let release_idx = headers.iter().position(|h| h == "Release date");
     let org_idx = headers.iter().position(|h| h == "Organization");
 
-    let (label, known_kind, group) = resolve_metric_meta(stem);
+    let ResolvedMeta {
+        label,
+        kind: known_kind,
+        group,
+        description,
+    } = resolve_metric_meta(stem);
     let higher_is_better = true; // every Epoch metric is higher-is-better.
 
     // Track the value range so an UNKNOWN stem's kind can be inferred from the
@@ -545,7 +700,7 @@ fn parse_csv(stem: &str, path: &Path) -> Result<ParsedCsv, String> {
         group,
         higher_is_better,
         last_updated: newest_date.map(|d| d.format("%Y-%m-%d").to_string()),
-        description: None,
+        description,
     };
 
     Ok(ParsedCsv {
@@ -990,10 +1145,62 @@ mod tests {
     #[test]
     fn humanize_fallback_for_unknown_stem() {
         assert_eq!(humanize("some_new_bench"), "Some New Bench");
-        let (label, kind, group) = resolve_metric_meta("some_new_bench");
-        assert_eq!(label, "Some New Bench");
-        assert_eq!(kind, None, "unknown stem kind is inferred from data");
-        assert_eq!(group, "Academic");
+        let m = resolve_metric_meta("some_new_bench");
+        assert_eq!(m.label, "Some New Bench");
+        assert_eq!(m.kind, None, "unknown stem kind is inferred from data");
+        assert_eq!(m.group, "Academic");
+        assert!(
+            m.description.is_none(),
+            "unknown stem has no curated description"
+        );
+    }
+
+    #[test]
+    fn every_known_stem_has_a_nonempty_description() {
+        // Every stem the static registry recognizes must carry a curated
+        // description; unknown stems legitimately have none.
+        for stem in [
+            "epoch_capabilities_index",
+            "frontiermath",
+            "frontiermath_tier_4",
+            "arc_agi",
+            "arc_agi_2",
+            "hle",
+            "swe_bench_verified",
+            "terminalbench",
+            "gso",
+            "apex_agents",
+            "posttrainbench",
+            "weirdml",
+            "aider_polyglot",
+            "gdpval",
+            "gpqa_diamond",
+            "simpleqa_verified",
+            "otis_mock_aime_2024_2025",
+            "chess_puzzles",
+            "simplebench",
+        ] {
+            let (_, _, _, description) =
+                metric_meta(stem).unwrap_or_else(|| panic!("known stem {stem} present"));
+            assert!(
+                description.len() > 20,
+                "known stem {stem} description too short"
+            );
+        }
+    }
+
+    #[test]
+    fn fresh_fixture_metrics_carry_descriptions() {
+        let sf = build();
+        for m in &sf.metrics {
+            // All fixtures use curated stems, so each should resolve a curated
+            // description.
+            let d = m
+                .description
+                .as_deref()
+                .unwrap_or_else(|| panic!("metric {} has no description", m.id));
+            assert!(d.len() > 20, "metric {} description too short", m.id);
+        }
     }
 
     #[test]

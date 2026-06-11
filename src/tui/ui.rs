@@ -126,6 +126,44 @@ pub(in crate::tui) fn section_header_line(title: &str, width: usize) -> Line<'st
     ))
 }
 
+/// Like [`section_header_line`], but with an inline `(suffix)` blurb after the
+/// title, e.g. `"── Pricing ($ per 1M tokens) ──────"`. The title keeps the
+/// DarkGray + BOLD style; the suffix (including its parens and surrounding
+/// spaces) is DarkGray **without** bold so it reads as a secondary annotation.
+/// The trailing dash fill respects the suffix's visual width.
+///
+/// Passing an empty `suffix` is equivalent to [`section_header_line`].
+#[allow(dead_code)]
+pub(in crate::tui) fn section_header_line_with_suffix(
+    title: &str,
+    suffix: &str,
+    width: usize,
+) -> Line<'static> {
+    if suffix.is_empty() {
+        return section_header_line(title, width);
+    }
+    let prefix = format!("\u{2500}\u{2500} {} ", title);
+    let suffix_text = format!("({}) ", suffix);
+    let consumed = prefix.chars().count() + suffix_text.chars().count();
+    let fill_len = width.saturating_sub(consumed);
+    let fill = "\u{2500}".repeat(fill_len);
+    Line::from(vec![
+        Span::styled(
+            prefix,
+            Style::default()
+                .fg(Color::DarkGray)
+                .add_modifier(Modifier::BOLD),
+        ),
+        Span::styled(suffix_text, Style::default().fg(Color::DarkGray)),
+        Span::styled(
+            fill,
+            Style::default()
+                .fg(Color::DarkGray)
+                .add_modifier(Modifier::BOLD),
+        ),
+    ])
+}
+
 /// Build filter toggle spans in `[N] label` format.
 ///
 /// Each tuple is `(key, label, active)`. Active keys render in Green, inactive
@@ -384,6 +422,8 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                             Span::raw("sort  "),
                             Span::styled(" / ", Style::default().fg(Color::Yellow)),
                             Span::raw("search  "),
+                            Span::styled(" i ", Style::default().fg(Color::Yellow)),
+                            Span::raw("glossary  "),
                             Span::styled(" Space ", Style::default().fg(Color::Yellow)),
                             Span::raw("select"),
                         ]);
@@ -589,6 +629,7 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
                 Line::from(""),
                 help_section("Actions"),
                 help_line("o", "Open source model page in browser"),
+                help_line("i", "Toggle benchmark glossary"),
                 Line::from(""),
                 help_section("Compare"),
                 help_line("Space", "Toggle model for comparison (max 8)"),
@@ -714,6 +755,31 @@ mod tests {
         let line = section_header_line("Title", 5);
         let text: String = line.spans.iter().map(|s| s.content.as_ref()).collect();
         assert!(text.contains("Title"));
+    }
+
+    #[test]
+    fn section_header_line_with_suffix_format() {
+        let line = section_header_line_with_suffix("Pricing", "$ per 1M tokens", 40);
+        let text: String = line.spans.iter().map(|s| s.content.as_ref()).collect();
+        assert!(text.starts_with("\u{2500}\u{2500} Pricing ($ per 1M tokens) "));
+        assert_eq!(text.chars().count(), 40);
+        // Title span is BOLD DarkGray; the suffix span is DarkGray without BOLD.
+        let suffix_span = line
+            .spans
+            .iter()
+            .find(|s| s.content.contains("($ per 1M tokens)"))
+            .expect("suffix span present");
+        assert_eq!(suffix_span.style.fg, Some(Color::DarkGray));
+        assert!(!suffix_span.style.add_modifier.contains(Modifier::BOLD));
+    }
+
+    #[test]
+    fn section_header_line_with_suffix_empty_matches_plain() {
+        let with = section_header_line_with_suffix("Indexes", "", 30);
+        let plain = section_header_line("Indexes", 30);
+        let wt: String = with.spans.iter().map(|s| s.content.as_ref()).collect();
+        let pt: String = plain.spans.iter().map(|s| s.content.as_ref()).collect();
+        assert_eq!(wt, pt);
     }
 
     #[test]

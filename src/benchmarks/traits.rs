@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use super::schema::ModelRow;
 use crate::data::Provider;
+use crate::provider_category::{provider_category, ProviderCategory};
 
 /// Minimum Jaro-Winkler similarity to consider a match.
 /// 0.85 is tuned to catch reordered tokens (e.g. "llama-3-1-instruct-405b" ↔
@@ -209,6 +210,291 @@ pub fn apply_model_traits(providers: &[(String, Provider)], models: &mut [ModelR
             if model.context_window.is_none() {
                 model.context_window = traits.context_window;
             }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Generic within-source enrichment (epoch / arena / llmstats)
+// ---------------------------------------------------------------------------
+
+/// Variant suffixes stripped from a source model id during normalized matching.
+///
+/// These denote access/budget/reasoning variants that share the same underlying
+/// models.dev model. The first group is the plan-sanctioned list
+/// (`-thinking`, effort levels, `-preview`); the rest are additional
+/// same-model deployment variants observed in the real
+/// `data/v2/{epoch,arena,llmstats}.json` ids (e.g. AA-Arena's `-search`,
+/// `-grounding`, `-thinking-32k`). Longer suffixes precede shorter prefixes of
+/// themselves so stripping is order-stable. Stripping is exact/normalized only —
+/// no fuzzy matching is introduced.
+const VARIANT_SUFFIXES: &[&str] = &[
+    // Plan-sanctioned variant suffixes.
+    "-thinking",
+    "-high",
+    "-low",
+    "-medium",
+    "-minimal",
+    "-max",
+    "-preview",
+    // Same-model deployment/access variants seen in the real source ids.
+    "-non-reasoning",
+    "-reasoning",
+    "-search",
+    "-grounding",
+    "-instant",
+    "-beta",
+    "-pre-release",
+    "-web-app",
+    "-webapp",
+];
+
+/// Hosting-org prefixes that some sources (notably AA-Epoch) prepend to the
+/// underlying model id (e.g. `fireworks/kimi-k2`, `parasail-qwen3-...`,
+/// `api-gpt-4o-search`). Stripping the host prefix exposes the real model id for
+/// matching. Applied to both the source id and the models.dev id (models.dev
+/// also lists org-prefixed ids like `deepseek-ai/DeepSeek-R1`).
+fn strip_host_prefix(s: &str) -> &str {
+    // A path-style host prefix: everything before the last `/`.
+    if let Some(pos) = s.rfind('/') {
+        return &s[pos + 1..];
+    }
+    for pre in ["parasail-", "api-"] {
+        if let Some(rest) = s.strip_prefix(pre) {
+            return rest;
+        }
+    }
+    s
+}
+
+/// Normalize a model id for cross-source matching:
+/// 1. lowercase,
+/// 2. strip a hosting-org prefix,
+/// 3. drop any parenthetical group (e.g. `(thinking-minimal)`, `(codex-harness)`),
+/// 4. repeatedly strip trailing variant suffixes, trailing date stamps
+///    (`-2025-12-11`, `-202512`, `-20251211`), and trailing thinking-budget
+///    tags (`-32k`),
+/// 5. remove the remaining separators (`-`, `_`, `.`, space).
+///
+/// Returns the collapsed identity string. Pure exact/normalized matching — there
+/// is no similarity scoring.
+fn normalize_id(raw: &str) -> String {
+    let lower = raw.to_lowercase();
+    let mut s: String = strip_host_prefix(&lower).to_string();
+
+    // Drop parenthetical groups: keep characters outside any `(...)`.
+    if s.contains('(') {
+        let mut out = String::with_capacity(s.len());
+        let mut depth = 0u32;
+        for c in s.chars() {
+            match c {
+                '(' => depth += 1,
+                ')' => depth = depth.saturating_sub(1),
+                _ if depth == 0 => out.push(c),
+                _ => {}
+            }
+        }
+        s = out;
+    }
+
+    loop {
+        let before = s.len();
+
+        for suf in VARIANT_SUFFIXES {
+            if let Some(rest) = s.strip_suffix(suf) {
+                s = rest.to_string();
+            }
+        }
+        if let Some(rest) = strip_trailing_date_stamp(&s) {
+            s = rest;
+        }
+        if let Some(rest) = strip_trailing_budget_tag(&s) {
+            s = rest;
+        }
+
+        if s.len() == before {
+            break;
+        }
+    }
+
+    s.chars()
+        .filter(|c| !matches!(c, '-' | '_' | '.' | ' '))
+        .collect()
+}
+
+/// Strip a trailing date stamp: `-YYYY-MM-DD`, `-YYYY-MM`, `-YYYYMMDD`, `-YYYYMM`.
+/// Returns the prefix without the stamp, or `None` when no stamp is present.
+fn strip_trailing_date_stamp(s: &str) -> Option<String> {
+    let bytes = s.as_bytes();
+    // -YYYY-MM-DD (11 trailing chars)
+    if matches_pattern(bytes, b"-dddd-dd-dd") {
+        return Some(s[..s.len() - 11].to_string());
+    }
+    // -YYYYMMDD (9 trailing chars)
+    if matches_pattern(bytes, b"-dddddddd") {
+        return Some(s[..s.len() - 9].to_string());
+    }
+    // -YYYY-MM (8 trailing chars)
+    if matches_pattern(bytes, b"-dddd-dd") {
+        return Some(s[..s.len() - 8].to_string());
+    }
+    // -YYYYMM (7 trailing chars)
+    if matches_pattern(bytes, b"-dddddd") {
+        return Some(s[..s.len() - 7].to_string());
+    }
+    None
+}
+
+/// Strip a trailing thinking-budget tag like `-32k` / `-128k`.
+fn strip_trailing_budget_tag(s: &str) -> Option<String> {
+    let rest = s.strip_suffix('k')?;
+    // Require at least one digit immediately before the `k`, preceded by `-`.
+    let trimmed = rest.trim_end_matches(|c: char| c.is_ascii_digit());
+    if trimmed.len() == rest.len() {
+        return None; // no digits
+    }
+    let prefix = trimmed.strip_suffix('-')?;
+    Some(prefix.to_string())
+}
+
+/// Check whether the tail of `bytes` matches a pattern where `d` means an ASCII
+/// digit and any other byte must match literally.
+fn matches_pattern(bytes: &[u8], pattern: &[u8]) -> bool {
+    if bytes.len() < pattern.len() {
+        return false;
+    }
+    let tail = &bytes[bytes.len() - pattern.len()..];
+    tail.iter().zip(pattern).all(|(&b, &p)| {
+        if p == b'd' {
+            b.is_ascii_digit()
+        } else {
+            b == p
+        }
+    })
+}
+
+/// Traits derived from a single models.dev model + its host provider.
+#[derive(Clone)]
+struct EnrichCandidate {
+    provider_id: String,
+    open_weights: bool,
+    release_date: Option<String>,
+    context_window: Option<u64>,
+}
+
+impl EnrichCandidate {
+    /// Origin-category providers are authoritative for a model's creator and
+    /// open-weights status; prefer them when a model is hosted under several
+    /// providers.
+    fn is_origin(&self) -> bool {
+        provider_category(&self.provider_id) == ProviderCategory::Origin
+    }
+}
+
+/// Lookup of models.dev models keyed by exact and normalized model id, used to
+/// enrich clean-id sources (epoch / arena / llmstats) without fuzzy matching.
+struct EnrichIndex {
+    /// Lowercased exact model id → candidates.
+    exact: HashMap<String, Vec<EnrichCandidate>>,
+    /// Normalized model id → candidates.
+    normalized: HashMap<String, Vec<EnrichCandidate>>,
+}
+
+impl EnrichIndex {
+    fn build(providers: &[(String, Provider)]) -> Self {
+        let mut exact: HashMap<String, Vec<EnrichCandidate>> = HashMap::new();
+        let mut normalized: HashMap<String, Vec<EnrichCandidate>> = HashMap::new();
+
+        for (provider_id, provider) in providers {
+            for (model_id, model) in &provider.models {
+                let candidate = EnrichCandidate {
+                    provider_id: provider_id.clone(),
+                    open_weights: model.open_weights,
+                    release_date: model.release_date.clone(),
+                    context_window: model.limit.as_ref().and_then(|l| l.context),
+                };
+                exact
+                    .entry(model_id.to_lowercase())
+                    .or_default()
+                    .push(candidate.clone());
+                normalized
+                    .entry(normalize_id(model_id))
+                    .or_default()
+                    .push(candidate);
+            }
+        }
+
+        Self { exact, normalized }
+    }
+
+    /// Resolve the best candidate for a source model id: exact match first, then
+    /// normalized. Within the matched bucket the Origin-category provider wins
+    /// (authoritative creator/openness); otherwise the first candidate is used.
+    fn resolve(&self, source_id: &str) -> Option<&EnrichCandidate> {
+        let pick = |bucket: &'_ [EnrichCandidate]| -> Option<usize> {
+            if bucket.is_empty() {
+                return None;
+            }
+            let origin = bucket.iter().position(EnrichCandidate::is_origin);
+            Some(origin.unwrap_or(0))
+        };
+
+        if let Some(bucket) = self.exact.get(&source_id.to_lowercase()) {
+            if let Some(i) = pick(bucket) {
+                return Some(&bucket[i]);
+            }
+        }
+        let norm = normalize_id(source_id);
+        if let Some(bucket) = self.normalized.get(&norm) {
+            if let Some(i) = pick(bucket) {
+                return Some(&bucket[i]);
+            }
+        }
+        None
+    }
+}
+
+/// Generic within-source enrichment for the non-AA sources (epoch / arena /
+/// llmstats). For each model, the source id is matched against models.dev model
+/// ids — **exact then normalized only, no fuzzy/Jaro-Winkler matching** (the
+/// plan sanctions exact/normalized for clean-id sources). On a match, ONLY
+/// currently-empty fields are filled from the matched models.dev model:
+/// `creator` / `creator_name` (from the matched model's host provider, with
+/// Origin-category providers preferred), `release_date`, `context_window`, and
+/// `open_weights`. Source-provided values are never overwritten, and models with
+/// no match are left untouched (the UI shows an honest em-dash).
+pub fn enrich_from_models_dev(providers: &[(String, Provider)], models: &mut [ModelRow]) {
+    let index = EnrichIndex::build(providers);
+
+    // provider id → display name, for filling creator_name.
+    let provider_names: HashMap<&str, &str> = providers
+        .iter()
+        .map(|(id, p)| (id.as_str(), p.name.as_str()))
+        .collect();
+
+    for model in models {
+        let Some(candidate) = index.resolve(&model.id) else {
+            continue;
+        };
+
+        if model.creator.is_empty() {
+            model.creator = candidate.provider_id.clone();
+        }
+        if model.creator_name.is_empty() {
+            let name = provider_names
+                .get(candidate.provider_id.as_str())
+                .copied()
+                .unwrap_or(candidate.provider_id.as_str());
+            model.creator_name = name.to_string();
+        }
+        if model.release_date.is_none() {
+            model.release_date.clone_from(&candidate.release_date);
+        }
+        if model.context_window.is_none() {
+            model.context_window = candidate.context_window;
+        }
+        if model.open_weights.is_none() {
+            model.open_weights = Some(candidate.open_weights);
         }
     }
 }
@@ -583,6 +869,238 @@ mod tests {
         let mut models = vec![make_model_row("openai", "gpt-4o")];
         apply_model_traits(&providers, &mut models);
         assert_eq!(models[0].context_window, Some(128_000));
+    }
+
+    // -- enrich_from_models_dev ---------------------------------------------
+
+    fn make_provider_full(
+        id: &str,
+        name: &str,
+        models: Vec<(&str, bool, Option<&str>, Option<u64>)>,
+    ) -> (String, Provider) {
+        let mut model_map = HashMap::new();
+        for (model_id, open_weights, release_date, context) in models {
+            model_map.insert(
+                model_id.to_string(),
+                Model {
+                    id: model_id.to_string(),
+                    name: model_id.to_string(),
+                    open_weights,
+                    release_date: release_date.map(str::to_string),
+                    limit: context.map(|c| crate::data::Limits {
+                        context: Some(c),
+                        input: None,
+                        output: None,
+                    }),
+                    ..default_model()
+                },
+            );
+        }
+        (
+            id.to_string(),
+            Provider {
+                id: id.to_string(),
+                name: name.to_string(),
+                npm: None,
+                env: Vec::new(),
+                doc: None,
+                api: None,
+                models: model_map,
+            },
+        )
+    }
+
+    /// Build a source row with no creator/dates/traits (the epoch shape).
+    fn bare_row(id: &str) -> ModelRow {
+        let mut m = make_model_row("", id);
+        m.creator_name = String::new();
+        m
+    }
+
+    #[test]
+    fn test_enrich_exact_match_fills_empty_fields() {
+        // openai is Origin-category; gpt-4o matches exactly.
+        let providers = vec![make_provider_full(
+            "openai",
+            "OpenAI",
+            vec![("gpt-4o", false, Some("2024-05-13"), Some(128_000))],
+        )];
+        let mut models = vec![bare_row("gpt-4o")];
+        enrich_from_models_dev(&providers, &mut models);
+        assert_eq!(models[0].creator, "openai");
+        assert_eq!(models[0].creator_name, "OpenAI");
+        assert_eq!(models[0].release_date.as_deref(), Some("2024-05-13"));
+        assert_eq!(models[0].context_window, Some(128_000));
+        assert_eq!(models[0].open_weights, Some(false));
+    }
+
+    #[test]
+    fn test_enrich_normalized_match_strips_suffix() {
+        // Source id carries a `-thinking` variant suffix + a trailing date stamp
+        // that models.dev's bare id does not.
+        let providers = vec![make_provider_full(
+            "anthropic",
+            "Anthropic",
+            vec![("claude-opus-4-8", false, Some("2026-05-28"), Some(200_000))],
+        )];
+        let mut models = vec![bare_row("claude-opus-4-8-thinking")];
+        enrich_from_models_dev(&providers, &mut models);
+        assert_eq!(models[0].creator, "anthropic");
+        assert_eq!(models[0].release_date.as_deref(), Some("2026-05-28"));
+        assert_eq!(models[0].context_window, Some(200_000));
+    }
+
+    #[test]
+    fn test_enrich_normalized_date_stamp_and_host_prefix() {
+        // `-2026-03-05` date stamp + `-web-app` suffix + `fireworks/` host prefix
+        // all stripped down to `gpt-5.4-pro`.
+        let providers = vec![make_provider_full(
+            "openai",
+            "OpenAI",
+            vec![("gpt-5.4-pro", false, Some("2026-03-05"), None)],
+        )];
+        let mut models = vec![bare_row("fireworks/gpt-5.4-pro-2026-03-05-web-app")];
+        enrich_from_models_dev(&providers, &mut models);
+        assert_eq!(models[0].creator, "openai");
+        assert_eq!(models[0].release_date.as_deref(), Some("2026-03-05"));
+    }
+
+    #[test]
+    fn test_enrich_never_overwrites_source_values() {
+        let providers = vec![make_provider_full(
+            "openai",
+            "OpenAI",
+            vec![("gpt-4o", true, Some("2099-01-01"), Some(999))],
+        )];
+        let mut m = make_model_row("custom-creator", "gpt-4o");
+        m.creator_name = "Custom Creator".to_string();
+        m.release_date = Some("2024-01-01".to_string());
+        m.context_window = Some(64_000);
+        m.open_weights = Some(false);
+        let mut models = vec![m];
+        enrich_from_models_dev(&providers, &mut models);
+        // Every source-provided field survives untouched.
+        assert_eq!(models[0].creator, "custom-creator");
+        assert_eq!(models[0].creator_name, "Custom Creator");
+        assert_eq!(models[0].release_date.as_deref(), Some("2024-01-01"));
+        assert_eq!(models[0].context_window, Some(64_000));
+        assert_eq!(models[0].open_weights, Some(false));
+    }
+
+    #[test]
+    fn test_enrich_unmatched_left_untouched() {
+        let providers = vec![make_provider_full(
+            "openai",
+            "OpenAI",
+            vec![("gpt-4o", false, Some("2024-05-13"), Some(128_000))],
+        )];
+        let mut models = vec![bare_row("totally-unknown-model-xyz")];
+        enrich_from_models_dev(&providers, &mut models);
+        assert_eq!(models[0].creator, "");
+        assert_eq!(models[0].creator_name, "");
+        assert_eq!(models[0].release_date, None);
+        assert_eq!(models[0].context_window, None);
+        assert_eq!(models[0].open_weights, None);
+    }
+
+    #[test]
+    fn test_enrich_prefers_origin_provider_for_creator() {
+        // The same model id is hosted under an Inference provider (deepinfra,
+        // listed first → first-seen would lose) and its Origin provider
+        // (deepseek). Origin must win for creator + open_weights.
+        let providers = vec![
+            make_provider_full(
+                "deepinfra",
+                "DeepInfra",
+                vec![("deepseek-v4-pro", false, None, None)],
+            ),
+            make_provider_full(
+                "deepseek",
+                "DeepSeek",
+                vec![("deepseek-v4-pro", true, Some("2026-04-24"), Some(163_840))],
+            ),
+        ];
+        let mut models = vec![bare_row("deepseek-v4-pro")];
+        enrich_from_models_dev(&providers, &mut models);
+        assert_eq!(models[0].creator, "deepseek");
+        assert_eq!(models[0].creator_name, "DeepSeek");
+        assert_eq!(models[0].open_weights, Some(true));
+        assert_eq!(models[0].release_date.as_deref(), Some("2026-04-24"));
+    }
+
+    #[test]
+    fn test_enrich_fills_only_creator_when_others_present() {
+        // Arena shape: creator + open_weights present, but release_date/context
+        // missing. Enrichment should add the missing two without disturbing the
+        // present creator/openness.
+        let providers = vec![make_provider_full(
+            "google",
+            "Google",
+            vec![("gemini-2.5-pro", false, Some("2025-03-25"), Some(1_048_576))],
+        )];
+        let mut m = make_model_row("google", "gemini-2.5-pro");
+        m.creator_name = "Google".to_string();
+        m.open_weights = Some(false);
+        // release_date + context_window left None (arena omits them).
+        let mut models = vec![m];
+        enrich_from_models_dev(&providers, &mut models);
+        assert_eq!(models[0].creator, "google");
+        assert_eq!(models[0].release_date.as_deref(), Some("2025-03-25"));
+        assert_eq!(models[0].context_window, Some(1_048_576));
+    }
+
+    /// Diagnostic: run generic enrichment against the committed v2 data files +
+    /// the live models.dev API. Reports per-source match rates.
+    /// Run with: cargo test enrich_match_rate -- --ignored --nocapture
+    #[test]
+    #[ignore]
+    fn enrich_match_rate() {
+        use crate::benchmarks::schema::SourceFile;
+
+        let api_url = "https://models.dev/api.json";
+        let response = reqwest::blocking::get(api_url).expect("Failed to fetch models.dev API");
+        let providers_map: ProvidersMap = response.json().expect("Failed to parse API response");
+        let providers: Vec<(String, crate::data::Provider)> = providers_map.into_iter().collect();
+
+        for source in ["epoch", "arena", "llmstats"] {
+            let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join(format!("data/v2/{source}.json"));
+            let data = std::fs::read_to_string(&path)
+                .unwrap_or_else(|_| panic!("Failed to read {}", path.display()));
+            let file: SourceFile = serde_json::from_str(&data)
+                .unwrap_or_else(|_| panic!("Failed to parse {}", path.display()));
+
+            let total = file.models.len();
+            let had_creator = file.models.iter().filter(|m| !m.creator.is_empty()).count();
+            let had_release = file
+                .models
+                .iter()
+                .filter(|m| m.release_date.is_some())
+                .count();
+
+            let mut models = file.models.clone();
+            enrich_from_models_dev(&providers, &mut models);
+
+            let creator_now = models.iter().filter(|m| !m.creator.is_empty()).count();
+            let release_now = models.iter().filter(|m| m.release_date.is_some()).count();
+            let ow_now = models.iter().filter(|m| m.open_weights.is_some()).count();
+            let ctx_now = models.iter().filter(|m| m.context_window.is_some()).count();
+
+            println!("\n=== {source} ({total} models) ===");
+            println!("creator:        {had_creator} -> {creator_now}");
+            println!("release_date:   {had_release} -> {release_now}");
+            println!("open_weights:   filled {ow_now}");
+            println!("context_window: filled {ctx_now}");
+
+            // Unmatched = no field got newly filled AND none were present that
+            // would suppress a match attempt; approximate via context_window
+            // (always absent in sources, so reflects raw match rate).
+            let matched = ctx_now;
+            println!(
+                "match rate (ctx proxy): {matched}/{total} ({:.0}%)",
+                matched as f64 / total as f64 * 100.0
+            );
+        }
     }
 
     #[test]

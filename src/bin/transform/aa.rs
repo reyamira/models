@@ -111,8 +111,16 @@ struct RawPricing {
 // not the legacy overlapping presets.
 // ---------------------------------------------------------------------------
 
-/// One entry in the AA metric registry: (id, label, kind, group, higher_is_better).
-type MetricEntry = (&'static str, &'static str, MetricKind, &'static str, bool);
+/// One entry in the AA metric registry:
+/// (id, label, kind, group, higher_is_better, description).
+type MetricEntry = (
+    &'static str,
+    &'static str,
+    MetricKind,
+    &'static str,
+    bool,
+    &'static str,
+);
 
 const METRICS: &[MetricEntry] = &[
     // Group "Indexes"
@@ -122,6 +130,9 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Indexes",
         true,
+        "Artificial Analysis's headline composite, averaging a suite of reasoning, \
+         knowledge, math, and coding evaluations into one general-capability score. \
+         Scale 0-100; higher is better.",
     ),
     (
         "coding_index",
@@ -129,6 +140,8 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Indexes",
         true,
+        "Artificial Analysis's coding composite, averaging the Terminal-Bench Hard and \
+         SciCode coding evaluations. Scale 0-100; higher is better.",
     ),
     (
         "math_index",
@@ -136,6 +149,8 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Indexes",
         true,
+        "Artificial Analysis's math composite, averaging its competition-math evaluations \
+         (AIME and MATH-500). Scale 0-100; higher is better.",
     ),
     // Group "Agentic"
     (
@@ -144,6 +159,9 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        "Contamination-free competitive-programming problems harvested fresh from LeetCode, \
+         AtCoder, and Codeforces. Scored pass@1 (% solved on the first attempt); higher is \
+         better.",
     ),
     (
         "scicode",
@@ -151,6 +169,9 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        "Scientist-curated tasks where the model writes Python to solve research-grade \
+         problems across 16 scientific disciplines. Scored pass@1 (% of subproblems solved); \
+         higher is better.",
     ),
     (
         "terminalbench_hard",
@@ -158,6 +179,9 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        "Agentic tasks the model must complete autonomously inside a sandboxed terminal \
+         (software engineering, sysadmin, data processing). Scored pass@1 (% of tasks solved); \
+         higher is better.",
     ),
     (
         "ifbench",
@@ -165,6 +189,9 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        "Tests precise instruction-following on novel, verifiable output constraints the model \
+         was not trained on (e.g. 'answer only yes or no'). Scored pass@1 (% of constraints \
+         satisfied); higher is better.",
     ),
     (
         "lcr",
@@ -172,6 +199,9 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        "AA-LCR: reasoning across multiple real-world documents totalling ~100k tokens, where \
+         answers must be synthesized rather than retrieved. Scored pass@1 (% correct); higher \
+         is better.",
     ),
     (
         "tau2",
@@ -179,6 +209,9 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        "𝜏²-Bench: a dual-control conversational benchmark where the tool-using agent and a \
+         simulated user must coordinate to resolve telecom support issues. Scored pass@1 \
+         (% of scenarios resolved); higher is better.",
     ),
     // Group "Academic"
     (
@@ -187,6 +220,9 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Academic",
         true,
+        "198 'Google-proof' graduate-level questions in biology, chemistry, and physics that \
+         stump non-experts even with web access. Scored as accuracy (% correct); higher is \
+         better.",
     ),
     (
         "mmlu_pro",
@@ -194,6 +230,8 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Academic",
         true,
+        "A harder MMLU with graduate-level questions across 14 subjects and ten answer options, \
+         emphasizing reasoning over recall. Scored as accuracy (% correct); higher is better.",
     ),
     (
         "hle",
@@ -201,6 +239,9 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Academic",
         true,
+        "Expert-authored questions across 100+ academic subjects, designed to require \
+         specialized knowledge that cannot be quickly looked up. Scored as accuracy \
+         (% correct); higher is better.",
     ),
     (
         "math_500",
@@ -208,14 +249,26 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Academic",
         true,
+        "A 500-problem subset of the MATH dataset spanning competition-level algebra, geometry, \
+         number theory, and more. Scored pass@1 (% correct); higher is better.",
     ),
-    ("aime", "AIME '24", MetricKind::Percentage, "Academic", true),
+    (
+        "aime",
+        "AIME '24",
+        MetricKind::Percentage,
+        "Academic",
+        true,
+        "The 2024 American Invitational Mathematics Examination: olympiad-level problems with \
+         integer answers 0-999. Scored pass@1 accuracy (% correct); higher is better.",
+    ),
     (
         "aime_25",
         "AIME '25",
         MetricKind::Percentage,
         "Academic",
         true,
+        "The 2025 American Invitational Mathematics Examination: olympiad-level problems with \
+         integer answers 0-999. Scored pass@1 accuracy (% correct); higher is better.",
     ),
     // Group "Performance"
     (
@@ -224,9 +277,28 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::TokensPerSec,
         "Performance",
         true,
+        "Output generation speed — average tokens received per second after the first token. \
+         Measured in tokens/sec; higher (faster) is better.",
     ),
-    ("ttft", "TTFT", MetricKind::Seconds, "Performance", false),
-    ("ttfat", "TTFAT", MetricKind::Seconds, "Performance", false),
+    (
+        "ttft",
+        "TTFT",
+        MetricKind::Seconds,
+        "Performance",
+        false,
+        "Time to first token: seconds between sending the request and receiving the first \
+         token of the response. Measured in seconds; lower (faster) is better.",
+    ),
+    (
+        "ttfat",
+        "TTFAT",
+        MetricKind::Seconds,
+        "Performance",
+        false,
+        "Time to first answer token: seconds until the first answer token arrives, measured \
+         for reasoning models after any 'thinking' time. Measured in seconds; lower (faster) \
+         is better.",
+    ),
     // Group "Pricing"
     (
         "price_input",
@@ -234,6 +306,8 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::UsdPerMTok,
         "Pricing",
         false,
+        "Provider list price to send prompt tokens to the model, in US dollars per million \
+         input tokens. Lower (cheaper) is better.",
     ),
     (
         "price_output",
@@ -241,6 +315,8 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::UsdPerMTok,
         "Pricing",
         false,
+        "Provider list price for generated tokens, in US dollars per million output tokens. \
+         Lower (cheaper) is better.",
     ),
     (
         "price_blended",
@@ -248,20 +324,22 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::UsdPerMTok,
         "Pricing",
         false,
+        "Blended cost assuming a 3:1 input-to-output token ratio, in US dollars per million \
+         tokens. Lower (cheaper) is better.",
     ),
 ];
 
 fn metric_defs() -> Vec<MetricDef> {
     METRICS
         .iter()
-        .map(|&(id, label, kind, group, hib)| MetricDef {
+        .map(|&(id, label, kind, group, hib, description)| MetricDef {
             id: id.to_string(),
             label: label.to_string(),
             kind,
             group: group.to_string(),
             higher_is_better: hib,
             last_updated: None,
-            description: None,
+            description: Some(description.to_string()),
         })
         .collect()
 }
@@ -508,6 +586,18 @@ mod tests {
     fn metric_last_updated_is_none() {
         let sf = parse_fixture();
         assert!(sf.metrics.iter().all(|m| m.last_updated.is_none()));
+    }
+
+    #[test]
+    fn every_metric_has_a_nonempty_description() {
+        let sf = parse_fixture();
+        for m in &sf.metrics {
+            let d = m
+                .description
+                .as_deref()
+                .unwrap_or_else(|| panic!("metric {} has no description", m.id));
+            assert!(d.len() > 20, "metric {} description too short: {d:?}", m.id);
+        }
     }
 
     #[test]

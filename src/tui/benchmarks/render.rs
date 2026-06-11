@@ -16,6 +16,7 @@ use crate::formatting::{format_relative_time_from_str, format_tokens, truncate};
 use crate::tui::app::App;
 use crate::tui::ui::{
     caret, centered_rect, centered_rect_fixed, focus_border, section_header_line,
+    section_header_line_with_suffix,
 };
 use crate::tui::widgets::scrollable_panel::ScrollablePanel;
 
@@ -108,6 +109,11 @@ pub(in crate::tui) fn draw_benchmarks_main(f: &mut Frame, area: Rect, app: &mut 
     // Sort picker popup
     if app.benchmarks_app.show_sort_picker {
         draw_sort_picker(f, area, app);
+    }
+
+    // Glossary popup (drawn last so it sits above the sort picker too)
+    if app.benchmarks_app.show_glossary {
+        draw_glossary(f, area, app);
     }
 }
 
@@ -836,6 +842,46 @@ fn draw_benchmark_detail(f: &mut Frame, area: Rect, app: &App) {
     ScrollablePanel::new("Details", lines, &bench_app.detail_scroll, focused).render(f, area);
 }
 
+/// Short human-readable scale blurb for a metric kind, used as the parenthetical
+/// suffix on uniform-kind section headers and in the glossary meta line.
+fn kind_blurb(kind: MetricKind) -> &'static str {
+    match kind {
+        MetricKind::Percentage => "% score",
+        MetricKind::Index => "index",
+        MetricKind::Elo => "Elo rating",
+        MetricKind::TokensPerSec => "tokens/sec",
+        MetricKind::Seconds => "seconds",
+        MetricKind::UsdPerMTok => "$ per 1M tokens",
+    }
+}
+
+/// The shared scale blurb for `group`, when every metric in it has the same
+/// `MetricKind`. Mixed-kind groups (e.g. AA "Performance" mixing tokens/sec and
+/// seconds) return `None` so no suffix is appended.
+fn group_kind_blurb(file: &SourceFile, group: &str) -> Option<&'static str> {
+    let mut kinds = file
+        .metrics
+        .iter()
+        .filter(|m| m.group == group)
+        .map(|m| m.kind);
+    let first = kinds.next()?;
+    if kinds.all(|k| k == first) {
+        Some(kind_blurb(first))
+    } else {
+        None
+    }
+}
+
+/// Direction arrow appended to a metric label: `↑` when higher is better,
+/// `↓` when lower is better. Rendered dim (DarkGray) by the caller.
+fn direction_arrow(higher_is_better: bool) -> &'static str {
+    if higher_is_better {
+        "\u{2191}"
+    } else {
+        "\u{2193}"
+    }
+}
+
 /// Registry-driven model detail: identity block + one section per metric group
 /// (`groups_in_order`), values formatted via `format_metric_value`, with `±ci`
 /// for Elo cells and a dim `(upd {date})` suffix where the cell carries a date.
@@ -967,7 +1013,12 @@ pub(super) fn build_benchmark_detail_lines(
         + 2;
     for group in groups_in_order(file) {
         lines.push(Line::from(""));
-        lines.push(section_header_line(group, width));
+        // Uniform-kind groups get a dim "(scale)" suffix on the header; mixed
+        // groups fall back to the plain dash-padded header.
+        match group_kind_blurb(file, group) {
+            Some(blurb) => lines.push(section_header_line_with_suffix(group, blurb, width)),
+            None => lines.push(section_header_line(group, width)),
+        }
         for mi in metric_indices_in_group(file, group) {
             let metric = &file.metrics[mi];
             let cell = model.scores.get(&metric.id);
@@ -977,6 +1028,7 @@ pub(super) fn build_benchmark_detail_lines(
                 metric_label_w,
                 &metric.label,
                 metric.kind,
+                metric.higher_is_better,
                 cell,
             );
         }
@@ -1107,28 +1159,43 @@ fn push_meta_row(
     lines.push(Line::from(spans));
 }
 
-/// Push a single metric row: label (Gray) + value (White, em-dash DarkGray when
-/// missing). Elo cells with a confidence interval append ` ±{ci:.0}`, and any
-/// cell with a per-model date appends a dim `(upd {date})`.
+/// Push a single metric row: label (Gray) + dim direction arrow + value (White,
+/// em-dash DarkGray when missing). Elo cells with a confidence interval append
+/// ` ±{ci:.0}`, and any cell with a per-model date appends a dim `(upd {date})`.
+///
+/// The direction arrow (`↑`/`↓`) counts toward the `label_w` column budget so
+/// values stay aligned: the label is truncated to leave room for `" ↑"`.
 fn push_metric_row(
     lines: &mut Vec<Line<'static>>,
     indent: u16,
     label_w: usize,
     label: &str,
     kind: MetricKind,
+    higher_is_better: bool,
     cell: Option<&ScoreCell>,
 ) {
-    let shown = truncate(label, label_w.saturating_sub(2).max(6));
-    let mut spans = vec![Span::styled(
-        format!(
-            "{:indent$}{:<w$}",
-            "",
-            shown,
-            indent = indent as usize,
-            w = label_w
+    use unicode_width::UnicodeWidthStr;
+
+    // Reserve 2 cols inside the label column for " ↑" (space + arrow, width 1
+    // each). Truncate the label to the remainder; pad the rest after the arrow.
+    let arrow = direction_arrow(higher_is_better);
+    let avail = label_w.saturating_sub(2).max(6);
+    let shown = truncate(label, avail);
+    let shown_w = UnicodeWidthStr::width(shown.as_str());
+    // Width consumed so far inside the label column: label + 1 space + arrow(1).
+    let consumed = shown_w + 2;
+    let trailing = label_w.saturating_sub(consumed);
+
+    let mut spans = vec![
+        Span::styled(
+            format!("{:indent$}{}", "", shown, indent = indent as usize),
+            Style::default().fg(Color::Gray),
         ),
-        Style::default().fg(Color::Gray),
-    )];
+        Span::styled(
+            format!(" {}{}", arrow, " ".repeat(trailing)),
+            Style::default().fg(Color::DarkGray),
+        ),
+    ];
 
     match cell {
         Some(cell) => {
@@ -1200,6 +1267,120 @@ fn draw_sort_picker(f: &mut Frame, area: Rect, app: &App) {
         );
 
     f.render_stateful_widget(list, popup_area, &mut list_state);
+}
+
+/// Build the glossary content for the active source: every metric in display
+/// order (`groups_in_order` → `metric_indices_in_group`), grouped under the same
+/// dash-padded section headers used in the detail panel.
+///
+/// Per metric:
+/// 1. label (Gray) + dim direction arrow (DarkGray)
+/// 2. meta line (DarkGray): kind blurb, plus `updated {last_updated}` when set
+/// 3. description (White), or an em-dash line when `description` is `None`
+///
+/// A blank line separates entries. `width` is the popup inner width; the
+/// `ScrollablePanel` wraps long descriptions, so they need not be pre-wrapped.
+pub(super) fn build_glossary_lines(file: &SourceFile, width: u16) -> Vec<Line<'static>> {
+    let mut lines: Vec<Line<'static>> = Vec::new();
+    let w = width as usize;
+    let mut first_group = true;
+
+    for group in groups_in_order(file) {
+        if !first_group {
+            lines.push(Line::from(""));
+        }
+        first_group = false;
+        match group_kind_blurb(file, group) {
+            Some(blurb) => lines.push(section_header_line_with_suffix(group, blurb, w)),
+            None => lines.push(section_header_line(group, w)),
+        }
+        lines.push(Line::from(""));
+
+        for mi in metric_indices_in_group(file, group) {
+            let metric = &file.metrics[mi];
+
+            // 1. Label + dim direction arrow.
+            lines.push(Line::from(vec![
+                Span::styled(
+                    metric.label.clone(),
+                    Style::default()
+                        .fg(Color::Gray)
+                        .add_modifier(Modifier::BOLD),
+                ),
+                Span::styled(
+                    format!(" {}", direction_arrow(metric.higher_is_better)),
+                    Style::default().fg(Color::DarkGray),
+                ),
+            ]));
+
+            // 2. Meta line: kind blurb (+ updated date when present).
+            let mut meta = kind_blurb(metric.kind).to_string();
+            if let Some(updated) = &metric.last_updated {
+                // Sources disagree on `last_updated` shape: epoch/arena emit a
+                // plain `YYYY-MM-DD`, llmstats an RFC3339 timestamp. Show only
+                // the date portion so the meta line stays uniform and tidy.
+                let date = updated.split(['T', ' ']).next().unwrap_or(updated);
+                meta.push_str(&format!("  updated {date}"));
+            }
+            lines.push(Line::from(Span::styled(
+                meta,
+                Style::default().fg(Color::DarkGray),
+            )));
+
+            // 3. Description (White) or em-dash when absent.
+            match &metric.description {
+                Some(desc) if !desc.is_empty() => {
+                    lines.push(Line::from(Span::styled(
+                        desc.clone(),
+                        Style::default().fg(Color::White),
+                    )));
+                }
+                _ => {
+                    lines.push(Line::from(Span::styled(
+                        EM.to_string(),
+                        Style::default().fg(Color::DarkGray),
+                    )));
+                }
+            }
+
+            // Blank line between entries.
+            lines.push(Line::from(""));
+        }
+    }
+
+    if lines.is_empty() {
+        lines.push(Line::from(Span::styled(
+            "No metrics for this source",
+            Style::default().fg(Color::DarkGray),
+        )));
+    }
+
+    lines
+}
+
+/// Scrollable glossary popup over the active source's metrics. Centered 60% ×
+/// 70%, Cyan border, Clear background. Falls back to a loading/empty message
+/// when the active source has no loaded file.
+fn draw_glossary(f: &mut Frame, area: Rect, app: &App) {
+    let bench_app = &app.benchmarks_app;
+    let popup_area = centered_rect(60, 70, area);
+    f.render_widget(Clear, popup_area);
+
+    let title = " Benchmark Glossary - i or Esc to close (Up/Down to scroll) ";
+
+    let Some(file) = app.multi_store.file(bench_app.active_source) else {
+        let lines = vec![Line::from(Span::styled(
+            "No source data loaded",
+            Style::default().fg(Color::DarkGray),
+        ))];
+        ScrollablePanel::new(title, lines, &bench_app.glossary_scroll, true).render(f, popup_area);
+        return;
+    };
+
+    // Inner width = popup width minus the 2 border columns.
+    let inner_w = popup_area.width.saturating_sub(2);
+    let lines = build_glossary_lines(file, inner_w);
+    ScrollablePanel::new(title, lines, &bench_app.glossary_scroll, true).render(f, popup_area);
 }
 
 #[cfg(test)]
@@ -1411,5 +1592,304 @@ mod tests {
         // the source bar's freshness must not echo it raw.
         let out = format_relative_time_from_str("2026-06-10T20:37:40.687663442+00:00");
         assert!(out.ends_with("ago"), "expected relative time, got: {out}");
+    }
+
+    /// Fully-configurable metric for the polish-feature tests (direction arrows,
+    /// section-header suffixes, glossary).
+    #[allow(clippy::too_many_arguments)]
+    fn metric_full(
+        id: &str,
+        label: &str,
+        kind: MetricKind,
+        group: &str,
+        higher_is_better: bool,
+        last_updated: Option<&str>,
+        description: Option<&str>,
+    ) -> MetricDef {
+        MetricDef {
+            id: id.into(),
+            label: label.into(),
+            kind,
+            group: group.into(),
+            higher_is_better,
+            last_updated: last_updated.map(str::to_string),
+            description: description.map(str::to_string),
+        }
+    }
+
+    // --- (1) Direction arrows in detail metric rows ---
+
+    #[test]
+    fn detail_metric_rows_carry_direction_arrows() {
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![
+                // higher-is-better -> up arrow
+                metric_full(
+                    "gpqa",
+                    "GPQA",
+                    MetricKind::Percentage,
+                    "Academic",
+                    true,
+                    None,
+                    None,
+                ),
+                // lower-is-better -> down arrow
+                metric_full(
+                    "price_input",
+                    "Input Price",
+                    MetricKind::UsdPerMTok,
+                    "Pricing",
+                    false,
+                    None,
+                    None,
+                ),
+            ],
+            models: vec![model_with(vec![
+                ("gpqa", cell(0.9, None, None)),
+                ("price_input", cell(2.0, None, None)),
+            ])],
+        };
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let gpqa_row = lines
+            .iter()
+            .find(|l| line_text(l).contains("GPQA"))
+            .expect("gpqa row");
+        let price_row = lines
+            .iter()
+            .find(|l| line_text(l).contains("Input Price"))
+            .expect("price row");
+        assert!(
+            line_text(gpqa_row).contains('\u{2191}'),
+            "higher-is-better -> up arrow, got: {}",
+            line_text(gpqa_row)
+        );
+        assert!(
+            line_text(price_row).contains('\u{2193}'),
+            "lower-is-better -> down arrow, got: {}",
+            line_text(price_row)
+        );
+        // Arrow span is dim DarkGray, not the Gray label color.
+        let arrow_span = gpqa_row
+            .spans
+            .iter()
+            .find(|s| s.content.contains('\u{2191}'))
+            .unwrap();
+        assert_eq!(arrow_span.style.fg, Some(Color::DarkGray));
+    }
+
+    // --- (2) Section-header scale suffixes ---
+
+    #[test]
+    fn detail_uniform_group_gets_kind_suffix() {
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![
+                metric_full(
+                    "price_input",
+                    "Input Price",
+                    MetricKind::UsdPerMTok,
+                    "Pricing",
+                    false,
+                    None,
+                    None,
+                ),
+                metric_full(
+                    "price_output",
+                    "Output Price",
+                    MetricKind::UsdPerMTok,
+                    "Pricing",
+                    false,
+                    None,
+                    None,
+                ),
+            ],
+            models: vec![model_with(vec![])],
+        };
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let header = lines
+            .iter()
+            .find(|l| line_text(l).contains("Pricing"))
+            .expect("Pricing header");
+        assert!(
+            line_text(header).contains("($ per 1M tokens)"),
+            "uniform UsdPerMTok group gets the $ suffix, got: {}",
+            line_text(header)
+        );
+    }
+
+    #[test]
+    fn detail_mixed_group_gets_no_suffix() {
+        // AA "Performance" mixes tokens/sec and seconds -> no suffix.
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![
+                metric_full(
+                    "output_tps",
+                    "Output Speed",
+                    MetricKind::TokensPerSec,
+                    "Performance",
+                    true,
+                    None,
+                    None,
+                ),
+                metric_full(
+                    "ttft",
+                    "TTFT",
+                    MetricKind::Seconds,
+                    "Performance",
+                    false,
+                    None,
+                    None,
+                ),
+            ],
+            models: vec![model_with(vec![])],
+        };
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let header = lines
+            .iter()
+            .find(|l| line_text(l).contains("Performance"))
+            .expect("Performance header");
+        let text = line_text(header);
+        assert!(
+            !text.contains("(tokens/sec)") && !text.contains("(seconds)"),
+            "mixed-kind group must not get a scale suffix, got: {text}"
+        );
+    }
+
+    // --- (3) Glossary lines ---
+
+    #[test]
+    fn glossary_includes_description_and_meta() {
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![metric_full(
+                "gpqa",
+                "GPQA Diamond",
+                MetricKind::Percentage,
+                "Academic",
+                true,
+                Some("2026-05-28"),
+                Some("Graduate-level science questions; accuracy."),
+            )],
+            models: vec![],
+        };
+        let lines = build_glossary_lines(&file, 60);
+        let joined: String = lines
+            .iter()
+            .map(|l| line_text(l))
+            .collect::<Vec<_>>()
+            .join("\n");
+        // Section header for the group.
+        assert!(joined.contains("Academic"), "group header present");
+        // Label + up arrow (higher-is-better).
+        assert!(joined.contains("GPQA Diamond"));
+        assert!(joined.contains('\u{2191}'));
+        // Meta line: kind blurb + updated date.
+        assert!(joined.contains("% score"), "kind blurb present: {joined}");
+        assert!(
+            joined.contains("updated 2026-05-28"),
+            "last_updated rendered: {joined}"
+        );
+        // Description text.
+        assert!(joined.contains("Graduate-level science questions; accuracy."));
+    }
+
+    #[test]
+    fn glossary_none_description_is_em_dash() {
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![metric_full(
+                "elo_text",
+                "Text",
+                MetricKind::Elo,
+                "Arena Elo",
+                true,
+                None,
+                None, // no description
+            )],
+            models: vec![],
+        };
+        let lines = build_glossary_lines(&file, 60);
+        let joined: String = lines
+            .iter()
+            .map(|l| line_text(l))
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(joined.contains("Text"), "label present");
+        // Kind blurb still shown (no updated date for this metric).
+        assert!(joined.contains("Elo rating"));
+        assert!(!joined.contains("updated "), "no last_updated -> no date");
+        // Missing description renders as an em-dash line.
+        assert!(joined.contains(EM), "None description -> em-dash: {joined}");
+    }
+
+    #[test]
+    fn glossary_meta_trims_rfc3339_last_updated_to_date() {
+        // llmstats emits an RFC3339 timestamp for `last_updated`; the meta line
+        // must show only the `YYYY-MM-DD` prefix, not the full timestamp.
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![metric_full(
+                "agents",
+                "Agents",
+                MetricKind::Index,
+                "Categories",
+                true,
+                Some("2026-06-11T00:59:59.929424Z"),
+                Some("Agentic capability."),
+            )],
+            models: vec![],
+        };
+        let lines = build_glossary_lines(&file, 60);
+        let joined: String = lines
+            .iter()
+            .map(|l| line_text(l))
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(
+            joined.contains("updated 2026-06-11"),
+            "date prefix shown: {joined}"
+        );
+        assert!(
+            !joined.contains("00:59:59"),
+            "timestamp portion stripped: {joined}"
+        );
+    }
+
+    #[test]
+    fn glossary_orders_groups_and_metrics() {
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![
+                metric_full(
+                    "idx",
+                    "Intelligence Index",
+                    MetricKind::Index,
+                    "Indexes",
+                    true,
+                    None,
+                    Some("Composite."),
+                ),
+                metric_full(
+                    "gpqa",
+                    "GPQA",
+                    MetricKind::Percentage,
+                    "Academic",
+                    true,
+                    None,
+                    Some("Science."),
+                ),
+            ],
+            models: vec![],
+        };
+        let lines = build_glossary_lines(&file, 60);
+        let texts: Vec<String> = lines.iter().map(line_text).collect();
+        let idx_pos = texts.iter().position(|t| t.contains("Indexes")).unwrap();
+        let acad_pos = texts.iter().position(|t| t.contains("Academic")).unwrap();
+        // First-appearance group order: Indexes before Academic.
+        assert!(idx_pos < acad_pos);
+        // Indexes group's "index" suffix is present.
+        assert!(texts[idx_pos].contains("(index)"));
     }
 }

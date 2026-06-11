@@ -18,11 +18,19 @@ use crate::tui::widgets::scroll_offset::ScrollOffset;
 /// Apply the active source's trait/openness augmentation and rebuild the
 /// benchmarks sub-app if the freshly loaded source is the active one.
 fn finalize_loaded_source(app: &mut App, idx: usize) {
-    // AA-only: fill open_weights / context_window from models.dev before the
-    // sub-app derives the creator-openness map.
-    if app.multi_store.sources.get(idx).map(|s| s.descriptor.id) == Some("aa") {
+    // Fill empty trait fields from models.dev before the sub-app derives the
+    // creator-openness map. AA uses the Jaro-Winkler matcher (its slugs need
+    // fuzzy matching); the clean-id sources (epoch / arena / llmstats) use the
+    // generic exact/normalized enrichment, which also backfills creator and
+    // release_date where the source omits them.
+    let source_id = app.multi_store.sources.get(idx).map(|s| s.descriptor.id);
+    if source_id == Some("aa") {
         if let Some(file) = app.multi_store.file_mut(idx) {
             crate::benchmarks::apply_model_traits(&app.providers, &mut file.models);
+        }
+    } else if source_id.is_some() {
+        if let Some(file) = app.multi_store.file_mut(idx) {
+            crate::benchmarks::enrich_from_models_dev(&app.providers, &mut file.models);
         }
     }
     if idx == app.benchmarks_app.active_source {
@@ -201,6 +209,10 @@ pub enum Message {
     ScrollH2HTop,
     ScrollH2HPageDown,
     ScrollH2HPageUp,
+    // Benchmark glossary popup (`i`)
+    ToggleGlossary,
+    ScrollGlossaryUp,
+    ScrollGlossaryDown,
     // Status tab messages
     OpenStatusPicker,
     NextStatusProvider,
@@ -981,6 +993,15 @@ impl App {
             }
             Message::CloseSortPicker => {
                 self.benchmarks_app.show_sort_picker = false;
+            }
+            Message::ToggleGlossary => {
+                self.benchmarks_app.toggle_glossary();
+            }
+            Message::ScrollGlossaryUp => {
+                self.benchmarks_app.scroll_glossary_up();
+            }
+            Message::ScrollGlossaryDown => {
+                self.benchmarks_app.scroll_glossary_down();
             }
             Message::QuickSortIntelligence => {
                 // `1` = first metric of the source.

@@ -3,7 +3,7 @@
     "id": "arena",
     "name": "Arena",
     "url": "https://arena.ai",
-    "fetched_at": "2026-06-10T22:33:27.206793291+00:00",
+    "fetched_at": "2026-06-11T00:59:59.047022144+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,42 +12,48 @@
       "label": "Text",
       "kind": "elo",
       "group": "Arena Elo",
-      "last_updated": "2026-06-05"
+      "last_updated": "2026-06-05",
+      "description": "Arena's general text-chat board: humans pick the better of two blind side-by-side responses across conversation, writing, and instruction-following. Score is an Elo rating from those votes; higher is better."
     },
     {
       "id": "elo_vision",
       "label": "Vision",
       "kind": "elo",
       "group": "Arena Elo",
-      "last_updated": "2026-06-05"
+      "last_updated": "2026-06-05",
+      "description": "Human-preference ranking for image and visual understanding: voters compare two models answering image-based queries. Score is an Elo rating from those votes; higher is better."
     },
     {
       "id": "elo_code",
       "label": "Code",
       "kind": "elo",
       "group": "Arena Elo",
-      "last_updated": "2026-06-10"
+      "last_updated": "2026-06-10",
+      "description": "Human-preference ranking for code generation and web development: voters compare two models' programming outputs side by side. Score is an Elo rating from those votes; higher is better."
     },
     {
       "id": "elo_agent",
       "label": "Agent",
       "kind": "elo",
       "group": "Arena Elo",
-      "last_updated": "2026-06-09"
+      "last_updated": "2026-06-09",
+      "description": "Human-preference ranking for agentic, autonomous task completion. Score is an Elo rating from blind side-by-side votes; higher is better."
     },
     {
       "id": "elo_search",
       "label": "Search",
       "kind": "elo",
       "group": "Arena Elo",
-      "last_updated": "2026-06-10"
+      "last_updated": "2026-06-10",
+      "description": "Human-preference ranking for search-augmented answers that combine retrieval with language understanding. Score is an Elo rating from blind side-by-side votes; higher is better."
     },
     {
       "id": "elo_document",
       "label": "Document",
       "kind": "elo",
       "group": "Arena Elo",
-      "last_updated": "2026-06-10"
+      "last_updated": "2026-06-10",
+      "description": "Human-preference ranking for document and PDF understanding. Score is an Elo rating from blind side-by-side votes; higher is better."
     }
   ],
   "models": [

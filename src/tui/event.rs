@@ -93,6 +93,11 @@ fn handle_normal_mode(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
     if app.current_tab == super::app::Tab::Benchmarks && app.benchmarks_app.show_sort_picker {
         return handle_sort_picker_keys(code);
     }
+    // Glossary popup intercepts keys before the global handler so 'q' scrolls/
+    // closes rather than quitting the app.
+    if app.current_tab == super::app::Tab::Benchmarks && app.benchmarks_app.show_glossary {
+        return handle_glossary_keys(code);
+    }
 
     // Global keys (work on any tab)
     match code {
@@ -264,6 +269,17 @@ fn handle_sort_picker_keys(code: KeyCode) -> Option<Message> {
     }
 }
 
+/// Glossary popup keys: `i`/`Esc` close, arrows/`j`/`k` scroll. All other keys
+/// are swallowed so the popup is modal (e.g. `q` does not quit).
+fn handle_glossary_keys(code: KeyCode) -> Option<Message> {
+    match code {
+        KeyCode::Char('i') | KeyCode::Esc => Some(Message::ToggleGlossary),
+        KeyCode::Char('j') | KeyCode::Down => Some(Message::ScrollGlossaryDown),
+        KeyCode::Char('k') | KeyCode::Up => Some(Message::ScrollGlossaryUp),
+        _ => None,
+    }
+}
+
 fn resolve_benchmarks_nav(app: &App, action: NavAction) -> Option<Message> {
     use super::benchmarks::BenchmarkFocus;
     let focus = app.benchmarks_app.focus;
@@ -350,6 +366,7 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
         KeyCode::Char('}') => Some(Message::CycleDataSourceNext),
         KeyCode::Char('s') => Some(Message::OpenSortPicker),
         KeyCode::Char('S') => Some(Message::ToggleBenchmarkSortDir),
+        KeyCode::Char('i') => Some(Message::ToggleGlossary),
         KeyCode::Char('c') if !app.selections.is_empty() => Some(Message::ClearBenchmarkSelections),
         KeyCode::Char('o') => Some(Message::OpenBenchmarkUrl),
         KeyCode::Char(' ') => Some(Message::ToggleBenchmarkSelection),

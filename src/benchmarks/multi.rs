@@ -418,7 +418,13 @@ mod tests {
         assert_eq!(file.source.id, "aa");
         assert!(file.source.verified);
         assert_eq!(file.metrics.len(), 21);
-        assert_eq!(file.models.len(), 536);
+        // Sanity range, not an exact pin: the AA model roster drifts on every
+        // refresh, so assert a plausible band instead of a brittle count.
+        assert!(
+            (450..=650).contains(&file.models.len()),
+            "aa model count {} outside expected band",
+            file.models.len()
+        );
 
         // First-appearance group order on real data.
         assert_eq!(

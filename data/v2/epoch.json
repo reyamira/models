@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-10T22:33:27.415783592+00:00",
+    "fetched_at": "2026-06-11T01:26:23.239934354+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,119 +12,136 @@
       "label": "ARC-AGI",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-28",
+      "description": "Abstract visual grid puzzles where the model must infer a transformation rule from a few input-output demonstrations and apply it to a novel case. Scored as accuracy (% of tasks solved); higher is better."
     },
     {
       "id": "arc_agi_2",
       "label": "ARC-AGI-2",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-28",
+      "description": "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing compositional and symbolic reasoning, two attempts per task (pass@2). Scored as accuracy (% of tasks solved); higher is better."
     },
     {
       "id": "epoch_capabilities_index",
       "label": "Epoch Capabilities Index",
       "kind": "index",
       "group": "Frontier",
-      "last_updated": "2026-05-19"
+      "last_updated": "2026-05-19",
+      "description": "Epoch's composite that stitches 40+ benchmarks into one general-capability scale using Item Response Theory, so models stay comparable as individual benchmarks saturate. Open-ended linear scale with no maximum (recent frontier models score ~130-160); higher is better."
     },
     {
       "id": "frontiermath",
       "label": "FrontierMath",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-05-27"
+      "last_updated": "2026-05-27",
+      "description": "Hundreds of original, expert-crafted research-level math problems spanning number theory, analysis, algebraic geometry, and more — each taking specialists hours to days. Scored as accuracy (% of problems solved); higher is better."
     },
     {
       "id": "frontiermath_tier_4",
       "label": "FrontierMath Tier 4",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-28",
+      "description": "The 50 hardest, research-level problems of FrontierMath — its most difficult expansion tier. Scored as accuracy (% of problems solved); higher is better."
     },
     {
       "id": "hle",
       "label": "Humanity's Last Exam",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-04-16"
+      "last_updated": "2026-04-16",
+      "description": "Expert-authored questions across 100+ academic subjects, requiring graduate-level knowledge that cannot be quickly looked up online. Scored as accuracy (% correct); higher is better."
     },
     {
       "id": "apex_agents",
       "label": "APEX Agents",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-28",
+      "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better."
     },
     {
       "id": "gso",
       "label": "GSO",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-04-27"
+      "last_updated": "2026-04-27",
+      "description": "Software performance engineering: the model rewrites real GitHub code to speed it up. Scored OPT@K (% of trials reaching at least 95% of the human speed-up); higher is better."
     },
     {
       "id": "posttrainbench",
       "label": "PostTrainBench",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-04-16"
+      "last_updated": "2026-04-16",
+      "description": "AI R&D automation: a CLI agent must post-train a small base LLM on a single GPU within a time budget to raise its downstream scores. Scored as the average improvement across base models and evaluations; higher is better."
     },
     {
       "id": "swe_bench_verified",
       "label": "SWE-bench Verified",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-06-01"
+      "last_updated": "2026-06-01",
+      "description": "Real-world software engineering: the model is given a repository and a GitHub issue from popular Python projects and must edit the codebase to fix it, graded by unit tests. Scored as % of issues resolved; higher is better."
     },
     {
       "id": "terminalbench",
       "label": "Terminal-Bench",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-05-15"
+      "last_updated": "2026-05-15",
+      "description": "Agentic command-line tasks the model completes autonomously inside a sandboxed Docker terminal, checked by a test script. Scored as % of tasks solved; higher is better."
     },
     {
       "id": "weirdml",
       "label": "WeirdML",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-06-04"
+      "last_updated": "2026-06-04",
+      "description": "Unconventional machine-learning engineering tasks where the agent must write and run code to train a model on provided data, with several iterations allowed. Scored as accuracy on the held-out task; higher is better."
     },
     {
       "id": "chess_puzzles",
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-28",
+      "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better."
     },
     {
       "id": "gpqa_diamond",
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-05-22"
+      "last_updated": "2026-05-22",
+      "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better."
     },
     {
       "id": "otis_mock_aime_2024_2025",
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-05-25"
+      "last_updated": "2026-05-25",
+      "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better."
     },
     {
       "id": "simplebench",
       "label": "SimpleBench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-05-28",
+      "description": "Common-sense reasoning 'trick' questions about space, time, and social cues that are easy for people (84% human baseline) but hard for models. Scored as accuracy (% correct); higher is better."
     },
     {
       "id": "simpleqa_verified",
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-05-27"
+      "last_updated": "2026-05-27",
+      "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better."
     }
   ],
   "models": [
@@ -132,8 +149,8 @@
       "id": "nemotron-3-ultra",
       "name": "nemotron-3-ultra",
       "display_name": "nemotron-3-ultra",
-      "creator": "",
-      "creator_name": "",
+      "creator": "nvidia",
+      "creator_name": "NVIDIA",
       "release_date": "2026-06-04",
       "scores": {
         "weirdml": {
@@ -146,8 +163,8 @@
       "id": "claude-opus-4-8",
       "name": "claude-opus-4-8",
       "display_name": "claude-opus-4-8",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2026-05-28",
       "scores": {
         "apex_agents": {
@@ -176,8 +193,8 @@
       "id": "gemini-3.5-flash",
       "name": "gemini-3.5-flash",
       "display_name": "gemini-3.5-flash",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google",
+      "creator_name": "Google",
       "release_date": "2026-05-19",
       "scores": {
         "apex_agents": {
@@ -234,8 +251,8 @@
       "id": "gdm-ai-co-mathematician",
       "name": "gdm-ai-co-mathematician",
       "display_name": "gdm-ai-co-mathematician",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2026-05-08",
       "scores": {
         "frontiermath_tier_4": {
@@ -286,8 +303,8 @@
       "id": "deepseek-v4-flash",
       "name": "deepseek-v4-flash",
       "display_name": "deepseek-v4-flash",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2026-04-24",
       "scores": {
         "weirdml": {
@@ -300,8 +317,8 @@
       "id": "deepseek-v4-pro",
       "name": "deepseek-v4-pro",
       "display_name": "deepseek-v4-pro",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2026-04-24",
       "scores": {
         "simplebench": {
@@ -318,8 +335,8 @@
       "id": "gpt-5.5",
       "name": "gpt-5.5",
       "display_name": "gpt-5.5",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2026-04-23",
       "scores": {
         "apex_agents": {
@@ -364,8 +381,8 @@
       "id": "gpt-5.5-pre-release",
       "name": "gpt-5.5-pre-release_xhigh",
       "display_name": "gpt-5.5-pre-release",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2026-04-23",
       "effort_level": "max",
       "scores": {
@@ -407,8 +424,8 @@
       "id": "gpt-5.5-pro",
       "name": "gpt-5.5-pro",
       "display_name": "gpt-5.5-pro",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2026-04-23",
       "scores": {
         "arc_agi": {
@@ -433,8 +450,8 @@
       "id": "gpt-5.5-pro-pre-release",
       "name": "gpt-5.5-pro-pre-release",
       "display_name": "gpt-5.5-pro-pre-release",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2026-04-23",
       "scores": {
         "chess_puzzles": {
@@ -471,8 +488,8 @@
       "id": "kimi-k2.6",
       "name": "kimi-k2.6",
       "display_name": "kimi-k2.6",
-      "creator": "",
-      "creator_name": "",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
       "release_date": "2026-04-20",
       "scores": {
         "chess_puzzles": {
@@ -517,8 +534,8 @@
       "id": "qwen3.6-max-preview",
       "name": "qwen3.6-max-preview",
       "display_name": "qwen3.6-max-preview",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2026-04-20",
       "scores": {
         "chess_puzzles": {
@@ -559,8 +576,8 @@
       "id": "grok-4-3",
       "name": "grok-4-3",
       "display_name": "grok-4-3",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2026-04-17",
       "scores": {
         "weirdml": {
@@ -573,8 +590,8 @@
       "id": "claude-opus-4-7",
       "name": "claude-opus-4-7",
       "display_name": "claude-opus-4-7",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2026-04-16",
       "scores": {
         "apex_agents": {
@@ -651,8 +668,8 @@
       "id": "qwen3.6-35b-a3b",
       "name": "qwen3.6-35b-a3b",
       "display_name": "qwen3.6-35b-a3b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2026-04-14",
       "scores": {
         "terminalbench": {
@@ -669,8 +686,8 @@
       "id": "muse-spark",
       "name": "muse-spark",
       "display_name": "muse-spark",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2026-04-08",
       "scores": {
         "epoch_capabilities_index": {
@@ -707,8 +724,8 @@
       "id": "glm-5.1",
       "name": "glm-5.1",
       "display_name": "glm-5.1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "z-ai-zhipu-ai",
+      "creator_name": "Z.ai (Zhipu AI)",
       "release_date": "2026-04-07",
       "scores": {
         "chess_puzzles": {
@@ -757,8 +774,8 @@
       "id": "gemma-4-31b-it",
       "name": "gemma-4-31b-it",
       "display_name": "gemma-4-31b-it",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2026-04-02",
       "scores": {
         "simpleqa_verified": {
@@ -775,8 +792,8 @@
       "id": "qwen3.6-plus",
       "name": "qwen3.6-plus",
       "display_name": "qwen3.6-plus",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2026-03-31",
       "scores": {
         "chess_puzzles": {
@@ -817,8 +834,8 @@
       "id": "MiniMax-M2.7",
       "name": "MiniMax-M2.7",
       "display_name": "MiniMax-M2.7",
-      "creator": "",
-      "creator_name": "",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
       "release_date": "2026-03-18",
       "scores": {
         "terminalbench": {
@@ -835,8 +852,8 @@
       "id": "gpt-5.4-mini-2026-03-17",
       "name": "gpt-5.4-mini-2026-03-17",
       "display_name": "gpt-5.4-mini-2026-03-17",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2026-03-17",
       "scores": {
         "apex_agents": {
@@ -889,8 +906,8 @@
       "id": "gpt-5.4-nano-2026-03-17",
       "name": "gpt-5.4-nano-2026-03-17",
       "display_name": "gpt-5.4-nano-2026-03-17",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2026-03-17",
       "scores": {
         "apex_agents": {
@@ -943,8 +960,8 @@
       "id": "gpt-5.4-2026-03-05",
       "name": "gpt-5.4-2026-03-05",
       "display_name": "gpt-5.4-2026-03-05",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2026-03-05",
       "scores": {
         "apex_agents": {
@@ -1017,8 +1034,8 @@
       "id": "gpt-5.4-pro-2026-03-05",
       "name": "gpt-5.4-pro-2026-03-05",
       "display_name": "gpt-5.4-pro-2026-03-05",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2026-03-05",
       "scores": {
         "arc_agi": {
@@ -1067,8 +1084,8 @@
       "id": "gpt-5.4-pro-2026-03-05-web-app",
       "name": "gpt-5.4-pro-2026-03-05-web-app",
       "display_name": "gpt-5.4-pro-2026-03-05-web-app",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2026-03-05",
       "scores": {
         "epoch_capabilities_index": {
@@ -1085,8 +1102,8 @@
       "id": "gemini-3.1-flash-lite",
       "name": "gemini-3.1-flash-lite",
       "display_name": "gemini-3.1-flash-lite",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google",
+      "creator_name": "Google",
       "release_date": "2026-03-03",
       "scores": {
         "apex_agents": {
@@ -1107,8 +1124,8 @@
       "id": "qwen3.5-flash",
       "name": "qwen3.5-flash",
       "display_name": "qwen3.5-flash",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2026-02-25",
       "scores": {
         "chess_puzzles": {
@@ -1145,8 +1162,8 @@
       "id": "gemini-3.1-pro-preview",
       "name": "gemini-3.1-pro-preview",
       "display_name": "gemini-3.1-pro-preview",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2026-02-19",
       "scores": {
         "apex_agents": {
@@ -1219,8 +1236,8 @@
       "id": "gemini-3.1-pro-preview-customtools",
       "name": "gemini-3.1-pro-preview-customtools",
       "display_name": "gemini-3.1-pro-preview-customtools",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2026-02-19",
       "scores": {
         "epoch_capabilities_index": {
@@ -1237,8 +1254,8 @@
       "id": "claude-sonnet-4-6",
       "name": "claude-sonnet-4-6",
       "display_name": "claude-sonnet-4-6",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2026-02-17",
       "scores": {
         "apex_agents": {
@@ -1303,8 +1320,8 @@
       "id": "grok-4-20",
       "name": "grok-4-20",
       "display_name": "grok-4-20",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2026-02-17",
       "scores": {
         "arc_agi": {
@@ -1333,8 +1350,8 @@
       "id": "qwen3.5-plus",
       "name": "qwen3.5-plus",
       "display_name": "qwen3.5-plus",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2026-02-16",
       "scores": {
         "chess_puzzles": {
@@ -1371,8 +1388,8 @@
       "id": "MiniMax-M2.5",
       "name": "MiniMax-M2.5",
       "display_name": "MiniMax-M2.5",
-      "creator": "",
-      "creator_name": "",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
       "release_date": "2026-02-12",
       "scores": {
         "apex_agents": {
@@ -1423,8 +1440,8 @@
       "id": "glm-5",
       "name": "glm-5",
       "display_name": "glm-5",
-      "creator": "",
-      "creator_name": "",
+      "creator": "z-ai-zhipu-ai",
+      "creator_name": "Z.ai (Zhipu AI)",
       "release_date": "2026-02-11",
       "scores": {
         "apex_agents": {
@@ -1489,8 +1506,8 @@
       "id": "claude-opus-4-6",
       "name": "claude-opus-4-6",
       "display_name": "claude-opus-4-6",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2026-02-05",
       "scores": {
         "apex_agents": {
@@ -1567,8 +1584,8 @@
       "id": "gpt-5.3-codex",
       "name": "gpt-5.3-codex",
       "display_name": "gpt-5.3-codex",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2026-02-05",
       "scores": {
         "apex_agents": {
@@ -1615,8 +1632,8 @@
       "id": "fireworks/kimi-k2p5",
       "name": "fireworks/kimi-k2p5",
       "display_name": "fireworks/kimi-k2p5",
-      "creator": "",
-      "creator_name": "",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
       "release_date": "2026-01-27",
       "scores": {
         "chess_puzzles": {
@@ -1653,8 +1670,8 @@
       "id": "kimi-k2.5",
       "name": "kimi-k2.5",
       "display_name": "kimi-k2.5",
-      "creator": "",
-      "creator_name": "",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
       "release_date": "2026-01-27",
       "scores": {
         "apex_agents": {
@@ -1703,8 +1720,8 @@
       "id": "MiniMax-M2.1",
       "name": "MiniMax-M2.1",
       "display_name": "MiniMax-M2.1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
       "release_date": "2025-12-23",
       "scores": {
         "posttrainbench": {
@@ -1721,8 +1738,8 @@
       "id": "glm-4.7",
       "name": "glm-4.7",
       "display_name": "glm-4.7",
-      "creator": "",
-      "creator_name": "",
+      "creator": "z-ai-zhipu-ai",
+      "creator_name": "Z.ai (Zhipu AI)",
       "release_date": "2025-12-22",
       "scores": {
         "chess_puzzles": {
@@ -1763,8 +1780,8 @@
       "id": "zai-org/GLM-4.7",
       "name": "zai-org/GLM-4.7",
       "display_name": "zai-org/GLM-4.7",
-      "creator": "",
-      "creator_name": "",
+      "creator": "z-ai-zhipu-ai",
+      "creator_name": "Z.ai (Zhipu AI)",
       "release_date": "2025-12-22",
       "scores": {
         "epoch_capabilities_index": {
@@ -1785,8 +1802,8 @@
       "id": "zai-org/glm-4.7",
       "name": "zai-org/glm-4.7",
       "display_name": "zai-org/glm-4.7",
-      "creator": "",
-      "creator_name": "",
+      "creator": "z-ai-zhipu-ai",
+      "creator_name": "Z.ai (Zhipu AI)",
       "release_date": "2025-12-22",
       "scores": {
         "apex_agents": {
@@ -1807,8 +1824,8 @@
       "id": "gpt-5.2-codex",
       "name": "gpt-5.2-codex",
       "display_name": "gpt-5.2-codex",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-12-18",
       "scores": {
         "apex_agents": {
@@ -1829,8 +1846,8 @@
       "id": "gemini-3-flash-preview",
       "name": "gemini-3-flash-preview",
       "display_name": "gemini-3-flash-preview",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-12-17",
       "scores": {
         "apex_agents": {
@@ -1899,8 +1916,8 @@
       "id": "gpt-5.2-2025-12-11",
       "name": "gpt-5.2-2025-12-11",
       "display_name": "gpt-5.2-2025-12-11",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-12-11",
       "scores": {
         "apex_agents": {
@@ -1977,8 +1994,8 @@
       "id": "gpt-5.2-pro-2025-12-11",
       "name": "gpt-5.2-pro-2025-12-11",
       "display_name": "gpt-5.2-pro-2025-12-11",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-12-11",
       "scores": {
         "arc_agi": {
@@ -2003,8 +2020,8 @@
       "id": "gpt-5.2-pro-2025-12-11-webapp",
       "name": "gpt-5.2-pro-2025-12-11-webapp",
       "display_name": "gpt-5.2-pro-2025-12-11-webapp",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-12-11",
       "scores": {
         "epoch_capabilities_index": {
@@ -2021,8 +2038,8 @@
       "id": "DeepSeek-V3.2-Speciale",
       "name": "DeepSeek-V3.2-Speciale",
       "display_name": "DeepSeek-V3.2-Speciale",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-12-01",
       "scores": {
         "simplebench": {
@@ -2039,8 +2056,8 @@
       "id": "deepseek-chat",
       "name": "deepseek-chat",
       "display_name": "deepseek-chat",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-12-01",
       "scores": {
         "epoch_capabilities_index": {
@@ -2053,8 +2070,8 @@
       "id": "deepseek-reasoner",
       "name": "deepseek-reasoner",
       "display_name": "deepseek-reasoner",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-12-01",
       "scores": {
         "chess_puzzles": {
@@ -2083,8 +2100,8 @@
       "id": "deepseek/deepseek-v3.2",
       "name": "deepseek/deepseek-v3.2",
       "display_name": "deepseek/deepseek-v3.2",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-12-01",
       "scores": {
         "apex_agents": {
@@ -2113,8 +2130,8 @@
       "id": "fireworks/deepseek-v3p2",
       "name": "fireworks/deepseek-v3p2",
       "display_name": "fireworks/deepseek-v3p2",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-12-01",
       "scores": {
         "epoch_capabilities_index": {
@@ -2135,8 +2152,8 @@
       "id": "claude-opus-4-5-20251101",
       "name": "claude-opus-4-5-20251101",
       "display_name": "claude-opus-4-5-20251101",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2025-11-24",
       "scores": {
         "apex_agents": {
@@ -2213,8 +2230,8 @@
       "id": "gpt-5.1-codex-max",
       "name": "gpt-5.1-codex-max",
       "display_name": "gpt-5.1-codex-max",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-11-19",
       "scores": {
         "posttrainbench": {
@@ -2231,8 +2248,8 @@
       "id": "grok-4-1-fast-non-reasoning",
       "name": "grok-4-1-fast-non-reasoning",
       "display_name": "grok-4-1-fast-non-reasoning",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2025-11-19",
       "scores": {
         "simplebench": {
@@ -2245,8 +2262,8 @@
       "id": "grok-4-1-fast-reasoning",
       "name": "grok-4-1-fast-reasoning",
       "display_name": "grok-4-1-fast-reasoning",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2025-11-19",
       "scores": {
         "apex_agents": {
@@ -2263,8 +2280,8 @@
       "id": "gemini-3-pro-preview",
       "name": "gemini-3-pro-preview",
       "display_name": "gemini-3-pro-preview",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-11-18",
       "scores": {
         "apex_agents": {
@@ -2341,8 +2358,8 @@
       "id": "gpt-5.1-2025-11-13",
       "name": "gpt-5.1-2025-11-13",
       "display_name": "gpt-5.1-2025-11-13",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-11-13",
       "scores": {
         "apex_agents": {
@@ -2415,8 +2432,8 @@
       "id": "gpt-5.1-codex",
       "name": "gpt-5.1-codex",
       "display_name": "gpt-5.1-codex",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-11-12",
       "scores": {
         "apex_agents": {
@@ -2433,8 +2450,8 @@
       "id": "gpt-5.1-codex-mini",
       "name": "gpt-5.1-codex-mini",
       "display_name": "gpt-5.1-codex-mini",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-11-12",
       "scores": {
         "terminalbench": {
@@ -2447,8 +2464,8 @@
       "id": "kimi-k2-thinking",
       "name": "kimi-k2-thinking",
       "display_name": "kimi-k2-thinking",
-      "creator": "",
-      "creator_name": "",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
       "release_date": "2025-11-06",
       "scores": {
         "apex_agents": {
@@ -2477,8 +2494,8 @@
       "id": "kimi-k2-thinking-turbo",
       "name": "kimi-k2-thinking-turbo",
       "display_name": "kimi-k2-thinking-turbo",
-      "creator": "",
-      "creator_name": "",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
       "release_date": "2025-11-06",
       "scores": {
         "chess_puzzles": {
@@ -2507,8 +2524,8 @@
       "id": "moonshotai/Kimi-K2-Thinking",
       "name": "moonshotai/Kimi-K2-Thinking",
       "display_name": "moonshotai/Kimi-K2-Thinking",
-      "creator": "",
-      "creator_name": "",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
       "release_date": "2025-11-06",
       "scores": {
         "epoch_capabilities_index": {
@@ -2529,8 +2546,8 @@
       "id": "MiniMax-M2",
       "name": "MiniMax-M2",
       "display_name": "MiniMax-M2",
-      "creator": "",
-      "creator_name": "",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
       "release_date": "2025-10-27",
       "scores": {
         "terminalbench": {
@@ -2543,8 +2560,8 @@
       "id": "claude-haiku-4-5-20251001",
       "name": "claude-haiku-4-5-20251001",
       "display_name": "claude-haiku-4-5-20251001",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2025-10-15",
       "scores": {
         "apex_agents": {
@@ -2597,8 +2614,8 @@
       "id": "gpt-5-pro-2025-10-06",
       "name": "gpt-5-pro-2025-10-06",
       "display_name": "gpt-5-pro-2025-10-06",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-10-07",
       "scores": {
         "arc_agi": {
@@ -2653,8 +2670,8 @@
       "id": "glm-4.6",
       "name": "glm-4.6",
       "display_name": "glm-4.6",
-      "creator": "",
-      "creator_name": "",
+      "creator": "z-ai-zhipu-ai-tsinghua-university",
+      "creator_name": "Z.ai (Zhipu AI),Tsinghua University",
       "release_date": "2025-09-30",
       "scores": {
         "apex_agents": {
@@ -2675,8 +2692,8 @@
       "id": "zai-org/GLM-4.6",
       "name": "zai-org/GLM-4.6",
       "display_name": "zai-org/GLM-4.6",
-      "creator": "",
-      "creator_name": "",
+      "creator": "z-ai-zhipu-ai-tsinghua-university",
+      "creator_name": "Z.ai (Zhipu AI),Tsinghua University",
       "release_date": "2025-09-30",
       "scores": {
         "epoch_capabilities_index": {
@@ -2697,8 +2714,8 @@
       "id": "DeepSeek-V3.2-Exp",
       "name": "DeepSeek-V3.2-Exp",
       "display_name": "DeepSeek-V3.2-Exp",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-09-29",
       "reasoning_status": "Reasoning",
       "scores": {
@@ -2716,8 +2733,8 @@
       "id": "claude-sonnet-4-5-20250929",
       "name": "claude-sonnet-4-5-20250929",
       "display_name": "claude-sonnet-4-5-20250929",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2025-09-29",
       "scores": {
         "arc_agi": {
@@ -2790,8 +2807,8 @@
       "id": "gemini-2.5-flash-preview-09-2025",
       "name": "gemini-2.5-flash-preview-09-2025",
       "display_name": "gemini-2.5-flash-preview-09-2025",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-09-25",
       "scores": {
         "epoch_capabilities_index": {
@@ -2812,8 +2829,8 @@
       "id": "qwen3-max-2025-09-23",
       "name": "qwen3-max-2025-09-23",
       "display_name": "qwen3-max-2025-09-23",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-09-24",
       "scores": {
         "chess_puzzles": {
@@ -2846,8 +2863,8 @@
       "id": "grok-4-fast",
       "name": "grok-4-fast",
       "display_name": "grok-4-fast",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2025-09-19",
       "scores": {
         "arc_agi": {
@@ -2872,8 +2889,8 @@
       "id": "gpt-5-codex",
       "name": "gpt-5-codex",
       "display_name": "gpt-5-codex",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-09-15",
       "scores": {
         "apex_agents": {
@@ -2894,8 +2911,8 @@
       "id": "Kimi-K2-Instruct-0905",
       "name": "Kimi-K2-Instruct-0905",
       "display_name": "Kimi-K2-Instruct-0905",
-      "creator": "",
-      "creator_name": "",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
       "release_date": "2025-09-05",
       "scores": {
         "epoch_capabilities_index": {
@@ -2912,8 +2929,8 @@
       "id": "fireworks/Kimi-K2-Instruct-0905",
       "name": "fireworks/Kimi-K2-Instruct-0905",
       "display_name": "fireworks/Kimi-K2-Instruct-0905",
-      "creator": "",
-      "creator_name": "",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
       "release_date": "2025-09-05",
       "scores": {
         "epoch_capabilities_index": {
@@ -2926,8 +2943,8 @@
       "id": "moonshotai/kimi-k2-0905",
       "name": "moonshotai/kimi-k2-0905",
       "display_name": "moonshotai/kimi-k2-0905",
-      "creator": "",
-      "creator_name": "",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
       "release_date": "2025-09-05",
       "scores": {
         "epoch_capabilities_index": {
@@ -2940,8 +2957,8 @@
       "id": "parasail-qwen3-235b-a22b-instruct-2507",
       "name": "parasail-qwen3-235b-a22b-instruct-2507",
       "display_name": "parasail-qwen3-235b-a22b-instruct-2507",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-09-01",
       "scores": {
         "epoch_capabilities_index": {
@@ -2972,8 +2989,8 @@
       "id": "DeepSeek-V3.1",
       "name": "DeepSeek-V3.1",
       "display_name": "DeepSeek-V3.1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-08-21",
       "reasoning_status": "Reasoning",
       "scores": {
@@ -3009,8 +3026,8 @@
       "id": "gpt-5-2025-08-07",
       "name": "gpt-5-2025-08-07",
       "display_name": "gpt-5-2025-08-07",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-08-07",
       "scores": {
         "apex_agents": {
@@ -3083,8 +3100,8 @@
       "id": "gpt-5-mini-2025-08-07",
       "name": "gpt-5-mini-2025-08-07",
       "display_name": "gpt-5-mini-2025-08-07",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-08-07",
       "scores": {
         "arc_agi": {
@@ -3141,8 +3158,8 @@
       "id": "gpt-5-nano-2025-08-07",
       "name": "gpt-5-nano-2025-08-07",
       "display_name": "gpt-5-nano-2025-08-07",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-08-07",
       "scores": {
         "arc_agi": {
@@ -3191,8 +3208,8 @@
       "id": "chutes/gpt-oss-120b",
       "name": "chutes/gpt-oss-120b",
       "display_name": "chutes/gpt-oss-120b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-08-05",
       "scores": {
         "epoch_capabilities_index": {
@@ -3205,8 +3222,8 @@
       "id": "claude-opus-4-1-20250805",
       "name": "claude-opus-4-1-20250805",
       "display_name": "claude-opus-4-1-20250805",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2025-08-05",
       "scores": {
         "epoch_capabilities_index": {
@@ -3259,8 +3276,8 @@
       "id": "gpt-oss-120b",
       "name": "gpt-oss-120b",
       "display_name": "gpt-oss-120b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-08-05",
       "scores": {
         "apex_agents": {
@@ -3289,8 +3306,8 @@
       "id": "gpt-oss-20b",
       "name": "gpt-oss-20b",
       "display_name": "gpt-oss-20b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-08-05",
       "scores": {
         "terminalbench": {
@@ -3307,8 +3324,8 @@
       "id": "openai/gpt-oss-120b",
       "name": "openai/gpt-oss-120b_high",
       "display_name": "openai/gpt-oss-120b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-08-05",
       "effort_level": "high",
       "scores": {
@@ -3342,8 +3359,8 @@
       "id": "glm-4.5",
       "name": "glm-4.5",
       "display_name": "glm-4.5",
-      "creator": "",
-      "creator_name": "",
+      "creator": "z-ai-zhipu-ai-tsinghua-university",
+      "creator_name": "Z.ai (Zhipu AI),Tsinghua University",
       "release_date": "2025-08-03",
       "reasoning_status": "Reasoning",
       "scores": {
@@ -3361,8 +3378,8 @@
       "id": "gemini-2.5-deep-think-2025-08-01-webapp",
       "name": "gemini-2.5-deep-think-2025-08-01-webapp",
       "display_name": "gemini-2.5-deep-think-2025-08-01-webapp",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-google-deepmind",
+      "creator_name": "Google,Google DeepMind",
       "release_date": "2025-08-01",
       "scores": {
         "frontiermath": {
@@ -3379,8 +3396,8 @@
       "id": "Qwen3-Coder-480B-A35B-Instruct",
       "name": "Qwen3-Coder-480B-A35B-Instruct",
       "display_name": "Qwen3-Coder-480B-A35B-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-07-31",
       "scores": {
         "gso": {
@@ -3401,8 +3418,8 @@
       "id": "Qwen/Qwen3-235B-A22B-Thinking-2507",
       "name": "Qwen/Qwen3-235B-A22B-Thinking-2507",
       "display_name": "Qwen/Qwen3-235B-A22B-Thinking-2507",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-07-25",
       "scores": {
         "epoch_capabilities_index": {
@@ -3423,8 +3440,8 @@
       "id": "Qwen3-235B-A22B-Instruct-2507",
       "name": "Qwen3-235B-A22B-Instruct-2507",
       "display_name": "Qwen3-235B-A22B-Instruct-2507",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-07-25",
       "scores": {
         "arc_agi": {
@@ -3449,8 +3466,8 @@
       "id": "Qwen3-235B-A22B-Thinking-2507",
       "name": "Qwen3-235B-A22B-Thinking-2507",
       "display_name": "Qwen3-235B-A22B-Thinking-2507",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-07-25",
       "scores": {
         "chess_puzzles": {
@@ -3483,8 +3500,8 @@
       "id": "chutes/Qwen3-235B-A22B-Thinking-2507",
       "name": "chutes/Qwen3-235B-A22B-Thinking-2507",
       "display_name": "chutes/Qwen3-235B-A22B-Thinking-2507",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-07-25",
       "scores": {
         "epoch_capabilities_index": {
@@ -3497,8 +3514,8 @@
       "id": "qwen/qwen3-235b-a22b-thinking-2507",
       "name": "qwen/qwen3-235b-a22b-thinking-2507",
       "display_name": "qwen/qwen3-235b-a22b-thinking-2507",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-07-25",
       "scores": {
         "epoch_capabilities_index": {
@@ -3515,8 +3532,8 @@
       "id": "GLM-4.5-Air",
       "name": "GLM-4.5-Air",
       "display_name": "GLM-4.5-Air",
-      "creator": "",
-      "creator_name": "",
+      "creator": "z-ai-zhipu-ai-tsinghua-university",
+      "creator_name": "Z.ai (Zhipu AI),Tsinghua University",
       "release_date": "2025-07-20",
       "scores": {
         "gso": {
@@ -3533,8 +3550,8 @@
       "id": "Kimi-K2-Instruct",
       "name": "Kimi-K2-Instruct",
       "display_name": "Kimi-K2-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
       "release_date": "2025-07-12",
       "scores": {
         "epoch_capabilities_index": {
@@ -3563,8 +3580,8 @@
       "id": "kimi-k2-0711-preview",
       "name": "kimi-k2-0711-preview",
       "display_name": "kimi-k2-0711-preview",
-      "creator": "",
-      "creator_name": "",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
       "release_date": "2025-07-12",
       "scores": {
         "epoch_capabilities_index": {
@@ -3581,8 +3598,8 @@
       "id": "grok-4-heavy-web-app",
       "name": "grok-4-heavy-web-app",
       "display_name": "grok-4-heavy-web-app",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2025-07-10",
       "scores": {
         "frontiermath_tier_4": {
@@ -3595,8 +3612,8 @@
       "id": "grok-4-0709",
       "name": "grok-4-0709",
       "display_name": "grok-4-0709",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2025-07-09",
       "scores": {
         "apex_agents": {
@@ -3657,8 +3674,8 @@
       "id": "grok-3-mini",
       "name": "grok-3-mini",
       "display_name": "grok-3-mini",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2025-06-24",
       "scores": {
         "arc_agi": {
@@ -3683,8 +3700,8 @@
       "id": "gemini-2.5-flash",
       "name": "gemini-2.5-flash",
       "display_name": "gemini-2.5-flash",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-06-17",
       "scores": {
         "apex_agents": {
@@ -3717,8 +3734,8 @@
       "id": "gemini-2.5-flash-lite-preview-06-17",
       "name": "gemini-2.5-flash-lite-preview-06-17_16K",
       "display_name": "gemini-2.5-flash-lite-preview-06-17",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-06-17",
       "variant_tag": "16K",
       "scores": {
@@ -3732,8 +3749,8 @@
       "id": "gemini-2.5-flash-lite-preview-06-17-thinking",
       "name": "gemini-2.5-flash-lite-preview-06-17-thinking",
       "display_name": "gemini-2.5-flash-lite-preview-06-17-thinking",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-06-17",
       "scores": {
         "weirdml": {
@@ -3746,8 +3763,8 @@
       "id": "gemini-2.5-pro",
       "name": "gemini-2.5-pro",
       "display_name": "gemini-2.5-pro",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-06-17",
       "scores": {
         "apex_agents": {
@@ -3812,8 +3829,8 @@
       "id": "magistral-medium-2506",
       "name": "magistral-medium-2506",
       "display_name": "magistral-medium-2506",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2025-06-10",
       "scores": {
         "arc_agi": {
@@ -3830,8 +3847,8 @@
       "id": "magistral-small-2506",
       "name": "magistral-small-2506",
       "display_name": "magistral-small-2506",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2025-06-10",
       "scores": {
         "arc_agi": {
@@ -3860,8 +3877,8 @@
       "id": "o3-pro-2025-06-10",
       "name": "o3-pro-2025-06-10",
       "display_name": "o3-pro-2025-06-10",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-06-10",
       "scores": {
         "arc_agi": {
@@ -3886,8 +3903,8 @@
       "id": "gemini-2.5-pro-preview-06-05",
       "name": "gemini-2.5-pro-preview-06-05",
       "display_name": "gemini-2.5-pro-preview-06-05",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-06-05",
       "scores": {
         "arc_agi": {
@@ -3932,8 +3949,8 @@
       "id": "DeepSeek-R1-0528",
       "name": "DeepSeek-R1-0528",
       "display_name": "DeepSeek-R1-0528",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-05-28",
       "scores": {
         "arc_agi": {
@@ -3974,8 +3991,8 @@
       "id": "chutes/DeepSeek-R1-0528",
       "name": "chutes/DeepSeek-R1-0528",
       "display_name": "chutes/DeepSeek-R1-0528",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-05-28",
       "scores": {
         "epoch_capabilities_index": {
@@ -3988,8 +4005,8 @@
       "id": "claude-opus-4-20250514",
       "name": "claude-opus-4-20250514",
       "display_name": "claude-opus-4-20250514",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2025-05-22",
       "scores": {
         "arc_agi": {
@@ -4046,8 +4063,8 @@
       "id": "claude-sonnet-4-20250514",
       "name": "claude-sonnet-4-20250514",
       "display_name": "claude-sonnet-4-20250514",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2025-05-22",
       "scores": {
         "apex_agents": {
@@ -4104,8 +4121,8 @@
       "id": "gemini-2.5-flash-preview-05-20",
       "name": "gemini-2.5-flash-preview-05-20",
       "display_name": "gemini-2.5-flash-preview-05-20",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-05-20",
       "scores": {
         "arc_agi": {
@@ -4156,8 +4173,8 @@
       "id": "mistral-medium-2505",
       "name": "mistral-medium-2505",
       "display_name": "mistral-medium-2505",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2025-05-07",
       "scores": {
         "epoch_capabilities_index": {
@@ -4186,8 +4203,8 @@
       "id": "gemini-2.5-pro-preview-05-06",
       "name": "gemini-2.5-pro-preview-05-06",
       "display_name": "gemini-2.5-pro-preview-05-06",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-05-06",
       "scores": {
         "epoch_capabilities_index": {
@@ -4208,8 +4225,8 @@
       "id": "Qwen3-235B-A22B",
       "name": "Qwen3-235B-A22B",
       "display_name": "Qwen3-235B-A22B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-04-29",
       "scores": {
         "epoch_capabilities_index": {
@@ -4226,8 +4243,8 @@
       "id": "Qwen3-30B-A3B",
       "name": "Qwen3-30B-A3B",
       "display_name": "Qwen3-30B-A3B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-04-29",
       "scores": {
         "weirdml": {
@@ -4240,8 +4257,8 @@
       "id": "qwen3-235b-a22b",
       "name": "qwen3-235b-a22b",
       "display_name": "qwen3-235b-a22b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-04-29",
       "scores": {
         "epoch_capabilities_index": {
@@ -4262,8 +4279,8 @@
       "id": "chutes/Qwen3-235B-A22B",
       "name": "chutes/Qwen3-235B-A22B",
       "display_name": "chutes/Qwen3-235B-A22B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-04-28",
       "scores": {
         "epoch_capabilities_index": {
@@ -4276,8 +4293,8 @@
       "id": "qwen-plus-2025-04-28",
       "name": "qwen-plus-2025-04-28",
       "display_name": "qwen-plus-2025-04-28",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-04-28",
       "scores": {
         "frontiermath": {
@@ -4290,8 +4307,8 @@
       "id": "gemini-2.5-flash-preview-04-17",
       "name": "gemini-2.5-flash-preview-04-17",
       "display_name": "gemini-2.5-flash-preview-04-17",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-04-17",
       "scores": {
         "epoch_capabilities_index": {
@@ -4312,8 +4329,8 @@
       "id": "gemini-2.5-flash-preview-04-17 (16K thinking)",
       "name": "gemini-2.5-flash-preview-04-17 (16K thinking)",
       "display_name": "gemini-2.5-flash-preview-04-17 (16K thinking)",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-04-17",
       "scores": {
         "epoch_capabilities_index": {
@@ -4330,8 +4347,8 @@
       "id": "gemini-2.5-flash-preview-04-17 (24K thinking)",
       "name": "gemini-2.5-flash-preview-04-17 (24K thinking)",
       "display_name": "gemini-2.5-flash-preview-04-17 (24K thinking)",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-04-17",
       "scores": {
         "arc_agi": {
@@ -4348,8 +4365,8 @@
       "id": "o3-2025-04-16",
       "name": "o3-2025-04-16",
       "display_name": "o3-2025-04-16",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-04-16",
       "scores": {
         "apex_agents": {
@@ -4414,8 +4431,8 @@
       "id": "o4-mini-2025-04-16",
       "name": "o4-mini-2025-04-16",
       "display_name": "o4-mini-2025-04-16",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-04-16",
       "scores": {
         "arc_agi": {
@@ -4476,8 +4493,8 @@
       "id": "gpt-4.1-2025-04-14",
       "name": "gpt-4.1-2025-04-14",
       "display_name": "gpt-4.1-2025-04-14",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-04-14",
       "scores": {
         "arc_agi": {
@@ -4530,8 +4547,8 @@
       "id": "gpt-4.1-mini-2025-04-14",
       "name": "gpt-4.1-mini-2025-04-14",
       "display_name": "gpt-4.1-mini-2025-04-14",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-04-14",
       "scores": {
         "arc_agi": {
@@ -4568,8 +4585,8 @@
       "id": "gpt-4.1-nano-2025-04-14",
       "name": "gpt-4.1-nano-2025-04-14",
       "display_name": "gpt-4.1-nano-2025-04-14",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-04-14",
       "scores": {
         "arc_agi": {
@@ -4606,8 +4623,8 @@
       "id": "grok-3",
       "name": "grok-3",
       "display_name": "grok-3",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2025-04-09",
       "scores": {
         "apex_agents": {
@@ -4640,8 +4657,8 @@
       "id": "grok-3-beta",
       "name": "grok-3-beta",
       "display_name": "grok-3-beta",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2025-04-09",
       "scores": {
         "epoch_capabilities_index": {
@@ -4670,8 +4687,8 @@
       "id": "grok-3-mini-beta",
       "name": "grok-3-mini-beta",
       "display_name": "grok-3-mini-beta",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2025-04-09",
       "scores": {
         "arc_agi": {
@@ -4708,8 +4725,8 @@
       "id": "qwq-plus",
       "name": "qwq-plus",
       "display_name": "qwq-plus",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-04-08",
       "scores": {
         "gpqa_diamond": {
@@ -4722,8 +4739,8 @@
       "id": "chutes/Llama-4-Maverick-17B-128E-Instruct",
       "name": "chutes/Llama-4-Maverick-17B-128E-Instruct",
       "display_name": "chutes/Llama-4-Maverick-17B-128E-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2025-04-06",
       "scores": {
         "epoch_capabilities_index": {
@@ -4736,8 +4753,8 @@
       "id": "chutes/Llama-4-Scout-17B-16E Instruct",
       "name": "chutes/Llama-4-Scout-17B-16E Instruct",
       "display_name": "chutes/Llama-4-Scout-17B-16E Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2025-04-06",
       "scores": {
         "epoch_capabilities_index": {
@@ -4750,8 +4767,8 @@
       "id": "Llama-4-Maverick-17B-128E-Instruct",
       "name": "Llama-4-Maverick-17B-128E-Instruct",
       "display_name": "Llama-4-Maverick-17B-128E-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2025-04-05",
       "scores": {
         "arc_agi": {
@@ -4784,8 +4801,8 @@
       "id": "Llama-4-Maverick-17B-128E-Instruct-FP8",
       "name": "Llama-4-Maverick-17B-128E-Instruct-FP8",
       "display_name": "Llama-4-Maverick-17B-128E-Instruct-FP8",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2025-04-05",
       "scores": {
         "epoch_capabilities_index": {
@@ -4810,8 +4827,8 @@
       "id": "Llama-4-Scout-17B-16E-Instruct",
       "name": "Llama-4-Scout-17B-16E-Instruct",
       "display_name": "Llama-4-Scout-17B-16E-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2025-04-05",
       "scores": {
         "arc_agi": {
@@ -4844,8 +4861,8 @@
       "id": "gemini-2.5-pro-preview-03-25",
       "name": "gemini-2.5-pro-preview-03-25",
       "display_name": "gemini-2.5-pro-preview-03-25",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-03-31",
       "scores": {
         "arc_agi": {
@@ -4866,8 +4883,8 @@
       "id": "gemini-2.5-pro-exp-03-25",
       "name": "gemini-2.5-pro-exp-03-25",
       "display_name": "gemini-2.5-pro-exp-03-25",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-03-25",
       "scores": {
         "epoch_capabilities_index": {
@@ -4892,8 +4909,8 @@
       "id": "DeepSeek-V3-0324",
       "name": "DeepSeek-V3-0324",
       "display_name": "DeepSeek-V3-0324",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-03-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -4922,8 +4939,8 @@
       "id": "chutes/DeepSeek-V3-0324",
       "name": "chutes/DeepSeek-V3-0324",
       "display_name": "chutes/DeepSeek-V3-0324",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-03-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -4936,8 +4953,8 @@
       "id": "o1-pro-2025-03-19",
       "name": "o1-pro-2025-03-19",
       "display_name": "o1-pro-2025-03-19",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-03-19",
       "scores": {
         "arc_agi": {
@@ -4954,8 +4971,8 @@
       "id": "mistral-small-2503",
       "name": "mistral-small-2503",
       "display_name": "mistral-small-2503",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2025-03-17",
       "scores": {
         "gpqa_diamond": {
@@ -4972,8 +4989,8 @@
       "id": "gemma-3-27b-it",
       "name": "gemma-3-27b-it",
       "display_name": "gemma-3-27b-it",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-03-12",
       "scores": {
         "epoch_capabilities_index": {
@@ -4994,8 +5011,8 @@
       "id": "chutes/Gemma-3-27b-It",
       "name": "chutes/Gemma-3-27b-It",
       "display_name": "chutes/Gemma-3-27b-It",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-03-11",
       "scores": {
         "epoch_capabilities_index": {
@@ -5008,8 +5025,8 @@
       "id": "gpt-4.5-preview-2025-02-27",
       "name": "gpt-4.5-preview-2025-02-27",
       "display_name": "gpt-4.5-preview-2025-02-27",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-02-27",
       "scores": {
         "arc_agi": {
@@ -5050,8 +5067,8 @@
       "id": "claude-3-7-sonnet-20250219",
       "name": "claude-3-7-sonnet-20250219",
       "display_name": "claude-3-7-sonnet-20250219",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2025-02-24",
       "scores": {
         "arc_agi": {
@@ -5100,8 +5117,8 @@
       "id": "gemini-2.0-flash-001",
       "name": "gemini-2.0-flash-001",
       "display_name": "gemini-2.0-flash-001",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind-google",
+      "creator_name": "Google DeepMind,Google",
       "release_date": "2025-02-05",
       "scores": {
         "arc_agi_2": {
@@ -5134,8 +5151,8 @@
       "id": "gemini-2.0-pro-exp-02-05",
       "name": "gemini-2.0-pro-exp-02-05",
       "display_name": "gemini-2.0-pro-exp-02-05",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2025-02-05",
       "scores": {
         "epoch_capabilities_index": {
@@ -5152,8 +5169,8 @@
       "id": "o3-mini-2025-01-31",
       "name": "o3-mini-2025-01-31",
       "display_name": "o3-mini-2025-01-31",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2025-01-31",
       "scores": {
         "arc_agi": {
@@ -5206,8 +5223,8 @@
       "id": "qwen2.5-max",
       "name": "qwen2.5-max",
       "display_name": "qwen2.5-max",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-01-28",
       "scores": {
         "epoch_capabilities_index": {
@@ -5220,8 +5237,8 @@
       "id": "mistral-small-2501",
       "name": "mistral-small-2501",
       "display_name": "mistral-small-2501",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2025-01-25",
       "scores": {
         "gpqa_diamond": {
@@ -5238,8 +5255,8 @@
       "id": "qwen-max-2025-01-25",
       "name": "qwen-max-2025-01-25",
       "display_name": "qwen-max-2025-01-25",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-01-25",
       "scores": {
         "epoch_capabilities_index": {
@@ -5264,8 +5281,8 @@
       "id": "qwen-plus-2025-01-25",
       "name": "qwen-plus-2025-01-25",
       "display_name": "qwen-plus-2025-01-25",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2025-01-25",
       "scores": {
         "gpqa_diamond": {
@@ -5282,8 +5299,8 @@
       "id": "gemini-2.0-flash-thinking-exp-01-21",
       "name": "gemini-2.0-flash-thinking-exp-01-21",
       "display_name": "gemini-2.0-flash-thinking-exp-01-21",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind-google",
+      "creator_name": "Google DeepMind,Google",
       "release_date": "2025-01-21",
       "scores": {
         "epoch_capabilities_index": {
@@ -5312,8 +5329,8 @@
       "id": "DeepSeek-R1",
       "name": "DeepSeek-R1",
       "display_name": "DeepSeek-R1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-01-20",
       "scores": {
         "arc_agi": {
@@ -5350,8 +5367,8 @@
       "id": "DeepSeek-R1-Distill-Llama-70B",
       "name": "DeepSeek-R1-Distill-Llama-70B",
       "display_name": "DeepSeek-R1-Distill-Llama-70B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-01-20",
       "scores": {
         "gpqa_diamond": {
@@ -5368,8 +5385,8 @@
       "id": "DeepSeek-R1-Distill-Qwen-14B",
       "name": "DeepSeek-R1-Distill-Qwen-14B",
       "display_name": "DeepSeek-R1-Distill-Qwen-14B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2025-01-20",
       "scores": {
         "gpqa_diamond": {
@@ -5382,8 +5399,8 @@
       "id": "Eurus-2-7B-PRIME",
       "name": "Eurus-2-7B-PRIME",
       "display_name": "Eurus-2-7B-PRIME",
-      "creator": "",
-      "creator_name": "",
+      "creator": "tsinghua-university-university-of-illinois-urbana-champaign-uiuc-shanghai-ai-lab-peking-university-shanghai-jiao-tong-university-cuhk-shenzhen-research-institute",
+      "creator_name": "Tsinghua University,University of Illinois Urbana-Champaign (UIUC),Shanghai AI Lab,Peking University,Shanghai Jiao Tong University,CUHK Shenzhen Research Institute",
       "release_date": "2024-12-31",
       "scores": {
         "gpqa_diamond": {
@@ -5396,8 +5413,8 @@
       "id": "DeepSeek-V3",
       "name": "DeepSeek-V3",
       "display_name": "DeepSeek-V3",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2024-12-26",
       "scores": {
         "epoch_capabilities_index": {
@@ -5426,8 +5443,8 @@
       "id": "DeepSeek-V3-Base",
       "name": "DeepSeek-V3-Base",
       "display_name": "DeepSeek-V3-Base",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2024-12-26",
       "scores": {
         "epoch_capabilities_index": {
@@ -5440,8 +5457,8 @@
       "id": "o1-2024-12-17",
       "name": "o1-2024-12-17",
       "display_name": "o1-2024-12-17",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2024-12-17",
       "scores": {
         "apex_agents": {
@@ -5486,8 +5503,8 @@
       "id": "grok-2-1212",
       "name": "grok-2-1212",
       "display_name": "grok-2-1212",
-      "creator": "",
-      "creator_name": "",
+      "creator": "xai",
+      "creator_name": "xAI",
       "release_date": "2024-12-12",
       "scores": {
         "epoch_capabilities_index": {
@@ -5520,8 +5537,8 @@
       "id": "phi-4",
       "name": "phi-4",
       "display_name": "phi-4",
-      "creator": "",
-      "creator_name": "",
+      "creator": "microsoft-research",
+      "creator_name": "Microsoft Research",
       "release_date": "2024-12-12",
       "scores": {
         "epoch_capabilities_index": {
@@ -5542,8 +5559,8 @@
       "id": "gemini-2.0-flash-exp",
       "name": "gemini-2.0-flash-exp",
       "display_name": "gemini-2.0-flash-exp",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind-google",
+      "creator_name": "Google DeepMind,Google",
       "release_date": "2024-12-11",
       "scores": {
         "epoch_capabilities_index": {
@@ -5560,8 +5577,8 @@
       "id": "Llama-3.3-70B-Instruct",
       "name": "Llama-3.3-70B-Instruct",
       "display_name": "Llama-3.3-70B-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2024-12-06",
       "scores": {
         "epoch_capabilities_index": {
@@ -5590,8 +5607,8 @@
       "id": "gemini-exp-1206",
       "name": "gemini-exp-1206",
       "display_name": "gemini-exp-1206",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind-google",
+      "creator_name": "Google DeepMind,Google",
       "release_date": "2024-12-06",
       "scores": {
         "epoch_capabilities_index": {
@@ -5608,8 +5625,8 @@
       "id": "amazon.nova-lite-v1:0",
       "name": "amazon.nova-lite-v1:0",
       "display_name": "amazon.nova-lite-v1:0",
-      "creator": "",
-      "creator_name": "",
+      "creator": "amazon",
+      "creator_name": "Amazon",
       "release_date": "2024-12-03",
       "scores": {
         "hle": {
@@ -5622,8 +5639,8 @@
       "id": "amazon.nova-pro-v1:0",
       "name": "amazon.nova-pro-v1:0",
       "display_name": "amazon.nova-pro-v1:0",
-      "creator": "",
-      "creator_name": "",
+      "creator": "amazon",
+      "creator_name": "Amazon",
       "release_date": "2024-12-03",
       "scores": {
         "hle": {
@@ -5636,8 +5653,8 @@
       "id": "INTELLECT-1-Instruct",
       "name": "INTELLECT-1-Instruct",
       "display_name": "INTELLECT-1-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "prime-intellect-hugging-face-arcee-ai",
+      "creator_name": "Prime Intellect,Hugging Face,Arcee AI",
       "release_date": "2024-11-29",
       "scores": {
         "epoch_capabilities_index": {
@@ -5650,8 +5667,8 @@
       "id": "Llama-3.1-Tulu-3-70B-DPO",
       "name": "Llama-3.1-Tulu-3-70B-DPO",
       "display_name": "Llama-3.1-Tulu-3-70B-DPO",
-      "creator": "",
-      "creator_name": "",
+      "creator": "allen-institute-for-ai-university-of-washington",
+      "creator_name": "Allen Institute for AI,University of Washington",
       "release_date": "2024-11-21",
       "scores": {
         "gpqa_diamond": {
@@ -5668,8 +5685,8 @@
       "id": "gpt-4o-2024-11-20",
       "name": "gpt-4o-2024-11-20",
       "display_name": "gpt-4o-2024-11-20",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2024-11-20",
       "scores": {
         "arc_agi": {
@@ -5718,8 +5735,8 @@
       "id": "mistral-large-2411",
       "name": "mistral-large-2411",
       "display_name": "mistral-large-2411",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-11-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -5744,8 +5761,8 @@
       "id": "qwen-turbo-2024-11-01",
       "name": "qwen-turbo-2024-11-01",
       "display_name": "qwen-turbo-2024-11-01",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-11-01",
       "scores": {
         "gpqa_diamond": {
@@ -5762,8 +5779,8 @@
       "id": "claude-3-5-haiku-20241022",
       "name": "claude-3-5-haiku-20241022",
       "display_name": "claude-3-5-haiku-20241022",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2024-10-22",
       "scores": {
         "epoch_capabilities_index": {
@@ -5796,8 +5813,8 @@
       "id": "claude-3-5-sonnet-20241022",
       "name": "claude-3-5-sonnet-20241022",
       "display_name": "claude-3-5-sonnet-20241022",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2024-10-22",
       "scores": {
         "epoch_capabilities_index": {
@@ -5842,8 +5859,8 @@
       "id": "ministral-3b-2410",
       "name": "ministral-3b-2410",
       "display_name": "ministral-3b-2410",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-10-16",
       "scores": {
         "gpqa_diamond": {
@@ -5856,8 +5873,8 @@
       "id": "ministral-8b-2410",
       "name": "ministral-8b-2410",
       "display_name": "ministral-8b-2410",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-10-16",
       "scores": {
         "gpqa_diamond": {
@@ -5870,8 +5887,8 @@
       "id": "gemini-1.5-flash-8b-001",
       "name": "gemini-1.5-flash-8b-001",
       "display_name": "gemini-1.5-flash-8b-001",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2024-10-03",
       "scores": {
         "gpqa_diamond": {
@@ -5888,8 +5905,8 @@
       "id": "Llama-3.2-90B-Vision-Instruct",
       "name": "Llama-3.2-90B-Vision-Instruct",
       "display_name": "Llama-3.2-90B-Vision-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2024-09-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -5910,8 +5927,8 @@
       "id": "gemini-1.5-flash-002",
       "name": "gemini-1.5-flash-002",
       "display_name": "gemini-1.5-flash-002",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2024-09-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -5940,8 +5957,8 @@
       "id": "gemini-1.5-pro-002",
       "name": "gemini-1.5-pro-002",
       "display_name": "gemini-1.5-pro-002",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2024-09-24",
       "scores": {
         "arc_agi_2": {
@@ -5978,8 +5995,8 @@
       "id": "Qwen2.5-72B",
       "name": "Qwen2.5-72B",
       "display_name": "Qwen2.5-72B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-09-19",
       "scores": {
         "epoch_capabilities_index": {
@@ -5992,8 +6009,8 @@
       "id": "Qwen2.5-VL-72B-Instruct",
       "name": "Qwen2.5-VL-72B-Instruct",
       "display_name": "Qwen2.5-VL-72B-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-09-19",
       "scores": {
         "epoch_capabilities_index": {
@@ -6006,8 +6023,8 @@
       "id": "qwen2.5-72b-instruct",
       "name": "qwen2.5-72b-instruct",
       "display_name": "qwen2.5-72b-instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-09-19",
       "scores": {
         "epoch_capabilities_index": {
@@ -6028,8 +6045,8 @@
       "id": "Qwen2.5-Coder-1.5B",
       "name": "Qwen2.5-Coder-1.5B",
       "display_name": "Qwen2.5-Coder-1.5B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-09-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -6042,8 +6059,8 @@
       "id": "Qwen2.5-Coder-32B",
       "name": "Qwen2.5-Coder-32B",
       "display_name": "Qwen2.5-Coder-32B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-09-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -6056,8 +6073,8 @@
       "id": "Qwen2.5-Coder-7B",
       "name": "Qwen2.5-Coder-7B",
       "display_name": "Qwen2.5-Coder-7B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-09-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -6070,8 +6087,8 @@
       "id": "Qwen2.5-Coder-7B-Instruct",
       "name": "Qwen2.5-Coder-7B-Instruct",
       "display_name": "Qwen2.5-Coder-7B-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-09-17",
       "scores": {
         "epoch_capabilities_index": {
@@ -6084,8 +6101,8 @@
       "id": "qwen2.5-32b-instruct",
       "name": "qwen2.5-32b-instruct",
       "display_name": "qwen2.5-32b-instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-09-17",
       "scores": {
         "gpqa_diamond": {
@@ -6102,8 +6119,8 @@
       "id": "o1-mini-2024-09-12",
       "name": "o1-mini-2024-09-12",
       "display_name": "o1-mini-2024-09-12",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2024-09-12",
       "scores": {
         "arc_agi": {
@@ -6144,8 +6161,8 @@
       "id": "o1-preview-2024-09-12",
       "name": "o1-preview-2024-09-12",
       "display_name": "o1-preview-2024-09-12",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2024-09-12",
       "scores": {
         "arc_agi": {
@@ -6178,8 +6195,8 @@
       "id": "c4ai-command-r-plus-08-2024",
       "name": "c4ai-command-r-plus-08-2024",
       "display_name": "c4ai-command-r-plus-08-2024",
-      "creator": "",
-      "creator_name": "",
+      "creator": "cohere-cohere-for-ai",
+      "creator_name": "Cohere,Cohere for AI",
       "release_date": "2024-08-30",
       "scores": {
         "simplebench": {
@@ -6192,8 +6209,8 @@
       "id": "gpt-4o-2024-08-06",
       "name": "gpt-4o-2024-08-06",
       "display_name": "gpt-4o-2024-08-06",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2024-08-06",
       "scores": {
         "epoch_capabilities_index": {
@@ -6222,8 +6239,8 @@
       "id": "mistral-large-2407",
       "name": "mistral-large-2407",
       "display_name": "mistral-large-2407",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-07-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -6248,8 +6265,8 @@
       "id": "Llama-3.1-405B",
       "name": "Llama-3.1-405B",
       "display_name": "Llama-3.1-405B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2024-07-23",
       "scores": {
         "epoch_capabilities_index": {
@@ -6262,8 +6279,8 @@
       "id": "Llama-3.1-405B-Instruct",
       "name": "Llama-3.1-405B-Instruct",
       "display_name": "Llama-3.1-405B-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2024-07-23",
       "scores": {
         "epoch_capabilities_index": {
@@ -6292,8 +6309,8 @@
       "id": "Llama-3.1-70B-Instruct",
       "name": "Llama-3.1-70B-Instruct",
       "display_name": "Llama-3.1-70B-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2024-07-23",
       "scores": {
         "epoch_capabilities_index": {
@@ -6318,8 +6335,8 @@
       "id": "Llama-3.1-8B-Instruct",
       "name": "Llama-3.1-8B-Instruct",
       "display_name": "Llama-3.1-8B-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2024-07-23",
       "scores": {
         "epoch_capabilities_index": {
@@ -6344,8 +6361,8 @@
       "id": "Mistral-Nemo-Base-2407",
       "name": "Mistral-Nemo-Base-2407",
       "display_name": "Mistral-Nemo-Base-2407",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-07-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -6358,8 +6375,8 @@
       "id": "Mistral-Nemo-Instruct-2407",
       "name": "Mistral-Nemo-Instruct-2407",
       "display_name": "Mistral-Nemo-Instruct-2407",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-07-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -6372,8 +6389,8 @@
       "id": "gpt-4o-mini-2024-07-18",
       "name": "gpt-4o-mini-2024-07-18",
       "display_name": "gpt-4o-mini-2024-07-18",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2024-07-18",
       "scores": {
         "arc_agi_2": {
@@ -6406,8 +6423,8 @@
       "id": "open-mistral-nemo-2407",
       "name": "open-mistral-nemo-2407",
       "display_name": "open-mistral-nemo-2407",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-07-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -6424,8 +6441,8 @@
       "id": "gemma-2-27b-it",
       "name": "gemma-2-27b-it",
       "display_name": "gemma-2-27b-it",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2024-06-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -6446,8 +6463,8 @@
       "id": "gemma-2-9b-it",
       "name": "gemma-2-9b-it",
       "display_name": "gemma-2-9b-it",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2024-06-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -6468,8 +6485,8 @@
       "id": "Hermes-2-Theta-Llama-3-70B",
       "name": "Hermes-2-Theta-Llama-3-70B",
       "display_name": "Hermes-2-Theta-Llama-3-70B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "nous-research-arcee-ai",
+      "creator_name": "Nous Research,Arcee AI",
       "release_date": "2024-06-20",
       "scores": {
         "gpqa_diamond": {
@@ -6486,8 +6503,8 @@
       "id": "claude-3-5-sonnet-20240620",
       "name": "claude-3-5-sonnet-20240620",
       "display_name": "claude-3-5-sonnet-20240620",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2024-06-20",
       "scores": {
         "epoch_capabilities_index": {
@@ -6524,8 +6541,8 @@
       "id": "qwen2-72b-instruct",
       "name": "qwen2-72b-instruct",
       "display_name": "qwen2-72b-instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-06-07",
       "scores": {
         "epoch_capabilities_index": {
@@ -6546,8 +6563,8 @@
       "id": "Mistral-7B-Instruct-v0.3",
       "name": "Mistral-7B-Instruct-v0.3",
       "display_name": "Mistral-7B-Instruct-v0.3",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-05-27",
       "scores": {
         "gpqa_diamond": {
@@ -6560,8 +6577,8 @@
       "id": "gemini-1.5-flash-001",
       "name": "gemini-1.5-flash-001",
       "display_name": "gemini-1.5-flash-001",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2024-05-23",
       "scores": {
         "epoch_capabilities_index": {
@@ -6582,8 +6599,8 @@
       "id": "gemini-1.5-flash-0514",
       "name": "gemini-1.5-flash-0514",
       "display_name": "gemini-1.5-flash-0514",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2024-05-14",
       "scores": {
         "epoch_capabilities_index": {
@@ -6596,8 +6613,8 @@
       "id": "gemini-1.5-pro-001",
       "name": "gemini-1.5-pro-001",
       "display_name": "gemini-1.5-pro-001",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2024-05-14",
       "scores": {
         "epoch_capabilities_index": {
@@ -6618,8 +6635,8 @@
       "id": "Yi-1.5-34B-Chat",
       "name": "Yi-1.5-34B-Chat",
       "display_name": "Yi-1.5-34B-Chat",
-      "creator": "",
-      "creator_name": "",
+      "creator": "01-ai",
+      "creator_name": "01.AI",
       "release_date": "2024-05-13",
       "scores": {
         "gpqa_diamond": {
@@ -6632,8 +6649,8 @@
       "id": "gpt-4o-2024-05-13",
       "name": "gpt-4o-2024-05-13",
       "display_name": "gpt-4o-2024-05-13",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2024-05-13",
       "scores": {
         "epoch_capabilities_index": {
@@ -6654,8 +6671,8 @@
       "id": "falcon-11b",
       "name": "falcon-11b",
       "display_name": "falcon-11b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "technology-innovation-institute",
+      "creator_name": "Technology Innovation Institute",
       "release_date": "2024-05-09",
       "scores": {
         "epoch_capabilities_index": {
@@ -6668,8 +6685,8 @@
       "id": "DeepSeek-V2",
       "name": "DeepSeek-V2",
       "display_name": "DeepSeek-V2",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2024-05-07",
       "scores": {
         "epoch_capabilities_index": {
@@ -6682,8 +6699,8 @@
       "id": "Phi-3-medium-128k-instruct",
       "name": "Phi-3-medium-128k-instruct",
       "display_name": "Phi-3-medium-128k-instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "microsoft",
+      "creator_name": "Microsoft",
       "release_date": "2024-04-23",
       "scores": {
         "epoch_capabilities_index": {
@@ -6700,8 +6717,8 @@
       "id": "Phi-3-mini-4k-instruct",
       "name": "Phi-3-mini-4k-instruct",
       "display_name": "Phi-3-mini-4k-instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "microsoft",
+      "creator_name": "Microsoft",
       "release_date": "2024-04-23",
       "scores": {
         "epoch_capabilities_index": {
@@ -6714,8 +6731,8 @@
       "id": "Phi-3-small-8k-instruct",
       "name": "Phi-3-small-8k-instruct",
       "display_name": "Phi-3-small-8k-instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "microsoft",
+      "creator_name": "Microsoft",
       "release_date": "2024-04-23",
       "scores": {
         "epoch_capabilities_index": {
@@ -6728,8 +6745,8 @@
       "id": "Meta-Llama-3-70B",
       "name": "Meta-Llama-3-70B",
       "display_name": "Meta-Llama-3-70B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2024-04-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -6742,8 +6759,8 @@
       "id": "Meta-Llama-3-70B-Instruct",
       "name": "Meta-Llama-3-70B-Instruct",
       "display_name": "Meta-Llama-3-70B-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2024-04-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -6764,8 +6781,8 @@
       "id": "Meta-Llama-3-8B",
       "name": "Meta-Llama-3-8B",
       "display_name": "Meta-Llama-3-8B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2024-04-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -6778,8 +6795,8 @@
       "id": "Meta-Llama-3-8B-Instruct",
       "name": "Meta-Llama-3-8B-Instruct",
       "display_name": "Meta-Llama-3-8B-Instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2024-04-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -6800,8 +6817,8 @@
       "id": "Mixtral-8x22B-Instruct-v0.1",
       "name": "Mixtral-8x22B-Instruct-v0.1",
       "display_name": "Mixtral-8x22B-Instruct-v0.1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-04-17",
       "scores": {
         "epoch_capabilities_index": {
@@ -6818,8 +6835,8 @@
       "id": "Mixtral-8x22B-v0.1",
       "name": "Mixtral-8x22B-v0.1",
       "display_name": "Mixtral-8x22B-v0.1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-04-17",
       "scores": {
         "epoch_capabilities_index": {
@@ -6832,8 +6849,8 @@
       "id": "open-mixtral-8x22b",
       "name": "open-mixtral-8x22b",
       "display_name": "open-mixtral-8x22b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-04-17",
       "scores": {
         "epoch_capabilities_index": {
@@ -6850,8 +6867,8 @@
       "id": "WizardLM-2-8x22B",
       "name": "WizardLM-2-8x22B",
       "display_name": "WizardLM-2-8x22B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "microsoft",
+      "creator_name": "Microsoft",
       "release_date": "2024-04-15",
       "scores": {
         "gpqa_diamond": {
@@ -6864,8 +6881,8 @@
       "id": "gpt-4-turbo-2024-04-09",
       "name": "gpt-4-turbo-2024-04-09",
       "display_name": "gpt-4-turbo-2024-04-09",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2024-04-09",
       "scores": {
         "epoch_capabilities_index": {
@@ -6894,8 +6911,8 @@
       "id": "qwen1.5-32b-chat",
       "name": "qwen1.5-32b-chat",
       "display_name": "qwen1.5-32b-chat",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-04-03",
       "scores": {
         "gpqa_diamond": {
@@ -6908,8 +6925,8 @@
       "id": "dbrx-instruct",
       "name": "dbrx-instruct",
       "display_name": "dbrx-instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "databricks",
+      "creator_name": "Databricks",
       "release_date": "2024-03-27",
       "scores": {
         "gpqa_diamond": {
@@ -6922,8 +6939,8 @@
       "id": "claude-3-haiku-20240307",
       "name": "claude-3-haiku-20240307",
       "display_name": "claude-3-haiku-20240307",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2024-03-07",
       "scores": {
         "epoch_capabilities_index": {
@@ -6948,8 +6965,8 @@
       "id": "claude-3-opus-20240229",
       "name": "claude-3-opus-20240229",
       "display_name": "claude-3-opus-20240229",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2024-02-29",
       "scores": {
         "epoch_capabilities_index": {
@@ -6978,8 +6995,8 @@
       "id": "claude-3-sonnet-20240229",
       "name": "claude-3-sonnet-20240229",
       "display_name": "claude-3-sonnet-20240229",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2024-02-29",
       "scores": {
         "epoch_capabilities_index": {
@@ -7004,8 +7021,8 @@
       "id": "Nemotron-4 15B",
       "name": "Nemotron-4 15B",
       "display_name": "Nemotron-4 15B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "nvidia",
+      "creator_name": "NVIDIA",
       "release_date": "2024-02-26",
       "scores": {
         "epoch_capabilities_index": {
@@ -7018,8 +7035,8 @@
       "id": "mistral-large-2402",
       "name": "mistral-large-2402",
       "display_name": "mistral-large-2402",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2024-02-26",
       "scores": {
         "epoch_capabilities_index": {
@@ -7040,8 +7057,8 @@
       "id": "starcoder2-3b",
       "name": "starcoder2-3b",
       "display_name": "starcoder2-3b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "hugging-face-servicenow-nvidia-bigcode",
+      "creator_name": "Hugging Face,ServiceNow,NVIDIA,BigCode",
       "release_date": "2024-02-22",
       "scores": {
         "epoch_capabilities_index": {
@@ -7054,8 +7071,8 @@
       "id": "gemma-2b",
       "name": "gemma-2b",
       "display_name": "gemma-2b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2024-02-21",
       "scores": {
         "epoch_capabilities_index": {
@@ -7068,8 +7085,8 @@
       "id": "gemma-7b",
       "name": "gemma-7b",
       "display_name": "gemma-7b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2024-02-21",
       "scores": {
         "epoch_capabilities_index": {
@@ -7082,8 +7099,8 @@
       "id": "starcoder2-15b",
       "name": "starcoder2-15b",
       "display_name": "starcoder2-15b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "hugging-face-servicenow-nvidia-bigcode",
+      "creator_name": "Hugging Face,ServiceNow,NVIDIA,BigCode",
       "release_date": "2024-02-20",
       "scores": {
         "epoch_capabilities_index": {
@@ -7096,8 +7113,8 @@
       "id": "starcoder2-7b",
       "name": "starcoder2-7b",
       "display_name": "starcoder2-7b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "hugging-face-servicenow-nvidia-bigcode",
+      "creator_name": "Hugging Face,ServiceNow,NVIDIA,BigCode",
       "release_date": "2024-02-20",
       "scores": {
         "epoch_capabilities_index": {
@@ -7110,8 +7127,8 @@
       "id": "gemini-1.5-pro-001-feb24",
       "name": "gemini-1.5-pro-001-feb24",
       "display_name": "gemini-1.5-pro-001-feb24",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2024-02-15",
       "scores": {
         "epoch_capabilities_index": {
@@ -7124,8 +7141,8 @@
       "id": "qwen1.5-72b-chat",
       "name": "qwen1.5-72b-chat",
       "display_name": "qwen1.5-72b-chat",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2024-02-04",
       "scores": {
         "gpqa_diamond": {
@@ -7138,8 +7155,8 @@
       "id": "gpt-3.5-turbo-0125",
       "name": "gpt-3.5-turbo-0125",
       "display_name": "gpt-3.5-turbo-0125",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2024-01-25",
       "scores": {
         "epoch_capabilities_index": {
@@ -7160,8 +7177,8 @@
       "id": "gpt-4-0125-preview",
       "name": "gpt-4-0125-preview",
       "display_name": "gpt-4-0125-preview",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2024-01-25",
       "scores": {
         "gpqa_diamond": {
@@ -7174,8 +7191,8 @@
       "id": "gemini-1.0-pro-001",
       "name": "gemini-1.0-pro-001",
       "display_name": "gemini-1.0-pro-001",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "release_date": "2023-12-13",
       "scores": {
         "epoch_capabilities_index": {
@@ -7196,8 +7213,8 @@
       "id": "phi-2",
       "name": "phi-2",
       "display_name": "phi-2",
-      "creator": "",
-      "creator_name": "",
+      "creator": "microsoft",
+      "creator_name": "Microsoft",
       "release_date": "2023-12-12",
       "scores": {
         "epoch_capabilities_index": {
@@ -7210,8 +7227,8 @@
       "id": "Mixtral-8x7B-Instruct-v0.1",
       "name": "Mixtral-8x7B-Instruct-v0.1",
       "display_name": "Mixtral-8x7B-Instruct-v0.1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2023-12-11",
       "scores": {
         "epoch_capabilities_index": {
@@ -7228,8 +7245,8 @@
       "id": "Mixtral-8x7B-v0.1",
       "name": "Mixtral-8x7B-v0.1",
       "display_name": "Mixtral-8x7B-v0.1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2023-12-11",
       "scores": {
         "epoch_capabilities_index": {
@@ -7242,8 +7259,8 @@
       "id": "open-mixtral-8x7b",
       "name": "open-mixtral-8x7b",
       "display_name": "open-mixtral-8x7b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2023-12-11",
       "scores": {
         "epoch_capabilities_index": {
@@ -7260,8 +7277,8 @@
       "id": "deepseek-llm-67b-chat",
       "name": "deepseek-llm-67b-chat",
       "display_name": "deepseek-llm-67b-chat",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
       "release_date": "2023-11-29",
       "scores": {
         "gpqa_diamond": {
@@ -7274,8 +7291,8 @@
       "id": "Yi-34B-Chat",
       "name": "Yi-34B-Chat",
       "display_name": "Yi-34B-Chat",
-      "creator": "",
-      "creator_name": "",
+      "creator": "01-ai",
+      "creator_name": "01.AI",
       "release_date": "2023-11-22",
       "scores": {
         "epoch_capabilities_index": {
@@ -7292,8 +7309,8 @@
       "id": "Yi-6B-Chat",
       "name": "Yi-6B-Chat",
       "display_name": "Yi-6B-Chat",
-      "creator": "",
-      "creator_name": "",
+      "creator": "01-ai",
+      "creator_name": "01.AI",
       "release_date": "2023-11-22",
       "scores": {
         "epoch_capabilities_index": {
@@ -7306,8 +7323,8 @@
       "id": "claude-2.1",
       "name": "claude-2.1",
       "display_name": "claude-2.1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2023-11-21",
       "scores": {
         "epoch_capabilities_index": {
@@ -7332,8 +7349,8 @@
       "id": "gpt-3.5-turbo-1106",
       "name": "gpt-3.5-turbo-1106",
       "display_name": "gpt-3.5-turbo-1106",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2023-11-06",
       "scores": {
         "epoch_capabilities_index": {
@@ -7350,8 +7367,8 @@
       "id": "gpt-4-1106-preview",
       "name": "gpt-4-1106-preview",
       "display_name": "gpt-4-1106-preview",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2023-11-06",
       "scores": {
         "gpqa_diamond": {
@@ -7364,8 +7381,8 @@
       "id": "Yi-34B",
       "name": "Yi-34B",
       "display_name": "Yi-34B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "01-ai",
+      "creator_name": "01.AI",
       "release_date": "2023-11-02",
       "scores": {
         "epoch_capabilities_index": {
@@ -7378,8 +7395,8 @@
       "id": "Yi-6B",
       "name": "Yi-6B",
       "display_name": "Yi-6B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "01-ai",
+      "creator_name": "01.AI",
       "release_date": "2023-11-02",
       "scores": {
         "epoch_capabilities_index": {
@@ -7392,8 +7409,8 @@
       "id": "deepseek-coder-1.3b-base",
       "name": "deepseek-coder-1.3b-base",
       "display_name": "deepseek-coder-1.3b-base",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek-peking-university",
+      "creator_name": "DeepSeek,Peking University",
       "release_date": "2023-11-02",
       "scores": {
         "epoch_capabilities_index": {
@@ -7406,8 +7423,8 @@
       "id": "deepseek-coder-33b-base",
       "name": "deepseek-coder-33b-base",
       "display_name": "deepseek-coder-33b-base",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek-peking-university",
+      "creator_name": "DeepSeek,Peking University",
       "release_date": "2023-11-02",
       "scores": {
         "epoch_capabilities_index": {
@@ -7420,8 +7437,8 @@
       "id": "deepseek-coder-6.7b-base",
       "name": "deepseek-coder-6.7b-base",
       "display_name": "deepseek-coder-6.7b-base",
-      "creator": "",
-      "creator_name": "",
+      "creator": "deepseek-peking-university",
+      "creator_name": "DeepSeek,Peking University",
       "release_date": "2023-11-02",
       "scores": {
         "epoch_capabilities_index": {
@@ -7434,8 +7451,8 @@
       "id": "Qwen-14B",
       "name": "Qwen-14B",
       "display_name": "Qwen-14B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2023-09-28",
       "scores": {
         "epoch_capabilities_index": {
@@ -7448,8 +7465,8 @@
       "id": "Qwen-7B",
       "name": "Qwen-7B",
       "display_name": "Qwen-7B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2023-09-28",
       "scores": {
         "epoch_capabilities_index": {
@@ -7462,8 +7479,8 @@
       "id": "Mistral-7B-Instruct-v0.1",
       "name": "Mistral-7B-Instruct-v0.1",
       "display_name": "Mistral-7B-Instruct-v0.1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2023-09-27",
       "scores": {
         "epoch_capabilities_index": {
@@ -7476,8 +7493,8 @@
       "id": "Mistral-7B-v0.1",
       "name": "Mistral-7B-v0.1",
       "display_name": "Mistral-7B-v0.1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2023-09-27",
       "scores": {
         "epoch_capabilities_index": {
@@ -7490,8 +7507,8 @@
       "id": "open-mistral-7b",
       "name": "open-mistral-7b",
       "display_name": "open-mistral-7b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
       "release_date": "2023-09-27",
       "scores": {
         "gpqa_diamond": {
@@ -7504,8 +7521,8 @@
       "id": "Qwen-14B-Chat",
       "name": "Qwen-14B-Chat",
       "display_name": "Qwen-14B-Chat",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2023-09-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -7518,8 +7535,8 @@
       "id": "Baichuan-2-7B-Base",
       "name": "Baichuan-2-7B-Base",
       "display_name": "Baichuan-2-7B-Base",
-      "creator": "",
-      "creator_name": "",
+      "creator": "baichuan",
+      "creator_name": "Baichuan",
       "release_date": "2023-09-20",
       "scores": {
         "epoch_capabilities_index": {
@@ -7532,8 +7549,8 @@
       "id": "phi-1_5",
       "name": "phi-1_5",
       "display_name": "phi-1_5",
-      "creator": "",
-      "creator_name": "",
+      "creator": "microsoft",
+      "creator_name": "Microsoft",
       "release_date": "2023-09-11",
       "scores": {
         "epoch_capabilities_index": {
@@ -7546,8 +7563,8 @@
       "id": "Baichuan-2-13B-Base",
       "name": "Baichuan-2-13B-Base",
       "display_name": "Baichuan-2-13B-Base",
-      "creator": "",
-      "creator_name": "",
+      "creator": "baichuan",
+      "creator_name": "Baichuan",
       "release_date": "2023-09-06",
       "scores": {
         "epoch_capabilities_index": {
@@ -7560,8 +7577,8 @@
       "id": "falcon-180B",
       "name": "falcon-180B",
       "display_name": "falcon-180B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "technology-innovation-institute",
+      "creator_name": "Technology Innovation Institute",
       "release_date": "2023-09-06",
       "scores": {
         "epoch_capabilities_index": {
@@ -7574,8 +7591,8 @@
       "id": "claude-instant-1.2",
       "name": "claude-instant-1.2",
       "display_name": "claude-instant-1.2",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2023-08-09",
       "scores": {
         "epoch_capabilities_index": {
@@ -7588,8 +7605,8 @@
       "id": "StableBeluga2",
       "name": "StableBeluga2",
       "display_name": "StableBeluga2",
-      "creator": "",
-      "creator_name": "",
+      "creator": "stability-ai",
+      "creator_name": "Stability AI",
       "release_date": "2023-07-20",
       "scores": {
         "epoch_capabilities_index": {
@@ -7602,8 +7619,8 @@
       "id": "Llama-2-13b",
       "name": "Llama-2-13b",
       "display_name": "Llama-2-13b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -7616,8 +7633,8 @@
       "id": "Llama-2-13b-chat",
       "name": "Llama-2-13b-chat",
       "display_name": "Llama-2-13b-chat",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -7630,8 +7647,8 @@
       "id": "Llama-2-34b",
       "name": "Llama-2-34b",
       "display_name": "Llama-2-34b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -7644,8 +7661,8 @@
       "id": "Llama-2-70b-chat",
       "name": "Llama-2-70b-chat",
       "display_name": "Llama-2-70b-chat",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -7658,8 +7675,8 @@
       "id": "Llama-2-70b-chat-hf",
       "name": "Llama-2-70b-chat-hf",
       "display_name": "Llama-2-70b-chat-hf",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -7680,8 +7697,8 @@
       "id": "Llama-2-70b-hf",
       "name": "Llama-2-70b-hf",
       "display_name": "Llama-2-70b-hf",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -7694,8 +7711,8 @@
       "id": "Llama-2-7b",
       "name": "Llama-2-7b",
       "display_name": "Llama-2-7b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
@@ -7708,8 +7725,8 @@
       "id": "claude-2.0",
       "name": "claude-2.0",
       "display_name": "claude-2.0",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "release_date": "2023-07-11",
       "scores": {
         "epoch_capabilities_index": {
@@ -7730,8 +7747,8 @@
       "id": "xgen-7b-8k-base",
       "name": "xgen-7b-8k-base",
       "display_name": "xgen-7b-8k-base",
-      "creator": "",
-      "creator_name": "",
+      "creator": "salesforce",
+      "creator_name": "Salesforce",
       "release_date": "2023-06-27",
       "scores": {
         "epoch_capabilities_index": {
@@ -7744,8 +7761,8 @@
       "id": "mpt-30b",
       "name": "mpt-30b",
       "display_name": "mpt-30b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mosaicml",
+      "creator_name": "MosaicML",
       "release_date": "2023-06-22",
       "scores": {
         "epoch_capabilities_index": {
@@ -7758,8 +7775,8 @@
       "id": "mpt-30b-instruct",
       "name": "mpt-30b-instruct",
       "display_name": "mpt-30b-instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mosaicml",
+      "creator_name": "MosaicML",
       "release_date": "2023-06-22",
       "scores": {
         "epoch_capabilities_index": {
@@ -7772,8 +7789,8 @@
       "id": "gpt-3.5-turbo-0613",
       "name": "gpt-3.5-turbo-0613",
       "display_name": "gpt-3.5-turbo-0613",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2023-06-13",
       "scores": {
         "epoch_capabilities_index": {
@@ -7786,8 +7803,8 @@
       "id": "gpt-4-0613",
       "name": "gpt-4-0613",
       "display_name": "gpt-4-0613",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2023-06-13",
       "scores": {
         "epoch_capabilities_index": {
@@ -7812,8 +7829,8 @@
       "id": "Baichuan-7B",
       "name": "Baichuan-7B",
       "display_name": "Baichuan-7B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "baichuan",
+      "creator_name": "Baichuan",
       "release_date": "2023-06-01",
       "scores": {
         "epoch_capabilities_index": {
@@ -7826,8 +7843,8 @@
       "id": "falcon-40b-instruct",
       "name": "falcon-40b-instruct",
       "display_name": "falcon-40b-instruct",
-      "creator": "",
-      "creator_name": "",
+      "creator": "technology-innovation-institute",
+      "creator_name": "Technology Innovation Institute",
       "release_date": "2023-05-25",
       "scores": {
         "epoch_capabilities_index": {
@@ -7840,8 +7857,8 @@
       "id": "mpt-7b",
       "name": "mpt-7b",
       "display_name": "mpt-7b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "mosaicml",
+      "creator_name": "MosaicML",
       "release_date": "2023-05-05",
       "scores": {
         "epoch_capabilities_index": {
@@ -7854,8 +7871,8 @@
       "id": "falcon-7b",
       "name": "falcon-7b",
       "display_name": "falcon-7b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "technology-innovation-institute",
+      "creator_name": "Technology Innovation Institute",
       "release_date": "2023-04-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -7868,8 +7885,8 @@
       "id": "dolly-v2-12b",
       "name": "dolly-v2-12b",
       "display_name": "dolly-v2-12b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "databricks",
+      "creator_name": "Databricks",
       "release_date": "2023-04-11",
       "scores": {
         "epoch_capabilities_index": {
@@ -7882,8 +7899,8 @@
       "id": "Cerebras-GPT-13B",
       "name": "Cerebras-GPT-13B",
       "display_name": "Cerebras-GPT-13B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "cerebras-systems",
+      "creator_name": "Cerebras Systems",
       "release_date": "2023-03-20",
       "scores": {
         "epoch_capabilities_index": {
@@ -7896,8 +7913,8 @@
       "id": "falcon-40b",
       "name": "falcon-40b",
       "display_name": "falcon-40b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "technology-innovation-institute",
+      "creator_name": "Technology Innovation Institute",
       "release_date": "2023-03-15",
       "scores": {
         "epoch_capabilities_index": {
@@ -7910,8 +7927,8 @@
       "id": "gpt-4-0314",
       "name": "gpt-4-0314",
       "display_name": "gpt-4-0314",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2023-03-14",
       "scores": {
         "epoch_capabilities_index": {
@@ -7932,8 +7949,8 @@
       "id": "gpt-4-32k-0314",
       "name": "gpt-4-32k-0314",
       "display_name": "gpt-4-32k-0314",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "release_date": "2023-03-14",
       "scores": {
         "epoch_capabilities_index": {
@@ -7946,8 +7963,8 @@
       "id": "LLaMA-13B",
       "name": "LLaMA-13B",
       "display_name": "LLaMA-13B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2023-02-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -7960,8 +7977,8 @@
       "id": "LLaMA-33B",
       "name": "LLaMA-33B",
       "display_name": "LLaMA-33B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2023-02-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -7974,8 +7991,8 @@
       "id": "LLaMA-65B",
       "name": "LLaMA-65B",
       "display_name": "LLaMA-65B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2023-02-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -7988,8 +8005,8 @@
       "id": "LLaMA-7B",
       "name": "LLaMA-7B",
       "display_name": "LLaMA-7B",
-      "creator": "",
-      "creator_name": "",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
       "release_date": "2023-02-24",
       "scores": {
         "epoch_capabilities_index": {
@@ -8002,8 +8019,8 @@
       "id": "claude-instant-1.1",
       "name": "claude-instant-1.1",
       "display_name": "claude-instant-1.1",
-      "creator": "",
-      "creator_name": "",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
       "scores": {
         "epoch_capabilities_index": {
           "value": 120.53360295714822
@@ -8014,8 +8031,8 @@
       "id": "gemma-2-9b",
       "name": "gemma-2-9b",
       "display_name": "gemma-2-9b",
-      "creator": "",
-      "creator_name": "",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
       "scores": {
         "epoch_capabilities_index": {
           "value": 119.50861863328802
@@ -8026,8 +8043,8 @@
       "id": "gpt-5-chat",
       "name": "gpt-5-chat",
       "display_name": "gpt-5-chat",
-      "creator": "",
-      "creator_name": "",
+      "creator": "openai",
+      "creator_name": "OpenAI",
       "scores": {
         "epoch_capabilities_index": {
           "value": 150.0

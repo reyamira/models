@@ -288,6 +288,10 @@ pub struct BenchmarksApp {
     pub sort_picker_selected: usize,
     pub loading: bool,
     pub detail_scroll: ScrollOffset,
+    /// Whether the benchmark-glossary popup (`i`) is open.
+    pub show_glossary: bool,
+    /// Scroll position of the glossary popup.
+    pub glossary_scroll: ScrollOffset,
 }
 
 impl BenchmarksApp {
@@ -331,6 +335,8 @@ impl BenchmarksApp {
             sort_picker_selected: 0,
             loading: true,
             detail_scroll: ScrollOffset::default(),
+            show_glossary: false,
+            glossary_scroll: ScrollOffset::default(),
         };
 
         if let Some(file) = file {
@@ -428,6 +434,9 @@ impl BenchmarksApp {
         self.bottom_view = BottomView::default();
         self.show_detail_overlay = false;
         self.show_sort_picker = false;
+        // Close the glossary and reset its scroll: its contents are per-source.
+        self.show_glossary = false;
+        self.glossary_scroll.jump_top();
         self.h2h_scroll.jump_top();
         self.reset_detail_scroll();
 
@@ -1126,6 +1135,24 @@ impl BenchmarksApp {
     pub fn scroll_h2h_page_up(&mut self, page: usize) {
         self.h2h_scroll.decrement(page as u16);
     }
+
+    // --- Glossary popup ---
+
+    /// Toggle the glossary popup. Opening resets the scroll to the top.
+    pub fn toggle_glossary(&mut self) {
+        self.show_glossary = !self.show_glossary;
+        if self.show_glossary {
+            self.glossary_scroll.jump_top();
+        }
+    }
+
+    pub fn scroll_glossary_down(&mut self) {
+        self.glossary_scroll.increment(1);
+    }
+
+    pub fn scroll_glossary_up(&mut self) {
+        self.glossary_scroll.decrement(1);
+    }
 }
 
 #[cfg(test)]
@@ -1571,5 +1598,34 @@ mod tests {
         assert_eq!(app.h2h_scroll.get(), 11);
         app.scroll_h2h_page_up(100);
         assert_eq!(app.h2h_scroll.get(), 0);
+    }
+
+    #[test]
+    fn glossary_toggle_resets_scroll_on_open() {
+        let mut app = BenchmarksApp::new(None);
+        assert!(!app.show_glossary);
+        // Scroll while closed, then open: opening must reset to top.
+        app.scroll_glossary_down();
+        app.scroll_glossary_down();
+        app.toggle_glossary();
+        assert!(app.show_glossary);
+        assert_eq!(app.glossary_scroll.get(), 0);
+        // Scroll, then toggle closed: state flips off (scroll untouched on close).
+        app.scroll_glossary_down();
+        app.toggle_glossary();
+        assert!(!app.show_glossary);
+    }
+
+    #[test]
+    fn switch_source_closes_glossary() {
+        let file = sample_file();
+        let store = store_with(file.clone());
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.toggle_glossary();
+        app.scroll_glossary_down();
+        assert!(app.show_glossary);
+        app.switch_source(&store, true);
+        assert!(!app.show_glossary);
+        assert_eq!(app.glossary_scroll.get(), 0);
     }
 }

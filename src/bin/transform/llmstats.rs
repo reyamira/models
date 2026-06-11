@@ -116,19 +116,49 @@ struct RawOrg {
 // value); the score map keys by that id.
 // ---------------------------------------------------------------------------
 
-/// One entry: (id == category id, label, kind, group, higher_is_better).
-type MetricEntry = (&'static str, &'static str, MetricKind, &'static str, bool);
+/// One entry: (id == category id, label, kind, group, higher_is_better, description).
+type MetricEntry = (
+    &'static str,
+    &'static str,
+    MetricKind,
+    &'static str,
+    bool,
+    &'static str,
+);
+
+/// Common explanation shared by every LLM Stats category rating. LLM Stats runs
+/// the TrueSkill ranking system independently per category over the benchmarks
+/// tagged with it, reporting the conservative estimate `μ − 3σ`; higher is
+/// better. Each description below appends the domain-specific clause.
+const RATING_SUFFIX: &str =
+    "Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks \
+     tagged with this category); higher is better.";
 
 const METRICS: &[MetricEntry] = &[
     // Group "Categories I" (6)
-    ("agents", "Agents", MetricKind::Index, "Categories I", true),
-    ("code", "Code", MetricKind::Index, "Categories I", true),
+    (
+        "agents",
+        "Agents",
+        MetricKind::Index,
+        "Categories I",
+        true,
+        "Capability on agentic, multi-step tool-using tasks.",
+    ),
+    (
+        "code",
+        "Code",
+        MetricKind::Index,
+        "Categories I",
+        true,
+        "Capability on programming and code-generation tasks.",
+    ),
     (
         "finance",
         "Finance",
         MetricKind::Index,
         "Categories I",
         true,
+        "Capability on finance-domain tasks.",
     ),
     (
         "frontend_development",
@@ -136,6 +166,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories I",
         true,
+        "Capability on front-end / web-UI development tasks.",
     ),
     (
         "general",
@@ -143,6 +174,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories I",
         true,
+        "Overall general-capability rating across all tracked benchmarks.",
     ),
     (
         "healthcare",
@@ -150,16 +182,32 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories I",
         true,
+        "Capability on healthcare and medical-domain tasks.",
     ),
     // Group "Categories II" (5)
-    ("legal", "Legal", MetricKind::Index, "Categories II", true),
-    ("math", "Math", MetricKind::Index, "Categories II", true),
+    (
+        "legal",
+        "Legal",
+        MetricKind::Index,
+        "Categories II",
+        true,
+        "Capability on legal-domain tasks.",
+    ),
+    (
+        "math",
+        "Math",
+        MetricKind::Index,
+        "Categories II",
+        true,
+        "Capability on mathematical problem-solving tasks.",
+    ),
     (
         "multimodal",
         "Multimodal",
         MetricKind::Index,
         "Categories II",
         true,
+        "Capability on multimodal tasks spanning more than one input modality.",
     ),
     (
         "reasoning",
@@ -167,8 +215,16 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories II",
         true,
+        "Capability on logical and multi-step reasoning tasks.",
     ),
-    ("vision", "Vision", MetricKind::Index, "Categories II", true),
+    (
+        "vision",
+        "Vision",
+        MetricKind::Index,
+        "Categories II",
+        true,
+        "Capability on visual understanding tasks.",
+    ),
 ];
 
 /// Membership test: only curated category ids are ingested. Non-curated
@@ -182,14 +238,14 @@ fn is_curated(category: &str) -> bool {
 fn metric_defs(last_updated: &BTreeMap<String, String>) -> Vec<MetricDef> {
     METRICS
         .iter()
-        .map(|&(id, label, kind, group, hib)| MetricDef {
+        .map(|&(id, label, kind, group, hib, description)| MetricDef {
             id: id.to_string(),
             label: label.to_string(),
             kind,
             group: group.to_string(),
             higher_is_better: hib,
             last_updated: last_updated.get(id).cloned(),
-            description: None,
+            description: Some(format!("{description} {RATING_SUFFIX}")),
         })
         .collect()
 }
@@ -456,6 +512,23 @@ mod tests {
             "vision",
         ] {
             assert!(ids.contains(expected), "curated metric {expected} present");
+        }
+    }
+
+    #[test]
+    fn every_metric_has_a_nonempty_description_mentioning_trueskill() {
+        let sf = parse_fixture_with_models();
+        for m in &sf.metrics {
+            let d = m
+                .description
+                .as_deref()
+                .unwrap_or_else(|| panic!("metric {} has no description", m.id));
+            assert!(d.len() > 20, "metric {} description too short", m.id);
+            assert!(
+                d.contains("TrueSkill"),
+                "metric {} description should mention the TrueSkill rating: {d:?}",
+                m.id
+            );
         }
     }
 
