@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-11T01:26:23.239934354+00:00",
+    "fetched_at": "2026-06-11T22:40:58.803571084+00:00",
     "verified": true
   },
   "metrics": [
@@ -29,7 +29,8 @@
       "kind": "index",
       "group": "Frontier",
       "last_updated": "2026-05-19",
-      "description": "Epoch's composite that stitches 40+ benchmarks into one general-capability scale using Item Response Theory, so models stay comparable as individual benchmarks saturate. Open-ended linear scale with no maximum (recent frontier models score ~130-160); higher is better."
+      "description": "Epoch's composite that stitches 40+ benchmarks into one general-capability scale using Item Response Theory, so models stay comparable as individual benchmarks saturate. Open-ended linear scale with no maximum (recent frontier models score ~130-160); higher is better.",
+      "short_label": "ECI"
     },
     {
       "id": "frontiermath",
@@ -37,7 +38,8 @@
       "kind": "percentage",
       "group": "Frontier",
       "last_updated": "2026-05-27",
-      "description": "Hundreds of original, expert-crafted research-level math problems spanning number theory, analysis, algebraic geometry, and more — each taking specialists hours to days. Scored as accuracy (% of problems solved); higher is better."
+      "description": "Hundreds of original, expert-crafted research-level math problems spanning number theory, analysis, algebraic geometry, and more — each taking specialists hours to days. Scored as accuracy (% of problems solved); higher is better.",
+      "short_label": "FrontMath"
     },
     {
       "id": "frontiermath_tier_4",
@@ -45,7 +47,8 @@
       "kind": "percentage",
       "group": "Frontier",
       "last_updated": "2026-05-28",
-      "description": "The 50 hardest, research-level problems of FrontierMath — its most difficult expansion tier. Scored as accuracy (% of problems solved); higher is better."
+      "description": "The 50 hardest, research-level problems of FrontierMath — its most difficult expansion tier. Scored as accuracy (% of problems solved); higher is better.",
+      "short_label": "FM Tier 4"
     },
     {
       "id": "hle",
@@ -53,7 +56,8 @@
       "kind": "percentage",
       "group": "Frontier",
       "last_updated": "2026-04-16",
-      "description": "Expert-authored questions across 100+ academic subjects, requiring graduate-level knowledge that cannot be quickly looked up online. Scored as accuracy (% correct); higher is better."
+      "description": "Expert-authored questions across 100+ academic subjects, requiring graduate-level knowledge that cannot be quickly looked up online. Scored as accuracy (% correct); higher is better.",
+      "short_label": "HLE"
     },
     {
       "id": "apex_agents",
@@ -61,7 +65,8 @@
       "kind": "percentage",
       "group": "Agentic",
       "last_updated": "2026-05-28",
-      "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better."
+      "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
+      "short_label": "APEX"
     },
     {
       "id": "gso",
@@ -77,7 +82,8 @@
       "kind": "percentage",
       "group": "Agentic",
       "last_updated": "2026-04-16",
-      "description": "AI R&D automation: a CLI agent must post-train a small base LLM on a single GPU within a time budget to raise its downstream scores. Scored as the average improvement across base models and evaluations; higher is better."
+      "description": "AI R&D automation: a CLI agent must post-train a small base LLM on a single GPU within a time budget to raise its downstream scores. Scored as the average improvement across base models and evaluations; higher is better.",
+      "short_label": "PTBench"
     },
     {
       "id": "swe_bench_verified",
@@ -85,7 +91,8 @@
       "kind": "percentage",
       "group": "Agentic",
       "last_updated": "2026-06-01",
-      "description": "Real-world software engineering: the model is given a repository and a GitHub issue from popular Python projects and must edit the codebase to fix it, graded by unit tests. Scored as % of issues resolved; higher is better."
+      "description": "Real-world software engineering: the model is given a repository and a GitHub issue from popular Python projects and must edit the codebase to fix it, graded by unit tests. Scored as % of issues resolved; higher is better.",
+      "short_label": "SWE-bench"
     },
     {
       "id": "terminalbench",
@@ -93,7 +100,8 @@
       "kind": "percentage",
       "group": "Agentic",
       "last_updated": "2026-05-15",
-      "description": "Agentic command-line tasks the model completes autonomously inside a sandboxed Docker terminal, checked by a test script. Scored as % of tasks solved; higher is better."
+      "description": "Agentic command-line tasks the model completes autonomously inside a sandboxed Docker terminal, checked by a test script. Scored as % of tasks solved; higher is better.",
+      "short_label": "TBench"
     },
     {
       "id": "weirdml",
@@ -109,7 +117,8 @@
       "kind": "percentage",
       "group": "Academic",
       "last_updated": "2026-05-28",
-      "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better."
+      "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
+      "short_label": "Chess"
     },
     {
       "id": "gpqa_diamond",
@@ -117,7 +126,8 @@
       "kind": "percentage",
       "group": "Academic",
       "last_updated": "2026-05-22",
-      "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better."
+      "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
+      "short_label": "GPQA"
     },
     {
       "id": "otis_mock_aime_2024_2025",
@@ -125,7 +135,8 @@
       "kind": "percentage",
       "group": "Academic",
       "last_updated": "2026-05-25",
-      "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better."
+      "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
+      "short_label": "OTIS AIME"
     },
     {
       "id": "simplebench",
@@ -133,7 +144,8 @@
       "kind": "percentage",
       "group": "Academic",
       "last_updated": "2026-05-28",
-      "description": "Common-sense reasoning 'trick' questions about space, time, and social cues that are easy for people (84% human baseline) but hard for models. Scored as accuracy (% correct); higher is better."
+      "description": "Common-sense reasoning 'trick' questions about space, time, and social cues that are easy for people (84% human baseline) but hard for models. Scored as accuracy (% correct); higher is better.",
+      "short_label": "SimpleBnch"
     },
     {
       "id": "simpleqa_verified",
@@ -141,7 +153,8 @@
       "kind": "percentage",
       "group": "Academic",
       "last_updated": "2026-05-27",
-      "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better."
+      "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
+      "short_label": "SimpleQA"
     }
   ],
   "models": [
@@ -265,8 +278,8 @@
       "id": "qwen3.6-flash",
       "name": "qwen3.6-flash",
       "display_name": "qwen3.6-flash",
-      "creator": "",
-      "creator_name": "",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
       "release_date": "2026-04-27",
       "scores": {
         "chess_puzzles": {
