@@ -22,8 +22,12 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     log-scale heuristics.
   - `ModelRow { id, name, display_name, creator, creator_name, release_date,
     reasoning_status, effort_level, variant_tag, open_weights, context_window,
-    scores: BTreeMap<String, ScoreCell> }` — `scores` is a `BTreeMap` so JSON
-    output is deterministic (required for commit-if-changed).
+    supports_tools, max_output, scores: BTreeMap<String, ScoreCell> }` — `scores`
+    is a `BTreeMap` so JSON output is deterministic (required for
+    commit-if-changed). `supports_tools` / `max_output` are **runtime-only**
+    (backfilled from a models.dev match in `finalize_loaded_source`; the
+    transforms always emit them as `None`, so they never appear in the data
+    files).
   - `ScoreCell { value, date, ci }` — `ci` carries Arena Elo confidence intervals.
   - **Self-contained on purpose.** This file is compiled both as
     `crate::benchmarks::schema` AND, via a `#[path]` include, into the transform
@@ -87,7 +91,8 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     `ModelRow.id`) against models.dev model IDs, in two stages: (1) creator-scoped
     (AA creator → mapped models.dev provider, e.g. `meta→llama`, `kimi→moonshotai`,
     `aws→amazon-bedrock`), (2) global fallback. Fills `open_weights` /
-    `context_window` from the matched model, plus `known_creator_openness`
+    `context_window` / `supports_tools` (`tool_call`) / `max_output`
+    (`limit.output`) from the matched model, plus `known_creator_openness`
     overrides for creators absent from models.dev (e.g. `ai2→open`,
     `ai21-labs→closed`). Existing populated fields are untouched.
   - `enrich_from_models_dev(providers, models)` — **generic, for the clean-id
@@ -98,7 +103,8 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     repeatedly strips variant suffixes / trailing date stamps (`-2025-12-11`,
     `-202512`) / thinking-budget tags (`-32k`). On a match, fills ONLY empty fields
     (`creator`/`creator_name` from the matched model's host provider with Origin
-    preferred, `release_date`, `context_window`, `open_weights`). Source-provided
+    preferred, `release_date`, `context_window`, `open_weights`, `supports_tools`,
+    `max_output`). Source-provided
     values are never overwritten; unmatched models stay untouched (honest em-dash).
   - `creator_openness(models)` — derives a creator→openness map from model-level
     `open_weights`: `true` if any model is open, `false` if all known-status

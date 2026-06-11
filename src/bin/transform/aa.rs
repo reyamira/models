@@ -449,6 +449,8 @@ fn model_to_row(raw: RawModel) -> ModelRow {
         // (ported traits.rs pass against models.dev). Left None at transform time.
         open_weights: None,
         context_window: None,
+        supports_tools: None,
+        max_output: None,
         scores,
     }
 }

@@ -1022,6 +1022,58 @@ pub(super) fn build_benchmark_detail_lines(
         ),
     );
 
+    // Region / Type — heuristic creator classification (same buckets as the
+    // sidebar grouping). Guarded on a known creator so unmatched rows (empty
+    // creator) show an honest em-dash instead of a confident "Other"/"Startup".
+    {
+        use super::app::{CreatorRegion, CreatorType};
+        let creator_known = !model.creator.is_empty();
+        let region = CreatorRegion::from_creator(&model.creator);
+        let ctype = CreatorType::from_creator(&model.creator);
+        let (region_label, region_color) = if creator_known {
+            (region.label(), region.color())
+        } else {
+            (EM, Color::DarkGray)
+        };
+        let (type_label, type_color) = if creator_known {
+            (ctype.label(), ctype.color())
+        } else {
+            (EM, Color::DarkGray)
+        };
+        push_meta_row(
+            &mut lines,
+            &cw,
+            ("Region", region_label, region_color),
+            ("Type", type_label, type_color),
+        );
+    }
+
+    // Tools / Output — backfilled from a models.dev match (em-dash where the
+    // source model didn't match a models.dev entry).
+    let (tools_label, tools_color) = match model.supports_tools {
+        Some(true) => ("Yes", Color::Green),
+        Some(false) => ("No", Color::DarkGray),
+        None => (EM, Color::DarkGray),
+    };
+    let out_str = model
+        .max_output
+        .map(format_tokens)
+        .unwrap_or_else(|| EM.to_string());
+    push_meta_row(
+        &mut lines,
+        &cw,
+        ("Tools", tools_label, tools_color),
+        (
+            "Output",
+            out_str.as_str(),
+            if model.max_output.is_some() {
+                Color::White
+            } else {
+                Color::DarkGray
+            },
+        ),
+    );
+
     if let Some(variant) = &model.variant_tag {
         push_meta_row(
             &mut lines,
@@ -1458,6 +1510,8 @@ mod tests {
             variant_tag: None,
             open_weights: Some(false),
             context_window: Some(200_000),
+            supports_tools: None,
+            max_output: None,
             scores: score_map,
         }
     }
@@ -1500,6 +1554,64 @@ mod tests {
         // Verified source -> no self-reported note.
         assert!(joined.contains("Source: Test Source"));
         assert!(!joined.contains("self-reported"));
+    }
+
+    #[test]
+    fn detail_identity_region_type_tools_output() {
+        // creator "openai" classifies as US / Startup; tools + max output are
+        // the models.dev-backfilled fields.
+        let mut m = model_with(vec![("intelligence_index", cell(70.0, None, None))]);
+        m.supports_tools = Some(true);
+        m.max_output = Some(64_000);
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![metric(
+                "intelligence_index",
+                "Intelligence",
+                MetricKind::Index,
+                "Indexes",
+            )],
+            models: vec![m],
+        };
+        let joined = build_benchmark_detail_lines(80, &file, &file.models[0])
+            .iter()
+            .map(line_text)
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(joined.contains("Region"), "got: {joined}");
+        assert!(joined.contains("US"), "got: {joined}");
+        assert!(joined.contains("Type"), "got: {joined}");
+        assert!(joined.contains("Tools"), "got: {joined}");
+        assert!(joined.contains("Yes"), "got: {joined}");
+        assert!(joined.contains("Output"), "got: {joined}");
+        assert!(joined.contains("64k"), "got: {joined}");
+    }
+
+    #[test]
+    fn detail_identity_unknown_creator_em_dashes_region_type() {
+        // Empty creator -> Region/Type are honest em-dashes (not Other/Startup),
+        // and unmatched tools/output em-dash too.
+        let mut m = model_with(vec![("intelligence_index", cell(70.0, None, None))]);
+        m.creator = String::new();
+        m.creator_name = String::new();
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![metric(
+                "intelligence_index",
+                "Intelligence",
+                MetricKind::Index,
+                "Indexes",
+            )],
+            models: vec![m],
+        };
+        let region_line = build_benchmark_detail_lines(80, &file, &file.models[0])
+            .into_iter()
+            .map(|l| line_text(&l))
+            .find(|t| t.contains("Region"))
+            .expect("Region row present");
+        assert!(!region_line.contains("Other"), "got: {region_line}");
+        assert!(!region_line.contains("Startup"), "got: {region_line}");
+        assert!(region_line.contains(EM), "got: {region_line}");
     }
 
     #[test]

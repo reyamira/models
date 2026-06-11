@@ -376,6 +376,8 @@ fn build_source_file(rankings: RawRankingsFile, models: Option<RawModelsFile>) -
                 variant_tag: parsed.variant_tag,
                 open_weights,
                 context_window,
+                supports_tools: None,
+                max_output: None,
                 scores: a.scores,
             }
         })

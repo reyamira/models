@@ -643,6 +643,8 @@ fn parse_csv(stem: &str, path: &Path) -> Result<ParsedCsv, String> {
                         variant_tag: cleaned.variant_tag,
                         open_weights: None,
                         context_window: None,
+                        supports_tools: None,
+                        max_output: None,
                         scores,
                     },
                     best_value: value,

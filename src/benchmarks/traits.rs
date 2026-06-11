@@ -59,6 +59,8 @@ fn known_creator_openness(creator: &str) -> Option<bool> {
 struct ModelTraits {
     open_weights: bool,
     context_window: Option<u64>,
+    supports_tools: bool,
+    max_output: Option<u64>,
 }
 
 impl ModelTraits {
@@ -66,6 +68,8 @@ impl ModelTraits {
         Self {
             open_weights: model.open_weights,
             context_window: model.limit.as_ref().and_then(|l| l.context),
+            supports_tools: model.tool_call,
+            max_output: model.limit.as_ref().and_then(|l| l.output),
         }
     }
 }
@@ -181,6 +185,8 @@ impl MatchIndex {
                 return Some(ModelTraits {
                     open_weights: traits.open_weights,
                     context_window: traits.context_window,
+                    supports_tools: traits.supports_tools,
+                    max_output: traits.max_output,
                 });
             }
         }
@@ -189,6 +195,8 @@ impl MatchIndex {
         known_creator_openness(creator).map(|ow| ModelTraits {
             open_weights: ow,
             context_window: None,
+            supports_tools: false,
+            max_output: None,
         })
     }
 }
@@ -209,6 +217,12 @@ pub fn apply_model_traits(providers: &[(String, Provider)], models: &mut [ModelR
             }
             if model.context_window.is_none() {
                 model.context_window = traits.context_window;
+            }
+            if model.supports_tools.is_none() {
+                model.supports_tools = Some(traits.supports_tools);
+            }
+            if model.max_output.is_none() {
+                model.max_output = traits.max_output;
             }
         }
     }
@@ -380,6 +394,8 @@ struct EnrichCandidate {
     open_weights: bool,
     release_date: Option<String>,
     context_window: Option<u64>,
+    supports_tools: bool,
+    max_output: Option<u64>,
 }
 
 impl EnrichCandidate {
@@ -412,6 +428,8 @@ impl EnrichIndex {
                     open_weights: model.open_weights,
                     release_date: model.release_date.clone(),
                     context_window: model.limit.as_ref().and_then(|l| l.context),
+                    supports_tools: model.tool_call,
+                    max_output: model.limit.as_ref().and_then(|l| l.output),
                 };
                 exact
                     .entry(model_id.to_lowercase())
@@ -495,6 +513,12 @@ pub fn enrich_from_models_dev(providers: &[(String, Provider)], models: &mut [Mo
         }
         if model.open_weights.is_none() {
             model.open_weights = Some(candidate.open_weights);
+        }
+        if model.supports_tools.is_none() {
+            model.supports_tools = Some(candidate.supports_tools);
+        }
+        if model.max_output.is_none() {
+            model.max_output = candidate.max_output;
         }
     }
 }
@@ -790,6 +814,8 @@ mod tests {
             variant_tag: None,
             open_weights: None,
             context_window: None,
+            supports_tools: None,
+            max_output: None,
             scores: std::collections::BTreeMap::new(),
         }
     }

@@ -316,6 +316,8 @@ fn merge_to_row(row: MergeRow) -> ModelRow {
         open_weights: license_to_open_weights(row.license.as_deref()),
         // Arena boards carry no context window.
         context_window: None,
+        supports_tools: None,
+        max_output: None,
         scores: row.scores,
     }
 }

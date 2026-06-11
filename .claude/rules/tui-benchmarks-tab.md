@@ -136,18 +136,21 @@ Sort keys are **dynamic per source**: `SortKey = ReleaseDate | Name | Metric(i)`
 
 Identity block + one section per metric `group` (`groups_in_order`), values formatted by `MetricKind` (`format_metric_value`), with a final source-attribution line. Uses `ScrollablePanel` + `detail_scroll`; `reset_detail_scroll()` on every selection/filter/sort/rebuild.
 
-**Identity block**: display name (White+BOLD), id (DarkGray), then 2-column `ColumnWidths` label-value rows (`[28%, 22%, 28%, 22%]`, 2-space indent): Creator / Released, reasoning / effort / variant (each only when present).
+**Identity block**: display name (White+BOLD), id (DarkGray), then 2-column `ColumnWidths` label-value rows (`[28%, 22%, 28%, 22%]`, 2-space indent), in order: Creator / Released, Reasoning / Effort, Weights / Context, **Region / Type, Tools / Output**, Variant (Variant only when present).
+
+- **Region / Type** derive from the creator slug (`CreatorRegion::from_creator` / `CreatorType::from_creator`, colored by `.color()`) — works for every source. Guarded on a non-empty creator: an unmatched/empty creator shows em-dash for both rather than a misleading `Other`/`Startup`.
+- **Tools** (`supports_tools`: Yes Green / No DarkGray / em-dash) and **Output** (`max_output`, via `format_tokens`) are backfilled at runtime from a models.dev match (`finalize_loaded_source`, both the AA `apply_model_traits` and the generic `enrich_from_models_dev` paths) onto `ModelRow.supports_tools`/`max_output`. They populate where the source model matched a models.dev entry — em-dash elsewhere, so coverage is intentionally uneven across sources.
 
 **Label column sizing (metric rows)**: the metric-label column is sized to the source's **longest metric label** + 2-space gap (so values never collide with long labels like "Epoch Capabilities Index"), capped at `width - (indent + 12)` (min 8) so a pathological label can't push values off-panel.
 
-**Direction arrow**: each metric row appends a dim `↑` (higher-is-better) / `↓` (lower-is-better) in `Color::DarkGray`. The arrow **counts toward the label-column budget** — the label is truncated to leave room for `" ↑"` (2 cols).
+**Direction**: metric rows carry **no** per-metric direction marker — scale and direction live in the section header suffix (see "Section headers" below). The metric-label column is a pure gutter (longest label + 4 spaces).
 
 **Value cell suffixes**:
 - Elo cells with a confidence interval append ` ±{ci:.0}`.
 - Any cell carrying a per-model `date` appends a dim `(upd {date})`.
 - Missing value: em-dash `\u{2014}` in `Color::DarkGray`.
 
-**Section headers**: uniform-kind groups get a dim scale suffix (`group_kind_blurb` + `ui::section_header_line_with_suffix`); mixed-kind groups fall back to the plain `── Title ──` header (`ui::section_header_line`), both filling to panel width with `\u{2500}` in `Color::DarkGray`.
+**Section headers** (`group_header_suffix`): combine a uniform-kind scale blurb (`group_kind_blurb`) and a uniform-direction blurb (`group_direction_blurb`) into the header suffix — `(kind · dir)` when both uniform (e.g. `── Pricing ($ per 1M tokens · lower is better) ──`), kind alone or direction alone when only one is uniform, and a plain `── Title ──` header when the group is mixed on both (e.g. AA Performance: speed ↑, latency ↓). Suffixed headers use `ui::section_header_line_with_suffix`, plain headers `ui::section_header_line`; both fill to panel width with `\u{2500}` in `Color::DarkGray`.
 
 **Source attribution** (final line, after a blank): `Source: {name}` in `Color::Gray` + ` (self-reported)` in `Color::Yellow` when `SourceMeta.verified == false`.
 
@@ -163,8 +166,8 @@ Curated per-benchmark descriptions for the active source. State `show_glossary` 
 - **Size**: `centered_rect(60, 70)` — 60% width, 70% height. **Border**: `Color::Cyan`. **Background**: `Clear` first.
 - **Title**: `" Benchmark Glossary - i or Esc to close (Up/Down to scroll) "`.
 - Content (`build_glossary_lines`): every metric in display order (`groups_in_order` → `metric_indices_in_group`) under the same dash-padded section headers as the detail panel. Per metric:
-  1. label (`Color::Gray` + BOLD) + dim direction arrow (DarkGray)
-  2. meta line (DarkGray): kind blurb + `updated {date}` when `last_updated` is set (date-portion only — sources emit `YYYY-MM-DD` or RFC3339)
+  1. label (`Color::Gray` + BOLD) — no direction marker
+  2. meta line (DarkGray): `{kind blurb} \u{00B7} {direction blurb}` (per-metric direction lives here, so mixed-direction groups stay unambiguous) + `  updated {date}` when `last_updated` is set (date-portion only — sources emit `YYYY-MM-DD` or RFC3339)
   3. description (`Color::White`), or an em-dash line when `description` is `None`
 - Blank line between entries; `"No metrics for this source"` (DarkGray) when empty.
 - **Key interception**: `handle_glossary_keys` runs before the global handler so `q` is swallowed (doesn't quit). `i`/`Esc` close; arrows / `j` / `k` scroll; all other keys swallowed. Scroll resets on open and on source switch.

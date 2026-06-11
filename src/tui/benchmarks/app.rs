@@ -1213,6 +1213,8 @@ mod tests {
             variant_tag: None,
             open_weights: None,
             context_window: None,
+            supports_tools: None,
+            max_output: None,
             scores: score_map,
         }
     }

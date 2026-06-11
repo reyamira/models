@@ -16,7 +16,7 @@ sidebar) rendered from per-source `MetricDef`s rather than hardcoded field names
 - Sources load progressively; selecting a still-loading/failed source shows the standard loading/error state.
 
 ## Glossary popup (`i`)
-- State `show_glossary` + `glossary_scroll`. `draw_glossary` renders a `ScrollablePanel` (centered 60% × 70%, Cyan border, `Clear` background) over `build_glossary_lines(file, width)`: every metric in display order under the same dash-padded section headers as the detail panel. Per metric: label (Gray+BOLD) + dim direction arrow; a meta line (kind blurb + `updated {date}` when `last_updated` is set, date-portion only); then the `description` (White) or an em-dash when `None`.
+- State `show_glossary` + `glossary_scroll`. `draw_glossary` renders a `ScrollablePanel` (centered 60% × 70%, Cyan border, `Clear` background) over `build_glossary_lines(file, width)`: every metric in display order under the same dash-padded section headers as the detail panel. Per metric: label (Gray+BOLD, no direction marker); a meta line (`{kind blurb} · {direction blurb}` + `updated {date}` when `last_updated` is set, date-portion only); then the `description` (White) or an em-dash when `None`.
 - Key interception: `event.rs::handle_glossary_keys` runs **before** the global handler so `q` doesn't quit — `i`/`Esc` close, arrows/`j`/`k` scroll, everything else is swallowed. Scroll resets on open and on source switch.
 
 ## Key Patterns
@@ -26,8 +26,8 @@ sidebar) rendered from per-source `MetricDef`s rather than hardcoded field names
 - Scatter axes are metric-index state (`scatter_x`/`scatter_y`); `x`/`y` cycle the active source's metrics; auto log-scale when value range ratio > 2.5.
 - Sort: dynamic `sort_options(file)` = `[ReleaseDate, Name, every metric]` (scrollable picker, `s` opens, `S` toggles direction). Quick sorts: `1` = first metric, `2` = release date, `3` = first `TokensPerSec` metric (no-op when the source has none — `quick_sort_speed` returns `None`). `default_sort` = ReleaseDate when any model has a date, else `Metric(0)`.
 - Detail panel uses `ScrollablePanel` + `detail_scroll`; `reset_detail_scroll()` on every selection/filter/sort/rebuild.
-- Detail metric rows append a dim direction arrow (`↑`/`↓`) that counts toward the label column budget (label truncated to leave `" ↑"`). Elo cells append ` ±{ci}`; cells with a per-model date append a dim `(upd {date})`. Final line is the source-attribution line (`Source: {name}` + ` (self-reported)` when unverified).
-- Uniform-kind groups get a dim scale suffix on the section header (`group_kind_blurb` + `ui::section_header_line_with_suffix`); mixed-kind groups get the plain header.
+- Detail metric rows carry **no** per-metric direction marker; the label column is a pure gutter (longest label + 4). Direction/scale live in the section-header suffix. Elo cells append ` ±{ci}`. Final line is the source-attribution line (`Source: {name}` + ` (self-reported)` when unverified).
+- Section header suffix (`group_header_suffix`) = `(kind · direction)` when the group is uniform on both, kind-alone or direction-alone when only one is uniform, plain `── Title ──` when mixed on both. Per-metric direction is preserved in the glossary meta line for mixed groups. Identity block now also carries Region/Type (creator-derived, em-dash when creator unknown) and Tools/Output (models.dev-backfilled onto `ModelRow.supports_tools`/`max_output`).
 
 ## Filters & creator grouping
 - Reasoning filter (`7`) is auto-hidden (key no-op, footer/help row omitted) when no model in the active source carries a reasoning status. Open-weights filter (`4`, `CycleBenchmarkSource`/`SourceFilter` — the open/closed *weights* filter, **not** the data source) + O/C indicators come from `ModelRow.open_weights` (AA via `apply_model_traits`, others via `enrich_from_models_dev`/`creator_openness`); em-dash where unknown.

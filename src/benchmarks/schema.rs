@@ -91,6 +91,14 @@ pub struct ModelRow {
     pub open_weights: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub context_window: Option<u64>,
+    /// Tool-use capability, backfilled at runtime from a models.dev match
+    /// (never emitted by the transforms — None at serialize time).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supports_tools: Option<bool>,
+    /// Max output tokens, backfilled at runtime from a models.dev match
+    /// (never emitted by the transforms — None at serialize time).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_output: Option<u64>,
     pub scores: BTreeMap<String, ScoreCell>,
 }
 
