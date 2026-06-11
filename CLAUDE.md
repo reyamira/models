@@ -21,7 +21,7 @@ mise run fmt && mise run clippy && mise run test
 
 ### Tabs
 - **Models Tab** (`src/tui/models/`) — browse models from models.dev API with 3-column layout (20% providers | 45% model list | 35% detail panel), RTFO capability indicators, adaptive provider panel
-- **Benchmarks Tab** (`src/tui/benchmarks/`) — compare model benchmarks across 4 data sources (Artificial Analysis, Epoch AI, Arena, LLM Stats) via a data-source switcher (`{`/`}`). All views are registry-driven from per-source metric definitions shipped in the data files (no hardcoded field names). Browse/compare modes, H2H table, scatter plot, radar chart views, plus an `i` glossary popup with curated per-benchmark descriptions
+- **Benchmarks Tab** (`src/tui/benchmarks/`) — compare model benchmarks across 4 data sources (Artificial Analysis, Epoch AI, Arena, LLM Stats) via a data-source switcher (`{`/`}`; state-preserving — search/filters/sort intent and id-matched compare selections carry across sources). All views are registry-driven from per-source metric definitions shipped in the data files (no hardcoded field names). Browse/compare modes, H2H table, scatter plot, radar chart views, an `i` glossary popup with curated per-benchmark descriptions, an `a`-cycled comparator cell in the detail panel (field avg / peer avg / rank), and `r` in-app refresh of the active source (stale-while-revalidate)
 - **Agents Tab** (`src/tui/agents/`) — track AI coding assistants with GitHub integration
 - **Status Tab** (`src/tui/status/`) — live provider health monitoring with detail view for incidents, components, and scheduled maintenance
 

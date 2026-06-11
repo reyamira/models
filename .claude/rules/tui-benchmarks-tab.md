@@ -47,7 +47,7 @@ Constraint::Min(0)     -- Active view
 
 ## 2. Source Bar
 
-One line above all content (`draw_source_bar`). Left: a bracketed label per `SOURCES` entry. Right (active source only): freshness + self-reported badge.
+One line above all content (`draw_source_bar`). Left: a bracketed label per `SOURCES` entry, then the switch hint. Right (active source only): freshness + self-reported badge.
 
 **Left — per-source label** (leading space, then `[{name}] ` per source):
 
@@ -57,6 +57,10 @@ One line above all content (`draw_source_bar`). Left: a bracketed label per `SOU
 | Loaded, inactive | `[{name}] ` | `Color::DarkGray` |
 | Loading | `[{name}] ` + `◐ ` | label DarkGray, `◐` (U+25D0) Yellow |
 | Failed | `[{name}] ` + `✗ ` | label DarkGray, `✗` (U+2717) Red |
+
+After the labels: `{ } switch source` in `Color::DarkGray` (mirrors the header's `[/] switch tabs` hint; the footer carries no source-switch hint).
+
+**Source identity appears here only** — the detail panel has no attribution line and switching sources does not flash the source name in the status bar.
 
 **Right — active source freshness** (right-aligned, omitted unless the active source is loaded):
 - `fetched {relative}` in `Color::DarkGray` (relative time from `SourceMeta.fetched_at`)
@@ -70,11 +74,14 @@ One line above all content (`draw_source_bar`). Left: a bracketed label per `SOU
 |-----|--------|
 | `}` | Next data source |
 | `{` | Previous data source |
+| `r` | Refresh the active source |
 
 - `[` / `]` stay **global** PrevTab/NextTab — the braces mirror them (brackets move between tabs, braces between data sources within the tab).
-- Switching triggers `rebuild()` against the new `SourceFile` and **clears compare selections and search, and resets sort to the source default** (`multi::default_sort`).
+- Switching is **state-preserving** (`switch_source` → `reset_for_source`): it keeps `search_query`, the open-weights filter, creator grouping, the reasoning filter (reset to `All` only when the target source carries no reasoning metadata), the comparator mode, and a `ReleaseDate`/`Name` sort with direction; a `Metric(i)` sort is source-specific and falls back to the new source's `default_sort`. Per-source view state still resets: selection/creator indices, scrolls, scatter axes, radar group, `bottom_view`, popups.
+- Compare selections carry over by **exact `ModelRow.id` match**, order-preserving (compare-color stability); ids absent from the new source drop, and `update_bottom_view` demotes compare→browse when <2 survive.
+- `r` is stale-while-revalidate: current data keeps rendering while `fetch_source` re-runs (`Message::RefreshBenchmarkSource` → `Message::DataSourceRefreshed`). Success re-runs enrichment + a state-preserving rebuild (`rebuild_preserving`: keeps sort/search/filters, remaps selections and the focused row by id, stale `Metric(i)` falls back); failure keeps the existing file (`set_failed` is never applied to good data) with status `Failed to refresh {name} — keeping current data`. A `Loading`/`Failed` source stays recoverable via `r`.
 - Selecting a still-loading or failed source shows the standard loading/error state in the content area; sources load progressively (the tab is usable as soon as any source lands).
-- Footer hint: ` { } ` (Yellow) + `source`. Help popup has a `Data Source` section (`}` Next / `{` Previous).
+- Footer hints: ` r ` (Yellow) + `refresh` in both browse and compare modes; the source-switch hint lives in the source bar, not the footer. Help popup's `Data Source` section: `}` Next / `{` Previous / `r` Refresh active source.
 
 ---
 
@@ -104,15 +111,17 @@ Selection marker in the compact list: `●` (U+25CF) in the model's compare colo
 
 Sort keys are **dynamic per source**: `SortKey = ReleaseDate | Name | Metric(i)` where `Metric(i)` indexes `file.metrics`.
 
-**Per-source default sort** (`multi::default_sort`): `ReleaseDate` (desc) when any model carries a release date, else `Metric(0)` (first metric, desc). Arena has no dates → defaults to first metric.
+**Per-source default sort** (`multi::default_sort`): `ReleaseDate` (desc) when any model carries a release date, else `Metric(0)` (first metric, desc). Arena's committed file has no dates, but runtime models.dev enrichment backfills most of them before the rebuild — so Arena's *runtime* default is ReleaseDate; the `Metric(0)` fallback applies only pre-enrichment.
 
 **Quick sorts:**
 
 | Key | Sort | Notes |
 |-----|------|-------|
-| `1` | First metric (`Metric(0)`) | `quick_sort_metric_first` — AA maps to intelligence |
+| `1` | First metric (`Metric(0)`) | `quick_sort_metric_first` |
 | `2` | Release date | maps to date |
 | `3` | First `TokensPerSec` metric | `quick_sort_speed` — **no-op when the source has none** (returns `None`) |
+
+**Footer hints are dynamic per source**: `1 {first word of metrics[0].label, lowercased}` (`1 intelligence` / `1 arc-agi` / `1 text` / `1 agents`), `2 date` always, `3 speed` only when `quick_sort_speed` resolves; all three omitted while the active source is unloaded. The help popup's `1` line carries the full first-metric label and its `3` line is conditional the same way.
 
 `s` opens the sort picker, `S` toggles direction. Re-pressing the same quick-sort key toggles direction (`quick_sort`).
 
@@ -134,7 +143,9 @@ Sort keys are **dynamic per source**: `SortKey = ReleaseDate | Name | Metric(i)`
 
 ## 8. Detail Panel (Browse Mode)
 
-Identity block + one section per metric `group` (`groups_in_order`), values formatted by `MetricKind` (`format_metric_value`), with a final source-attribution line. Uses `ScrollablePanel` + `detail_scroll`; `reset_detail_scroll()` on every selection/filter/sort/rebuild.
+Identity block + one section per metric `group` (`groups_in_order`), values formatted by `MetricKind` (`format_metric_value`). **No source-attribution line** — source identity lives in the source bar only. Uses `ScrollablePanel` + `detail_scroll`; `reset_detail_scroll()` on every selection/filter/sort/rebuild.
+
+**Panel title** reflects the comparator mode: ` Details · vs field avg `, ` Details · vs peers (±6mo) `, ` Details · rank `, plain ` Details ` when Off.
 
 **Identity block**: display name (White+BOLD), id (DarkGray), then 2-column `ColumnWidths` label-value rows (`[28%, 22%, 28%, 22%]`, 2-space indent), in order: Creator / Released, Reasoning / Effort, Weights / Context, **Region / Type, Tools / Output**, Variant (Variant only when present).
 
@@ -150,9 +161,11 @@ Identity block + one section per metric `group` (`groups_in_order`), values form
 - Cells carrying a `votes` sample size (Arena) append a dim ` · {format_tokens(votes)} votes` (DarkGray) — a confidence signal alongside the CI. Per-cell `date`s are **not** rendered in the score rows (dropped in 8828a67; freshness lives in the glossary meta line).
 - Missing value: em-dash `\u{2014}` in `Color::DarkGray`.
 
+**Comparator cell** (after the value and any ±ci / votes suffixes, in `Color::DarkGray`): `a` in browse mode cycles `ComparatorMode` — `FieldAvg → PeerAvg → Rank → Off`, default `FieldAvg`, persisted across source switches and refreshes. Formats: `avg {v}` (mean over all models in the source with that metric), `peers({n}) {v}` (±183-day release-date window around the selected model, self-excluded; em-dash when the model is dateless or no peers), `#{rank}/{n}` (1-based, direction-aware via `higher_is_better`; em-dash when the model lacks the value). FieldAvg/PeerAvg still render when the model's own value is missing; Rank cannot. Computation helpers (`field_avg` / `peer_avg` / `rank`) live in `benchmarks/multi.rs` and operate on the **full** model list, never the filtered view. The `a` binding is mode-dependent: browse = comparator cycle, compare-mode Radar view = radar-preset cycle.
+
 **Section headers** (`group_header_suffix`): combine a uniform-kind scale blurb (`group_kind_blurb`) and a uniform-direction blurb (`group_direction_blurb`) into the header suffix — `(kind · dir)` when both uniform (e.g. `── Pricing ($ per 1M tokens · lower is better) ──`), kind alone or direction alone when only one is uniform, and a plain `── Title ──` header when the group is mixed on both (e.g. AA Performance: speed ↑, latency ↓). Suffixed headers use `ui::section_header_line_with_suffix`, plain headers `ui::section_header_line`; both fill to panel width with `\u{2500}` in `Color::DarkGray`.
 
-**Source attribution** (final line, after a blank): `Source: {name}` in `Color::Gray` + ` (self-reported)` in `Color::Yellow` when `SourceMeta.verified == false`.
+**Open in browser** (`o`): builds the URL via `SourceDescriptor::model_url`, not `{file.source.url}/models/{id}`. AA / LLM Stats have real `/models/{id}` pages; Epoch uses a normalized slug (last path segment, lowercased, `.` → `-`) with an async HEAD-probe (≤3s) falling back to `https://epoch.ai/data/ai-models` on non-200; Arena has no per-model pages → always `https://arena.ai/leaderboard/text`. Verified live 2026-06-11.
 
 The detail builder (`build_benchmark_detail_lines`) returns owned `Line<'static>` so the compare-mode detail overlay can reuse it.
 

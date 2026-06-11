@@ -66,7 +66,15 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
   - `radar_groups(file)` — groups with ≥3 `higher_is_better` metrics (keeps
     Performance/Pricing off the radar, matching legacy behavior).
   - `default_sort(file)` — `ReleaseDate` if any model has one, else `Metric(0)`
-    (Arena has no dates).
+    (Arena's committed file has no dates; runtime enrichment backfills most, so
+    the `Metric(0)` fallback only applies pre-enrichment).
+  - Comparator helpers for the detail panel's `a`-cycled cell (pure, unit-tested,
+    computed over the source's full model list): `field_avg(file, metric_id)`,
+    `peer_avg(file, metric_id, model)` (±183-day release-date window
+    (`PEER_WINDOW_DAYS`), self-excluded, returns the peer count; `None` when the
+    model is dateless or has no peers) and `rank(file, metric_id, model)`
+    (1-based, direction-aware via `higher_is_better`; `None` when the model
+    lacks the value).
   - Three unit tests load the real committed `data/v2/{aa,epoch,arena}.json` and
     guard the schema↔helper contract + per-source invariants against hand-edit /
     transform drift: aa (21 metrics, model band, group order, radar groups);
@@ -79,9 +87,18 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
   `arena` (verified), `llmstats` (verified). Each entry carries `id`
   (= `data/v2/` filename stem), `name`, `url`, `data_url` (jsDelivr `@main`), and
   `verified`. Only the source list is compiled in; metric definitions stay
-  data-driven in the files. `url`/`verified` are part of the binding contract but
-  currently `#[allow(dead_code)]` — the UI reads attribution/verification from
-  the data file's `SourceMeta` today (see the per-field TODOs).
+  data-driven in the files. `verified` is part of the binding contract but
+  currently `#[allow(dead_code)]` — the UI reads verification from the data
+  file's `SourceMeta` today.
+  - `model_url(&self, model_id)` — per-source model-page URL for the TUI's `o`
+    key (the naive `{url}/models/{id}` 404s on Epoch/Arena; verified live
+    2026-06-11): AA / LLM Stats `/models/{id}`; Epoch `/models/{slug}` where
+    slug = last path segment, lowercased, `.` → `-` (~70% of Epoch ids resolve,
+    ≈100% of frontier models — the TUI HEAD-probes and falls back to the model
+    index on 404); Arena → text leaderboard (no per-model pages exist). The
+    four known sources hardcode their hosts deliberately — `self.url`
+    (attribution) feeds only the unknown-source fallback arm, so changing it
+    does not repoint the known sources' opened pages.
 
 - **fetch.rs** — `fetch_source(&SourceDescriptor) -> Option<SourceFile>`.
   - Async reqwest GET + JSON deserialize; returns `None` on any error (network,

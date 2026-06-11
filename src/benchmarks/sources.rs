@@ -15,11 +15,10 @@ pub struct SourceDescriptor {
     pub id: &'static str,
     /// Human-readable display name (shown in the source bar).
     pub name: &'static str,
-    /// Attribution link to the source's website.
-    // TODO(phase-3+): the UI currently reads attribution from the data file's
-    // `SourceMeta.url`; this compile-time field is part of the binding contract
-    // and is consumed once source-level (non-data-derived) links are surfaced.
-    #[allow(dead_code)]
+    /// Attribution link to the source's website. Consumed by `model_url`'s
+    /// unknown-source fallback arm; the four known sources deliberately
+    /// hardcode their model-page hosts instead (see `model_url`), so changing
+    /// this field does not repoint their opened pages.
     pub url: &'static str,
     /// jsDelivr CDN URL of the source's v2 `SourceFile` JSON.
     pub data_url: &'static str,
