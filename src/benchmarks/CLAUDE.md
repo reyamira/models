@@ -67,9 +67,12 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     Performance/Pricing off the radar, matching legacy behavior).
   - `default_sort(file)` — `ReleaseDate` if any model has one, else `Metric(0)`
     (Arena has no dates).
-  - A unit test (`test_committed_aa_json_deserializes_and_helpers_match`) loads
-    the real committed `data/v2/aa.json` and guards the schema↔helper contract
-    (21 metrics, plausible model-count band, group order, radar groups).
+  - Three unit tests load the real committed `data/v2/{aa,epoch,arena}.json` and
+    guard the schema↔helper contract + per-source invariants against hand-edit /
+    transform drift: aa (21 metrics, model band, group order, radar groups);
+    epoch (metric/model bands, **no comma in any `creator_name`** — the
+    primary-org invariant, ReleaseDate default sort); arena (≤6 Elo metrics in
+    one group, **some cells carry `votes`**, Metric(0) default sort).
 
 - **sources.rs** — compile-time `SourceDescriptor` registry. `SOURCES` is a
   4-entry `const` slice in display order: `aa` (verified), `epoch` (verified),

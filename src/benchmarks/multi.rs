@@ -440,6 +440,76 @@ mod tests {
     }
 
     #[test]
+    fn test_committed_epoch_json_deserializes_and_invariants_hold() {
+        // Guards the committed file against future hand-edits / transform drift.
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("data/v2/epoch.json");
+        let raw =
+            std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("read {}", path.display()));
+        let file: SourceFile = serde_json::from_str(&raw).expect("epoch.json deserializes");
+
+        assert_eq!(file.source.id, "epoch");
+        assert!(file.source.verified);
+        // Metric set drifts with the 60-day prune window; assert a plausible band.
+        assert!(
+            (8..=30).contains(&file.metrics.len()),
+            "epoch metric count {} outside expected band",
+            file.metrics.len()
+        );
+        assert!(
+            (100..=500).contains(&file.models.len()),
+            "epoch model count {} outside expected band",
+            file.models.len()
+        );
+        // Primary-org invariant: the transform takes only the first org of a
+        // comma-joined `Organization`, so no creator_name may contain a comma
+        // (guards against the composite multi-org slugs regressing).
+        for m in &file.models {
+            assert!(
+                !m.creator_name.contains(','),
+                "epoch creator_name {:?} is a composite multi-org string",
+                m.creator_name
+            );
+        }
+        // Epoch ships release dates -> default sort is ReleaseDate.
+        assert_eq!(default_sort(&file), SortKey::ReleaseDate);
+    }
+
+    #[test]
+    fn test_committed_arena_json_deserializes_and_invariants_hold() {
+        // Guards the committed file against future hand-edits / transform drift.
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("data/v2/arena.json");
+        let raw =
+            std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("read {}", path.display()));
+        let file: SourceFile = serde_json::from_str(&raw).expect("arena.json deserializes");
+
+        assert_eq!(file.source.id, "arena");
+        assert!(file.source.verified);
+        // Up to 6 LLM boards (a missing board is tolerated), all Elo / one group.
+        assert!(
+            (3..=6).contains(&file.metrics.len()),
+            "arena metric count {} outside expected band",
+            file.metrics.len()
+        );
+        assert!(
+            file.metrics
+                .iter()
+                .all(|m| m.kind == MetricKind::Elo && m.group == "Arena Elo"),
+            "arena metrics must all be Elo in the 'Arena Elo' group"
+        );
+        // Votes are the whole point of this file's last regen: at least some
+        // cells must carry a sample size (guards a transform that drops them).
+        let votes_cells = file
+            .models
+            .iter()
+            .flat_map(|m| m.scores.values())
+            .filter(|c| c.votes.is_some())
+            .count();
+        assert!(votes_cells > 0, "arena cells carry no vote counts");
+        // Arena has no release dates -> default sort is the first metric.
+        assert_eq!(default_sort(&file), SortKey::Metric(0));
+    }
+
+    #[test]
     fn test_multistore_out_of_range_noop() {
         let mut store = MultiStore::new();
         let file = SourceFile {
