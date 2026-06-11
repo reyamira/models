@@ -67,24 +67,6 @@ fn peek_next_radar_group_label(app: &app::App) -> Option<String> {
     Some(groups[next].clone())
 }
 
-/// Peek the display name of the source the switcher will advance to.
-fn peek_next_source_name(app: &app::App, forward: bool) -> Option<String> {
-    let count = app.multi_store.sources.len();
-    if count == 0 {
-        return None;
-    }
-    let active = app.benchmarks_app.active_source;
-    let next = if forward {
-        (active + 1) % count
-    } else {
-        (active + count - 1) % count
-    };
-    app.multi_store
-        .sources
-        .get(next)
-        .map(|s| s.descriptor.name.to_string())
-}
-
 /// Result of a GitHub fetch operation for an agent.
 #[derive(Debug)]
 pub enum FetchResult {
@@ -617,13 +599,6 @@ fn run_app(
                 app::Message::CycleRadarPreset => {
                     if let Some(label) = peek_next_radar_group_label(app) {
                         app.set_status(format!("Radar: {}", label));
-                        last_status_time = Some(std::time::Instant::now());
-                    }
-                }
-                app::Message::CycleDataSourceNext | app::Message::CycleDataSourcePrev => {
-                    let forward = matches!(&msg, app::Message::CycleDataSourceNext);
-                    if let Some(name) = peek_next_source_name(app, forward) {
-                        app.set_status(format!("Source: {}", name));
                         last_status_time = Some(std::time::Instant::now());
                     }
                 }
