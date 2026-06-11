@@ -346,9 +346,13 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
         return resolve_benchmarks_nav(app, action);
     }
     match code {
-        KeyCode::Char('1') => Some(Message::QuickSortIntelligence),
-        KeyCode::Char('2') => Some(Message::QuickSortDate),
-        KeyCode::Char('3') => Some(Message::QuickSortSpeed),
+        // Quick sorts live on the back half of the number row (8/9/0): their
+        // targets are per-source (first metric / date / speed-if-present), so
+        // a stable-shaped footer can't honestly hint them — they're documented
+        // in the help popup instead. 1-3 are deliberately unbound here.
+        KeyCode::Char('8') => Some(Message::QuickSortIntelligence),
+        KeyCode::Char('9') => Some(Message::QuickSortDate),
+        KeyCode::Char('0') => Some(Message::QuickSortSpeed),
         KeyCode::Char('4') => Some(Message::CycleBenchmarkSource),
         KeyCode::Char('5') => Some(Message::ToggleRegionGrouping),
         KeyCode::Char('6') => Some(Message::ToggleTypeGrouping),

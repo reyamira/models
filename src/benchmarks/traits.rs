@@ -304,7 +304,7 @@ fn strip_host_prefix(s: &str) -> &str {
 ///
 /// Returns the collapsed identity string. Pure exact/normalized matching — there
 /// is no similarity scoring.
-fn normalize_id(raw: &str) -> String {
+pub fn normalize_id(raw: &str) -> String {
     let lower = raw.to_lowercase();
     let mut s: String = strip_host_prefix(&lower).to_string();
 

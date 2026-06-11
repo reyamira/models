@@ -444,21 +444,46 @@ impl App {
     }
 
     /// Remap the compare `selections` (indices into `old_file.models`) onto
-    /// indices into `new_file.models` by **exact id match**, preserving order so
-    /// compare colors stay stable. Ids absent from the new source are dropped.
-    /// Returns the new selection vector (does not mutate `self`).
+    /// indices into `new_file.models`, preserving order so compare colors stay
+    /// stable. Returns the new selection vector (does not mutate `self`).
+    ///
+    /// Two match tiers per selection: exact `ModelRow.id`, then the enrichment
+    /// pipeline's `normalize_id` — the four sources spell the same model
+    /// differently (`gemini-3.5-flash` / `gemini-3-5-flash`, `DeepSeek-V3-1`,
+    /// `zai-org/GLM-4-7`, Arena's dated `claude-haiku-4-5-20251001`), so
+    /// exact-only matching made carry-over look randomly flaky. Normalization
+    /// can fold variants together (e.g. a `-thinking` suffix strips), so the
+    /// exact tier runs first and resolved targets are deduped. Models with no
+    /// counterpart in the new source are dropped.
     fn remap_selections_by_id(
         selections: &[usize],
         old_file: &SourceFile,
         new_file: &SourceFile,
     ) -> Vec<usize> {
-        selections
-            .iter()
-            .filter_map(|&old_idx| {
-                let id = &old_file.models.get(old_idx)?.id;
-                new_file.models.iter().position(|m| &m.id == id)
-            })
-            .collect()
+        use crate::benchmarks::normalize_id;
+        let mut out: Vec<usize> = Vec::with_capacity(selections.len());
+        for &old_idx in selections {
+            let Some(old) = old_file.models.get(old_idx) else {
+                continue;
+            };
+            let found = new_file
+                .models
+                .iter()
+                .position(|m| m.id == old.id)
+                .or_else(|| {
+                    let want = normalize_id(&old.id);
+                    new_file
+                        .models
+                        .iter()
+                        .position(|m| normalize_id(&m.id) == want)
+                });
+            if let Some(idx) = found {
+                if !out.contains(&idx) {
+                    out.push(idx);
+                }
+            }
+        }
+        out
     }
 
     pub fn get_copy_full(&self) -> Option<String> {
@@ -1912,6 +1937,42 @@ mod tests {
         app.update(Message::CycleDataSourceNext);
         assert_eq!(app.benchmarks_app.active_source, 1);
         assert_eq!(app.selections, vec![1, 0]);
+    }
+
+    #[test]
+    fn selection_carryover_matches_normalized_ids_across_spellings() {
+        // The same model is spelled differently per source: dotted vs dashed
+        // version numbers, raw-HF capitals, org prefixes, trailing date stamps.
+        // Exact-id matching alone drops all of these; the normalized tier
+        // (enrichment's `normalize_id`) must carry them over.
+        let file0 = bm_file_reasoning(
+            "epoch",
+            &["gemini-3.5-flash", "zai-org/GLM-4-7", "DeepSeek-V3-1"],
+        );
+        let file1 = bm_file_reasoning(
+            "arena",
+            &["deepseek-v3-1", "gemini-3-5-flash-20260115", "glm-4-7"],
+        );
+        let mut app = app_with_two_sources(file0, file1);
+
+        app.selections = vec![0, 1, 2];
+        app.update(Message::CycleDataSourceNext);
+        // Selection order preserved: gemini -> 1, glm -> 2, deepseek -> 0.
+        assert_eq!(app.selections, vec![1, 2, 0]);
+    }
+
+    #[test]
+    fn selection_carryover_dedupes_normalized_collisions() {
+        // A base model and its `-thinking` variant normalize identically; both
+        // selections resolve to the single counterpart in the new source and
+        // must collapse to one selection, not two markers on the same row.
+        let file0 = bm_file_reasoning("arena", &["opus-9", "opus-9-thinking"]);
+        let file1 = bm_file_reasoning("aa", &["opus-9", "other"]);
+        let mut app = app_with_two_sources(file0, file1);
+
+        app.selections = vec![0, 1];
+        app.update(Message::CycleDataSourceNext);
+        assert_eq!(app.selections, vec![0]);
     }
 
     #[test]

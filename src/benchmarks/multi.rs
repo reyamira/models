@@ -145,7 +145,10 @@ pub fn format_metric_value(kind: MetricKind, value: f64) -> String {
         MetricKind::Percentage => format!("{:.1}%", value * 100.0),
         MetricKind::Index => format!("{value:.1}"),
         MetricKind::Elo => format!("{value:.0}"),
-        MetricKind::TokensPerSec => format!("{value:.0}"),
+        // Carry the unit: speed sits in mixed-direction groups (AA Performance:
+        // speed ↑, latency ↓) whose section header shows no kind blurb, so the
+        // bare number would be unitless everywhere it matters.
+        MetricKind::TokensPerSec => format!("{value:.0} tok/s"),
         MetricKind::Seconds => format!("{value:.2}s"),
         MetricKind::UsdPerMTok => format!("${value:.2}"),
     }
@@ -376,7 +379,10 @@ mod tests {
         assert_eq!(format_metric_value(MetricKind::Percentage, 0.914), "91.4%");
         assert_eq!(format_metric_value(MetricKind::Index, 73.25), "73.2");
         assert_eq!(format_metric_value(MetricKind::Elo, 1432.7), "1433");
-        assert_eq!(format_metric_value(MetricKind::TokensPerSec, 128.6), "129");
+        assert_eq!(
+            format_metric_value(MetricKind::TokensPerSec, 128.6),
+            "129 tok/s"
+        );
         assert_eq!(format_metric_value(MetricKind::Seconds, 0.456), "0.46s");
         assert_eq!(format_metric_value(MetricKind::UsdPerMTok, 2.5), "$2.50");
     }

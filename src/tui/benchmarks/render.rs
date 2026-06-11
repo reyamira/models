@@ -1106,6 +1106,19 @@ pub(super) fn build_benchmark_detail_lines(
         // +4 clear gutter before the score column (user feedback: values sat
         // flush against the longest label).
         + 4;
+    // Comparator column position: the widest value cell (value + ±ci + votes)
+    // across this model's metric rows, so the comparator forms a true column
+    // instead of trailing each row at a different x.
+    let metric_row_layout = MetricRowLayout {
+        indent: cw.indent,
+        label_w: metric_label_w,
+        value_w: file
+            .metrics
+            .iter()
+            .map(|m| value_cell_width(m.kind, model.scores.get(&m.id)))
+            .max()
+            .unwrap_or(1),
+    };
     for group in groups_in_order(file) {
         lines.push(Line::from(""));
         // Headers carry the scale and/or direction explanation when the
@@ -1121,8 +1134,7 @@ pub(super) fn build_benchmark_detail_lines(
             let comparator_cell = comparator_cell_text(comparator, file, mi, model);
             push_metric_row(
                 &mut lines,
-                cw.indent,
-                metric_label_w,
+                &metric_row_layout,
                 &metric.label,
                 metric.kind,
                 cell,
@@ -1278,32 +1290,10 @@ fn comparator_cell_text(
     }
 }
 
-/// Push a single metric row: label (Gray) + value (White, em-dash DarkGray when
-/// missing). Elo cells with a confidence interval append ` ±{ci:.0}`; cells with
-/// a vote count append a dim `· {N} votes`. When `comparator_cell` is `Some`, a
-/// dim comparator cell is appended after the value and all its suffixes.
-fn push_metric_row(
-    lines: &mut Vec<Line<'static>>,
-    indent: u16,
-    label_w: usize,
-    label: &str,
-    kind: MetricKind,
-    cell: Option<&ScoreCell>,
-    comparator_cell: Option<String>,
-) {
-    let shown = truncate(label, label_w.saturating_sub(2).max(6));
-
-    let mut spans = vec![Span::styled(
-        format!(
-            "{:indent$}{:<w$}",
-            "",
-            shown,
-            indent = indent as usize,
-            w = label_w
-        ),
-        Style::default().fg(Color::Gray),
-    )];
-
+/// The rendered text parts of a metric row's value cell: the value (+ ` ±{ci}`
+/// for Elo) and the dim ` · {N} votes` suffix. Shared by rendering and by the
+/// comparator-column width measurement so the two can never drift apart.
+fn value_cell_parts(kind: MetricKind, cell: Option<&ScoreCell>) -> (String, Option<String>) {
     match cell {
         Some(cell) => {
             let mut value = format_metric_value(kind, cell.value);
@@ -1312,29 +1302,78 @@ fn push_metric_row(
                     value.push_str(&format!(" \u{00B1}{ci:.0}"));
                 }
             }
-            spans.push(Span::styled(value, Style::default().fg(Color::White)));
-            // Sample size (Arena vote count) as a dim confidence signal.
-            if let Some(votes) = cell.votes {
-                spans.push(Span::styled(
-                    format!(" \u{00B7} {} votes", format_tokens(votes)),
-                    Style::default().fg(Color::DarkGray),
-                ));
-            }
+            let votes = cell
+                .votes
+                .map(|v| format!(" \u{00B7} {} votes", format_tokens(v)));
+            (value, votes)
         }
-        None => {
-            spans.push(Span::styled(
-                EM.to_string(),
-                Style::default().fg(Color::DarkGray),
-            ));
-        }
+        None => (EM.to_string(), None),
+    }
+}
+
+/// Display width of a metric row's full value cell (value + suffixes).
+fn value_cell_width(kind: MetricKind, cell: Option<&ScoreCell>) -> usize {
+    use unicode_width::UnicodeWidthStr;
+    let (value, votes) = value_cell_parts(kind, cell);
+    value.width() + votes.as_deref().map_or(0, |v| v.width())
+}
+
+/// Column layout for a metric row: indent, label-gutter width, and the value
+/// column width (widest value cell — pads the comparator into a true column).
+struct MetricRowLayout {
+    indent: u16,
+    label_w: usize,
+    value_w: usize,
+}
+
+/// Push a single metric row: label (Gray) + value (White, em-dash DarkGray when
+/// missing). Elo cells with a confidence interval append ` ±{ci:.0}`; cells with
+/// a vote count append a dim `· {N} votes`. When `comparator_cell` is `Some`,
+/// the value cell is padded out to `layout.value_w` so the dim comparator text
+/// forms a true aligned column across rows (not a trailing annotation).
+fn push_metric_row(
+    lines: &mut Vec<Line<'static>>,
+    layout: &MetricRowLayout,
+    label: &str,
+    kind: MetricKind,
+    cell: Option<&ScoreCell>,
+    comparator_cell: Option<String>,
+) {
+    use unicode_width::UnicodeWidthStr;
+
+    let shown = truncate(label, layout.label_w.saturating_sub(2).max(6));
+
+    let mut spans = vec![Span::styled(
+        format!(
+            "{:indent$}{:<w$}",
+            "",
+            shown,
+            indent = layout.indent as usize,
+            w = layout.label_w
+        ),
+        Style::default().fg(Color::Gray),
+    )];
+
+    let (value, votes) = value_cell_parts(kind, cell);
+    let mut used = value.width();
+    let value_color = if cell.is_some() {
+        Color::White
+    } else {
+        Color::DarkGray
+    };
+    spans.push(Span::styled(value, Style::default().fg(value_color)));
+    // Sample size (Arena vote count) as a dim confidence signal.
+    if let Some(votes) = votes {
+        used += votes.width();
+        spans.push(Span::styled(votes, Style::default().fg(Color::DarkGray)));
     }
 
-    // Comparator cell (field avg / peers / rank) in dim gray after the value.
+    // Comparator column (field avg / peers / rank) in dim gray, padded to a
+    // consistent x-position (`value_w` = widest value cell + 2-space gap).
     if let Some(text) = comparator_cell {
-        spans.push(Span::styled(
-            format!("  {text}"),
-            Style::default().fg(Color::DarkGray),
-        ));
+        let pad = layout.value_w.saturating_sub(used) + 2;
+        spans.push(Span::raw(" ".repeat(pad)));
+        spans.push(Span::styled(text, Style::default().fg(Color::DarkGray)));
     }
 
     lines.push(Line::from(spans));
@@ -2122,6 +2161,44 @@ mod tests {
             .map(line_text)
             .find(|t| t.contains("Score"))
             .expect("Score metric row present")
+    }
+
+    #[test]
+    fn comparator_cells_align_into_a_column() {
+        // Rows with different value widths ("8.1%" vs "92.6%" vs em-dash) must
+        // start their comparator cells at the same x — a true column, not a
+        // trailing annotation.
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![
+                metric("m_short", "Short", MetricKind::Percentage, "G"),
+                metric("m_long", "Long", MetricKind::Percentage, "G"),
+                metric("m_none", "None", MetricKind::Percentage, "G"),
+            ],
+            models: vec![
+                model_with(vec![("m_short", cell(0.081, None, None))]),
+                model_with(vec![
+                    ("m_short", cell(0.081, None, None)),
+                    ("m_long", cell(0.926, None, None)),
+                ]),
+            ],
+        };
+        let lines =
+            build_benchmark_detail_lines(80, &file, &file.models[1], ComparatorMode::FieldAvg);
+        let avg_cols: Vec<usize> = lines
+            .iter()
+            .map(line_text)
+            .filter(|t| t.contains("avg "))
+            .map(|t| t.find("avg").unwrap())
+            .collect();
+        assert!(
+            avg_cols.len() >= 2,
+            "expected multiple comparator rows: {avg_cols:?}"
+        );
+        assert!(
+            avg_cols.windows(2).all(|w| w[0] == w[1]),
+            "comparator cells must share a column: {avg_cols:?}"
+        );
     }
 
     #[test]

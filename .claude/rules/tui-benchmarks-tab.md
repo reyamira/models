@@ -78,7 +78,7 @@ After the labels: `{ } switch source` in `Color::DarkGray` (mirrors the header's
 
 - `[` / `]` stay **global** PrevTab/NextTab — the braces mirror them (brackets move between tabs, braces between data sources within the tab).
 - Switching is **state-preserving** (`switch_source` → `reset_for_source`): it keeps `search_query`, the open-weights filter, creator grouping, the reasoning filter (reset to `All` only when the target source carries no reasoning metadata), the comparator mode, and a `ReleaseDate`/`Name` sort with direction; a `Metric(i)` sort is source-specific and falls back to the new source's `default_sort`. Per-source view state still resets: selection/creator indices, scrolls, scatter axes, radar group, `bottom_view`, popups.
-- Compare selections carry over by **exact `ModelRow.id` match**, order-preserving (compare-color stability); ids absent from the new source drop, and `update_bottom_view` demotes compare→browse when <2 survive.
+- Compare selections carry over by **exact `ModelRow.id` match, then normalized match** (`benchmarks::normalize_id` — the enrichment normalizer; the four sources spell the same model differently: `grok-4-3` vs `grok-4.3`, `DeepSeek-V3-1`, `zai-org/GLM-4-7`, dated Arena ids), order-preserving (compare-color stability), deduped (normalization can fold a base model and its `-thinking` variant together); ids with no counterpart drop, and `update_bottom_view` demotes compare→browse when <2 survive.
 - `r` is stale-while-revalidate: current data keeps rendering while `fetch_source` re-runs (`Message::RefreshBenchmarkSource` → `Message::DataSourceRefreshed`). Success re-runs enrichment + a state-preserving rebuild (`rebuild_preserving`: keeps sort/search/filters, remaps selections and the focused row by id, stale `Metric(i)` falls back); failure keeps the existing file (`set_failed` is never applied to good data) with status `Failed to refresh {name} — keeping current data`. A `Loading`/`Failed` source stays recoverable via `r`.
 - Selecting a still-loading or failed source shows the standard loading/error state in the content area; sources load progressively (the tab is usable as soon as any source lands).
 - Footer hints: ` r ` (Yellow) + `refresh` in both browse and compare modes; the source-switch hint lives in the source bar, not the footer. Help popup's `Data Source` section: `}` Next / `{` Previous / `r` Refresh active source.
@@ -113,15 +113,15 @@ Sort keys are **dynamic per source**: `SortKey = ReleaseDate | Name | Metric(i)`
 
 **Per-source default sort** (`multi::default_sort`): `ReleaseDate` (desc) when any model carries a release date, else `Metric(0)` (first metric, desc). Arena's committed file has no dates, but runtime models.dev enrichment backfills most of them before the rebuild — so Arena's *runtime* default is ReleaseDate; the `Metric(0)` fallback applies only pre-enrichment.
 
-**Quick sorts:**
+**Quick sorts** live on the back half of the number row — their targets are per-source, so a stable-shaped footer can't honestly hint them; they are **help-popup-only** (`1`-`3` are deliberately unbound on this tab):
 
 | Key | Sort | Notes |
 |-----|------|-------|
-| `1` | First metric (`Metric(0)`) | `quick_sort_metric_first` |
-| `2` | Release date | maps to date |
-| `3` | First `TokensPerSec` metric | `quick_sort_speed` — **no-op when the source has none** (returns `None`) |
+| `8` | First metric (`Metric(0)`) | `quick_sort_metric_first` — help line carries the active source's full first-metric label |
+| `9` | Release date | maps to date |
+| `0` | First `TokensPerSec` metric | `quick_sort_speed` — **no-op when the source has none** (returns `None`); help line hidden then |
 
-**Footer hints are dynamic per source**: `1 {first word of metrics[0].label, lowercased}` (`1 intelligence` / `1 arc-agi` / `1 text` / `1 agents`), `2 date` always, `3 speed` only when `quick_sort_speed` resolves; all three omitted while the active source is unloaded. The help popup's `1` line carries the full first-metric label and its `3` line is conditional the same way.
+**The browse footer carries only stable-shaped hints** (`4 weights`, `5-6 group`, `7 reasoning` when available, `s sort`, `a avg`, `r refresh`, …) — no quick-sort hints, so the footer's shape never changes with the data source.
 
 `s` opens the sort picker, `S` toggles direction. Re-pressing the same quick-sort key toggles direction (`quick_sort`).
 
@@ -161,7 +161,7 @@ Identity block + one section per metric `group` (`groups_in_order`), values form
 - Cells carrying a `votes` sample size (Arena) append a dim ` · {format_tokens(votes)} votes` (DarkGray) — a confidence signal alongside the CI. Per-cell `date`s are **not** rendered in the score rows (dropped in 8828a67; freshness lives in the glossary meta line).
 - Missing value: em-dash `\u{2014}` in `Color::DarkGray`.
 
-**Comparator cell** (after the value and any ±ci / votes suffixes, in `Color::DarkGray`): `a` in browse mode cycles `ComparatorMode` — `FieldAvg → PeerAvg → Rank → Off`, default `FieldAvg`, persisted across source switches and refreshes. Formats: `avg {v}` (mean over all models in the source with that metric), `peers({n}) {v}` (±183-day release-date window around the selected model, self-excluded; em-dash when the model is dateless or no peers), `#{rank}/{n}` (1-based, direction-aware via `higher_is_better`; em-dash when the model lacks the value). FieldAvg/PeerAvg still render when the model's own value is missing; Rank cannot. Computation helpers (`field_avg` / `peer_avg` / `rank`) live in `benchmarks/multi.rs` and operate on the **full** model list, never the filtered view. The `a` binding is mode-dependent: browse = comparator cycle, compare-mode Radar view = radar-preset cycle.
+**Comparator column** (a true aligned column in `Color::DarkGray`: every value cell — value + ±ci + votes — is padded to the model's widest value cell + 2, so comparator cells share one x-position; `MetricRowLayout` + `value_cell_parts`/`value_cell_width` keep render and measurement from drifting): `a` in browse mode cycles `ComparatorMode` — `FieldAvg → PeerAvg → Rank → Off`, default `FieldAvg`, persisted across source switches and refreshes. Formats: `avg {v}` (mean over all models in the source with that metric), `peers({n}) {v}` (±183-day release-date window around the selected model, self-excluded; em-dash when the model is dateless or no peers), `#{rank}/{n}` (1-based, direction-aware via `higher_is_better`; em-dash when the model lacks the value). FieldAvg/PeerAvg still render when the model's own value is missing; Rank cannot. Computation helpers (`field_avg` / `peer_avg` / `rank`) live in `benchmarks/multi.rs` and operate on the **full** model list, never the filtered view. The `a` binding is mode-dependent: browse = comparator cycle, compare-mode Radar view = radar-preset cycle.
 
 **Section headers** (`group_header_suffix`): combine a uniform-kind scale blurb (`group_kind_blurb`) and a uniform-direction blurb (`group_direction_blurb`) into the header suffix — `(kind · dir)` when both uniform (e.g. `── Pricing ($ per 1M tokens · lower is better) ──`), kind alone or direction alone when only one is uniform, and a plain `── Title ──` header when the group is mixed on both (e.g. AA Performance: speed ↑, latency ↓). Suffixed headers use `ui::section_header_line_with_suffix`, plain headers `ui::section_header_line`; both fill to panel width with `\u{2500}` in `Color::DarkGray`.
 
@@ -255,7 +255,7 @@ Rendered inside `ScrollablePanel` with `.with_wrap(false)`. Sections = metric `g
 
 Style: `Color::DarkGray`. Fills to panel width with `\u{2500}`.
 
-**Value formats** follow `MetricKind`: Index/Percentage `{:.1}`/`{:.1}%`, Elo `{:.0}`, TokensPerSec `{:.0}`, Seconds `{:.2}s`, UsdPerMTok `${:.2}`.
+**Value formats** follow `MetricKind`: Index/Percentage `{:.1}`/`{:.1}%`, Elo `{:.0}`, TokensPerSec `{:.0} tok/s`, Seconds `{:.2}s`, UsdPerMTok `${:.2}`.
 
 **Winner highlighting**: best value per row (respecting `higher_is_better`) shown in compare color + `Modifier::BOLD`; non-best values in compare color without bold.
 

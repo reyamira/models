@@ -59,7 +59,9 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     as reasoning), ported to operate on `ModelRow`.
   - `format_metric_value(kind, value)` — kind-based formatting (AA stores
     percentages as fractions, so `Percentage` ×100): `Percentage` `{:.1}%`,
-    `Index` `{:.1}`, `Elo` `{:.0}`, `TokensPerSec` `{:.0}`, `Seconds` `{:.2}s`,
+    `Index` `{:.1}`, `Elo` `{:.0}`, `TokensPerSec` `{:.0} tok/s` (unit carried —
+    speed often sits in mixed-direction groups whose header shows no kind
+    blurb), `Seconds` `{:.2}s`,
     `UsdPerMTok` `${:.2}`.
   - `groups_in_order(file)` / `metric_indices_in_group(file, group)` — first-
     appearance group order and per-group metric indices.
@@ -151,9 +153,13 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
 ```rust
 pub use fetch::fetch_source;
 pub use schema::ReasoningStatus;
-pub use traits::{apply_model_traits, creator_openness, enrich_from_models_dev};
+pub use traits::{apply_model_traits, creator_openness, enrich_from_models_dev, normalize_id};
 // schema, sources, multi are `pub mod`s; fetch and traits are private.
 ```
+
+`normalize_id` is exported because the TUI's compare-selection carry-over uses
+the same normalizer as the enrichment matching (exact id first, normalized
+fallback) — one definition of "same model across sources".
 
 ## Schema sharing into the transform bin
 

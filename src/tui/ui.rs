@@ -394,44 +394,18 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                         Line::from(spans)
                     } else {
                         let active_file = app.multi_store.file(app.benchmarks_app.active_source);
+                        // Quick sorts (8/9/0) are help-popup-only: their targets
+                        // are per-source, and a footer whose hints change shape
+                        // per source reads as broken. The footer keeps only
+                        // stable-shaped hints.
                         let mut spans = vec![
                             Span::styled(" q ", Style::default().fg(Color::Yellow)),
                             Span::raw("quit  "),
-                        ];
-                        // Quick-sort hints are only meaningful once the active
-                        // source is loaded (the keys are no-ops otherwise).
-                        if let Some(file) = active_file {
-                            // `1` = sort by the first metric; the label is its
-                            // first word, lowercased (AA→intelligence, Epoch→
-                            // arc-agi, Arena→text, LLM Stats→agents).
-                            let first_metric_word = file
-                                .metrics
-                                .first()
-                                .map(|m| {
-                                    m.label
-                                        .split_whitespace()
-                                        .next()
-                                        .unwrap_or("")
-                                        .to_lowercase()
-                                })
-                                .unwrap_or_default();
-                            spans.push(Span::styled(" 1 ", Style::default().fg(Color::Yellow)));
-                            spans.push(Span::raw(format!("{first_metric_word}  ")));
-                            spans.push(Span::styled(" 2 ", Style::default().fg(Color::Yellow)));
-                            spans.push(Span::raw("date  "));
-                            // `3` = sort by speed, only when the source has a
-                            // tokens/sec metric.
-                            if super::benchmarks::BenchmarksApp::quick_sort_speed(file).is_some() {
-                                spans.push(Span::styled(" 3 ", Style::default().fg(Color::Yellow)));
-                                spans.push(Span::raw("speed  "));
-                            }
-                        }
-                        spans.extend([
                             Span::styled(" 4 ", Style::default().fg(Color::Yellow)),
                             Span::raw("weights  "),
                             Span::styled(" 5-6 ", Style::default().fg(Color::Yellow)),
                             Span::raw("group  "),
-                        ]);
+                        ];
                         // Reasoning filter hint hidden when the active source
                         // carries no reasoning metadata (key is a no-op then).
                         if super::benchmarks::BenchmarksApp::reasoning_filter_available(active_file)
@@ -642,14 +616,14 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
                 help_line("r", "Refresh active source"),
                 Line::from(""),
                 help_section("Quick Sort (press again to flip direction)"),
-                help_line("1", &benchmark_first_metric_help),
-                help_line("2", "Sort by Release date"),
+                help_line("8", &benchmark_first_metric_help),
+                help_line("9", "Sort by Release date"),
             ]);
-            // `3` only resolves when the active source has a tokens/sec metric.
+            // `0` only resolves when the active source has a tokens/sec metric.
             if active_file
                 .is_some_and(|f| super::benchmarks::BenchmarksApp::quick_sort_speed(f).is_some())
             {
-                help_text.push(help_line("3", "Sort by Speed"));
+                help_text.push(help_line("0", "Sort by Speed (tok/s)"));
             }
             help_text.extend(vec![
                 Line::from(""),
