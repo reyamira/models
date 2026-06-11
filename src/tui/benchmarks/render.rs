@@ -743,14 +743,15 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &App) {
         let slack = avail.saturating_sub(10); // space available beyond name min
         (slack / COL_W) as usize
     };
-    // We always keep the last column (the sort column). So if we can only fit N
-    // columns but need more, we drop from the visible_columns (the ones before
-    // the appended sort column) from the right.
+    // We always keep the sort column. So if we can only fit N columns but need
+    // more, we drop non-sort visible columns from the right first.
     //
     // Split: the sort column (if any) is "mandatory":
     //   - For ReleaseDate: the released column is always kept.
-    //   - For Metric(i): effective_metric_cols.last() = the sort col.
-    //   - For Name: no column.
+    //   - For Metric(i): the sort col is identified by sort_key, NOT by
+    //     effective_metric_cols.last() — when the sort metric is already in
+    //     visible_columns it may not be the last element.
+    //   - For Name: no mandatory column; cap visible cols from the right.
     let render_metric_cols: Vec<usize>;
     let render_release_col: bool;
     if total_extra == 0 {
@@ -772,16 +773,28 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &App) {
             render_metric_cols = effective_metric_cols[..take].to_vec();
         } else if !effective_metric_cols.is_empty() {
             render_release_col = false;
-            // Last entry is the sort Metric col (always kept).
-            let sort_col = *effective_metric_cols.last().unwrap();
-            // Remaining slots for visible cols (before the sort col).
-            let available_for_visible = max_cols.saturating_sub(1);
-            let visible_part =
-                &effective_metric_cols[..effective_metric_cols.len().saturating_sub(1)];
-            let take = available_for_visible.min(visible_part.len());
-            let mut cols: Vec<usize> = visible_part[..take].to_vec();
-            cols.push(sort_col);
-            render_metric_cols = cols;
+            // The mandatory sort column is determined from sort_key directly,
+            // NOT from effective_metric_cols.last(). When the sort metric is
+            // already in visible_columns (and not the last element), last() would
+            // give the wrong index, potentially dropping the actual sort column.
+            if let SortKey::Metric(sort_idx) = sort_key {
+                // Separate: non-sort visible cols vs the mandatory sort col.
+                let non_sort_visible: Vec<usize> = effective_metric_cols
+                    .iter()
+                    .copied()
+                    .filter(|&c| c != sort_idx)
+                    .collect();
+                let available_for_visible = max_cols.saturating_sub(1);
+                let take = available_for_visible.min(non_sort_visible.len());
+                let mut cols: Vec<usize> = non_sort_visible[..take].to_vec();
+                cols.push(sort_idx);
+                render_metric_cols = cols;
+            } else {
+                // Name sort with non-empty effective cols (visible_columns only).
+                let available = max_cols;
+                let take = available.min(effective_metric_cols.len());
+                render_metric_cols = effective_metric_cols[..take].to_vec();
+            }
         } else {
             render_metric_cols = Vec::new();
             render_release_col = false;
@@ -2624,59 +2637,133 @@ mod tests {
         assert!(app.effective_columns().is_empty());
     }
 
-    #[test]
-    fn width_cap_drops_rightmost_visible_first() {
-        // With a very narrow panel (say 30 cols), only the sort column should
-        // survive — visible_columns added by the user are dropped first.
-        //
-        // fixed_overhead = caret_w(2) + reasoning(3) + source(2) = 7
-        // 30 - 7 = 23 available; name_min = 10; slack = 13.
-        // COL_W = 12 → max_cols = 13/12 = 1.
-        // total_extra = visible(2) + sort(1) = 3 > 1.
-        // After capping: sort col (last) kept, 0 visible cols fit → [sort].
-        let file = file_with_n_metrics(5);
-        let mut app = BenchmarksApp::new(Some(&file));
-        app.sort_key = SortKey::Metric(4); // sort col = 4
-        app.visible_columns = vec![1, 2]; // 2 extra user cols
-
-        // effective_columns before capping = [1, 2, 4]
-        assert_eq!(app.effective_columns(), vec![1, 2, 4]);
-
-        // Now check width-capping logic inline (mirrors draw_benchmark_list).
-        // With inner_width = 30 and no selection / region cols:
-        let inner_width: u16 = 30;
+    /// Helper: apply the same width-cap logic as `draw_benchmark_list` and
+    /// return (render_metric_cols, render_release_col).
+    ///
+    /// Uses the FIXED logic (sort col identified from sort_key, not last()).
+    fn simulate_width_cap(app: &BenchmarksApp, inner_width: u16) -> (Vec<usize>, bool) {
+        // Mirrors draw_benchmark_list constants / logic.
         let caret_w: u16 = 2;
         let reasoning_col_w: u16 = 3;
         let source_col_w: u16 = 2;
-        let grouping_col_w: u16 = 0;
-        let selection_w: u16 = 0;
-        let fixed_overhead =
-            caret_w + selection_w + reasoning_col_w + source_col_w + grouping_col_w;
+        let fixed_overhead = caret_w + reasoning_col_w + source_col_w; // no selection / grouping
         const COL_W: u16 = 12;
-        let avail = inner_width.saturating_sub(fixed_overhead); // 23
-        let max_cols = {
+
+        let has_release_col = matches!(app.sort_key, SortKey::ReleaseDate);
+        let effective_metric_cols = app.effective_columns();
+
+        let avail = inner_width.saturating_sub(fixed_overhead);
+        let max_cols = if avail < 10 {
+            0
+        } else {
             let slack = avail.saturating_sub(10);
             (slack / COL_W) as usize
-        }; // slack = 13, max_cols = 1
+        };
+        let total_extra = effective_metric_cols.len() + if has_release_col { 1 } else { 0 };
 
-        let effective = app.effective_columns(); // [1, 2, 4]
-        let has_release_col = matches!(app.sort_key, SortKey::ReleaseDate);
-        let total_extra = effective.len() + if has_release_col { 1 } else { 0 }; // 3
+        let render_metric_cols: Vec<usize>;
+        let render_release_col: bool;
+        if total_extra == 0 {
+            render_metric_cols = Vec::new();
+            render_release_col = false;
+        } else if total_extra <= max_cols {
+            render_metric_cols = effective_metric_cols.clone();
+            render_release_col = has_release_col;
+        } else if has_release_col {
+            render_release_col = true;
+            let available_for_metrics = max_cols.saturating_sub(1);
+            let take = available_for_metrics.min(effective_metric_cols.len());
+            render_metric_cols = effective_metric_cols[..take].to_vec();
+        } else if !effective_metric_cols.is_empty() {
+            render_release_col = false;
+            if let SortKey::Metric(sort_idx) = app.sort_key {
+                let non_sort: Vec<usize> = effective_metric_cols
+                    .iter()
+                    .copied()
+                    .filter(|&c| c != sort_idx)
+                    .collect();
+                let available_for_visible = max_cols.saturating_sub(1);
+                let take = available_for_visible.min(non_sort.len());
+                let mut cols: Vec<usize> = non_sort[..take].to_vec();
+                cols.push(sort_idx);
+                render_metric_cols = cols;
+            } else {
+                let take = max_cols.min(effective_metric_cols.len());
+                render_metric_cols = effective_metric_cols[..take].to_vec();
+            }
+        } else {
+            render_metric_cols = Vec::new();
+            render_release_col = false;
+        }
 
-        assert!(total_extra > max_cols, "capping needed");
+        (render_metric_cols, render_release_col)
+    }
 
-        // The sort column is the last element of effective; it must survive.
-        let sort_col = *effective.last().unwrap(); // 4
-        let available_for_visible = max_cols.saturating_sub(1); // 0
-        let visible_part = &effective[..effective.len().saturating_sub(1)]; // [1, 2]
-        let take = available_for_visible.min(visible_part.len()); // 0
-        let mut render_cols: Vec<usize> = visible_part[..take].to_vec();
-        render_cols.push(sort_col);
+    /// Case: sort col was appended (not already in visible_columns).
+    /// fixed_overhead=7, inner=30 → avail=23, slack=13, max_cols=1.
+    /// effective=[1,2,4], total=3 > 1 → keep sort(4), drop visible from right.
+    #[test]
+    fn width_cap_drops_rightmost_visible_first() {
+        let file = file_with_n_metrics(5);
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(4); // sort col = 4, not in visible
+        app.visible_columns = vec![1, 2];
 
-        assert_eq!(
-            render_cols,
-            vec![4],
-            "sort col survives, visible cols dropped"
+        assert_eq!(app.effective_columns(), vec![1, 2, 4]);
+        let (cols, rel) = simulate_width_cap(&app, 30);
+        assert!(!rel);
+        assert_eq!(cols, vec![4], "sort col survives, visible cols dropped");
+    }
+
+    /// Case: sort col is ALREADY in visible_columns and is NOT the last element.
+    /// This is the bug the blocker finding caught: old code used last() = 3,
+    /// not the actual sort col 2 — and could drop col 2 while keeping col 3.
+    ///
+    /// Setup: visible=[1,2,3], sort=Metric(2) → effective=[1,2,3] (no append).
+    /// inner=30 → max_cols=1. Must keep col 2 (sort), not col 3 (last).
+    #[test]
+    fn width_cap_sort_col_already_in_visible_not_last() {
+        let file = file_with_n_metrics(5);
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(2); // sort col = 2, already in visible
+        app.visible_columns = vec![1, 2, 3]; // 2 is at index 1, not last
+
+        // effective_columns does NOT append because 2 is already present.
+        assert_eq!(app.effective_columns(), vec![1, 2, 3]);
+
+        let (cols, rel) = simulate_width_cap(&app, 30);
+        assert!(!rel);
+        assert!(
+            cols.contains(&2),
+            "sort col (2) must survive width cap; got {cols:?}"
+        );
+        assert!(
+            !cols.contains(&3),
+            "non-sort rightmost col (3) should be dropped; got {cols:?}"
+        );
+        assert_eq!(cols, vec![2], "only sort col survives at width=30");
+    }
+
+    /// Case: ReleaseDate sort with extra visible metric columns.
+    /// The released column is always kept; metric visible_columns drop from
+    /// the right.
+    ///
+    /// inner=30 → max_cols=1. Release col takes 1 slot → 0 for metrics.
+    #[test]
+    fn width_cap_release_date_keeps_released_col() {
+        let file = file_with_n_metrics(4);
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::ReleaseDate;
+        app.visible_columns = vec![0, 1, 2]; // user added 3 metric cols
+
+        // effective_columns with ReleaseDate sort: no metric appended.
+        assert_eq!(app.effective_columns(), vec![0, 1, 2]);
+
+        let (cols, rel) = simulate_width_cap(&app, 30);
+        assert!(rel, "released column must be kept");
+        assert!(
+            cols.is_empty(),
+            "metric visible cols dropped at width=30; got {cols:?}"
         );
     }
 }
