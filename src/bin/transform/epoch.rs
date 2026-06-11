@@ -49,10 +49,17 @@ const PRUNE_DAYS: i64 = 60;
 // metrics so it renders as a radar preset (>=3 hib, first 6 are axes).
 // ---------------------------------------------------------------------------
 
-/// `(label, kind, group, description)` for a known CSV stem.
-type MetricMeta = (&'static str, MetricKind, &'static str, &'static str);
+/// `(label, kind, group, short_label, description)` for a known CSV stem.
+/// `short_label` is `None` when the full label is already ≤10 display chars.
+type MetricMeta = (
+    &'static str,
+    MetricKind,
+    &'static str,
+    Option<&'static str>,
+    &'static str,
+);
 
-/// Label + kind + group + description overrides keyed by CSV filename stem.
+/// Label + kind + group + short_label + description overrides keyed by CSV filename stem.
 fn metric_meta(stem: &str) -> Option<MetricMeta> {
     let m: MetricMeta = match stem {
         // ---- Frontier (hardest reasoning / capability frontier) ----
@@ -60,6 +67,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "Epoch Capabilities Index",
             MetricKind::Index,
             "Frontier",
+            Some("ECI"),
             "Epoch's composite that stitches 40+ benchmarks into one general-capability scale \
              using Item Response Theory, so models stay comparable as individual benchmarks \
              saturate. Open-ended linear scale with no maximum (recent frontier models score ~130-160); higher is better.",
@@ -68,6 +76,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "FrontierMath",
             MetricKind::Percentage,
             "Frontier",
+            Some("FrontMath"),
             "Hundreds of original, expert-crafted research-level math problems spanning number \
              theory, analysis, algebraic geometry, and more — each taking specialists hours to \
              days. Scored as accuracy (% of problems solved); higher is better.",
@@ -76,6 +85,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "FrontierMath Tier 4",
             MetricKind::Percentage,
             "Frontier",
+            Some("FM Tier 4"),
             "The 50 hardest, research-level problems of FrontierMath — its most difficult \
              expansion tier. Scored as accuracy (% of problems solved); higher is better.",
         ),
@@ -83,6 +93,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "ARC-AGI",
             MetricKind::Percentage,
             "Frontier",
+            None, // "ARC-AGI" is 7 chars
             "Abstract visual grid puzzles where the model must infer a transformation rule from \
              a few input-output demonstrations and apply it to a novel case. Scored as accuracy \
              (% of tasks solved); higher is better.",
@@ -91,6 +102,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "ARC-AGI-2",
             MetricKind::Percentage,
             "Frontier",
+            None, // "ARC-AGI-2" is 9 chars
             "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing \
              compositional and symbolic reasoning, two attempts per task (pass@2). Scored as \
              accuracy (% of tasks solved); higher is better.",
@@ -99,6 +111,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "Humanity's Last Exam",
             MetricKind::Percentage,
             "Frontier",
+            Some("HLE"),
             "Expert-authored questions across 100+ academic subjects, requiring graduate-level \
              knowledge that cannot be quickly looked up online. Scored as accuracy (% correct); \
              higher is better.",
@@ -108,6 +121,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "SWE-bench Verified",
             MetricKind::Percentage,
             "Agentic",
+            Some("SWE-bench"),
             "Real-world software engineering: the model is given a repository and a GitHub issue \
              from popular Python projects and must edit the codebase to fix it, graded by unit \
              tests. Scored as % of issues resolved; higher is better.",
@@ -116,6 +130,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "Terminal-Bench",
             MetricKind::Percentage,
             "Agentic",
+            Some("TBench"),
             "Agentic command-line tasks the model completes autonomously inside a sandboxed \
              Docker terminal, checked by a test script. Scored as % of tasks solved; higher is \
              better.",
@@ -124,6 +139,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "GSO",
             MetricKind::Percentage,
             "Agentic",
+            None, // "GSO" is 3 chars
             "Software performance engineering: the model rewrites real GitHub code to speed it \
              up. Scored OPT@K (% of trials reaching at least 95% of the human speed-up); higher \
              is better.",
@@ -132,6 +148,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "APEX Agents",
             MetricKind::Percentage,
             "Agentic",
+            Some("APEX"),
             "Professional deliverables across investment banking, consulting, law, and primary \
              care that would take practitioners hours, graded against pass/fail rubric criteria. \
              Scored as % of rubric criteria satisfied; higher is better.",
@@ -140,6 +157,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "PostTrainBench",
             MetricKind::Percentage,
             "Agentic",
+            Some("PTBench"),
             "AI R&D automation: a CLI agent must post-train a small base LLM on a single GPU \
              within a time budget to raise its downstream scores. Scored as the average \
              improvement across base models and evaluations; higher is better.",
@@ -148,6 +166,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "WeirdML",
             MetricKind::Percentage,
             "Agentic",
+            None, // "WeirdML" is 7 chars
             "Unconventional machine-learning engineering tasks where the agent must write and \
              run code to train a model on provided data, with several iterations allowed. Scored \
              as accuracy on the held-out task; higher is better.",
@@ -156,6 +175,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "Aider Polyglot",
             MetricKind::Percentage,
             "Agentic",
+            Some("Aider"),
             "Multi-language code editing on Exercism problems (C++, Go, Java, JavaScript, \
              Python, Rust) with a second attempt after seeing test failures. Scored as % of \
              exercises passing; higher is better.",
@@ -164,6 +184,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "GDPval",
             MetricKind::Percentage,
             "Agentic",
+            None, // "GDPval" is 6 chars
             "Economically valuable real-world deliverables drawn from 44 occupations across \
              nine U.S. sectors, judged by experts in blind comparisons against human work. \
              Scored as win-rate versus the human baseline; higher is better.",
@@ -173,6 +194,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "GPQA Diamond",
             MetricKind::Percentage,
             "Academic",
+            Some("GPQA"),
             "198 'Google-proof' graduate-level biology, chemistry, and physics questions that \
              stump non-experts even with web access. Scored as accuracy (% correct); higher is \
              better.",
@@ -181,6 +203,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "SimpleQA Verified",
             MetricKind::Percentage,
             "Academic",
+            Some("SimpleQA"),
             "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, \
              measuring parametric knowledge and resistance to hallucination. Scored as accuracy \
              (% answered correctly); higher is better.",
@@ -189,6 +212,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "OTIS Mock AIME",
             MetricKind::Percentage,
             "Academic",
+            Some("OTIS AIME"),
             "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams \
              (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. \
              Scored as accuracy (% correct); higher is better.",
@@ -197,6 +221,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "Chess Puzzles",
             MetricKind::Percentage,
             "Academic",
+            Some("Chess"),
             "100 programmatically generated chess positions (in FEN) where the model must name \
              the single best move as judged by Stockfish. Scored as accuracy (% of positions \
              with the correct move); higher is better.",
@@ -205,6 +230,7 @@ fn metric_meta(stem: &str) -> Option<MetricMeta> {
             "SimpleBench",
             MetricKind::Percentage,
             "Academic",
+            Some("SimpleBnch"),
             "Common-sense reasoning 'trick' questions about space, time, and social cues that \
              are easy for people (84% human baseline) but hard for models. Scored as accuracy \
              (% correct); higher is better.",
@@ -231,28 +257,32 @@ fn humanize(stem: &str) -> String {
 
 /// Resolved metric metadata for a stem. For an UNKNOWN stem `kind` is `None`
 /// (inferred from the data via [`infer_kind`]), the label is humanized, the
-/// group defaults to `Academic`, and there is no curated `description`.
+/// group defaults to `Academic`, and there is no curated `description` or
+/// `short_label`.
 struct ResolvedMeta {
     label: String,
     kind: Option<MetricKind>,
     group: String,
     description: Option<String>,
+    short_label: Option<String>,
 }
 
-/// Resolve label / kind / group / description for a stem.
+/// Resolve label / kind / group / short_label / description for a stem.
 fn resolve_metric_meta(stem: &str) -> ResolvedMeta {
     match metric_meta(stem) {
-        Some((label, kind, group, description)) => ResolvedMeta {
+        Some((label, kind, group, short_label, description)) => ResolvedMeta {
             label: label.to_string(),
             kind: Some(kind),
             group: group.to_string(),
             description: Some(description.to_string()),
+            short_label: short_label.map(str::to_string),
         },
         None => ResolvedMeta {
             label: humanize(stem),
             kind: None,
             group: "Academic".to_string(),
             description: None,
+            short_label: None,
         },
     }
 }
@@ -548,6 +578,7 @@ fn parse_csv(stem: &str, path: &Path) -> Result<ParsedCsv, String> {
         kind: known_kind,
         group,
         description,
+        short_label,
     } = resolve_metric_meta(stem);
     let higher_is_better = true; // every Epoch metric is higher-is-better.
 
@@ -710,6 +741,7 @@ fn parse_csv(stem: &str, path: &Path) -> Result<ParsedCsv, String> {
         higher_is_better,
         last_updated: newest_date.map(|d| d.format("%Y-%m-%d").to_string()),
         description,
+        short_label,
     };
 
     Ok(ParsedCsv {
@@ -1189,7 +1221,7 @@ mod tests {
             "chess_puzzles",
             "simplebench",
         ] {
-            let (_, _, _, description) =
+            let (_, _, _, _, description) =
                 metric_meta(stem).unwrap_or_else(|| panic!("known stem {stem} present"));
             assert!(
                 description.len() > 20,
@@ -1542,5 +1574,52 @@ mod tests {
         assert_eq!(sf.source.id, "epoch");
         assert_eq!(sf.source.name, "Epoch AI");
         assert!(sf.source.verified);
+    }
+
+    // ----- short_label tests -----
+
+    #[test]
+    fn epoch_capabilities_index_has_short_label_eci() {
+        let sf = build();
+        let m = sf
+            .metrics
+            .iter()
+            .find(|m| m.id == "epoch_capabilities_index")
+            .expect("epoch_capabilities_index present");
+        assert_eq!(
+            m.short_label.as_deref(),
+            Some("ECI"),
+            "short_label mismatch for epoch_capabilities_index"
+        );
+    }
+
+    #[test]
+    fn no_duplicate_short_labels_within_source() {
+        let sf = build();
+        let mut seen = std::collections::HashSet::new();
+        for m in &sf.metrics {
+            if let Some(sl) = &m.short_label {
+                assert!(
+                    seen.insert(sl.clone()),
+                    "duplicate short_label {:?} on metric {}",
+                    sl,
+                    m.id
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn short_label_survives_round_trip() {
+        let sf = build();
+        let json = serde_json::to_string_pretty(&sf).expect("serialize");
+        let back: SourceFile = serde_json::from_str(&json).expect("deserialize");
+        for (orig, restored) in sf.metrics.iter().zip(back.metrics.iter()) {
+            assert_eq!(
+                orig.short_label, restored.short_label,
+                "short_label mismatch after round-trip for {}",
+                orig.id
+            );
+        }
     }
 }

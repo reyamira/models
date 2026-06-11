@@ -822,6 +822,7 @@ mod tests {
             higher_is_better: hib,
             last_updated: None,
             description: None,
+            short_label: None,
         }
     }
 

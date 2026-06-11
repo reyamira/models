@@ -6,9 +6,9 @@
 //! kind-based value formatting, group ordering, radar-eligible groups, the
 //! per-source default sort, and the reasoning filter (ported to `ModelRow`).
 
-use super::schema::{MetricKind, ModelRow, ReasoningStatus, SourceFile};
+use super::schema::{MetricDef, MetricKind, ModelRow, ReasoningStatus, SourceFile};
 use super::sources::{SourceDescriptor, SOURCES};
-use crate::formatting::parse_date;
+use crate::formatting::{parse_date, truncate};
 
 /// Progressive load state of a single source.
 pub enum SourceLoad {
@@ -151,6 +151,18 @@ pub fn format_metric_value(kind: MetricKind, value: f64) -> String {
         MetricKind::TokensPerSec => format!("{value:.0} tok/s"),
         MetricKind::Seconds => format!("{value:.2}s"),
         MetricKind::UsdPerMTok => format!("${value:.2}"),
+    }
+}
+
+/// Return the display label for a metric's narrow column header (≤11 chars wide
+/// in the benchmark list). Uses the metric's curated `short_label` when set;
+/// falls back to `truncate(&metric.label, 11)` when the full label is already
+/// short (≤10 chars, so `short_label` is `None`) or for old data files that
+/// pre-date the field.
+pub fn short_label(metric: &MetricDef) -> String {
+    match &metric.short_label {
+        Some(s) => s.clone(),
+        None => truncate(&metric.label, 11),
     }
 }
 
@@ -319,6 +331,21 @@ mod tests {
             higher_is_better: hib,
             last_updated: None,
             description: None,
+            short_label: None,
+        }
+    }
+
+    /// Build a MetricDef with an explicit short label for testing `short_label()`.
+    fn metric_with_short(id: &str, label: &str, short: Option<&str>) -> MetricDef {
+        MetricDef {
+            id: id.into(),
+            label: label.into(),
+            kind: MetricKind::Index,
+            group: "G".into(),
+            higher_is_better: true,
+            last_updated: None,
+            description: None,
+            short_label: short.map(str::to_string),
         }
     }
 
@@ -771,5 +798,45 @@ mod tests {
         store.set_failed(99);
         assert!(store.file(99).is_none());
         assert!(store.file_mut(99).is_none());
+    }
+
+    // --- short_label helper -------------------------------------------------
+
+    /// When `short_label` is set, `short_label()` returns it verbatim.
+    #[test]
+    fn test_short_label_uses_curated_when_set() {
+        let m = metric_with_short(
+            "intelligence_index",
+            "Intelligence Index",
+            Some("Intel. Idx"),
+        );
+        assert_eq!(short_label(&m), "Intel. Idx");
+    }
+
+    /// When `short_label` is `None` and the full label is ≤10 chars, the full
+    /// label is returned (no truncation).
+    #[test]
+    fn test_short_label_falls_back_to_full_label_when_short_enough() {
+        let m = metric_with_short("math_index", "Math Index", None);
+        // "Math Index" is exactly 10 chars — returned as-is.
+        assert_eq!(short_label(&m), "Math Index");
+    }
+
+    /// When `short_label` is `None` and the full label exceeds 11 chars,
+    /// the fallback truncates at 11 (appending "...").
+    #[test]
+    fn test_short_label_falls_back_to_truncated_label_when_long() {
+        // A label longer than 11 chars with no curated short label.
+        let m = metric_with_short("long_metric", "Humanity's Last Exam", None);
+        let result = short_label(&m);
+        assert!(
+            result.len() <= 14, // "Humanity'..." = 12 chars incl "..."
+            "truncated label should be ≤14 bytes, got {:?}",
+            result
+        );
+        assert!(
+            result.ends_with("..."),
+            "truncated label should end with '...'"
+        );
     }
 }

@@ -196,6 +196,8 @@ fn build_source_file(boards: Vec<(BoardEntry, RawBoard)>) -> SourceFile {
     let mut metrics: Vec<MetricDef> = Vec::new();
     for ((_stem, id, label, description), board) in &boards {
         let date = board_date(&board.meta);
+        // All Arena board labels are ≤10 chars ("Text", "Vision", "Code",
+        // "Agent", "Search", "Document") — short_label is None for all of them.
         metrics.push(MetricDef {
             id: (*id).to_string(),
             label: (*label).to_string(),
@@ -204,6 +206,7 @@ fn build_source_file(boards: Vec<(BoardEntry, RawBoard)>) -> SourceFile {
             higher_is_better: true,
             last_updated: if date.is_empty() { None } else { Some(date) },
             description: Some((*description).to_string()),
+            short_label: None,
         });
     }
 
@@ -859,5 +862,37 @@ mod tests {
         assert_eq!(rewritten.models[0].name, "Sonar Pro (High)");
 
         let _ = std::fs::remove_dir_all(&output_dir);
+    }
+
+    // --- short_label tests --------------------------------------------------
+
+    /// All Arena board labels are ≤10 chars, so every metric emits short_label = None.
+    #[test]
+    fn all_arena_metrics_have_no_short_label() {
+        let sf = parse_fixture();
+        for m in &sf.metrics {
+            assert!(
+                m.short_label.is_none(),
+                "arena metric {} label={:?} (len={}) unexpectedly carries a short_label",
+                m.id,
+                m.label,
+                m.label.len()
+            );
+        }
+    }
+
+    /// Round-trip through serde preserves short_label = None for all metrics.
+    #[test]
+    fn short_label_survives_round_trip() {
+        let sf = parse_fixture();
+        let json = serde_json::to_string_pretty(&sf).expect("serialize");
+        let back: SourceFile = serde_json::from_str(&json).expect("deserialize");
+        for (orig, restored) in sf.metrics.iter().zip(back.metrics.iter()) {
+            assert_eq!(
+                orig.short_label, restored.short_label,
+                "short_label mismatch after round-trip for metric {}",
+                orig.id
+            );
+        }
     }
 }

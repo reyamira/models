@@ -112,13 +112,15 @@ struct RawPricing {
 // ---------------------------------------------------------------------------
 
 /// One entry in the AA metric registry:
-/// (id, label, kind, group, higher_is_better, description).
+/// (id, label, kind, group, higher_is_better, short_label, description).
+/// `short_label` is `None` when the full label is already ≤10 display chars.
 type MetricEntry = (
     &'static str,
     &'static str,
     MetricKind,
     &'static str,
     bool,
+    Option<&'static str>,
     &'static str,
 );
 
@@ -130,6 +132,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Indexes",
         true,
+        Some("Intel. Idx"),
         "Artificial Analysis's headline composite, averaging a suite of reasoning, \
          knowledge, math, and coding evaluations into one general-capability score. \
          Scale 0-100; higher is better.",
@@ -140,6 +143,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Indexes",
         true,
+        Some("Coding Idx"),
         "Artificial Analysis's coding composite, averaging the Terminal-Bench Hard and \
          SciCode coding evaluations. Scale 0-100; higher is better.",
     ),
@@ -149,6 +153,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Indexes",
         true,
+        None, // "Math Index" is exactly 10 chars
         "Artificial Analysis's math composite, averaging its competition-math evaluations \
          (AIME and MATH-500). Scale 0-100; higher is better.",
     ),
@@ -159,6 +164,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        Some("LCB"),
         "Contamination-free competitive-programming problems harvested fresh from LeetCode, \
          AtCoder, and Codeforces. Scored pass@1 (% solved on the first attempt); higher is \
          better.",
@@ -169,6 +175,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        None, // "SciCode" is 7 chars
         "Scientist-curated tasks where the model writes Python to solve research-grade \
          problems across 16 scientific disciplines. Scored pass@1 (% of subproblems solved); \
          higher is better.",
@@ -179,6 +186,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        Some("TB-Hard"),
         "Agentic tasks the model must complete autonomously inside a sandboxed terminal \
          (software engineering, sysadmin, data processing). Scored pass@1 (% of tasks solved); \
          higher is better.",
@@ -189,6 +197,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        None, // "IFBench" is 7 chars
         "Tests precise instruction-following on novel, verifiable output constraints the model \
          was not trained on (e.g. 'answer only yes or no'). Scored pass@1 (% of constraints \
          satisfied); higher is better.",
@@ -199,6 +208,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        Some("LCR"),
         "AA-LCR: reasoning across multiple real-world documents totalling ~100k tokens, where \
          answers must be synthesized rather than retrieved. Scored pass@1 (% correct); higher \
          is better.",
@@ -209,6 +219,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Agentic",
         true,
+        None, // "Tau2-Bench" is 10 chars
         "𝜏²-Bench: a dual-control conversational benchmark where the tool-using agent and a \
          simulated user must coordinate to resolve telecom support issues. Scored pass@1 \
          (% of scenarios resolved); higher is better.",
@@ -220,6 +231,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Academic",
         true,
+        Some("GPQA"),
         "198 'Google-proof' graduate-level questions in biology, chemistry, and physics that \
          stump non-experts even with web access. Scored as accuracy (% correct); higher is \
          better.",
@@ -230,6 +242,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Academic",
         true,
+        None, // "MMLU-Pro" is 8 chars
         "A harder MMLU with graduate-level questions across 14 subjects and ten answer options, \
          emphasizing reasoning over recall. Scored as accuracy (% correct); higher is better.",
     ),
@@ -239,6 +252,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Academic",
         true,
+        Some("HLE"),
         "Expert-authored questions across 100+ academic subjects, designed to require \
          specialized knowledge that cannot be quickly looked up. Scored as accuracy \
          (% correct); higher is better.",
@@ -249,6 +263,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Academic",
         true,
+        None, // "MATH-500" is 8 chars
         "A 500-problem subset of the MATH dataset spanning competition-level algebra, geometry, \
          number theory, and more. Scored pass@1 (% correct); higher is better.",
     ),
@@ -258,6 +273,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Academic",
         true,
+        None, // "AIME '24" is 8 chars
         "The 2024 American Invitational Mathematics Examination: olympiad-level problems with \
          integer answers 0-999. Scored pass@1 accuracy (% correct); higher is better.",
     ),
@@ -267,6 +283,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Percentage,
         "Academic",
         true,
+        None, // "AIME '25" is 8 chars
         "The 2025 American Invitational Mathematics Examination: olympiad-level problems with \
          integer answers 0-999. Scored pass@1 accuracy (% correct); higher is better.",
     ),
@@ -277,6 +294,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::TokensPerSec,
         "Performance",
         true,
+        Some("Tok/s"),
         "Output generation speed — average tokens received per second after the first token. \
          Measured in tokens/sec; higher (faster) is better.",
     ),
@@ -286,6 +304,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Seconds,
         "Performance",
         false,
+        None, // "TTFT" is 4 chars
         "Time to first token: seconds between sending the request and receiving the first \
          token of the response. Measured in seconds; lower (faster) is better.",
     ),
@@ -295,6 +314,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Seconds,
         "Performance",
         false,
+        None, // "TTFAT" is 5 chars
         "Time to first answer token: seconds until the first answer token arrives, measured \
          for reasoning models after any 'thinking' time. Measured in seconds; lower (faster) \
          is better.",
@@ -306,6 +326,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::UsdPerMTok,
         "Pricing",
         false,
+        Some("In $/M"),
         "Provider list price to send prompt tokens to the model, in US dollars per million \
          input tokens. Lower (cheaper) is better.",
     ),
@@ -315,6 +336,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::UsdPerMTok,
         "Pricing",
         false,
+        Some("Out $/M"),
         "Provider list price for generated tokens, in US dollars per million output tokens. \
          Lower (cheaper) is better.",
     ),
@@ -324,6 +346,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::UsdPerMTok,
         "Pricing",
         false,
+        Some("Blend $/M"),
         "Blended cost assuming a 3:1 input-to-output token ratio, in US dollars per million \
          tokens. Lower (cheaper) is better.",
     ),
@@ -332,15 +355,18 @@ const METRICS: &[MetricEntry] = &[
 fn metric_defs() -> Vec<MetricDef> {
     METRICS
         .iter()
-        .map(|&(id, label, kind, group, hib, description)| MetricDef {
-            id: id.to_string(),
-            label: label.to_string(),
-            kind,
-            group: group.to_string(),
-            higher_is_better: hib,
-            last_updated: None,
-            description: Some(description.to_string()),
-        })
+        .map(
+            |&(id, label, kind, group, hib, short_label, description)| MetricDef {
+                id: id.to_string(),
+                label: label.to_string(),
+                kind,
+                group: group.to_string(),
+                higher_is_better: hib,
+                last_updated: None,
+                description: Some(description.to_string()),
+                short_label: short_label.map(str::to_string),
+            },
+        )
         .collect()
 }
 
@@ -828,5 +854,71 @@ mod tests {
         );
 
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    // --- short_label tests --------------------------------------------------
+
+    /// intelligence_index must carry its curated short label "Intel. Idx".
+    #[test]
+    fn intelligence_index_short_label() {
+        let sf = parse_fixture();
+        let m = sf
+            .metrics
+            .iter()
+            .find(|m| m.id == "intelligence_index")
+            .expect("intelligence_index present");
+        assert_eq!(
+            m.short_label.as_deref(),
+            Some("Intel. Idx"),
+            "intelligence_index short_label mismatch"
+        );
+    }
+
+    /// A metric with a ≤10-char label (e.g. "TTFT") must NOT emit a short_label.
+    #[test]
+    fn short_label_omitted_when_label_is_short_enough() {
+        let sf = parse_fixture();
+        let ttft = sf
+            .metrics
+            .iter()
+            .find(|m| m.id == "ttft")
+            .expect("ttft metric present");
+        assert_eq!(ttft.label, "TTFT", "ttft label should be 'TTFT' (4 chars)");
+        assert!(
+            ttft.short_label.is_none(),
+            "ttft has a short label but its full label is already ≤10 chars"
+        );
+    }
+
+    /// All emitted short_labels in this source must be unique (no collisions).
+    #[test]
+    fn no_duplicate_short_labels_within_source() {
+        let sf = parse_fixture();
+        let mut seen = std::collections::HashSet::new();
+        for m in &sf.metrics {
+            if let Some(sl) = &m.short_label {
+                assert!(
+                    seen.insert(sl.clone()),
+                    "duplicate short_label {:?} on metric {}",
+                    sl,
+                    m.id
+                );
+            }
+        }
+    }
+
+    /// Round-trip through serde preserves the short_label field.
+    #[test]
+    fn short_label_survives_round_trip() {
+        let sf = parse_fixture();
+        let json = serde_json::to_string_pretty(&sf).expect("serialize");
+        let back: crate::schema::SourceFile = serde_json::from_str(&json).expect("deserialize");
+        for (orig, restored) in sf.metrics.iter().zip(back.metrics.iter()) {
+            assert_eq!(
+                orig.short_label, restored.short_label,
+                "short_label mismatch after round-trip for metric {}",
+                orig.id
+            );
+        }
     }
 }

@@ -118,13 +118,15 @@ struct RawOrg {
 // value); the score map keys by that id.
 // ---------------------------------------------------------------------------
 
-/// One entry: (id == category id, label, kind, group, higher_is_better, description).
+/// One entry: (id == category id, label, kind, group, higher_is_better, short_label, description).
+/// `short_label` is `None` when the full label is already ≤10 display chars.
 type MetricEntry = (
     &'static str,
     &'static str,
     MetricKind,
     &'static str,
     bool,
+    Option<&'static str>,
     &'static str,
 );
 
@@ -144,6 +146,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories I",
         true,
+        None, // "Agents" is 6 chars
         "Capability on agentic, multi-step tool-using tasks.",
     ),
     (
@@ -152,6 +155,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories I",
         true,
+        None, // "Code" is 4 chars
         "Capability on programming and code-generation tasks.",
     ),
     (
@@ -160,6 +164,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories I",
         true,
+        None, // "Finance" is 7 chars
         "Capability on finance-domain tasks.",
     ),
     (
@@ -168,6 +173,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories I",
         true,
+        Some("Front. Dev"),
         "Capability on front-end / web-UI development tasks.",
     ),
     (
@@ -176,6 +182,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories I",
         true,
+        None, // "General" is 7 chars
         "Overall general-capability rating across all tracked benchmarks.",
     ),
     (
@@ -184,6 +191,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories I",
         true,
+        None, // "Healthcare" is exactly 10 chars
         "Capability on healthcare and medical-domain tasks.",
     ),
     // Group "Categories II" (5)
@@ -193,6 +201,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories II",
         true,
+        None, // "Legal" is 5 chars
         "Capability on legal-domain tasks.",
     ),
     (
@@ -201,6 +210,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories II",
         true,
+        None, // "Math" is 4 chars
         "Capability on mathematical problem-solving tasks.",
     ),
     (
@@ -209,6 +219,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories II",
         true,
+        None, // "Multimodal" is exactly 10 chars
         "Capability on multimodal tasks spanning more than one input modality.",
     ),
     (
@@ -217,6 +228,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories II",
         true,
+        None, // "Reasoning" is 9 chars
         "Capability on logical and multi-step reasoning tasks.",
     ),
     (
@@ -225,6 +237,7 @@ const METRICS: &[MetricEntry] = &[
         MetricKind::Index,
         "Categories II",
         true,
+        None, // "Vision" is 6 chars
         "Capability on visual understanding tasks.",
     ),
 ];
@@ -240,15 +253,18 @@ fn is_curated(category: &str) -> bool {
 fn metric_defs(last_updated: &BTreeMap<String, String>) -> Vec<MetricDef> {
     METRICS
         .iter()
-        .map(|&(id, label, kind, group, hib, description)| MetricDef {
-            id: id.to_string(),
-            label: label.to_string(),
-            kind,
-            group: group.to_string(),
-            higher_is_better: hib,
-            last_updated: last_updated.get(id).cloned(),
-            description: Some(format!("{description} {RATING_SUFFIX}")),
-        })
+        .map(
+            |&(id, label, kind, group, hib, short_label, description)| MetricDef {
+                id: id.to_string(),
+                label: label.to_string(),
+                kind,
+                group: group.to_string(),
+                higher_is_better: hib,
+                last_updated: last_updated.get(id).cloned(),
+                description: Some(format!("{description} {RATING_SUFFIX}")),
+                short_label: short_label.map(str::to_string),
+            },
+        )
         .collect()
 }
 
@@ -793,5 +809,52 @@ mod tests {
         assert_eq!(rewritten.models[0].name, "Claude Opus 4.8");
 
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    // ----- short_label tests -----
+
+    #[test]
+    fn frontend_development_has_short_label_front_dev() {
+        let sf = parse_fixture_with_models();
+        let m = sf
+            .metrics
+            .iter()
+            .find(|m| m.id == "frontend_development")
+            .expect("frontend_development present");
+        assert_eq!(
+            m.short_label.as_deref(),
+            Some("Front. Dev"),
+            "short_label mismatch for frontend_development"
+        );
+    }
+
+    #[test]
+    fn no_duplicate_short_labels_within_source() {
+        let sf = parse_fixture_with_models();
+        let mut seen = std::collections::HashSet::new();
+        for m in &sf.metrics {
+            if let Some(sl) = &m.short_label {
+                assert!(
+                    seen.insert(sl.clone()),
+                    "duplicate short_label {:?} on metric {}",
+                    sl,
+                    m.id
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn short_label_survives_round_trip() {
+        let sf = parse_fixture_with_models();
+        let json = serde_json::to_string_pretty(&sf).expect("serialize");
+        let back: SourceFile = serde_json::from_str(&json).expect("deserialize");
+        for (orig, restored) in sf.metrics.iter().zip(back.metrics.iter()) {
+            assert_eq!(
+                orig.short_label, restored.short_label,
+                "short_label mismatch after round-trip for {}",
+                orig.id
+            );
+        }
     }
 }

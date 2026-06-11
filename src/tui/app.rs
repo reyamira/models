@@ -1724,6 +1724,7 @@ mod tests {
             higher_is_better: true,
             last_updated: None,
             description: None,
+            short_label: None,
         }
     }
 

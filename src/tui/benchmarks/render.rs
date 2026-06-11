@@ -9,7 +9,8 @@ use ratatui::{
 use super::app::BenchmarksApp;
 use super::compare::{draw_h2h_table_generic, draw_scatter};
 use crate::benchmarks::multi::{
-    format_metric_value, groups_in_order, metric_indices_in_group, SortKey, SourceLoad,
+    format_metric_value, groups_in_order, metric_indices_in_group,
+    short_label as metric_short_label, SortKey, SourceLoad,
 };
 use crate::benchmarks::schema::{MetricKind, ModelRow, ScoreCell, SourceFile};
 use crate::formatting::{format_relative_time_from_str, format_tokens, truncate};
@@ -401,13 +402,17 @@ fn list_value_for(file: &SourceFile, model: &ModelRow, key: SortKey) -> String {
 }
 
 /// Header label for the active sort value column.
+///
+/// Uses the metric's curated `short_label` via `multi::short_label` (falls back
+/// to `truncate(label, 11)` when no short label is set). The sort picker, panel
+/// title sort indicator, glossary, and detail panel keep using the full label.
 fn list_value_header(file: Option<&SourceFile>, key: SortKey) -> String {
     match key {
         SortKey::Name => String::new(),
         SortKey::ReleaseDate => "Released".to_string(),
         SortKey::Metric(mi) => file
             .and_then(|f| f.metrics.get(mi))
-            .map(|m| truncate(&m.label, 11))
+            .map(metric_short_label)
             .unwrap_or_else(|| EM.to_string()),
     }
 }
@@ -1567,6 +1572,7 @@ mod tests {
             higher_is_better: true,
             last_updated: None,
             description: None,
+            short_label: None,
         }
     }
 
@@ -1856,6 +1862,7 @@ mod tests {
             higher_is_better,
             last_updated: last_updated.map(str::to_string),
             description: description.map(str::to_string),
+            short_label: None,
         }
     }
 

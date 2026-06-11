@@ -49,6 +49,12 @@ pub struct MetricDef {
     /// the glossary popup. Set by the transforms.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    /// Curated short label for narrow column headers (≤10 display chars).
+    /// `None` when the full `label` is already ≤10 chars — display falls back
+    /// to `label` itself. Set by the transforms via the per-source METRICS
+    /// registry. Old data files without this field deserialize with `None`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub short_label: Option<String>,
 }
 
 fn default_true() -> bool {
