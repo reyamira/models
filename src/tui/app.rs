@@ -15,14 +15,11 @@ use crate::config::Config;
 use crate::data::{Provider, ProvidersMap};
 use crate::tui::widgets::scroll_offset::ScrollOffset;
 
-/// Apply the active source's trait/openness augmentation and rebuild the
-/// benchmarks sub-app if the freshly loaded source is the active one.
-fn finalize_loaded_source(app: &mut App, idx: usize) {
-    // Fill empty trait fields from models.dev before the sub-app derives the
-    // creator-openness map. AA uses the Jaro-Winkler matcher (its slugs need
-    // fuzzy matching); the clean-id sources (epoch / arena / llmstats) use the
-    // generic exact/normalized enrichment, which also backfills creator and
-    // release_date where the source omits them.
+/// Fill empty trait fields of source `idx` from models.dev. AA uses the
+/// Jaro-Winkler matcher (its slugs need fuzzy matching); the clean-id sources
+/// (epoch / arena / llmstats) use the generic exact/normalized enrichment,
+/// which also backfills creator and release_date where the source omits them.
+fn enrich_source(app: &mut App, idx: usize) {
     let source_id = app.multi_store.sources.get(idx).map(|s| s.descriptor.id);
     if source_id == Some("aa") {
         if let Some(file) = app.multi_store.file_mut(idx) {
@@ -33,6 +30,12 @@ fn finalize_loaded_source(app: &mut App, idx: usize) {
             crate::benchmarks::enrich_from_models_dev(&app.providers, &mut file.models);
         }
     }
+}
+
+/// Apply the active source's trait/openness augmentation and rebuild the
+/// benchmarks sub-app if the freshly loaded source is the active one.
+fn finalize_loaded_source(app: &mut App, idx: usize) {
+    enrich_source(app, idx);
     if idx == app.benchmarks_app.active_source {
         if let Some(file) = app.multi_store.file(idx) {
             app.benchmarks_app.rebuild(file);
@@ -238,11 +241,18 @@ pub enum Message {
     // Data-source switcher (benchmarks tab): `{` / `}` cycle prev/next
     CycleDataSourcePrev,
     CycleDataSourceNext,
+    // `r` — re-fetch the active source (stale-while-revalidate). The fetch is
+    // spawned in the main loop; its result arrives as `DataSourceRefreshed`.
+    RefreshBenchmarkSource,
     // Async data messages
     GitHubDataReceived(String, GitHubData),
     GitHubFetchFailed(String, String), // (agent_id, error_message)
     // Benchmark data: one variant per source fetch. `None` => fetch failed.
     DataSourceLoaded(usize, Option<SourceFile>),
+    // Result of an `r`-triggered refresh of source `idx`. `Some` => replace the
+    // loaded file and state-preservingly rebuild; `None` => keep the current
+    // (good) data, report a non-fatal failure.
+    DataSourceRefreshed(usize, Option<SourceFile>),
     // Provider status data messages
     StatusDataReceived(Vec<crate::status::ProviderStatus>),
 }
@@ -315,6 +325,109 @@ impl App {
         self.multi_store.file(self.benchmarks_app.active_source)
     }
 
+    /// Switch the benchmarks data source `{`/`}`, carrying the compare
+    /// `selections` over to the new source by exact id match (order-preserving;
+    /// missing ids drop). Falls back to clearing when either side isn't loaded.
+    /// `update_bottom_view` runs afterwards so browse/compare mode stays
+    /// consistent with the surviving selection count.
+    fn switch_data_source(&mut self, forward: bool) {
+        let old_active = self.benchmarks_app.active_source;
+        self.benchmarks_app
+            .switch_source(&self.multi_store, forward);
+        let new_active = self.benchmarks_app.active_source;
+
+        match (
+            self.multi_store.file(old_active),
+            self.multi_store.file(new_active),
+        ) {
+            (Some(old_file), Some(new_file)) => {
+                self.selections =
+                    Self::remap_selections_by_id(&self.selections, old_file, new_file);
+            }
+            // Either side not loaded — there's no honest id mapping to apply.
+            _ => self.clear_selections(),
+        }
+        self.benchmarks_app
+            .update_bottom_view(self.selections.len());
+        // Demote focus when the surviving selection count drops below compare.
+        if self.selections.len() < 2
+            && self.benchmarks_app.focus == super::benchmarks::BenchmarkFocus::Compare
+        {
+            self.benchmarks_app.focus = super::benchmarks::BenchmarkFocus::List;
+        }
+    }
+
+    /// Apply the result of an `r`-triggered refresh of source `idx`.
+    ///
+    /// `Some(file)` => replace the loaded file, re-run models.dev enrichment, and
+    /// (when `idx` is active) state-preservingly rebuild + remap the compare
+    /// selections by id. `None` => keep the current loaded file untouched (a
+    /// failed refresh must not discard good data) and report a non-fatal failure.
+    fn apply_source_refresh(&mut self, idx: usize, result: Option<SourceFile>) {
+        let name = self
+            .multi_store
+            .sources
+            .get(idx)
+            .map(|s| s.descriptor.name)
+            .unwrap_or("source");
+        match result {
+            Some(file) => {
+                let is_active = idx == self.benchmarks_app.active_source;
+                // Snapshot the old selection ids AND the selected row's id against
+                // the old file before it is replaced, so both the compare set and
+                // the focused row can be remapped to the new file by id.
+                let (old_ids, prev_model_id, had_old_file) = match self.multi_store.file(idx) {
+                    Some(old_file) if is_active => {
+                        let ids: Vec<String> = self
+                            .selections
+                            .iter()
+                            .filter_map(|&i| old_file.models.get(i).map(|m| m.id.clone()))
+                            .collect();
+                        let sel = self.benchmarks_app.selected_model_id(old_file);
+                        (ids, sel, true)
+                    }
+                    Some(_) => (Vec::new(), None, true),
+                    None => (Vec::new(), None, false),
+                };
+
+                self.multi_store.set_loaded(idx, file);
+                enrich_source(self, idx);
+
+                if is_active {
+                    // Remap selections by id when we had a prior file; if the
+                    // source was previously unloaded, there's nothing to map.
+                    if let Some(new_file) = self.multi_store.file(idx) {
+                        self.selections = if had_old_file {
+                            old_ids
+                                .iter()
+                                .filter_map(|id| new_file.models.iter().position(|m| &m.id == id))
+                                .collect()
+                        } else {
+                            Vec::new()
+                        };
+                    }
+                    if let Some(new_file) = self.multi_store.file(idx) {
+                        self.benchmarks_app
+                            .rebuild_preserving(new_file, prev_model_id);
+                    }
+                    self.benchmarks_app
+                        .update_bottom_view(self.selections.len());
+                    if self.selections.len() < 2
+                        && self.benchmarks_app.focus == super::benchmarks::BenchmarkFocus::Compare
+                    {
+                        self.benchmarks_app.focus = super::benchmarks::BenchmarkFocus::List;
+                    }
+                }
+                self.set_status(format!("Refreshed {name}"));
+            }
+            None => {
+                // Keep the existing loaded file: a refresh failure must not
+                // discard good data (do NOT set_failed here).
+                self.set_status(format!("Failed to refresh {name} — keeping current data"));
+            }
+        }
+    }
+
     pub fn toggle_selection(&mut self, store_index: usize) {
         if let Some(pos) = self.selections.iter().position(|&i| i == store_index) {
             self.selections.remove(pos);
@@ -325,6 +438,24 @@ impl App {
 
     pub fn clear_selections(&mut self) {
         self.selections.clear();
+    }
+
+    /// Remap the compare `selections` (indices into `old_file.models`) onto
+    /// indices into `new_file.models` by **exact id match**, preserving order so
+    /// compare colors stay stable. Ids absent from the new source are dropped.
+    /// Returns the new selection vector (does not mutate `self`).
+    fn remap_selections_by_id(
+        selections: &[usize],
+        old_file: &SourceFile,
+        new_file: &SourceFile,
+    ) -> Vec<usize> {
+        selections
+            .iter()
+            .filter_map(|&old_idx| {
+                let id = &old_file.models.get(old_idx)?.id;
+                new_file.models.iter().position(|m| &m.id == id)
+            })
+            .collect()
     }
 
     pub fn get_copy_full(&self) -> Option<String> {
@@ -1028,12 +1159,16 @@ impl App {
                 }
             }
             Message::CycleDataSourceNext => {
-                self.benchmarks_app.switch_source(&self.multi_store, true);
-                self.clear_selections();
+                self.switch_data_source(true);
             }
             Message::CycleDataSourcePrev => {
-                self.benchmarks_app.switch_source(&self.multi_store, false);
-                self.clear_selections();
+                self.switch_data_source(false);
+            }
+            Message::RefreshBenchmarkSource => {
+                // Fetch is spawned in the main loop; status set there too.
+            }
+            Message::DataSourceRefreshed(idx, result) => {
+                self.apply_source_refresh(idx, result);
             }
             Message::ToggleBenchmarkSelection => {
                 if let Some(&store_idx) = self
@@ -1424,9 +1559,10 @@ mod tests {
     }
 
     #[test]
-    fn test_cycle_data_source_clears_selections() {
-        // Cycling to the next compiled-in source advances `active_source` and
-        // clears the shared selection vec (per the switch contract).
+    fn test_cycle_data_source_clears_selections_when_unloaded() {
+        // With no source loaded (the default test store), there's no honest id
+        // mapping to carry selections across, so the switch falls back to
+        // clearing — and still advances `active_source`.
         let mut app = make_test_app();
         app.toggle_selection(1);
         app.toggle_selection(2);
@@ -1552,5 +1688,325 @@ mod tests {
         app.benchmarks_app.update_bottom_view(3);
         assert_eq!(app.benchmarks_app.bottom_view, BottomView::H2H);
         assert_eq!(app.benchmarks_app.h2h_scroll.get(), 0);
+    }
+
+    // --- Phase 2: cross-source state persistence & in-app refresh ---
+
+    use crate::benchmarks::multi::SortKey as TestSortKey;
+    use crate::benchmarks::schema::{
+        MetricDef, MetricKind, ModelRow, ReasoningStatus, ScoreCell, SourceFile, SourceMeta,
+    };
+    use std::collections::BTreeMap;
+
+    fn bm_meta(id: &str) -> SourceMeta {
+        SourceMeta {
+            id: id.into(),
+            name: id.to_uppercase(),
+            url: "https://example.com".into(),
+            fetched_at: "2026-06-10T00:00:00+00:00".into(),
+            verified: true,
+        }
+    }
+
+    fn bm_metric(id: &str, kind: MetricKind, group: &str) -> MetricDef {
+        MetricDef {
+            id: id.into(),
+            label: id.to_uppercase(),
+            kind,
+            group: group.into(),
+            higher_is_better: true,
+            last_updated: None,
+            description: None,
+        }
+    }
+
+    fn bm_model(
+        id: &str,
+        reasoning: ReasoningStatus,
+        release: Option<&str>,
+        scores: &[(&str, f64)],
+    ) -> ModelRow {
+        let mut score_map = BTreeMap::new();
+        for (mid, v) in scores {
+            score_map.insert(
+                (*mid).to_string(),
+                ScoreCell {
+                    value: *v,
+                    date: None,
+                    ci: None,
+                    votes: None,
+                },
+            );
+        }
+        ModelRow {
+            id: id.into(),
+            name: id.into(),
+            display_name: id.into(),
+            creator: "creator".into(),
+            creator_name: "Creator".into(),
+            release_date: release.map(str::to_string),
+            reasoning_status: reasoning,
+            effort_level: None,
+            variant_tag: None,
+            open_weights: None,
+            context_window: None,
+            supports_tools: None,
+            max_output: None,
+            scores: score_map,
+        }
+    }
+
+    /// File whose models all carry reasoning metadata, with metrics + dates.
+    fn bm_file_reasoning(meta_id: &str, model_ids: &[&str]) -> SourceFile {
+        SourceFile {
+            source: bm_meta(meta_id),
+            metrics: vec![
+                bm_metric("intelligence", MetricKind::Index, "Indexes"),
+                bm_metric("coding", MetricKind::Index, "Indexes"),
+            ],
+            models: model_ids
+                .iter()
+                .enumerate()
+                .map(|(i, id)| {
+                    bm_model(
+                        id,
+                        ReasoningStatus::Reasoning,
+                        Some("2026-01-01"),
+                        &[("intelligence", 50.0 + i as f64)],
+                    )
+                })
+                .collect(),
+        }
+    }
+
+    /// File whose models carry NO reasoning metadata (so `7` is a no-op there).
+    fn bm_file_plain(meta_id: &str, model_ids: &[&str]) -> SourceFile {
+        SourceFile {
+            source: bm_meta(meta_id),
+            metrics: vec![bm_metric("elo", MetricKind::Elo, "Arena Elo")],
+            models: model_ids
+                .iter()
+                .enumerate()
+                .map(|(i, id)| {
+                    bm_model(
+                        id,
+                        ReasoningStatus::None,
+                        Some("2026-01-01"),
+                        &[("elo", 1000.0 + i as f64)],
+                    )
+                })
+                .collect(),
+        }
+    }
+
+    /// Build an app with two distinct sources loaded at indices 0 and 1, active 0.
+    fn app_with_two_sources(file0: SourceFile, file1: SourceFile) -> App {
+        let mut app = make_test_app();
+        // Need at least two compiled-in sources for index 1 to exist.
+        assert!(
+            app.multi_store.sources.len() >= 2,
+            "registry must have ≥2 sources"
+        );
+        app.multi_store.set_loaded(0, file0);
+        app.multi_store.set_loaded(1, file1);
+        app.benchmarks_app.active_source = 0;
+        // Rebuild the sub-app against the active file (mimics initial load).
+        if let Some(f) = app.multi_store.file(0) {
+            app.benchmarks_app.rebuild(f);
+        }
+        app
+    }
+
+    #[test]
+    fn switch_persists_search_filters_grouping() {
+        use super::super::benchmarks::CreatorGrouping;
+        use crate::benchmarks::multi::{ReasoningFilter, SortKey};
+        let file0 = bm_file_reasoning("aa", &["alpha", "beta"]);
+        let file1 = bm_file_reasoning("epoch", &["alpha", "gamma"]);
+        let mut app = app_with_two_sources(file0, file1);
+
+        // Dirty cross-source intent.
+        app.benchmarks_app.search_query = "alpha".to_string();
+        app.benchmarks_app.source_filter = super::super::benchmarks::SourceFilter::Open;
+        app.benchmarks_app.creator_grouping = CreatorGrouping::ByRegion;
+        app.benchmarks_app.reasoning_filter = ReasoningFilter::Reasoning;
+        // A name sort with non-default direction must survive.
+        app.benchmarks_app.sort_key = SortKey::Name;
+        app.benchmarks_app.sort_descending = true;
+
+        app.update(Message::CycleDataSourceNext);
+
+        assert_eq!(app.benchmarks_app.active_source, 1);
+        assert_eq!(app.benchmarks_app.search_query, "alpha");
+        assert_eq!(
+            app.benchmarks_app.source_filter,
+            super::super::benchmarks::SourceFilter::Open
+        );
+        assert_eq!(
+            app.benchmarks_app.creator_grouping,
+            CreatorGrouping::ByRegion
+        );
+        assert_eq!(
+            app.benchmarks_app.reasoning_filter,
+            ReasoningFilter::Reasoning
+        );
+        // Name sort + direction survive.
+        assert_eq!(app.benchmarks_app.sort_key, SortKey::Name);
+        assert!(app.benchmarks_app.sort_descending);
+    }
+
+    #[test]
+    fn switch_metric_sort_falls_back_date_sort_survives() {
+        use crate::benchmarks::multi::{default_sort, SortKey};
+        let file0 = bm_file_reasoning("aa", &["alpha"]);
+        let file1 = bm_file_reasoning("epoch", &["alpha"]);
+        let mut app = app_with_two_sources(file0, file1);
+
+        // A metric index does not map across sources -> reset to new default.
+        app.benchmarks_app.sort_key = SortKey::Metric(1);
+        app.benchmarks_app.sort_descending = false;
+        app.update(Message::CycleDataSourceNext);
+        let new_file = app.multi_store.file(1).unwrap();
+        assert_eq!(app.benchmarks_app.sort_key, default_sort(new_file));
+
+        // Switch back: a ReleaseDate sort (with direction) survives untouched.
+        app.benchmarks_app.sort_key = SortKey::ReleaseDate;
+        app.benchmarks_app.sort_descending = false;
+        app.update(Message::CycleDataSourcePrev);
+        assert_eq!(app.benchmarks_app.active_source, 0);
+        assert_eq!(app.benchmarks_app.sort_key, SortKey::ReleaseDate);
+        assert!(!app.benchmarks_app.sort_descending);
+    }
+
+    #[test]
+    fn switch_resets_reasoning_filter_when_target_lacks_reasoning() {
+        use crate::benchmarks::multi::ReasoningFilter;
+        // Source 0 has reasoning data; source 1 (plain) does not.
+        let file0 = bm_file_reasoning("aa", &["alpha"]);
+        let file1 = bm_file_plain("arena", &["alpha"]);
+        let mut app = app_with_two_sources(file0, file1);
+
+        app.benchmarks_app.reasoning_filter = ReasoningFilter::Reasoning;
+        app.update(Message::CycleDataSourceNext);
+        // Target has no reasoning metadata -> filter reset to All (avoids a stuck
+        // invisible filter silently emptying the list).
+        assert_eq!(app.benchmarks_app.reasoning_filter, ReasoningFilter::All);
+    }
+
+    #[test]
+    fn selection_carryover_shared_ids_survive_in_order() {
+        // Source 0 models: [alpha, beta, gamma]; source 1: [gamma, alpha].
+        // Selecting alpha(0) + gamma(2) must map to indices in source 1
+        // preserving SELECTION order: alpha -> 1, gamma -> 0 => [1, 0].
+        let file0 = bm_file_reasoning("aa", &["alpha", "beta", "gamma"]);
+        let file1 = bm_file_reasoning("epoch", &["gamma", "alpha"]);
+        let mut app = app_with_two_sources(file0, file1);
+
+        app.selections = vec![0, 2]; // alpha, gamma
+        app.update(Message::CycleDataSourceNext);
+        assert_eq!(app.benchmarks_app.active_source, 1);
+        assert_eq!(app.selections, vec![1, 0]);
+    }
+
+    #[test]
+    fn selection_carryover_missing_ids_drop_and_demote() {
+        use super::super::benchmarks::{BenchmarkFocus, BottomView};
+        // Source 0: [alpha, beta, gamma] all selected (3 -> compare mode).
+        // Source 1: only [alpha] survives -> 1 selection -> browse demotion.
+        let file0 = bm_file_reasoning("aa", &["alpha", "beta", "gamma"]);
+        let file1 = bm_file_reasoning("epoch", &["alpha"]);
+        let mut app = app_with_two_sources(file0, file1);
+
+        app.selections = vec![0, 1, 2];
+        app.benchmarks_app.update_bottom_view(3);
+        app.benchmarks_app.focus = BenchmarkFocus::Compare;
+        assert_eq!(app.benchmarks_app.bottom_view, BottomView::H2H);
+
+        app.update(Message::CycleDataSourceNext);
+        // Only alpha survives.
+        assert_eq!(app.selections, vec![0]);
+        // Compare -> browse demotion fired.
+        assert_eq!(app.benchmarks_app.bottom_view, BottomView::Detail);
+        assert_eq!(app.benchmarks_app.focus, BenchmarkFocus::List);
+    }
+
+    #[test]
+    fn refresh_failure_keeps_old_file_loaded() {
+        let file0 = bm_file_reasoning("aa", &["alpha", "beta"]);
+        let mut app = make_test_app();
+        app.multi_store.set_loaded(0, file0);
+        app.benchmarks_app.active_source = 0;
+        if let Some(f) = app.multi_store.file(0) {
+            app.benchmarks_app.rebuild(f);
+        }
+        let before = app.multi_store.file(0).unwrap().models.len();
+
+        app.update(Message::DataSourceRefreshed(0, None));
+        // Old file is untouched (not set_failed) and a non-fatal status is set.
+        assert!(app.multi_store.file(0).is_some());
+        assert_eq!(app.multi_store.file(0).unwrap().models.len(), before);
+        assert!(app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .contains("keeping current data"));
+    }
+
+    #[test]
+    fn refresh_success_preserves_sort_search_and_selection_by_id() {
+        use crate::benchmarks::multi::SortKey;
+        let file0 = bm_file_reasoning("aa", &["alpha", "beta", "gamma"]);
+        let mut app = make_test_app();
+        app.multi_store.set_loaded(0, file0);
+        app.benchmarks_app.active_source = 0;
+        if let Some(f) = app.multi_store.file(0) {
+            app.benchmarks_app.rebuild(f);
+        }
+
+        // Set a Name sort (descending) and a search; select gamma by id.
+        app.benchmarks_app.sort_key = SortKey::Name;
+        app.benchmarks_app.sort_descending = true;
+        app.benchmarks_app
+            .rebuild_after_filter_change(app.multi_store.file(0).unwrap());
+        app.selections = vec![2]; // gamma in old file
+
+        // Refreshed file reorders models: gamma now at index 0.
+        let refreshed = bm_file_reasoning("aa", &["gamma", "alpha", "beta"]);
+        app.update(Message::DataSourceRefreshed(0, Some(refreshed)));
+
+        // Sort + direction preserved.
+        assert_eq!(app.benchmarks_app.sort_key, SortKey::Name);
+        assert!(app.benchmarks_app.sort_descending);
+        // Selection remapped by id: gamma moved to index 0.
+        assert_eq!(app.selections, vec![0]);
+        assert!(app
+            .status_message
+            .as_deref()
+            .unwrap()
+            .starts_with("Refreshed"));
+    }
+
+    #[test]
+    fn refresh_shrinking_metrics_falls_back_stale_metric_sort() {
+        use crate::benchmarks::multi::{default_sort, SortKey};
+        // Old file has 2 metrics; sort by Metric(1).
+        let file0 = bm_file_reasoning("aa", &["alpha"]);
+        let mut app = make_test_app();
+        app.multi_store.set_loaded(0, file0);
+        app.benchmarks_app.active_source = 0;
+        if let Some(f) = app.multi_store.file(0) {
+            app.benchmarks_app.rebuild(f);
+        }
+        app.benchmarks_app.sort_key = SortKey::Metric(1);
+
+        // Refreshed file has only 1 metric -> Metric(1) is now out of range.
+        let mut shrunk = bm_file_reasoning("aa", &["alpha"]);
+        shrunk.metrics.truncate(1);
+        app.update(Message::DataSourceRefreshed(0, Some(shrunk)));
+
+        let new_file = app.multi_store.file(0).unwrap();
+        assert_eq!(app.benchmarks_app.sort_key, default_sort(new_file));
+        // default_sort here is ReleaseDate (models carry dates).
+        assert_eq!(app.benchmarks_app.sort_key, TestSortKey::ReleaseDate);
     }
 }

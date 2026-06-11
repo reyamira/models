@@ -386,6 +386,8 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                             Span::raw("clear  "),
                             Span::styled(" s ", Style::default().fg(Color::Yellow)),
                             Span::raw("sort  "),
+                            Span::styled(" r ", Style::default().fg(Color::Yellow)),
+                            Span::raw("refresh  "),
                             Span::styled(" / ", Style::default().fg(Color::Yellow)),
                             Span::raw("search"),
                         ]);
@@ -440,6 +442,8 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                         spans.extend([
                             Span::styled(" s ", Style::default().fg(Color::Yellow)),
                             Span::raw("sort  "),
+                            Span::styled(" r ", Style::default().fg(Color::Yellow)),
+                            Span::raw("refresh  "),
                             Span::styled(" / ", Style::default().fg(Color::Yellow)),
                             Span::raw("search  "),
                             Span::styled(" i ", Style::default().fg(Color::Yellow)),
@@ -633,6 +637,7 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
                 help_section("Data Source"),
                 help_line("}", "Next data source"),
                 help_line("{", "Previous data source"),
+                help_line("r", "Refresh active source"),
                 Line::from(""),
                 help_section("Quick Sort (press again to flip direction)"),
                 help_line("1", &benchmark_first_metric_help),

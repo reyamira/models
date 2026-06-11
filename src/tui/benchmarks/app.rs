@@ -500,12 +500,15 @@ impl BenchmarksApp {
 
     // --- Source switching ---
 
-    /// Switch to the next/previous source (wrapping). Resets all per-source view
-    /// state: clears selections-related state, search, sort, scroll, and rebuilds
-    /// the creator list + filtered indices against the newly active file.
+    /// Switch to the next/previous source (wrapping). Resets per-source view
+    /// state (selection, scrolls, scatter/radar axes, popups) but **preserves**
+    /// cross-source query/filter/grouping/sort intent — see [`reset_for_source`].
     ///
     /// Selecting a Loading/Failed source is allowed — the views render the
-    /// loading/error state. `App` must clear its shared `selections` separately.
+    /// loading/error state. `App` remaps its shared `selections` by id separately
+    /// (see the `CycleDataSource*` handlers).
+    ///
+    /// [`reset_for_source`]: Self::reset_for_source
     pub fn switch_source(&mut self, store: &MultiStore, forward: bool) {
         let count = store.sources.len();
         if count == 0 {
@@ -519,14 +522,26 @@ impl BenchmarksApp {
         self.reset_for_source(store);
     }
 
-    /// Reset all view state for the currently active source. Called by
-    /// `switch_source` and after the active source first loads.
+    /// Reset view state for the newly active source, **preserving** cross-source
+    /// query/filter/grouping/sort intent where it still maps:
+    ///
+    /// Kept across the switch:
+    /// - `search_query` (re-applied against the new source via the rebuild)
+    /// - `source_filter` (open-weights) and `creator_grouping`
+    /// - `reasoning_filter` — except when the new source carries no reasoning
+    ///   metadata (the `7` key is a no-op there); a stuck invisible filter would
+    ///   silently empty the list, so it is reset to `All`
+    /// - sort: `ReleaseDate` / `Name` keys (and direction) survive; a
+    ///   `Metric(i)` key does not map across sources, so it falls back to the
+    ///   new source's `default_sort` + its default direction
+    ///
+    /// Reset per-source (view) state: selected row/creator indices, all scrolls,
+    /// scatter/radar axes, `bottom_view`, and all popups (sort picker, glossary,
+    /// detail overlay).
     pub fn reset_for_source(&mut self, store: &MultiStore) {
         let active = self.active_source;
-        self.search_query.clear();
-        self.source_filter = SourceFilter::default();
-        self.reasoning_filter = ReasoningFilter::default();
-        self.creator_grouping = CreatorGrouping::default();
+
+        // Per-source view state always resets.
         self.selected = 0;
         self.selected_creator = 0;
         self.list_state.select(Some(0));
@@ -545,15 +560,29 @@ impl BenchmarksApp {
 
         if let Some(file) = store.file(active) {
             self.loading = false;
-            self.sort_key = default_sort(file);
-            self.sort_descending = Self::default_descending(file, self.sort_key);
+            // Reasoning filter: keep it unless the new source can't honor it.
+            if !Self::reasoning_filter_available(Some(file)) {
+                self.reasoning_filter = ReasoningFilter::default();
+            }
+            // Sort: keep date/name (with direction); a metric index is
+            // source-specific, so remap it to the new source's default.
+            if matches!(self.sort_key, SortKey::Metric(_)) {
+                self.sort_key = default_sort(file);
+                self.sort_descending = Self::default_descending(file, self.sort_key);
+            }
             self.creator_openness = creator_openness(&file.models);
             self.build_creator_list(file);
             self.update_filtered(file);
         } else {
             self.loading = !Self::active_is_failed(store, active);
-            self.sort_key = SortKey::ReleaseDate;
-            self.sort_descending = true;
+            // No file to honor a metric sort or reasoning data against — fall
+            // back to safe defaults; the preserved search/filters re-apply once
+            // the source lands and rebuilds.
+            if matches!(self.sort_key, SortKey::Metric(_)) {
+                self.sort_key = SortKey::ReleaseDate;
+                self.sort_descending = true;
+            }
+            self.reasoning_filter = ReasoningFilter::default();
             self.creator_openness = HashMap::new();
             self.creator_info = HashMap::new();
             self.creator_list_items = vec![CreatorListItem::All];
@@ -576,6 +605,73 @@ impl BenchmarksApp {
         self.creator_list_state.select(Some(0));
         self.selected = 0;
         self.update_filtered(file);
+        self.reset_detail_scroll();
+    }
+
+    /// State-preserving rebuild used by an in-app refresh of the active source.
+    ///
+    /// Unlike [`rebuild`], this keeps the user's intent against the refreshed
+    /// file:
+    /// - the current sort key + direction, when still valid — a `Metric(i)` that
+    ///   now indexes past the (possibly shrunk) metric list falls back to
+    ///   `default_sort`
+    /// - search / filters / grouping (they live on the app and re-apply via
+    ///   `build_creator_list` + `update_filtered`)
+    /// - the selected creator by slug and the selected model by id, each falling
+    ///   back to index 0 when it no longer exists
+    ///
+    /// `App.selections` (compare set) is remapped by id at the call site.
+    ///
+    /// `prev_model_id` is the id of the model that was selected against the
+    /// *previous* file (the caller must capture it before the store is swapped,
+    /// since `self.filtered_indices` still holds indices into the old file).
+    ///
+    /// [`rebuild`]: Self::rebuild
+    pub fn rebuild_preserving(&mut self, file: &SourceFile, prev_model_id: Option<String>) {
+        self.loading = false;
+
+        // Sort: keep it unless a metric index is now out of range.
+        if let SortKey::Metric(mi) = self.sort_key {
+            if mi >= file.metrics.len() {
+                self.sort_key = default_sort(file);
+                self.sort_descending = Self::default_descending(file, self.sort_key);
+            }
+        }
+
+        // The selected creator slug is file-independent (slugs are strings), so
+        // it can be read here; the selected model id is captured by the caller
+        // against the previous file.
+        let prev_creator_slug = match self.creator_list_items.get(self.selected_creator) {
+            Some(CreatorListItem::Creator(slug)) => Some(slug.clone()),
+            _ => None,
+        };
+
+        self.creator_openness = creator_openness(&file.models);
+        self.build_creator_list(file);
+
+        // Restore the selected creator by slug, else fall back to "All" (index 0).
+        let new_creator_pos = prev_creator_slug.and_then(|prev_slug| {
+            self.creator_list_items.iter().position(
+                |item| matches!(item, CreatorListItem::Creator(slug) if *slug == prev_slug),
+            )
+        });
+        self.selected_creator = new_creator_pos.unwrap_or(0);
+        self.creator_list_state.select(Some(self.selected_creator));
+
+        self.update_filtered(file);
+
+        // Restore the selected model by id within the rebuilt filtered view.
+        if let Some(prev_id) = prev_model_id {
+            if let Some(pos) = self
+                .filtered_indices
+                .iter()
+                .position(|&i| file.models[i].id == prev_id)
+            {
+                self.selected = pos;
+                self.list_state.select(Some(pos));
+            }
+        }
+
         self.reset_detail_scroll();
     }
 
@@ -969,6 +1065,13 @@ impl BenchmarksApp {
         self.filtered_indices
             .get(self.selected)
             .and_then(|&i| file.models.get(i))
+    }
+
+    /// Id of the currently selected model, resolved against `file` (which must
+    /// be the file the current `filtered_indices` were built against). Used to
+    /// snapshot the selection before a refresh swaps the underlying file.
+    pub fn selected_model_id(&self, file: &SourceFile) -> Option<String> {
+        self.current_model(file).map(|m| m.id.clone())
     }
 
     /// Format the value of `metric_idx` for `model`, or em-dash when missing.
@@ -1618,42 +1721,121 @@ mod tests {
     }
 
     #[test]
-    fn switch_source_resets_state() {
+    fn switch_source_resets_view_keeps_intent() {
+        // Cross-source intent (search/filters/grouping/reasoning + date sort)
+        // PERSISTS across a switch; only per-source view state resets. The same
+        // sample file is loaded into every slot, so the assertions hold
+        // regardless of which index the switch lands on.
         let file = sample_file();
         let store = store_with(file.clone());
         let mut app = BenchmarksApp::new(Some(&file));
 
-        // Dirty the view state.
-        app.search_query = "anthropic".to_string();
-        app.rebuild_after_filter_change(&file);
-        app.sort_key = SortKey::Metric(3);
-        app.sort_descending = false;
+        // Dirty per-source view state + cross-source intent.
+        app.search_query = "a".to_string(); // matches several models
         app.source_filter = SourceFilter::Open;
         app.reasoning_filter = ReasoningFilter::Reasoning;
+        app.creator_grouping = CreatorGrouping::ByRegion;
+        app.rebuild_after_filter_change(&file);
+        // A ReleaseDate sort with non-default direction survives.
+        app.sort_key = SortKey::ReleaseDate;
+        app.sort_descending = false;
         app.scatter_x = 4;
         app.scatter_y = 5;
         app.radar_group = 1;
-        app.selected = 0;
         app.show_detail_overlay = true;
 
-        // Switching forward advances to the next registered source and resets
-        // per-source view state. With the same sample file loaded into every
-        // slot, the rebuild assertions below hold regardless of the landed index.
         app.switch_source(&store, true);
         assert_eq!(app.active_source, 1);
-        assert!(app.search_query.is_empty());
-        assert_eq!(app.source_filter, SourceFilter::All);
-        assert_eq!(app.reasoning_filter, ReasoningFilter::All);
-        assert_eq!(app.sort_key, SortKey::ReleaseDate);
-        assert!(app.sort_descending);
+
+        // Per-source view state reset.
         assert_eq!(app.scatter_x, 0);
         assert_eq!(app.scatter_y, 1);
         assert_eq!(app.radar_group, 0);
         assert!(!app.show_detail_overlay);
-        assert_eq!(app.creator_grouping, CreatorGrouping::None);
-        // Filters cleared; default ReleaseDate sort drops dateless gamma-1,
-        // leaving alpha-1 + beta-1.
-        assert_eq!(app.filtered_indices.len(), 2);
+        assert_eq!(app.selected, 0);
+
+        // Cross-source intent preserved.
+        assert_eq!(app.search_query, "a");
+        assert_eq!(app.source_filter, SourceFilter::Open);
+        assert_eq!(app.reasoning_filter, ReasoningFilter::Reasoning);
+        assert_eq!(app.creator_grouping, CreatorGrouping::ByRegion);
+        // ReleaseDate sort + ascending direction survive (date/name only).
+        assert_eq!(app.sort_key, SortKey::ReleaseDate);
+        assert!(!app.sort_descending);
+    }
+
+    #[test]
+    fn switch_source_metric_sort_falls_back() {
+        // A `Metric(i)` sort key does not map across sources -> reset to the new
+        // source's default sort + its default direction.
+        let file = sample_file();
+        let store = store_with(file.clone());
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(3);
+        app.sort_descending = false;
+        app.switch_source(&store, true);
+        assert_eq!(app.sort_key, default_sort(&file));
+        assert!(app.sort_descending); // ReleaseDate default direction
+    }
+
+    #[test]
+    fn switch_source_resets_reasoning_when_target_lacks_reasoning() {
+        // Target source carries no reasoning metadata -> reasoning filter resets
+        // to All (a stuck invisible filter would silently empty the list).
+        let mut plain = sample_file();
+        for m in &mut plain.models {
+            m.reasoning_status = ReasoningStatus::None;
+        }
+        let store = store_with(plain.clone());
+        let mut app = BenchmarksApp::new(Some(&plain));
+        app.reasoning_filter = ReasoningFilter::Reasoning;
+        app.switch_source(&store, true);
+        assert_eq!(app.reasoning_filter, ReasoningFilter::All);
+    }
+
+    #[test]
+    fn rebuild_preserving_keeps_sort_search_selection() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        // Name sort so dateless gamma-1 stays in the filtered view.
+        app.quick_sort(SortKey::Name, &file);
+        app.sort_descending = true;
+        // Select gamma-1 (the model we'll track across the rebuild).
+        let gamma_pos = app
+            .filtered_indices
+            .iter()
+            .position(|&i| file.models[i].id == "gamma-1")
+            .unwrap();
+        app.selected = gamma_pos;
+
+        // Capture the selected id against the OLD file before the swap.
+        let prev_id = app.selected_model_id(&file);
+        assert_eq!(prev_id.as_deref(), Some("gamma-1"));
+
+        // A refreshed file reordering the models: gamma-1 first.
+        let mut refreshed = sample_file();
+        refreshed.models.rotate_right(1); // [gamma-1, alpha-1, beta-1]
+        app.rebuild_preserving(&refreshed, prev_id);
+
+        // Sort + direction preserved.
+        assert_eq!(app.sort_key, SortKey::Name);
+        assert!(app.sort_descending);
+        // Selected model preserved by id.
+        assert_eq!(app.current_model(&refreshed).unwrap().id, "gamma-1");
+    }
+
+    #[test]
+    fn rebuild_preserving_falls_back_stale_metric_sort() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(7); // last metric in the 8-metric file
+
+        // A refreshed file with fewer metrics -> Metric(7) is out of range.
+        let mut shrunk = sample_file();
+        shrunk.metrics.truncate(3);
+        app.rebuild_preserving(&shrunk, None);
+
+        assert_eq!(app.sort_key, default_sort(&shrunk));
     }
 
     #[test]

@@ -364,6 +364,8 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
         // `{` / `}` cycle data source prev/next (tab-local; `[` / `]` stay global).
         KeyCode::Char('{') => Some(Message::CycleDataSourcePrev),
         KeyCode::Char('}') => Some(Message::CycleDataSourceNext),
+        // `r` re-fetches the active source (stale-while-revalidate).
+        KeyCode::Char('r') => Some(Message::RefreshBenchmarkSource),
         KeyCode::Char('s') => Some(Message::OpenSortPicker),
         KeyCode::Char('S') => Some(Message::ToggleBenchmarkSortDir),
         KeyCode::Char('i') => Some(Message::ToggleGlossary),

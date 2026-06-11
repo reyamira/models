@@ -109,6 +109,9 @@ struct RuntimeHandles {
     disk_cache: Arc<RwLock<GitHubCache>>,
     /// One message per source fetch: `(source_idx, Option<SourceFile>)`.
     bench_rx: mpsc::Receiver<(usize, Option<SourceFile>)>,
+    /// `r`-triggered active-source refetch results: `(source_idx, Option<SourceFile>)`.
+    refresh_rx: mpsc::Receiver<(usize, Option<SourceFile>)>,
+    refresh_tx: mpsc::Sender<(usize, Option<SourceFile>)>,
     /// Final URL opened by an async benchmark-url task (Epoch 404-fallback path).
     url_rx: mpsc::Receiver<String>,
     url_tx: mpsc::Sender<String>,
@@ -239,12 +242,15 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
         fetch_generation: 0,
     };
     let (url_tx, url_rx) = mpsc::channel(8);
+    let (refresh_tx, refresh_rx) = mpsc::channel(SOURCES.len().max(1));
     let runtime_handles = RuntimeHandles {
         github_rx: rx,
         github_tx: tx,
         client,
         disk_cache: disk_cache.clone(),
         bench_rx,
+        refresh_rx,
+        refresh_tx,
         url_rx,
         url_tx,
         status: status_runtime,
@@ -340,6 +346,13 @@ fn run_app(
         // have landed so multiple sources are absorbed in one tick.
         while let Ok((idx, result)) = runtime.bench_rx.try_recv() {
             app.update(app::Message::DataSourceLoaded(idx, result));
+        }
+
+        // Drain `r`-triggered refresh results — the handler sets its own status
+        // (Refreshed / Failed to refresh).
+        while let Ok((idx, result)) = runtime.refresh_rx.try_recv() {
+            app.update(app::Message::DataSourceRefreshed(idx, result));
+            last_status_time = Some(std::time::Instant::now());
         }
 
         // Drain async benchmark-url opens (Epoch 404-fallback path) — the final
@@ -611,6 +624,23 @@ fn run_app(
                     let forward = matches!(&msg, app::Message::CycleDataSourceNext);
                     if let Some(name) = peek_next_source_name(app, forward) {
                         app.set_status(format!("Source: {}", name));
+                        last_status_time = Some(std::time::Instant::now());
+                    }
+                }
+                app::Message::RefreshBenchmarkSource => {
+                    // Re-fetch the active source without flipping it to Loading
+                    // (stale-while-revalidate): the current data keeps rendering
+                    // while the fetch runs. The result routes to
+                    // `DataSourceRefreshed` so a failure keeps the old file.
+                    let idx = app.benchmarks_app.active_source;
+                    if let Some(descriptor) = SOURCES.get(idx) {
+                        let name = descriptor.name;
+                        let refresh_tx = runtime.refresh_tx.clone();
+                        tokio::spawn(async move {
+                            let result = fetch_source(descriptor).await;
+                            let _ = refresh_tx.send((idx, result)).await;
+                        });
+                        app.set_status(format!("Refreshing {name}…"));
                         last_status_time = Some(std::time::Instant::now());
                     }
                 }
