@@ -953,13 +953,32 @@ pub(super) fn build_benchmark_detail_lines(
     }
 
     // --- One section per metric group ---
+    // Label column sized to the source's longest metric label (+2-space gap)
+    // so values never collide with long labels like "Epoch Capabilities Index";
+    // capped so a pathological label can't push values off-panel.
+    let label_cap = width.saturating_sub(cw.indent as usize + 12).max(8);
+    let metric_label_w = file
+        .metrics
+        .iter()
+        .map(|m| unicode_width::UnicodeWidthStr::width(m.label.as_str()))
+        .max()
+        .unwrap_or(8)
+        .min(label_cap)
+        + 2;
     for group in groups_in_order(file) {
         lines.push(Line::from(""));
         lines.push(section_header_line(group, width));
         for mi in metric_indices_in_group(file, group) {
             let metric = &file.metrics[mi];
             let cell = model.scores.get(&metric.id);
-            push_metric_row(&mut lines, &cw, &metric.label, metric.kind, cell);
+            push_metric_row(
+                &mut lines,
+                cw.indent,
+                metric_label_w,
+                &metric.label,
+                metric.kind,
+                cell,
+            );
         }
     }
 
@@ -1093,18 +1112,20 @@ fn push_meta_row(
 /// cell with a per-model date appends a dim `(upd {date})`.
 fn push_metric_row(
     lines: &mut Vec<Line<'static>>,
-    cw: &ColumnWidths,
+    indent: u16,
+    label_w: usize,
     label: &str,
     kind: MetricKind,
     cell: Option<&ScoreCell>,
 ) {
+    let shown = truncate(label, label_w.saturating_sub(2).max(6));
     let mut spans = vec![Span::styled(
         format!(
             "{:indent$}{:<w$}",
             "",
-            label,
-            indent = cw.indent as usize,
-            w = cw.label as usize
+            shown,
+            indent = indent as usize,
+            w = label_w
         ),
         Style::default().fg(Color::Gray),
     )];
@@ -1118,12 +1139,6 @@ fn push_metric_row(
                 }
             }
             spans.push(Span::styled(value, Style::default().fg(Color::White)));
-            if let Some(date) = &cell.date {
-                spans.push(Span::styled(
-                    format!("  (upd {date})"),
-                    Style::default().fg(Color::DarkGray),
-                ));
-            }
         }
         None => {
             spans.push(Span::styled(
@@ -1284,7 +1299,7 @@ mod tests {
     }
 
     #[test]
-    fn detail_lines_elo_ci_and_date_and_self_reported() {
+    fn detail_lines_elo_ci_and_self_reported() {
         let file = SourceFile {
             source: meta(false),
             metrics: vec![metric("elo_text", "Text Elo", MetricKind::Elo, "Arena Elo")],
@@ -1300,9 +1315,10 @@ mod tests {
             .collect::<Vec<_>>()
             .join("\n");
 
-        // Elo rounded, ± ci appended, per-cell date appended dim.
+        // Elo rounded, ± ci appended. Per-cell dates are deliberately NOT
+        // rendered (user feedback: noise in the score rows).
         assert!(joined.contains("1433 \u{00B1}8"), "got: {joined}");
-        assert!(joined.contains("(upd 2026-06-01)"));
+        assert!(!joined.contains("(upd"));
         // Unverified source -> self-reported note on the attribution line.
         assert!(joined.contains("Source: Test Source"));
         assert!(joined.contains("(self-reported)"));
