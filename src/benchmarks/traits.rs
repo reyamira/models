@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::schema::ModelRow;
+use super::schema::{ModelRow, ReasoningStatus};
 use crate::data::Provider;
 use crate::provider_category::{provider_category, ProviderCategory};
 
@@ -61,6 +61,7 @@ struct ModelTraits {
     context_window: Option<u64>,
     supports_tools: bool,
     max_output: Option<u64>,
+    reasoning: bool,
 }
 
 impl ModelTraits {
@@ -70,6 +71,7 @@ impl ModelTraits {
             context_window: model.limit.as_ref().and_then(|l| l.context),
             supports_tools: model.tool_call,
             max_output: model.limit.as_ref().and_then(|l| l.output),
+            reasoning: model.reasoning,
         }
     }
 }
@@ -187,6 +189,7 @@ impl MatchIndex {
                     context_window: traits.context_window,
                     supports_tools: traits.supports_tools,
                     max_output: traits.max_output,
+                    reasoning: traits.reasoning,
                 });
             }
         }
@@ -197,6 +200,7 @@ impl MatchIndex {
             context_window: None,
             supports_tools: false,
             max_output: None,
+            reasoning: false,
         })
     }
 }
@@ -223,6 +227,14 @@ pub fn apply_model_traits(providers: &[(String, Provider)], models: &mut [ModelR
             }
             if model.max_output.is_none() {
                 model.max_output = traits.max_output;
+            }
+            // Fill reasoning ONLY from a positive models.dev capability flag, and
+            // only when name-parsing left it unknown. models.dev `reasoning:
+            // false` is provider-specific and unreliable (the same model is
+            // flagged both ways across providers), so a false is NOT mapped to
+            // NonReasoning — that would launder "unknown" into a wrong verdict.
+            if traits.reasoning && model.reasoning_status == ReasoningStatus::None {
+                model.reasoning_status = ReasoningStatus::Reasoning;
             }
         }
     }
@@ -396,6 +408,7 @@ struct EnrichCandidate {
     context_window: Option<u64>,
     supports_tools: bool,
     max_output: Option<u64>,
+    reasoning: bool,
 }
 
 impl EnrichCandidate {
@@ -430,6 +443,7 @@ impl EnrichIndex {
                     context_window: model.limit.as_ref().and_then(|l| l.context),
                     supports_tools: model.tool_call,
                     max_output: model.limit.as_ref().and_then(|l| l.output),
+                    reasoning: model.reasoning,
                 };
                 exact
                     .entry(model_id.to_lowercase())
@@ -519,6 +533,13 @@ pub fn enrich_from_models_dev(providers: &[(String, Provider)], models: &mut [Mo
         }
         if model.max_output.is_none() {
             model.max_output = candidate.max_output;
+        }
+        // Reasoning: positive capability flag only, and only when name-parsing
+        // left it unknown. models.dev `reasoning: false` is unreliable (provider-
+        // specific, the same model is flagged both ways), so false is left as
+        // None rather than asserting NonReasoning. See apply_model_traits.
+        if candidate.reasoning && model.reasoning_status == ReasoningStatus::None {
+            model.reasoning_status = ReasoningStatus::Reasoning;
         }
     }
 }
@@ -958,6 +979,70 @@ mod tests {
         assert_eq!(models[0].release_date.as_deref(), Some("2024-05-13"));
         assert_eq!(models[0].context_window, Some(128_000));
         assert_eq!(models[0].open_weights, Some(false));
+    }
+
+    /// Provider with a single model carrying a specific `reasoning` flag.
+    fn provider_with_reasoning(
+        provider_id: &str,
+        model_id: &str,
+        reasoning: bool,
+    ) -> (String, Provider) {
+        let mut model_map = HashMap::new();
+        model_map.insert(
+            model_id.to_string(),
+            Model {
+                id: model_id.to_string(),
+                name: model_id.to_string(),
+                reasoning,
+                ..default_model()
+            },
+        );
+        (
+            provider_id.to_string(),
+            Provider {
+                id: provider_id.to_string(),
+                name: provider_id.to_string(),
+                npm: None,
+                env: Vec::new(),
+                doc: None,
+                api: None,
+                models: model_map,
+            },
+        )
+    }
+
+    #[test]
+    fn test_enrich_reasoning_true_fills_unknown() {
+        // models.dev reasoning=true + name-parse left it None -> Reasoning.
+        let providers = vec![provider_with_reasoning("openai", "gpt-5", true)];
+        let mut models = vec![bare_row("gpt-5")];
+        enrich_from_models_dev(&providers, &mut models);
+        assert_eq!(models[0].reasoning_status, ReasoningStatus::Reasoning);
+    }
+
+    #[test]
+    fn test_enrich_reasoning_false_stays_none() {
+        // models.dev reasoning=false is unreliable -> NOT mapped to NonReasoning;
+        // the honest "unknown" (None) is preserved.
+        let providers = vec![provider_with_reasoning("openai", "gpt-5", false)];
+        let mut models = vec![bare_row("gpt-5")];
+        enrich_from_models_dev(&providers, &mut models);
+        assert_eq!(models[0].reasoning_status, ReasoningStatus::None);
+    }
+
+    #[test]
+    fn test_enrich_does_not_override_name_parsed_reasoning() {
+        // The load-bearing guard: an explicit name-parsed status (Adaptive here,
+        // and NonReasoning) is NEVER overridden by a conflicting models.dev flag.
+        let providers = vec![provider_with_reasoning("openai", "gpt-5", true)];
+        let mut adaptive = bare_row("gpt-5");
+        adaptive.reasoning_status = ReasoningStatus::Adaptive;
+        let mut nonreasoning = bare_row("gpt-5");
+        nonreasoning.reasoning_status = ReasoningStatus::NonReasoning;
+        let mut models = vec![adaptive, nonreasoning];
+        enrich_from_models_dev(&providers, &mut models);
+        assert_eq!(models[0].reasoning_status, ReasoningStatus::Adaptive);
+        assert_eq!(models[1].reasoning_status, ReasoningStatus::NonReasoning);
     }
 
     #[test]

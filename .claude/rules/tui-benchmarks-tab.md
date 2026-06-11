@@ -226,7 +226,7 @@ Type grouping key `[6]`: `Color::Magenta` when active, `Color::DarkGray` when no
 | Open source | `"O"` | `Color::Green` |
 | Closed source | `"C"` | `Color::Red` |
 
-The **reasoning filter** (`7`) is auto-hidden (key no-op, footer/help row omitted) when no model in the active source carries a reasoning status. The **open-weights filter** (`4`, `SourceFilter`) and O/C indicators read `ModelRow.open_weights`; em-dash where unknown. (`SourceFilter`/`CycleBenchmarkSource` are the open/closed-**weights** filter — distinct from the `{`/`}` data-source switcher.)
+The **reasoning filter** (`7`) is auto-hidden (key no-op, footer/help row omitted) when no model in the active source carries a reasoning status. `reasoning_status` comes from two layers: name-parsing at transform time (parenthetical/suffix markers like `(Reasoning)`/`(Adaptive)`/`_thinking`; AA's API names are the richest, and AA is the only source that emits an explicit `NonReasoning`/`Adaptive`), then a runtime fill from models.dev's `reasoning` capability flag (`true → Reasoning` only, only where name-parsing left `None`; a models.dev `false` is **not** mapped to `NonReasoning` because it's provider-unreliable). The models.dev fill is what makes the filter meaningful on Epoch/Arena/LLM Stats, whose own names rarely mark reasoning. The **open-weights filter** (`4`, `SourceFilter`) and O/C indicators read `ModelRow.open_weights`; em-dash where unknown. (`SourceFilter`/`CycleBenchmarkSource` are the open/closed-**weights** filter — distinct from the `{`/`}` data-source switcher.)
 
 ---
 

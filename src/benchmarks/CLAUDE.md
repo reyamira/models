@@ -102,7 +102,12 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     `context_window` / `supports_tools` (`tool_call`) / `max_output`
     (`limit.output`) from the matched model, plus `known_creator_openness`
     overrides for creators absent from models.dev (e.g. `ai2→open`,
-    `ai21-labs→closed`). Existing populated fields are untouched.
+    `ai21-labs→closed`). Existing populated fields are untouched. Also fills
+    `reasoning_status` from models.dev's `reasoning` flag — **`true → Reasoning`
+    only, and only when name-parsing left it `None`**. models.dev `reasoning:
+    false` is provider-specific and unreliable (the same model is flagged both
+    ways across providers), so a `false` is left as `None`, never mapped to
+    `NonReasoning` — that would launder "unknown" into a wrong verdict.
   - `enrich_from_models_dev(providers, models)` — **generic, for the clean-id
     sources** (epoch / arena / llmstats). Matches the source id against models.dev
     ids **exact then normalized only — NO fuzzy/Jaro-Winkler** (clean-id sources
@@ -112,8 +117,13 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     `-202512`) / thinking-budget tags (`-32k`). On a match, fills ONLY empty fields
     (`creator`/`creator_name` from the matched model's host provider with Origin
     preferred, `release_date`, `context_window`, `open_weights`, `supports_tools`,
-    `max_output`). Source-provided
+    `max_output`, and `reasoning_status` (same `true → Reasoning`-only rule as
+    `apply_model_traits`). Source-provided
     values are never overwritten; unmatched models stay untouched (honest em-dash).
+    This is the main reasoning lever for the clean-id sources — Epoch/Arena/LLM
+    Stats carry almost no reasoning markers in their own names (Epoch only a
+    `_thinking` suffix), so models.dev capability is what makes the `7` filter
+    useful there.
   - `creator_openness(models)` — derives a creator→openness map from model-level
     `open_weights`: `true` if any model is open, `false` if all known-status
     models are closed, absent when no model under that creator has a known status.
