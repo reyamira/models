@@ -9,7 +9,7 @@ const PAGE_SIZE: usize = 10;
 pub const MAX_SELECTIONS: usize = 8;
 use crate::agents::{AgentsFile, FetchStatus, GitHubData};
 
-use crate::benchmarks::multi::{MultiStore, SortKey};
+use crate::benchmarks::multi::MultiStore;
 use crate::benchmarks::schema::SourceFile;
 use crate::config::Config;
 use crate::data::{Provider, ProvidersMap};
@@ -192,9 +192,6 @@ pub enum Message {
     SortPickerPrev,
     SortPickerConfirm,
     CloseSortPicker,
-    QuickSortIntelligence,
-    QuickSortDate,
-    QuickSortSpeed,
     #[allow(dead_code)]
     CopyBenchmarkName,
     OpenBenchmarkUrl,
@@ -1149,7 +1146,7 @@ impl App {
                     let options = BenchmarksApp::sort_options(file);
                     if let Some(opt) = options.get(self.benchmarks_app.sort_picker_selected) {
                         let key = opt.key;
-                        self.benchmarks_app.quick_sort(key, file);
+                        self.benchmarks_app.select_sort_key(key, file);
                     }
                 }
             }
@@ -1164,27 +1161,6 @@ impl App {
             }
             Message::ScrollGlossaryDown => {
                 self.benchmarks_app.scroll_glossary_down();
-            }
-            Message::QuickSortIntelligence => {
-                // `1` = first metric of the source.
-                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
-                    if let Some(key) = BenchmarksApp::quick_sort_metric_first(file) {
-                        self.benchmarks_app.quick_sort(key, file);
-                    }
-                }
-            }
-            Message::QuickSortDate => {
-                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
-                    self.benchmarks_app.quick_sort(SortKey::ReleaseDate, file);
-                }
-            }
-            Message::QuickSortSpeed => {
-                // `3` = first TokensPerSec metric; no-op when the source has none.
-                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
-                    if let Some(key) = BenchmarksApp::quick_sort_speed(file) {
-                        self.benchmarks_app.quick_sort(key, file);
-                    }
-                }
             }
             Message::CycleDataSourceNext => {
                 self.switch_data_source(true);

@@ -9,7 +9,7 @@ use crate::benchmarks::multi::{
     default_sort, format_metric_value, radar_groups, MultiStore, ReasoningFilter, SortKey,
     SourceLoad,
 };
-use crate::benchmarks::schema::{MetricKind, ModelRow, SourceFile};
+use crate::benchmarks::schema::{ModelRow, SourceFile};
 use crate::benchmarks::sources::SourceDescriptor;
 use crate::formatting::{cmp_opt_f64, parse_date_to_numeric};
 use crate::tui::widgets::scroll_offset::ScrollOffset;
@@ -1044,8 +1044,9 @@ impl BenchmarksApp {
         }
     }
 
-    /// Jump directly to a sort key. If already on that key, toggle direction.
-    pub fn quick_sort(&mut self, key: SortKey, file: &SourceFile) {
+    /// Jump directly to a sort key (sort-picker confirm). Re-selecting the
+    /// already-active key toggles direction instead.
+    pub fn select_sort_key(&mut self, key: SortKey, file: &SourceFile) {
         if self.sort_key == key {
             self.sort_descending = !self.sort_descending;
             self.apply_sort(file);
@@ -1087,23 +1088,6 @@ impl BenchmarksApp {
                 .map(|m| m.label.clone())
                 .unwrap_or_else(|| "—".to_string()),
         }
-    }
-
-    /// The quick-sort metric key for `1` (first metric), if the source has one.
-    pub fn quick_sort_metric_first(file: &SourceFile) -> Option<SortKey> {
-        if file.metrics.is_empty() {
-            None
-        } else {
-            Some(SortKey::Metric(0))
-        }
-    }
-
-    /// The quick-sort key for `3` (first TokensPerSec metric), if any.
-    pub fn quick_sort_speed(file: &SourceFile) -> Option<SortKey> {
-        file.metrics
-            .iter()
-            .position(|m| m.kind == MetricKind::TokensPerSec)
-            .map(SortKey::Metric)
     }
 
     pub fn current_model<'a>(&self, file: &'a SourceFile) -> Option<&'a ModelRow> {
@@ -1416,7 +1400,9 @@ impl BenchmarksApp {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::benchmarks::schema::{MetricDef, ReasoningStatus, ScoreCell, SourceMeta};
+    use crate::benchmarks::schema::{
+        MetricDef, MetricKind, ReasoningStatus, ScoreCell, SourceMeta,
+    };
     use std::collections::BTreeMap;
 
     #[test]
@@ -1610,58 +1596,34 @@ mod tests {
         assert_eq!(app.filtered_indices.len(), 2);
     }
 
+    /// Set a sort key with its default direction and re-filter — what the sort
+    /// picker does (the quick-sort keys were removed; `s`/`S` cover sorting).
+    fn set_sort(app: &mut BenchmarksApp, key: SortKey, file: &SourceFile) {
+        app.sort_key = key;
+        app.sort_descending = BenchmarksApp::default_descending(file, key);
+        app.update_filtered(file);
+    }
+
+    #[test]
+    fn select_sort_key_toggles_direction_when_same_key() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.select_sort_key(SortKey::Metric(0), &file);
+        assert!(app.sort_descending);
+        app.select_sort_key(SortKey::Metric(0), &file);
+        assert!(!app.sort_descending);
+    }
+
     #[test]
     fn metric_sort_drops_missing() {
         let file = sample_file();
         let mut app = BenchmarksApp::new(Some(&file));
         // Sort by Metric(0) = intelligence_index. gamma-1 lacks it -> dropped.
-        app.quick_sort(SortKey::Metric(0), &file);
+        set_sort(&mut app, SortKey::Metric(0), &file);
         assert_eq!(app.filtered_indices.len(), 2);
         // Descending (higher_is_better) -> alpha-1 (70) before beta-1 (60).
         let first = app.current_model(&file).unwrap();
         assert_eq!(first.id, "alpha-1");
-    }
-
-    #[test]
-    fn quick_sort_toggles_direction_when_same_key() {
-        let file = sample_file();
-        let mut app = BenchmarksApp::new(Some(&file));
-        app.quick_sort(SortKey::Metric(0), &file);
-        assert!(app.sort_descending);
-        app.quick_sort(SortKey::Metric(0), &file);
-        assert!(!app.sort_descending);
-    }
-
-    #[test]
-    fn quick_sort_speed_finds_tokens_per_sec() {
-        let file = sample_file();
-        // output_tps is metric index 6.
-        assert_eq!(
-            BenchmarksApp::quick_sort_speed(&file),
-            Some(SortKey::Metric(6))
-        );
-    }
-
-    #[test]
-    fn quick_sort_speed_none_without_tokens_metric() {
-        let mut file = sample_file();
-        file.metrics.retain(|m| m.kind != MetricKind::TokensPerSec);
-        assert_eq!(BenchmarksApp::quick_sort_speed(&file), None);
-    }
-
-    #[test]
-    fn quick_sort_metric_first_present() {
-        let file = sample_file();
-        assert_eq!(
-            BenchmarksApp::quick_sort_metric_first(&file),
-            Some(SortKey::Metric(0))
-        );
-        let empty = SourceFile {
-            source: meta(),
-            metrics: vec![],
-            models: vec![],
-        };
-        assert_eq!(BenchmarksApp::quick_sort_metric_first(&empty), None);
     }
 
     #[test]
@@ -1723,7 +1685,7 @@ mod tests {
         let file = sample_file();
         let mut app = BenchmarksApp::new(Some(&file));
         // Sort by Name so the date null-filter doesn't drop dateless gamma-1.
-        app.quick_sort(SortKey::Name, &file);
+        set_sort(&mut app, SortKey::Name, &file);
         app.search_query = "anthropic".to_string();
         app.rebuild_after_filter_change(&file);
         assert_eq!(app.filtered_indices.len(), 1);
@@ -1849,7 +1811,7 @@ mod tests {
         let file = sample_file();
         let mut app = BenchmarksApp::new(Some(&file));
         // Name sort so dateless gamma-1 stays in the filtered view.
-        app.quick_sort(SortKey::Name, &file);
+        set_sort(&mut app, SortKey::Name, &file);
         app.sort_descending = true;
         // An active SEARCH that narrows the list to gamma-1 only; it must survive
         // the state-preserving rebuild and re-apply against the refreshed file.

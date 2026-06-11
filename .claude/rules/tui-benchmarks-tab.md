@@ -113,17 +113,9 @@ Sort keys are **dynamic per source**: `SortKey = ReleaseDate | Name | Metric(i)`
 
 **Per-source default sort** (`multi::default_sort`): `ReleaseDate` (desc) when any model carries a release date, else `Metric(0)` (first metric, desc). Arena's committed file has no dates, but runtime models.dev enrichment backfills most of them before the rebuild — so Arena's *runtime* default is ReleaseDate; the `Metric(0)` fallback applies only pre-enrichment.
 
-**Quick sorts** live on the back half of the number row — their targets are per-source, so a stable-shaped footer can't honestly hint them; they are **help-popup-only** (`1`-`3` are deliberately unbound on this tab):
+**There are no quick-sort number keys.** Sorting goes through `s` (sort picker) and `S` (direction toggle) only — quick sorts were removed because their targets are per-source and could not be hinted with a stable footer shape. Re-selecting the already-active key in the picker toggles direction (`select_sort_key`).
 
-| Key | Sort | Notes |
-|-----|------|-------|
-| `8` | First metric (`Metric(0)`) | `quick_sort_metric_first` — help line carries the active source's full first-metric label |
-| `9` | Release date | maps to date |
-| `0` | First `TokensPerSec` metric | `quick_sort_speed` — **no-op when the source has none** (returns `None`); help line hidden then |
-
-**The browse footer carries only stable-shaped hints** (`4 weights`, `5-6 group`, `7 reasoning` when available, `s sort`, `a avg`, `r refresh`, …) — no quick-sort hints, so the footer's shape never changes with the data source.
-
-`s` opens the sort picker, `S` toggles direction. Re-pressing the same quick-sort key toggles direction (`quick_sort`).
+**The number row is filters/grouping only**: `1` region grouping, `2` type grouping, `3` reasoning filter (hidden/no-op when unavailable), `4` open-weights filter. Browse footer: `1-2 group`, `3 reasoning` (conditional), `4 weights`, `s/S sort`, `a avg`, `r refresh`, … — stable shape across sources.
 
 **Null-filter semantics:** sorting pushes models missing the sort metric to the end — a model with no score for the active sort key sorts after every model that has one.
 
@@ -195,7 +187,7 @@ Curated per-benchmark descriptions for the active source. State `show_glossary` 
 
 **Creator items** (ungrouped): `"{name} ({count})"` — name truncated to available width, count in `Color::Gray`. When grouping active, a short colored tag is appended.
 
-**Region grouping colors** (`[5]`):
+**Region grouping colors** (`[1]`):
 
 | Region | Color |
 |--------|-------|
@@ -208,11 +200,11 @@ Curated per-benchmark descriptions for the active source. State `show_glossary` 
 | India | `Color::Rgb(255, 153, 51)` (saffron) |
 | Other | `Color::DarkGray` |
 
-Region grouping key `[5]`: `Color::Yellow` when active, `Color::DarkGray` when not.
+Region grouping key `[1]`: `Color::Yellow` when active, `Color::DarkGray` when not.
 
 **Creator classification** is table-driven (`CreatorClass` / `CREATOR_CLASSES` in `app.rs`): one entity per row carrying its `region`, `ctype`, and every per-source slug alias (the four sources name the same lab differently — `alibaba`/`qwen`, `aws`/`amazon`, `kimi`/`moonshot`/`moonshotai`, plus models.dev provider-id variants like `*-coding-plan` that the runtime enrichment can assign to empty-creator rows). `CreatorRegion::from_creator` / `CreatorType::from_creator` both resolve through this one table (`creator_class`), so region and type can't disagree. `region` is factual (HQ country); `ctype` (Giant/Startup/Research) is a documented convention — Giant = pre-existing large corp where AI isn't core; Research = academic/nonprofit/institute; Startup = AI-first company regardless of size. Unknown slugs fall back to `Other`/`Startup`.
 
-**Type grouping colors** (`[6]`):
+**Type grouping colors** (`[2]`):
 
 | Type | Color |
 |------|-------|
@@ -220,13 +212,13 @@ Region grouping key `[5]`: `Color::Yellow` when active, `Color::DarkGray` when n
 | Giant | `Color::Blue` |
 | Research | `Color::Magenta` |
 
-Type grouping key `[6]`: `Color::Magenta` when active, `Color::DarkGray` when not.
+Type grouping key `[2]`: `Color::Magenta` when active, `Color::DarkGray` when not.
 
 **Filter row**:
 
 ```
-[5] Rgn  [6] Type       (ungrouped)
-[5] Region  [6] Type    (region grouping active — label expands)
+[1] Rgn  [2] Type       (ungrouped)
+[1] Region  [2] Type    (region grouping active — label expands)
 ```
 
 **Reasoning/Source indicators** in compact list rows:
@@ -239,7 +231,7 @@ Type grouping key `[6]`: `Color::Magenta` when active, `Color::DarkGray` when no
 | Open source | `"O"` | `Color::Green` |
 | Closed source | `"C"` | `Color::Red` |
 
-The **reasoning filter** (`7`) is auto-hidden (key no-op, footer/help row omitted) when no model in the active source carries a reasoning status. `reasoning_status` comes from two layers: name-parsing at transform time (parenthetical/suffix markers like `(Reasoning)`/`(Adaptive)`/`_thinking`; AA's API names are the richest, and AA is the only source that emits an explicit `NonReasoning`/`Adaptive`), then a runtime fill from models.dev's `reasoning` capability flag (`true → Reasoning` only, only where name-parsing left `None`; a models.dev `false` is **not** mapped to `NonReasoning` because it's provider-unreliable). The models.dev fill is what makes the filter meaningful on Epoch/Arena/LLM Stats, whose own names rarely mark reasoning. The **open-weights filter** (`4`, `SourceFilter`) and O/C indicators read `ModelRow.open_weights`; em-dash where unknown. (`SourceFilter`/`CycleBenchmarkSource` are the open/closed-**weights** filter — distinct from the `{`/`}` data-source switcher.)
+The **reasoning filter** (`3`) is auto-hidden (key no-op, footer/help row omitted) when no model in the active source carries a reasoning status. `reasoning_status` comes from two layers: name-parsing at transform time (parenthetical/suffix markers like `(Reasoning)`/`(Adaptive)`/`_thinking`; AA's API names are the richest, and AA is the only source that emits an explicit `NonReasoning`/`Adaptive`), then a runtime fill from models.dev's `reasoning` capability flag (`true → Reasoning` only, only where name-parsing left `None`; a models.dev `false` is **not** mapped to `NonReasoning` because it's provider-unreliable). The models.dev fill is what makes the filter meaningful on Epoch/Arena/LLM Stats, whose own names rarely mark reasoning. The **open-weights filter** (`4`, `SourceFilter`) and O/C indicators read `ModelRow.open_weights`; em-dash where unknown. (`SourceFilter`/`CycleBenchmarkSource` are the open/closed-**weights** filter — distinct from the `{`/`}` data-source switcher.)
 
 ---
 

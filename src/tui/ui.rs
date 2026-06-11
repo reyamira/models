@@ -384,7 +384,7 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                         spans.extend([
                             Span::styled(" c ", Style::default().fg(Color::Yellow)),
                             Span::raw("clear  "),
-                            Span::styled(" s ", Style::default().fg(Color::Yellow)),
+                            Span::styled(" s/S ", Style::default().fg(Color::Yellow)),
                             Span::raw("sort  "),
                             Span::styled(" r ", Style::default().fg(Color::Yellow)),
                             Span::raw("refresh  "),
@@ -394,27 +394,23 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                         Line::from(spans)
                     } else {
                         let active_file = app.multi_store.file(app.benchmarks_app.active_source);
-                        // Quick sorts (8/9/0) are help-popup-only: their targets
-                        // are per-source, and a footer whose hints change shape
-                        // per source reads as broken. The footer keeps only
-                        // stable-shaped hints.
                         let mut spans = vec![
                             Span::styled(" q ", Style::default().fg(Color::Yellow)),
                             Span::raw("quit  "),
-                            Span::styled(" 4 ", Style::default().fg(Color::Yellow)),
-                            Span::raw("weights  "),
-                            Span::styled(" 5-6 ", Style::default().fg(Color::Yellow)),
+                            Span::styled(" 1-2 ", Style::default().fg(Color::Yellow)),
                             Span::raw("group  "),
                         ];
                         // Reasoning filter hint hidden when the active source
                         // carries no reasoning metadata (key is a no-op then).
                         if super::benchmarks::BenchmarksApp::reasoning_filter_available(active_file)
                         {
-                            spans.push(Span::styled(" 7 ", Style::default().fg(Color::Yellow)));
+                            spans.push(Span::styled(" 3 ", Style::default().fg(Color::Yellow)));
                             spans.push(Span::raw("reasoning  "));
                         }
                         spans.extend([
-                            Span::styled(" s ", Style::default().fg(Color::Yellow)),
+                            Span::styled(" 4 ", Style::default().fg(Color::Yellow)),
+                            Span::raw("weights  "),
+                            Span::styled(" s/S ", Style::default().fg(Color::Yellow)),
                             Span::raw("sort  "),
                             Span::styled(" a ", Style::default().fg(Color::Yellow)),
                             Span::raw("avg  "),
@@ -491,17 +487,6 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
 
 fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
     let current_tab = app.current_tab;
-    // `1` sorts by the active source's first metric — name it honestly. Hoisted
-    // here (rather than inside the Benchmarks arm) so the String outlives the
-    // `help_text` Vec that borrows it.
-    let benchmark_first_metric_help = match app
-        .multi_store
-        .file(app.benchmarks_app.active_source)
-        .and_then(|f| f.metrics.first())
-    {
-        Some(metric) => format!("Sort by first metric ({})", metric.label),
-        None => "Sort by first metric".to_string(),
-    };
     let area = centered_rect(50, 70, f.area());
 
     // Clear the area behind the popup
@@ -608,42 +593,29 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
             ]);
         }
         Tab::Benchmarks => {
-            let active_file = app.multi_store.file(app.benchmarks_app.active_source);
             help_text.extend(vec![
                 help_section("Data Source"),
                 help_line("}", "Next data source"),
                 help_line("{", "Previous data source"),
                 help_line("r", "Refresh active source"),
                 Line::from(""),
-                help_section("Quick Sort (press again to flip direction)"),
-                help_line("8", &benchmark_first_metric_help),
-                help_line("9", "Sort by Release date"),
-            ]);
-            // `0` only resolves when the active source has a tokens/sec metric.
-            if active_file
-                .is_some_and(|f| super::benchmarks::BenchmarksApp::quick_sort_speed(f).is_some())
-            {
-                help_text.push(help_line("0", "Sort by Speed (tok/s)"));
-            }
-            help_text.extend(vec![
-                Line::from(""),
-                help_section("Filters"),
-                help_line("4", "Cycle open-weights filter (All/Open/Closed)"),
-                help_line("5", "Cycle region filter (US/China/Europe/...)"),
-                help_line("6", "Cycle type filter (Startup/Big Tech/Research)"),
+                help_section("Filters & Grouping"),
+                help_line("1", "Cycle region grouping (US/China/Europe/...)"),
+                help_line("2", "Cycle type grouping (Startup/Big Tech/Research)"),
             ]);
             // Hidden when the active source has no reasoning metadata (key no-op).
             if super::benchmarks::BenchmarksApp::reasoning_filter_available(
                 app.multi_store.file(app.benchmarks_app.active_source),
             ) {
                 help_text.push(help_line(
-                    "7",
+                    "3",
                     "Cycle reasoning filter (All/Reasoning/Non-reasoning)",
                 ));
             }
             help_text.extend(vec![
+                help_line("4", "Cycle open-weights filter (All/Open/Closed)"),
                 Line::from(""),
-                help_section("Sort (full cycle)"),
+                help_section("Sort"),
                 help_line("s", "Open sort picker"),
                 help_line("S", "Toggle sort direction"),
                 Line::from(""),

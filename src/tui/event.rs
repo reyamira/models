@@ -346,25 +346,21 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
         return resolve_benchmarks_nav(app, action);
     }
     match code {
-        // Quick sorts live on the back half of the number row (8/9/0): their
-        // targets are per-source (first metric / date / speed-if-present), so
-        // a stable-shaped footer can't honestly hint them — they're documented
-        // in the help popup instead. 1-3 are deliberately unbound here.
-        KeyCode::Char('8') => Some(Message::QuickSortIntelligence),
-        KeyCode::Char('9') => Some(Message::QuickSortDate),
-        KeyCode::Char('0') => Some(Message::QuickSortSpeed),
-        KeyCode::Char('4') => Some(Message::CycleBenchmarkSource),
-        KeyCode::Char('5') => Some(Message::ToggleRegionGrouping),
-        KeyCode::Char('6') => Some(Message::ToggleTypeGrouping),
-        // `7` cycles the reasoning filter — no-op (and footer-hidden) when no
+        // Number row: 1/2 = creator grouping, 3 = reasoning filter, 4 = weights
+        // filter. There are no quick-sort number keys — the `s` sort picker and
+        // `S` direction toggle cover sorting.
+        KeyCode::Char('1') => Some(Message::ToggleRegionGrouping),
+        KeyCode::Char('2') => Some(Message::ToggleTypeGrouping),
+        // `3` cycles the reasoning filter — no-op (and footer-hidden) when no
         // model in the active source carries a reasoning status.
-        KeyCode::Char('7')
+        KeyCode::Char('3')
             if super::benchmarks::BenchmarksApp::reasoning_filter_available(
                 app.multi_store.file(app.benchmarks_app.active_source),
             ) =>
         {
             Some(Message::CycleReasoningFilter)
         }
+        KeyCode::Char('4') => Some(Message::CycleBenchmarkSource),
         // `{` / `}` cycle data source prev/next (tab-local; `[` / `]` stay global).
         KeyCode::Char('{') => Some(Message::CycleDataSourcePrev),
         KeyCode::Char('}') => Some(Message::CycleDataSourceNext),

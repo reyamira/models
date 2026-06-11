@@ -262,9 +262,9 @@ fn draw_benchmark_creators(f: &mut Frame, area: Rect, app: &App) {
     };
 
     let filter_line = Line::from(vec![
-        Span::styled("[5]", Style::default().fg(rgn_color)),
+        Span::styled("[1]", Style::default().fg(rgn_color)),
         Span::raw(if rgn_active { "Region " } else { "Rgn " }),
-        Span::styled("[6]", Style::default().fg(typ_color)),
+        Span::styled("[2]", Style::default().fg(typ_color)),
         Span::raw("Type"),
     ]);
 
