@@ -98,6 +98,10 @@ fn handle_normal_mode(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
     if app.current_tab == super::app::Tab::Benchmarks && app.benchmarks_app.show_glossary {
         return handle_glossary_keys(code);
     }
+    // Column picker intercepts all keys while open (browse mode only).
+    if app.current_tab == super::app::Tab::Benchmarks && app.benchmarks_app.show_column_picker {
+        return handle_column_picker_keys(code, modifiers);
+    }
 
     // Global keys (work on any tab)
     match code {
@@ -280,6 +284,29 @@ fn handle_glossary_keys(code: KeyCode) -> Option<Message> {
     }
 }
 
+/// Column picker popup keys. Intercepts all keys so `q` / `?` / etc. don't pass
+/// through to the global handler.
+fn handle_column_picker_keys(code: KeyCode, modifiers: KeyModifiers) -> Option<Message> {
+    match code {
+        KeyCode::Char('j') | KeyCode::Down => Some(Message::ColumnPickerNext),
+        KeyCode::Char('k') | KeyCode::Up => Some(Message::ColumnPickerPrev),
+        KeyCode::Char('g') => Some(Message::ColumnPickerFirst),
+        KeyCode::Char('G') => Some(Message::ColumnPickerLast),
+        KeyCode::Char('d') if modifiers.contains(KeyModifiers::CONTROL) => {
+            Some(Message::ColumnPickerLast)
+        }
+        KeyCode::Char('u') if modifiers.contains(KeyModifiers::CONTROL) => {
+            Some(Message::ColumnPickerFirst)
+        }
+        KeyCode::PageDown => Some(Message::ColumnPickerLast),
+        KeyCode::PageUp => Some(Message::ColumnPickerFirst),
+        KeyCode::Char(' ') => Some(Message::ColumnPickerToggle),
+        KeyCode::Enter => Some(Message::ColumnPickerSave),
+        KeyCode::Esc => Some(Message::ColumnPickerCancel),
+        _ => None,
+    }
+}
+
 fn resolve_benchmarks_nav(app: &App, action: NavAction) -> Option<Message> {
     use super::benchmarks::BenchmarkFocus;
     let focus = app.benchmarks_app.focus;
@@ -370,6 +397,8 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
         KeyCode::Char('S') => Some(Message::ToggleBenchmarkSortDir),
         KeyCode::Char('i') => Some(Message::ToggleGlossary),
         KeyCode::Char('c') if !app.selections.is_empty() => Some(Message::ClearBenchmarkSelections),
+        // `C` opens the column picker — browse mode only (< 2 selections).
+        KeyCode::Char('C') if app.selections.len() < 2 => Some(Message::OpenColumnPicker),
         KeyCode::Char('o') => Some(Message::OpenBenchmarkUrl),
         KeyCode::Char(' ') => Some(Message::ToggleBenchmarkSelection),
         KeyCode::Char('v') if app.selections.len() >= 2 => Some(Message::CycleBenchmarkView),

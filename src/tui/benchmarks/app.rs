@@ -439,6 +439,18 @@ pub struct BenchmarksApp {
     pub show_glossary: bool,
     /// Scroll position of the glossary popup.
     pub glossary_scroll: ScrollOffset,
+    // --- Column visibility picker (Phase 2) ---
+    /// Metric indices (into the active source's `file.metrics`) that the user
+    /// has chosen to show as extra columns in the browse-mode list. Kept in
+    /// file order. **Session-only** (no config persistence).
+    pub visible_columns: Vec<usize>,
+    /// Whether the column-visibility picker popup (`C`) is open.
+    pub show_column_picker: bool,
+    /// Cursor position in the column picker list.
+    pub column_picker_selected: usize,
+    /// Pending working set for the column picker: indices that are toggled on.
+    /// Applying this to `visible_columns` happens on Enter; Esc discards it.
+    pub column_picker_pending: Vec<usize>,
 }
 
 impl BenchmarksApp {
@@ -485,6 +497,10 @@ impl BenchmarksApp {
             detail_scroll: ScrollOffset::default(),
             show_glossary: false,
             glossary_scroll: ScrollOffset::default(),
+            visible_columns: Vec::new(),
+            show_column_picker: false,
+            column_picker_selected: 0,
+            column_picker_pending: Vec::new(),
         };
 
         if let Some(file) = file {
@@ -602,6 +618,9 @@ impl BenchmarksApp {
         self.glossary_scroll.jump_top();
         self.h2h_scroll.jump_top();
         self.reset_detail_scroll();
+        // Column picker: indices are per-source, so reset on every switch.
+        self.visible_columns = Vec::new();
+        self.show_column_picker = false;
 
         if let Some(file) = store.file(active) {
             self.loading = false;
@@ -682,6 +701,10 @@ impl BenchmarksApp {
                 self.sort_descending = Self::default_descending(file, self.sort_key);
             }
         }
+
+        // Column visibility: drop entries that are out of range after a refresh
+        // that shrank the metric list.
+        self.visible_columns.retain(|&i| i < file.metrics.len());
 
         // The selected creator slug is file-independent (slugs are strings), so
         // it can be read here; the selected model id is captured by the caller
@@ -1395,6 +1418,93 @@ impl BenchmarksApp {
     pub fn scroll_glossary_up(&mut self) {
         self.glossary_scroll.decrement(1);
     }
+
+    // --- Column visibility picker (`C`, browse mode) ---
+
+    /// Open the column picker, initialising the pending set from the current
+    /// `visible_columns` (so previously-selected columns appear pre-checked).
+    pub fn open_column_picker(&mut self, file: &SourceFile) {
+        self.column_picker_pending = self.visible_columns.clone();
+        // Clamp the cursor to the current metric count.
+        if file.metrics.is_empty() {
+            self.column_picker_selected = 0;
+        } else {
+            self.column_picker_selected = self.column_picker_selected.min(file.metrics.len() - 1);
+        }
+        self.show_column_picker = true;
+    }
+
+    /// Toggle the metric at `column_picker_selected` in the pending set.
+    pub fn column_picker_toggle(&mut self, file: &SourceFile) {
+        let idx = self.column_picker_selected;
+        if idx >= file.metrics.len() {
+            return;
+        }
+        if let Some(pos) = self.column_picker_pending.iter().position(|&i| i == idx) {
+            self.column_picker_pending.remove(pos);
+        } else {
+            // Insert in file order (sorted).
+            let insert_pos = self.column_picker_pending.partition_point(|&i| i < idx);
+            self.column_picker_pending.insert(insert_pos, idx);
+        }
+    }
+
+    /// Move the column picker cursor down by one, clamped to the metric count.
+    pub fn column_picker_next(&mut self, file: &SourceFile) {
+        if !file.metrics.is_empty() {
+            self.column_picker_selected =
+                (self.column_picker_selected + 1).min(file.metrics.len() - 1);
+        }
+    }
+
+    /// Move the column picker cursor up by one.
+    pub fn column_picker_prev(&mut self) {
+        self.column_picker_selected = self.column_picker_selected.saturating_sub(1);
+    }
+
+    /// Jump to the first metric.
+    pub fn column_picker_first(&mut self) {
+        self.column_picker_selected = 0;
+    }
+
+    /// Jump to the last metric.
+    pub fn column_picker_last(&mut self, file: &SourceFile) {
+        if !file.metrics.is_empty() {
+            self.column_picker_selected = file.metrics.len() - 1;
+        }
+    }
+
+    /// Apply the pending set to `visible_columns` and close the picker.
+    pub fn column_picker_save(&mut self) {
+        self.visible_columns = self.column_picker_pending.clone();
+        self.show_column_picker = false;
+    }
+
+    /// Discard the pending set and close the picker.
+    pub fn column_picker_cancel(&mut self) {
+        self.show_column_picker = false;
+        self.column_picker_pending = Vec::new();
+    }
+
+    /// Compute the effective set of column metric indices to render in the
+    /// browse-mode list:
+    ///
+    /// - All `visible_columns` entries (in file order), PLUS
+    /// - The active sort column appended at the end, **if** it is a
+    ///   `SortKey::Metric(i)` not already present. `SortKey::ReleaseDate` is the
+    ///   "Released" column (handled separately); `SortKey::Name` adds nothing.
+    ///
+    /// This preserves today's sort-value-column behaviour while allowing the
+    /// user to add extra columns.
+    pub fn effective_columns(&self) -> Vec<usize> {
+        let mut cols = self.visible_columns.clone();
+        if let SortKey::Metric(i) = self.sort_key {
+            if !cols.contains(&i) {
+                cols.push(i);
+            }
+        }
+        cols
+    }
 }
 
 #[cfg(test)]
@@ -1982,5 +2092,155 @@ mod tests {
         app.switch_source(&store, true);
         assert!(!app.show_glossary);
         assert_eq!(app.glossary_scroll.get(), 0);
+    }
+
+    // --- Phase 2: column picker ---
+
+    #[test]
+    fn column_picker_toggle_apply_cancel() {
+        let file = sample_file(); // 8 metrics
+        let mut app = BenchmarksApp::new(Some(&file));
+
+        // Open picker — pending set initialises from visible_columns (empty).
+        app.open_column_picker(&file);
+        assert!(app.show_column_picker);
+        assert!(app.column_picker_pending.is_empty());
+
+        // Toggle metric 2 on.
+        app.column_picker_selected = 2;
+        app.column_picker_toggle(&file);
+        assert_eq!(app.column_picker_pending, vec![2]);
+
+        // Toggle metric 0 on — should be inserted before 2 (file order).
+        app.column_picker_selected = 0;
+        app.column_picker_toggle(&file);
+        assert_eq!(app.column_picker_pending, vec![0, 2]);
+
+        // Toggle metric 2 off.
+        app.column_picker_selected = 2;
+        app.column_picker_toggle(&file);
+        assert_eq!(app.column_picker_pending, vec![0]);
+
+        // Apply — visible_columns updated; picker closed.
+        app.column_picker_save();
+        assert!(!app.show_column_picker);
+        assert_eq!(app.visible_columns, vec![0]);
+
+        // Re-open and cancel — visible_columns unchanged.
+        app.open_column_picker(&file);
+        app.column_picker_selected = 3;
+        app.column_picker_toggle(&file);
+        app.column_picker_cancel();
+        assert!(!app.show_column_picker);
+        // visible_columns still [0] from the previous apply.
+        assert_eq!(app.visible_columns, vec![0]);
+    }
+
+    #[test]
+    fn visible_columns_reset_on_source_switch() {
+        let file = sample_file();
+        let store = store_with(file.clone());
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.visible_columns = vec![1, 3, 5];
+        app.switch_source(&store, true);
+        assert!(
+            app.visible_columns.is_empty(),
+            "visible_columns must reset on source switch"
+        );
+    }
+
+    #[test]
+    fn visible_columns_out_of_range_dropped_on_refresh() {
+        let file = sample_file(); // 8 metrics
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.visible_columns = vec![2, 5, 7]; // all in range
+
+        // A refreshed file with only 4 metrics: indices 5 and 7 are out of range.
+        let mut shrunk = sample_file();
+        shrunk.metrics.truncate(4);
+        app.rebuild_preserving(&shrunk, None);
+
+        assert_eq!(
+            app.visible_columns,
+            vec![2],
+            "out-of-range visible_columns dropped after shrink"
+        );
+    }
+
+    #[test]
+    fn effective_columns_appends_sort_metric_when_absent() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(3);
+        app.visible_columns = vec![1, 2];
+        // Sort metric (3) not in visible_columns -> appended.
+        assert_eq!(app.effective_columns(), vec![1, 2, 3]);
+    }
+
+    #[test]
+    fn effective_columns_no_duplicate_sort_metric() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(2);
+        app.visible_columns = vec![1, 2]; // 2 already present
+                                          // Sort metric (2) already in visible_columns -> NOT duplicated.
+        assert_eq!(app.effective_columns(), vec![1, 2]);
+    }
+
+    #[test]
+    fn effective_columns_name_sort_adds_nothing() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        set_sort(&mut app, SortKey::Name, &file);
+        app.visible_columns = vec![0];
+        // Name sort -> no extra column appended.
+        assert_eq!(app.effective_columns(), vec![0]);
+    }
+
+    #[test]
+    fn effective_columns_release_date_sort_not_in_effective() {
+        // ReleaseDate is handled as a separate Released column in rendering,
+        // not via effective_columns(). effective_columns() should not include
+        // any synthetic index for it.
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        // Default sort is ReleaseDate.
+        assert!(matches!(app.sort_key, SortKey::ReleaseDate));
+        app.visible_columns = vec![1];
+        // ReleaseDate adds nothing to effective_columns.
+        assert_eq!(app.effective_columns(), vec![1]);
+    }
+
+    #[test]
+    fn column_picker_nav_clamps_to_metric_count() {
+        let file = sample_file(); // 8 metrics (indices 0..7)
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.open_column_picker(&file);
+        app.column_picker_selected = 7; // last
+
+        // Next should stay at 7 (already at end).
+        app.column_picker_next(&file);
+        assert_eq!(app.column_picker_selected, 7);
+
+        // First / last helpers.
+        app.column_picker_first();
+        assert_eq!(app.column_picker_selected, 0);
+        app.column_picker_last(&file);
+        assert_eq!(app.column_picker_selected, 7);
+
+        // Prev from 0 should stay at 0.
+        app.column_picker_first();
+        app.column_picker_prev();
+        assert_eq!(app.column_picker_selected, 0);
+    }
+
+    #[test]
+    fn column_picker_open_seeds_pending_from_visible() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.visible_columns = vec![1, 4];
+        app.open_column_picker(&file);
+        // Pending set seeds from current visible_columns.
+        assert_eq!(app.column_picker_pending, vec![1, 4]);
     }
 }

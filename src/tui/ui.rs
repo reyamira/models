@@ -412,6 +412,8 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                             Span::raw("weights  "),
                             Span::styled(" s/S ", Style::default().fg(Color::Yellow)),
                             Span::raw("sort  "),
+                            Span::styled(" C ", Style::default().fg(Color::Yellow)),
+                            Span::raw("columns  "),
                             Span::styled(" a ", Style::default().fg(Color::Yellow)),
                             Span::raw("avg  "),
                             Span::styled(" r ", Style::default().fg(Color::Yellow)),
@@ -620,6 +622,7 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
                 help_line("S", "Toggle sort direction"),
                 Line::from(""),
                 help_section("Actions"),
+                help_line("C", "Choose visible metric columns (browse mode)"),
                 help_line("o", "Open source model page in browser"),
                 help_line("i", "Toggle benchmark glossary"),
                 help_line(

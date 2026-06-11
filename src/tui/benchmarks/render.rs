@@ -112,6 +112,11 @@ pub(in crate::tui) fn draw_benchmarks_main(f: &mut Frame, area: Rect, app: &mut 
         draw_sort_picker(f, area, app);
     }
 
+    // Column picker popup (browse mode only; drawn above the sort picker)
+    if app.benchmarks_app.show_column_picker && app.selections.len() < 2 {
+        draw_column_picker(f, area, app);
+    }
+
     // Glossary popup (drawn last so it sits above the sort picker too)
     if app.benchmarks_app.show_glossary {
         draw_glossary(f, area, app);
@@ -391,6 +396,8 @@ fn source_state_lines(app: &App) -> Option<Vec<Line<'static>>> {
 
 /// Build the value-column string for a model under the active sort key.
 /// ReleaseDate -> date string, Metric -> formatted value, Name -> empty.
+/// Production code now inlines this logic; kept as a test helper.
+#[cfg(test)]
 fn list_value_for(file: &SourceFile, model: &ModelRow, key: SortKey) -> String {
     match key {
         SortKey::Name => String::new(),
@@ -406,6 +413,8 @@ fn list_value_for(file: &SourceFile, model: &ModelRow, key: SortKey) -> String {
 /// Uses the metric's curated `short_label` via `multi::short_label` (falls back
 /// to `truncate(label, 11)` when no short label is set). The sort picker, panel
 /// title sort indicator, glossary, and detail panel keep using the full label.
+/// Production code now uses `metric_short_label` directly; kept as a test helper.
+#[cfg(test)]
 fn list_value_header(file: Option<&SourceFile>, key: SortKey) -> String {
     match key {
         SortKey::Name => String::new(),
@@ -692,7 +701,7 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &App) {
     let openness = bench_app.creator_openness();
     let sort_key = bench_app.sort_key;
 
-    // Column widths.
+    // Fixed column widths.
     let caret_w: u16 = 2;
     let reasoning_col_w: u16 = 3;
     let source_col_w: u16 = 2;
@@ -700,16 +709,91 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &App) {
     let show_type = bench_app.creator_grouping == super::app::CreatorGrouping::ByType;
     let grouping_col_w: u16 = if show_region || show_type { 4 } else { 0 };
     let selection_w: u16 = if !app.selections.is_empty() { 2 } else { 0 };
-    // Value column: 11 wide right-aligned (dates / formatted metric values), with
-    // a leading space. Name takes the remaining width. Empty for Name sort.
-    let value_w: u16 = if matches!(sort_key, SortKey::Name) {
+
+    // Fixed overhead (everything except name + metric columns).
+    let fixed_overhead = caret_w + selection_w + reasoning_col_w + source_col_w + grouping_col_w;
+
+    // Each metric column = 12 chars (11-wide value + 1 leading gap).
+    // For ReleaseDate sort, the Released column is also 12 (same width).
+    // For Name sort, no sort column is appended.
+    //
+    // Determine the set of columns to render:
+    //   effective_columns() = visible_columns (file order) + appended sort Metric
+    //     when not already present. ReleaseDate / Name sort handled separately.
+    //
+    // Width-cap: name column minimum 10. Render as many columns as fit, with
+    // left-to-right priority. The sort column (last in effective_columns(), or
+    // the Released column) is ALWAYS kept — drop excess visible columns from
+    // the right first.
+    const COL_W: u16 = 12; // 11 value + 1 gap
+
+    let has_release_col = matches!(sort_key, SortKey::ReleaseDate);
+    // For metric sort, the sort column index is already included via
+    // effective_columns(). For ReleaseDate we add one extra column of COL_W.
+    let effective_metric_cols = bench_app.effective_columns();
+
+    // Count how many columns we can actually fit, respecting the 10-char name min.
+    let avail = inner_area.width.saturating_sub(fixed_overhead);
+    // Total extra columns: metric cols + optional release col.
+    let total_extra = effective_metric_cols.len() + if has_release_col { 1 } else { 0 };
+    // How many columns we can fit while keeping name >= 10.
+    let max_cols = if COL_W == 0 || avail < 10 {
         0
     } else {
-        12 // 11-wide value + 1 leading gap
+        let slack = avail.saturating_sub(10); // space available beyond name min
+        (slack / COL_W) as usize
     };
-    let name_width = (inner_area.width.saturating_sub(
-        value_w + caret_w + selection_w + reasoning_col_w + source_col_w + grouping_col_w,
-    ) as usize)
+    // We always keep the last column (the sort column). So if we can only fit N
+    // columns but need more, we drop from the visible_columns (the ones before
+    // the appended sort column) from the right.
+    //
+    // Split: the sort column (if any) is "mandatory":
+    //   - For ReleaseDate: the released column is always kept.
+    //   - For Metric(i): effective_metric_cols.last() = the sort col.
+    //   - For Name: no column.
+    let render_metric_cols: Vec<usize>;
+    let render_release_col: bool;
+    if total_extra == 0 {
+        render_metric_cols = Vec::new();
+        render_release_col = false;
+    } else if total_extra <= max_cols {
+        // Everything fits.
+        render_metric_cols = effective_metric_cols.clone();
+        render_release_col = has_release_col;
+    } else {
+        // Need to drop: always keep the mandatory sort column.
+        if has_release_col {
+            // ReleaseDate sort: keep the release col; drop visible metric cols
+            // from the right (they are not the sort column).
+            render_release_col = true;
+            // 1 slot used by release col; remaining for visible metric cols.
+            let available_for_metrics = max_cols.saturating_sub(1);
+            let take = available_for_metrics.min(effective_metric_cols.len());
+            render_metric_cols = effective_metric_cols[..take].to_vec();
+        } else if !effective_metric_cols.is_empty() {
+            render_release_col = false;
+            // Last entry is the sort Metric col (always kept).
+            let sort_col = *effective_metric_cols.last().unwrap();
+            // Remaining slots for visible cols (before the sort col).
+            let available_for_visible = max_cols.saturating_sub(1);
+            let visible_part =
+                &effective_metric_cols[..effective_metric_cols.len().saturating_sub(1)];
+            let take = available_for_visible.min(visible_part.len());
+            let mut cols: Vec<usize> = visible_part[..take].to_vec();
+            cols.push(sort_col);
+            render_metric_cols = cols;
+        } else {
+            render_metric_cols = Vec::new();
+            render_release_col = false;
+        }
+    };
+
+    // Recompute name_width from the columns we'll actually render.
+    let rendered_col_count = render_metric_cols.len() + if render_release_col { 1 } else { 0 };
+    let name_width = (inner_area
+        .width
+        .saturating_sub(fixed_overhead + rendered_col_count as u16 * COL_W)
+        as usize)
         .max(10);
 
     let caret = caret(is_focused);
@@ -738,8 +822,23 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &App) {
         format!("{:<width$}", "Name", width = name_width),
         header_style,
     ));
-    if value_w > 0 {
-        let label = list_value_header(Some(file), sort_key);
+    // Metric column headers: sorted column = Cyan+BOLD, others = Yellow+BOLD.
+    for &mi in &render_metric_cols {
+        let label = file
+            .metrics
+            .get(mi)
+            .map(metric_short_label)
+            .unwrap_or_else(|| EM.to_string());
+        let style = if sort_key == SortKey::Metric(mi) {
+            active_header_style
+        } else {
+            header_style
+        };
+        header_spans.push(Span::styled(format!(" {:>11}", label), style));
+    }
+    // Released date column header (ReleaseDate sort).
+    if render_release_col {
+        let label = "Released";
         header_spans.push(Span::styled(format!(" {:>11}", label), active_header_style));
     }
     let header = ListItem::new(Line::from(header_spans));
@@ -804,10 +903,27 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &App) {
             style,
         ));
 
-        // Active sort value column
-        if value_w > 0 {
-            let value = list_value_for(file, model, sort_key);
-            row_spans.push(Span::styled(format!(" {:>11}", value), style));
+        // Metric columns (visible + sort, in render order).
+        for &mi in &render_metric_cols {
+            let value =
+                BenchmarksApp::formatted_score(file, model, mi).unwrap_or_else(|| EM.to_string());
+            let col_style = if value == EM {
+                Style::default().fg(Color::DarkGray)
+            } else {
+                style
+            };
+            row_spans.push(Span::styled(format!(" {:>11}", value), col_style));
+        }
+
+        // Released date column (ReleaseDate sort).
+        if render_release_col {
+            let value = model.release_date.clone().unwrap_or_else(|| EM.to_string());
+            let col_style = if value == EM {
+                Style::default().fg(Color::DarkGray)
+            } else {
+                style
+            };
+            row_spans.push(Span::styled(format!(" {:>11}", value), col_style));
         }
 
         items.push(ListItem::new(Line::from(row_spans)));
@@ -1429,6 +1545,70 @@ fn draw_sort_picker(f: &mut Frame, area: Rect, app: &App) {
         .highlight_style(
             Style::default()
                 .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        );
+
+    f.render_stateful_widget(list, popup_area, &mut list_state);
+}
+
+/// Column visibility picker popup (`C`, browse mode). Shows every metric of the
+/// active source with a checkbox; Enter applies, Esc cancels.
+fn draw_column_picker(f: &mut Frame, area: Rect, app: &App) {
+    let bench_app = &app.benchmarks_app;
+    let Some(file) = app.multi_store.file(bench_app.active_source) else {
+        return;
+    };
+    if file.metrics.is_empty() {
+        return;
+    }
+
+    let metrics = &file.metrics;
+    let selected = bench_app.column_picker_selected;
+
+    // Size: up to 50 wide, height = metrics + 2 border rows, clamped to screen.
+    let popup_width = 50u16.min(area.width.saturating_sub(4));
+    let popup_height = ((metrics.len() + 2) as u16).min(area.height.saturating_sub(4));
+    let popup_area = centered_rect_fixed(popup_width, popup_height, area);
+
+    f.render_widget(Clear, popup_area);
+
+    // Inner label width = popup_width - 2 border - 4 checkbox chars - 1 gap.
+    let label_w = popup_width.saturating_sub(7) as usize;
+
+    let items: Vec<ListItem> = metrics
+        .iter()
+        .enumerate()
+        .map(|(idx, metric)| {
+            let checked = bench_app.column_picker_pending.contains(&idx);
+            let checkbox = if checked { "[x]" } else { "[ ]" };
+            let label = truncate(&metric.label, label_w);
+            let line = Line::from(vec![Span::raw(format!("{} ", checkbox)), Span::raw(label)]);
+            if idx == selected {
+                ListItem::new(line).style(
+                    Style::default()
+                        .fg(Color::Yellow)
+                        .add_modifier(Modifier::BOLD),
+                )
+            } else {
+                ListItem::new(line)
+            }
+        })
+        .collect();
+
+    let mut list_state = ListState::default();
+    list_state.select(Some(selected));
+
+    let list = List::new(items)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(Color::Cyan))
+                .title(" Columns ")
+                .title_bottom(Line::from(" Space: toggle | Enter: save | Esc: cancel ").centered()),
+        )
+        .highlight_style(
+            Style::default()
+                .fg(Color::Yellow)
                 .add_modifier(Modifier::BOLD),
         );
 
@@ -2349,5 +2529,154 @@ mod tests {
         assert!(idx_pos < acad_pos);
         // Indexes group's "index" suffix is present.
         assert!(texts[idx_pos].contains("(index)"));
+    }
+
+    // --- Phase 2: column rendering helpers ---
+
+    use super::super::app::BenchmarksApp;
+    use crate::benchmarks::multi::SortKey;
+
+    /// Build a minimal SourceFile with `n` Index metrics (each labelled "M{i}",
+    /// id "m{i}"), and one model that has scores for all of them.
+    fn file_with_n_metrics(n: usize) -> SourceFile {
+        let metrics: Vec<MetricDef> = (0..n)
+            .map(|i| MetricDef {
+                id: format!("m{i}"),
+                label: format!("M{i}"),
+                kind: MetricKind::Index,
+                group: "G".into(),
+                higher_is_better: true,
+                last_updated: None,
+                description: None,
+                short_label: None,
+            })
+            .collect();
+        let mut scores = std::collections::BTreeMap::new();
+        for i in 0..n {
+            scores.insert(
+                format!("m{i}"),
+                ScoreCell {
+                    value: i as f64 * 10.0,
+                    ci: None,
+                    date: None,
+                    votes: None,
+                },
+            );
+        }
+        SourceFile {
+            source: meta(true),
+            metrics,
+            models: vec![ModelRow {
+                id: "model-a".into(),
+                name: "Model A".into(),
+                display_name: "Model A".into(),
+                creator: "openai".into(),
+                creator_name: "OpenAI".into(),
+                release_date: Some("2026-01-01".into()),
+                reasoning_status: ReasoningStatus::None,
+                effort_level: None,
+                variant_tag: None,
+                open_weights: None,
+                context_window: None,
+                supports_tools: None,
+                max_output: None,
+                scores,
+            }],
+        }
+    }
+
+    /// Columns rendered: short-label headers from visible+sort selection appear
+    /// and the sort column (always the last effective column) has Cyan style.
+    #[test]
+    fn list_value_header_uses_short_label() {
+        let mut file = file_with_n_metrics(3); // M0, M1, M2
+                                               // Give M0 a short label.
+        file.metrics[0].short_label = Some("Idx".to_string());
+        // Header for Metric(0) should use the short label.
+        assert_eq!(list_value_header(Some(&file), SortKey::Metric(0)), "Idx");
+        // Header for Metric(1) (no short label) falls back to label (≤11 chars).
+        assert_eq!(list_value_header(Some(&file), SortKey::Metric(1)), "M1");
+    }
+
+    #[test]
+    fn effective_columns_sort_auto_appended() {
+        // A direct unit test of effective_columns() via app.
+        let file = file_with_n_metrics(4);
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(3);
+        app.visible_columns = vec![1];
+        // Sort col (3) not in visible → appended.
+        assert_eq!(app.effective_columns(), vec![1, 3]);
+    }
+
+    #[test]
+    fn name_sort_renders_no_extra_column() {
+        // When sort is Name, effective_columns() == visible_columns and there
+        // is no Released column either. The list still renders without panic.
+        let file = file_with_n_metrics(3);
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Name;
+        app.sort_descending = false;
+        app.update_filtered(&file);
+        app.visible_columns = vec![]; // no extra columns
+
+        // effective_columns() returns [] for Name sort with no visible_columns.
+        assert!(app.effective_columns().is_empty());
+    }
+
+    #[test]
+    fn width_cap_drops_rightmost_visible_first() {
+        // With a very narrow panel (say 30 cols), only the sort column should
+        // survive — visible_columns added by the user are dropped first.
+        //
+        // fixed_overhead = caret_w(2) + reasoning(3) + source(2) = 7
+        // 30 - 7 = 23 available; name_min = 10; slack = 13.
+        // COL_W = 12 → max_cols = 13/12 = 1.
+        // total_extra = visible(2) + sort(1) = 3 > 1.
+        // After capping: sort col (last) kept, 0 visible cols fit → [sort].
+        let file = file_with_n_metrics(5);
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(4); // sort col = 4
+        app.visible_columns = vec![1, 2]; // 2 extra user cols
+
+        // effective_columns before capping = [1, 2, 4]
+        assert_eq!(app.effective_columns(), vec![1, 2, 4]);
+
+        // Now check width-capping logic inline (mirrors draw_benchmark_list).
+        // With inner_width = 30 and no selection / region cols:
+        let inner_width: u16 = 30;
+        let caret_w: u16 = 2;
+        let reasoning_col_w: u16 = 3;
+        let source_col_w: u16 = 2;
+        let grouping_col_w: u16 = 0;
+        let selection_w: u16 = 0;
+        let fixed_overhead =
+            caret_w + selection_w + reasoning_col_w + source_col_w + grouping_col_w;
+        const COL_W: u16 = 12;
+        let avail = inner_width.saturating_sub(fixed_overhead); // 23
+        let max_cols = {
+            let slack = avail.saturating_sub(10);
+            (slack / COL_W) as usize
+        }; // slack = 13, max_cols = 1
+
+        let effective = app.effective_columns(); // [1, 2, 4]
+        let has_release_col = matches!(app.sort_key, SortKey::ReleaseDate);
+        let total_extra = effective.len() + if has_release_col { 1 } else { 0 }; // 3
+
+        assert!(total_extra > max_cols, "capping needed");
+
+        // The sort column is the last element of effective; it must survive.
+        let sort_col = *effective.last().unwrap(); // 4
+        let available_for_visible = max_cols.saturating_sub(1); // 0
+        let visible_part = &effective[..effective.len().saturating_sub(1)]; // [1, 2]
+        let take = available_for_visible.min(visible_part.len()); // 0
+        let mut render_cols: Vec<usize> = visible_part[..take].to_vec();
+        render_cols.push(sort_col);
+
+        assert_eq!(
+            render_cols,
+            vec![4],
+            "sort col survives, visible cols dropped"
+        );
     }
 }

@@ -219,6 +219,15 @@ pub enum Message {
     ToggleGlossary,
     ScrollGlossaryUp,
     ScrollGlossaryDown,
+    // Column visibility picker (`C`, browse mode)
+    OpenColumnPicker,
+    ColumnPickerNext,
+    ColumnPickerPrev,
+    ColumnPickerFirst,
+    ColumnPickerLast,
+    ColumnPickerToggle,
+    ColumnPickerSave,
+    ColumnPickerCancel,
     // Status tab messages
     OpenStatusPicker,
     NextStatusProvider,
@@ -1161,6 +1170,39 @@ impl App {
             }
             Message::ScrollGlossaryDown => {
                 self.benchmarks_app.scroll_glossary_down();
+            }
+            // --- Column visibility picker ---
+            Message::OpenColumnPicker => {
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.open_column_picker(file);
+                }
+            }
+            Message::ColumnPickerNext => {
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.column_picker_next(file);
+                }
+            }
+            Message::ColumnPickerPrev => {
+                self.benchmarks_app.column_picker_prev();
+            }
+            Message::ColumnPickerFirst => {
+                self.benchmarks_app.column_picker_first();
+            }
+            Message::ColumnPickerLast => {
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.column_picker_last(file);
+                }
+            }
+            Message::ColumnPickerToggle => {
+                if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
+                    self.benchmarks_app.column_picker_toggle(file);
+                }
+            }
+            Message::ColumnPickerSave => {
+                self.benchmarks_app.column_picker_save();
+            }
+            Message::ColumnPickerCancel => {
+                self.benchmarks_app.column_picker_cancel();
             }
             Message::CycleDataSourceNext => {
                 self.switch_data_source(true);
