@@ -33,6 +33,17 @@ Each sub-module exposes `run(...) -> Result<(), String>`. `main` maps `Ok` →
 `ExitCode::SUCCESS`, `Err` → prints `error: {err}` to stderr + `FAILURE`.
 (`eprintln!` is fine here — this is a CLI bin, never the TUI alternate screen.)
 
+## Curated short labels
+
+Every transform's metric registry carries a curated `short_label` for the
+TUI's narrow (width-11) list-column headers — emitted **only when the full
+label exceeds 10 chars** (else `None`, keeping the JSON minimal; display falls
+back to the label). Rules: ≤ 10 display chars, unique within the source,
+recognizable shorthand ("Intel. Idx", "ECI", "LCB", "TB-Hard"). Arena's six
+board labels are all short → all `None`. Epoch stems auto-discovered outside
+`metric_meta` get `None`. Per-transform tests assert an example label,
+within-source uniqueness, and serde round-trip.
+
 ## Per-source quirks
 
 ### `aa.rs`

@@ -16,10 +16,13 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     (LLM Stats was flipped to `true` on 2026-06-11 — it aggregates third-party
     results, not provider self-reported numbers), so the badge is generic
     forward-compat machinery with no live user today.
-  - `MetricDef { id, label, kind, group, higher_is_better, last_updated, description }`
+  - `MetricDef { id, label, short_label, kind, group, higher_is_better, last_updated, description }`
     — `metrics` order = display order; `group` is the section header in
     Detail/H2H and the radar-preset grouping; `description` is the curated
     glossary blurb (set by the transforms). `higher_is_better` defaults to `true`.
+    `short_label` is the curated narrow-column header (≤10 chars, set by the
+    transforms only when the full label exceeds 10 chars; `None` otherwise —
+    display falls back to `truncate(label, 11)`).
   - `MetricKind` (serde snake_case): `Percentage | Index | Elo | TokensPerSec |
     Seconds | UsdPerMTok` — drives kind-based value formatting and scatter
     log-scale heuristics.
@@ -63,6 +66,10 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     speed often sits in mixed-direction groups whose header shows no kind
     blurb), `Seconds` `{:.2}s`,
     `UsdPerMTok` `${:.2}`.
+  - `short_label(metric)` — narrow-column header text: the curated
+    `MetricDef.short_label` when present, else `truncate(&label, 11)` (the
+    fallback that covers pre-`short_label` data files and auto-discovered
+    Epoch stems). Used by the benchmark list's metric column headers.
   - `groups_in_order(file)` / `metric_indices_in_group(file, group)` — first-
     appearance group order and per-group metric indices.
   - `radar_groups(file)` — groups with ≥3 `higher_is_better` metrics (keeps

@@ -123,6 +123,10 @@ Fixed column widths (left to right):
 - `C` — copy full model reference (`{provider_id}/{model_id}`)
 - `o` — open docs URL in browser
 - `A` — open API URL in browser
+- `r` — refresh models.dev data (async refetch; state-preserving — keeps
+  search/filters/sort and tries to keep the selected provider/model by id; a
+  failed refresh keeps the current data). Already-loaded benchmark sources are
+  NOT re-enriched.
 
 `o` and `A` hints are shown **conditionally** at the bottom of the provider detail card — only when the corresponding URL exists. Format (inline spans, no block):
 

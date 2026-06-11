@@ -133,7 +133,21 @@ Sort keys are **dynamic per source**: `SortKey = ReleaseDate | Name | Metric(i)`
 
 ---
 
-## 8. Detail Panel (Browse Mode)
+## 8. Column Visibility Picker (`C`, browse mode)
+
+Choose which metric columns are visible in the central benchmark list.
+
+- **State** (`BenchmarksApp`): `visible_columns: Vec<usize>` (metric indices, file order, default empty, **session-only**), plus picker state (`show_column_picker`, `column_picker_selected`, `column_picker_pending`). Resets to empty on source switch; out-of-range indices pruned on refresh.
+- **Key**: `C` opens the modal — browse mode only (`selections.len() < 2` guard). Modal follows popup conventions: `Clear` background, Cyan border, `centered_rect_fixed`, title `" Columns "`, bottom title `" Space: toggle | Enter: save | Esc: cancel "`, intercepts `q`. Rows: `[x]`/`[ ]` + full metric label, selected row Yellow+BOLD. Enter applies the pending set; Esc discards.
+- **Rendering** (`effective_columns()`): columns right of the name = `visible_columns` (file order) plus the active sort column appended when not already visible (`Metric(i)` → metric column; `ReleaseDate` → Released column; `Name` → nothing). Each metric column is 11 wide, right-aligned, values via `formatted_score`, em-dash DarkGray when missing.
+- **Column headers** use the curated `short_label` (`multi::short_label`: `MetricDef.short_label` when set, else `truncate(label, 11)` — the "Intellige..." fallback for pre-`short_label` data files). Actively-sorted column header `Color::Cyan`+BOLD; other headers keep the standard Yellow+BOLD.
+- **Width cap**: name column keeps a 10-char minimum; excess visible columns drop from the right, but the **sort column always survives** (computed from `sort_key`, not positionally — a sort metric that is also a visible column must not be dropped). Silent cap, no overflow indicator.
+- The null-filter (hide models missing the sort value) applies to the **sort** key only, never to merely-visible columns.
+- Footer (browse): ` C ` (Yellow) + `columns` (unconditional). Help: `C — Choose visible metric columns`.
+
+---
+
+## 9. Detail Panel (Browse Mode)
 
 Identity block + one section per metric `group` (`groups_in_order`), values formatted by `MetricKind` (`format_metric_value`). **No source-attribution line** — source identity lives in the source bar only. Uses `ScrollablePanel` + `detail_scroll`; `reset_detail_scroll()` on every selection/filter/sort/rebuild.
 
@@ -163,7 +177,7 @@ The detail builder (`build_benchmark_detail_lines`) returns owned `Line<'static>
 
 ---
 
-## 9. Glossary Popup
+## 10. Glossary Popup
 
 Curated per-benchmark descriptions for the active source. State `show_glossary` + `glossary_scroll`.
 
@@ -179,7 +193,7 @@ Curated per-benchmark descriptions for the active source. State `show_glossary` 
 
 ---
 
-## 10. Creator Sidebar
+## 11. Creator Sidebar
 
 **"All" item**: `"All"` in `Color::Green` + `" ({count})"` in default (filtered creator count).
 
@@ -235,7 +249,7 @@ The **reasoning filter** (`3`) is auto-hidden (key no-op, footer/help row omitte
 
 ---
 
-## 11. H2H Table
+## 12. H2H Table
 
 Rendered inside `ScrollablePanel` with `.with_wrap(false)`. Sections = metric `groups`, rows = metrics, kind-based formatting (`format_metric_value`).
 
@@ -257,7 +271,7 @@ Style: `Color::DarkGray`. Fills to panel width with `\u{2500}`.
 
 ---
 
-## 12. Scatter Plot
+## 13. Scatter Plot
 
 - Axes are metric-index state (`scatter_x`/`scatter_y`); `x`/`y` cycle the active source's metrics.
 - Background points: `Color::DarkGray`; selected model points in compare palette colors.
@@ -266,7 +280,7 @@ Style: `Color::DarkGray`. Fills to panel width with `\u{2500}`.
 
 ---
 
-## 13. Radar Chart
+## 14. Radar Chart
 
 Presets are **dynamic per source**: `multi::radar_groups(file)` = metric groups with **≥ 3 `higher_is_better` metrics** (in first-appearance order). This keeps Performance/Pricing-style groups off the radar. `axes_for_group` builds axes from the **first `MAX_AXES` (6)** higher-is-better metrics of the active group.
 
@@ -276,7 +290,7 @@ Presets are **dynamic per source**: `multi::radar_groups(file)` = metric groups 
 
 ---
 
-## 14. Detail Overlay (Compare Mode)
+## 15. Detail Overlay (Compare Mode)
 
 Full model detail shown as an overlay when `d` is pressed in compare mode (reuses `build_benchmark_detail_lines`):
 
@@ -286,7 +300,7 @@ Full model detail shown as an overlay when `d` is pressed in compare mode (reuse
 
 ---
 
-## 15. ComparisonLegend Widget
+## 16. ComparisonLegend Widget
 
 Used in scatter and radar views. Reusable widget from `src/tui/widgets/comparison_legend.rs`.
 
@@ -296,7 +310,7 @@ Used in scatter and radar views. Reusable widget from `src/tui/widgets/compariso
 
 ---
 
-## 16. Loading & Empty States
+## 17. Loading & Empty States
 
 - Active source still loading / not yet landed: the content area shows the standard loading state (`active_is_loading`); the detail/list panels render `"Loading..."` (Yellow) appropriately.
 - Active source failed: standard error state in the content area.
