@@ -189,6 +189,7 @@ fn metric_defs(last_updated: &BTreeMap<String, String>) -> Vec<MetricDef> {
             group: group.to_string(),
             higher_is_better: hib,
             last_updated: last_updated.get(id).cloned(),
+            description: None,
         })
         .collect()
 }

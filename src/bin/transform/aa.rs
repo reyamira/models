@@ -261,6 +261,7 @@ fn metric_defs() -> Vec<MetricDef> {
             group: group.to_string(),
             higher_is_better: hib,
             last_updated: None,
+            description: None,
         })
         .collect()
 }

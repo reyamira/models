@@ -160,6 +160,7 @@ fn build_source_file(boards: Vec<(BoardEntry, RawBoard)>) -> SourceFile {
             group: GROUP.to_string(),
             higher_is_better: true,
             last_updated: if date.is_empty() { None } else { Some(date) },
+            description: None,
         });
     }
 

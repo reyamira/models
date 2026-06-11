@@ -45,6 +45,10 @@ pub struct MetricDef {
     pub higher_is_better: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_updated: Option<String>,
+    /// Curated 1-2 sentence explanation of what the benchmark tests, shown in
+    /// the glossary popup. Set by the transforms.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 }
 
 fn default_true() -> bool {

@@ -545,6 +545,7 @@ fn parse_csv(stem: &str, path: &Path) -> Result<ParsedCsv, String> {
         group,
         higher_is_better,
         last_updated: newest_date.map(|d| d.format("%Y-%m-%d").to_string()),
+        description: None,
     };
 
     Ok(ParsedCsv {

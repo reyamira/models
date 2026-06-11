@@ -427,6 +427,7 @@ mod tests {
             group: group.into(),
             higher_is_better: hib,
             last_updated: None,
+            description: None,
         }
     }
 
