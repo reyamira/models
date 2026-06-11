@@ -354,6 +354,47 @@ pub enum BottomView {
     Radar,
 }
 
+/// Comparator column shown next to each metric value in the browse-mode detail
+/// panel. A display preference (persists across source switches/refreshes), not
+/// per-source view state.
+///
+/// - `FieldAvg` — the field-wide arithmetic mean of the metric.
+/// - `PeerAvg` — the mean over models released within ±6 months of the selected
+///   model (its release-date "peers").
+/// - `Rank` — the selected model's 1-based, direction-aware rank.
+/// - `Off` — no comparator cell.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ComparatorMode {
+    #[default]
+    FieldAvg,
+    PeerAvg,
+    Rank,
+    Off,
+}
+
+impl ComparatorMode {
+    /// Cycle `FieldAvg → PeerAvg → Rank → Off → FieldAvg`.
+    pub fn next(self) -> Self {
+        match self {
+            Self::FieldAvg => Self::PeerAvg,
+            Self::PeerAvg => Self::Rank,
+            Self::Rank => Self::Off,
+            Self::Off => Self::FieldAvg,
+        }
+    }
+
+    /// Detail-panel title suffix for the active mode (` Details · …`), or empty
+    /// for `Off`.
+    pub fn title_suffix(self) -> &'static str {
+        match self {
+            Self::FieldAvg => " \u{00B7} vs field avg",
+            Self::PeerAvg => " \u{00B7} vs peers (\u{00B1}6mo)",
+            Self::Rank => " \u{00B7} rank",
+            Self::Off => "",
+        }
+    }
+}
+
 pub struct BenchmarksApp {
     /// Index into [`crate::benchmarks::sources::SOURCES`] / `MultiStore::sources`.
     pub active_source: usize,
@@ -379,6 +420,9 @@ pub struct BenchmarksApp {
     /// Creator -> openness, derived from the active source's models.
     creator_openness: HashMap<String, bool>,
     pub bottom_view: BottomView,
+    /// Detail-panel comparator column (field avg / peers / rank / off). A display
+    /// preference — persists across source switches and refreshes.
+    pub comparator: ComparatorMode,
     pub h2h_scroll: ScrollOffset,
     pub show_detail_overlay: bool,
     pub show_creators_in_compare: bool,
@@ -428,6 +472,7 @@ impl BenchmarksApp {
             all_models_filtered_count: 0,
             creator_openness: HashMap::new(),
             bottom_view: BottomView::default(),
+            comparator: ComparatorMode::default(),
             h2h_scroll: ScrollOffset::default(),
             show_detail_overlay: false,
             show_creators_in_compare: false,
@@ -1230,6 +1275,12 @@ impl BenchmarksApp {
     pub fn page_up_creator(&mut self) {
         let target = self.selected_creator.saturating_sub(PAGE_SIZE);
         self.skip_to_selectable(target, true);
+    }
+
+    /// Cycle the detail-panel comparator column (browse mode).
+    pub fn cycle_comparator(&mut self) {
+        self.comparator = self.comparator.next();
+        self.reset_detail_scroll();
     }
 
     pub fn cycle_bottom_view(&mut self) {

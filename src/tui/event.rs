@@ -388,6 +388,10 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
         {
             Some(Message::CycleRadarPreset)
         }
+        // Browse mode (< 2 selections): `a` cycles the detail comparator column.
+        // The radar-preset `a` above is guarded to compare mode (Radar view), so
+        // the two never collide.
+        KeyCode::Char('a') if app.selections.len() < 2 => Some(Message::CycleComparator),
         KeyCode::Char('d') if app.selections.len() >= 2 => Some(Message::ToggleDetailOverlay),
         KeyCode::Char('t') if app.selections.len() >= 2 => Some(Message::ToggleComparePanel),
         _ => None,

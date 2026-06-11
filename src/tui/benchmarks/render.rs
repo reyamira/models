@@ -819,10 +819,13 @@ fn draw_benchmark_detail(f: &mut Frame, area: Rect, app: &App) {
     use super::app::BenchmarkFocus;
     let bench_app = &app.benchmarks_app;
     let focused = bench_app.focus == BenchmarkFocus::Details;
+    // Title reflects the active comparator mode: ` Details `, ` Details · vs
+    // field avg `, etc. Space-padded to match the surrounding chrome.
+    let title = format!(" Details{} ", bench_app.comparator.title_suffix());
 
     // Loading / failed / empty state shown in the detail panel too.
     if let Some(lines) = source_state_lines(app) {
-        ScrollablePanel::new("Details", lines, &bench_app.detail_scroll, focused).render(f, area);
+        ScrollablePanel::new(title, lines, &bench_app.detail_scroll, focused).render(f, area);
         return;
     }
     let Some(file) = app.multi_store.file(bench_app.active_source) else {
@@ -836,15 +839,14 @@ fn draw_benchmark_detail(f: &mut Frame, area: Rect, app: &App) {
                 "No model selected",
                 Style::default().fg(Color::DarkGray),
             ))];
-            ScrollablePanel::new("Details", lines, &bench_app.detail_scroll, focused)
-                .render(f, area);
+            ScrollablePanel::new(title, lines, &bench_app.detail_scroll, focused).render(f, area);
             return;
         }
     };
 
     let inner_w = area.width.saturating_sub(2);
-    let lines = build_benchmark_detail_lines(inner_w, file, model);
-    ScrollablePanel::new("Details", lines, &bench_app.detail_scroll, focused).render(f, area);
+    let lines = build_benchmark_detail_lines(inner_w, file, model, bench_app.comparator);
+    ScrollablePanel::new(title, lines, &bench_app.detail_scroll, focused).render(f, area);
 }
 
 /// Short human-readable scale blurb for a metric kind, used as the parenthetical
@@ -930,6 +932,7 @@ pub(super) fn build_benchmark_detail_lines(
     inner_width: u16,
     file: &SourceFile,
     model: &ModelRow,
+    comparator: super::app::ComparatorMode,
 ) -> Vec<Line<'static>> {
     let mut lines: Vec<Line<'static>> = Vec::new();
     let width = inner_width as usize;
@@ -1115,6 +1118,7 @@ pub(super) fn build_benchmark_detail_lines(
         for mi in metric_indices_in_group(file, group) {
             let metric = &file.metrics[mi];
             let cell = model.scores.get(&metric.id);
+            let comparator_cell = comparator_cell_text(comparator, file, mi, model);
             push_metric_row(
                 &mut lines,
                 cw.indent,
@@ -1122,6 +1126,7 @@ pub(super) fn build_benchmark_detail_lines(
                 &metric.label,
                 metric.kind,
                 cell,
+                comparator_cell,
             );
         }
     }
@@ -1160,7 +1165,7 @@ fn draw_detail_overlay(f: &mut Frame, area: Rect, app: &App) {
 
     let inner = block.inner(overlay_area);
     f.render_widget(block, overlay_area);
-    let lines = build_benchmark_detail_lines(inner.width, file, model);
+    let lines = build_benchmark_detail_lines(inner.width, file, model, bench_app.comparator);
     let paragraph = Paragraph::new(lines).wrap(Wrap { trim: false });
     f.render_widget(paragraph, inner);
 }
@@ -1237,12 +1242,46 @@ fn push_meta_row(
     lines.push(Line::from(spans));
 }
 
-/// Push a single metric row: label (Gray) + dim direction arrow + value (White,
-/// em-dash DarkGray when missing). Elo cells with a confidence interval append
-/// ` ±{ci:.0}`, and any cell with a per-model date appends a dim `(upd {date})`.
+/// Build the comparator-cell text for `metric_idx` under `mode`, or `None` when
+/// the comparator is `Off` or the value is undefined for this model/metric.
 ///
-/// The direction arrow (`↑`/`↓`) counts toward the `label_w` column budget so
-/// values stay aligned: the label is truncated to leave room for `" ↑"`.
+/// All computations run over the source's full model list (`multi.rs`):
+/// - `FieldAvg` -> `avg {value}` (always defined when the metric has any value)
+/// - `PeerAvg`  -> `peers({n}) {value}` (undefined when the model is dateless or
+///   the ±6mo peer set is empty -> em-dash cell)
+/// - `Rank`     -> `#{rank}/{n}` (undefined when the model lacks the value ->
+///   em-dash cell; field/peer averages still render without it)
+fn comparator_cell_text(
+    mode: super::app::ComparatorMode,
+    file: &SourceFile,
+    metric_idx: usize,
+    model: &ModelRow,
+) -> Option<String> {
+    use super::app::ComparatorMode;
+    use crate::benchmarks::multi::{field_avg, peer_avg, rank};
+
+    let kind = file.metrics.get(metric_idx)?.kind;
+    match mode {
+        ComparatorMode::Off => None,
+        // Field/peer averages render even when the selected model lacks the
+        // metric value — the context is still useful.
+        ComparatorMode::FieldAvg => match field_avg(file, metric_idx) {
+            Some(mean) => Some(format!("avg {}", format_metric_value(kind, mean))),
+            None => Some(EM.to_string()),
+        },
+        ComparatorMode::PeerAvg => match peer_avg(file, metric_idx, model) {
+            Some((mean, n)) => Some(format!("peers({n}) {}", format_metric_value(kind, mean))),
+            None => Some(EM.to_string()),
+        },
+        // Rank is undefined when the model has no value for the metric.
+        ComparatorMode::Rank => rank(file, metric_idx, model).map(|(r, n)| format!("#{r}/{n}")),
+    }
+}
+
+/// Push a single metric row: label (Gray) + value (White, em-dash DarkGray when
+/// missing). Elo cells with a confidence interval append ` ±{ci:.0}`; cells with
+/// a vote count append a dim `· {N} votes`. When `comparator_cell` is `Some`, a
+/// dim comparator cell is appended after the value and all its suffixes.
 fn push_metric_row(
     lines: &mut Vec<Line<'static>>,
     indent: u16,
@@ -1250,6 +1289,7 @@ fn push_metric_row(
     label: &str,
     kind: MetricKind,
     cell: Option<&ScoreCell>,
+    comparator_cell: Option<String>,
 ) {
     let shown = truncate(label, label_w.saturating_sub(2).max(6));
 
@@ -1287,6 +1327,14 @@ fn push_metric_row(
                 Style::default().fg(Color::DarkGray),
             ));
         }
+    }
+
+    // Comparator cell (field avg / peers / rank) in dim gray after the value.
+    if let Some(text) = comparator_cell {
+        spans.push(Span::styled(
+            format!("  {text}"),
+            Style::default().fg(Color::DarkGray),
+        ));
     }
 
     lines.push(Line::from(spans));
@@ -1537,7 +1585,7 @@ mod tests {
                 ("gpqa", cell(0.914, None, None)),
             ])],
         };
-        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0], ComparatorMode::Off);
         let text: Vec<String> = lines.iter().map(line_text).collect();
         let joined = text.join("\n");
 
@@ -1572,7 +1620,7 @@ mod tests {
             )],
             models: vec![m],
         };
-        let joined = build_benchmark_detail_lines(80, &file, &file.models[0])
+        let joined = build_benchmark_detail_lines(80, &file, &file.models[0], ComparatorMode::Off)
             .iter()
             .map(line_text)
             .collect::<Vec<_>>()
@@ -1603,11 +1651,12 @@ mod tests {
             )],
             models: vec![m],
         };
-        let region_line = build_benchmark_detail_lines(80, &file, &file.models[0])
-            .into_iter()
-            .map(|l| line_text(&l))
-            .find(|t| t.contains("Region"))
-            .expect("Region row present");
+        let region_line =
+            build_benchmark_detail_lines(80, &file, &file.models[0], ComparatorMode::Off)
+                .into_iter()
+                .map(|l| line_text(&l))
+                .find(|t| t.contains("Region"))
+                .expect("Region row present");
         assert!(!region_line.contains("Other"), "got: {region_line}");
         assert!(!region_line.contains("Startup"), "got: {region_line}");
         assert!(region_line.contains(EM), "got: {region_line}");
@@ -1623,7 +1672,7 @@ mod tests {
                 cell(1432.7, Some(8.0), Some("2026-06-01")),
             )])],
         };
-        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0], ComparatorMode::Off);
         let joined: String = lines
             .iter()
             .map(|l| line_text(l))
@@ -1650,7 +1699,7 @@ mod tests {
             metrics: vec![metric("elo_text", "Text Elo", MetricKind::Elo, "Arena Elo")],
             models: vec![model_with(vec![("elo_text", c)])],
         };
-        let joined = build_benchmark_detail_lines(80, &file, &file.models[0])
+        let joined = build_benchmark_detail_lines(80, &file, &file.models[0], ComparatorMode::Off)
             .iter()
             .map(line_text)
             .collect::<Vec<_>>()
@@ -1667,7 +1716,7 @@ mod tests {
             metrics: vec![metric("gpqa", "GPQA", MetricKind::Percentage, "Academic")],
             models: vec![model_with(vec![])], // no scores
         };
-        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0], ComparatorMode::Off);
         let joined: String = lines
             .iter()
             .map(|l| line_text(l))
@@ -1804,7 +1853,7 @@ mod tests {
                 ("price_input", cell(2.0, None, None)),
             ])],
         };
-        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0], ComparatorMode::Off);
         let gpqa_row = lines
             .iter()
             .find(|l| line_text(l).contains("GPQA"))
@@ -1870,7 +1919,7 @@ mod tests {
             ],
             models: vec![model_with(vec![])],
         };
-        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0], ComparatorMode::Off);
         let header = lines
             .iter()
             .find(|l| line_text(l).contains("Pricing"))
@@ -1909,7 +1958,7 @@ mod tests {
             ],
             models: vec![model_with(vec![])],
         };
-        let lines = build_benchmark_detail_lines(80, &file, &file.models[0]);
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[0], ComparatorMode::Off);
         let header = lines
             .iter()
             .find(|l| line_text(l).contains("Performance"))
@@ -2023,6 +2072,163 @@ mod tests {
             !joined.contains("00:59:59"),
             "timestamp portion stripped: {joined}"
         );
+    }
+
+    // --- (4) Comparator column ---
+
+    use super::super::app::ComparatorMode;
+
+    /// A model with explicit id, creator, release date, and a single `score`
+    /// value, for the comparator multi-model tests.
+    fn cmp_model(id: &str, date: Option<&str>, score: Option<f64>) -> ModelRow {
+        let mut scores = BTreeMap::new();
+        if let Some(s) = score {
+            scores.insert("score".to_string(), cell(s, None, None));
+        }
+        ModelRow {
+            id: id.into(),
+            name: id.into(),
+            display_name: id.into(),
+            creator: "openai".into(),
+            creator_name: "OpenAI".into(),
+            release_date: date.map(str::to_string),
+            reasoning_status: ReasoningStatus::None,
+            effort_level: None,
+            variant_tag: None,
+            open_weights: Some(false),
+            context_window: None,
+            supports_tools: None,
+            max_output: None,
+            scores,
+        }
+    }
+
+    fn cmp_file() -> SourceFile {
+        SourceFile {
+            source: meta(true),
+            metrics: vec![metric("score", "Score", MetricKind::Index, "Indexes")],
+            models: vec![
+                cmp_model("a", Some("2026-01-01"), Some(60.0)),
+                cmp_model("b", Some("2026-03-01"), Some(70.0)),
+                cmp_model("c", Some("2026-04-01"), Some(80.0)),
+            ],
+        }
+    }
+
+    /// The metric row for the `score` metric (the row containing its value).
+    fn score_row_text(lines: &[Line<'static>]) -> String {
+        lines
+            .iter()
+            .map(line_text)
+            .find(|t| t.contains("Score"))
+            .expect("Score metric row present")
+    }
+
+    #[test]
+    fn comparator_off_renders_no_cell() {
+        let file = cmp_file();
+        // model "b" = 70; field avg of 60/70/80 = 70.
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[1], ComparatorMode::Off);
+        let row = score_row_text(&lines);
+        assert!(!row.contains("avg"), "Off must render no comparator: {row}");
+        assert!(
+            !row.contains("peers"),
+            "Off must render no comparator: {row}"
+        );
+        assert!(!row.contains('#'), "Off must render no rank cell: {row}");
+    }
+
+    #[test]
+    fn comparator_field_avg_cell() {
+        let file = cmp_file();
+        let lines =
+            build_benchmark_detail_lines(80, &file, &file.models[1], ComparatorMode::FieldAvg);
+        let row = score_row_text(&lines);
+        // mean(60,70,80) = 70.0, Index kind -> "70.0".
+        assert!(row.contains("avg 70.0"), "field avg cell: {row}");
+    }
+
+    #[test]
+    fn comparator_peer_avg_cell() {
+        let file = cmp_file();
+        // Anchor on "b" (2026-03-01); peers a (60) + c (80) within ±183d -> 70.0.
+        let lines =
+            build_benchmark_detail_lines(80, &file, &file.models[1], ComparatorMode::PeerAvg);
+        let row = score_row_text(&lines);
+        assert!(row.contains("peers(2) 70.0"), "peer avg cell: {row}");
+    }
+
+    #[test]
+    fn comparator_peer_avg_dateless_is_em_dash() {
+        // An Arena-like row (no release_date) -> PeerAvg undefined -> em-dash cell.
+        let mut file = cmp_file();
+        file.models[1].release_date = None;
+        let lines =
+            build_benchmark_detail_lines(80, &file, &file.models[1], ComparatorMode::PeerAvg);
+        let row = score_row_text(&lines);
+        assert!(!row.contains("peers("), "dateless peer avg: {row}");
+        assert!(row.contains(EM), "dateless peer avg renders em-dash: {row}");
+    }
+
+    #[test]
+    fn comparator_rank_cell() {
+        let file = cmp_file();
+        // higher-is-better; b=70 ranks 2nd of 3.
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[1], ComparatorMode::Rank);
+        let row = score_row_text(&lines);
+        assert!(row.contains("#2/3"), "rank cell: {row}");
+    }
+
+    #[test]
+    fn comparator_rank_missing_value_no_cell() {
+        // A model lacking the metric value -> Rank cannot render a cell.
+        let mut file = cmp_file();
+        file.models[1].scores.clear();
+        let lines = build_benchmark_detail_lines(80, &file, &file.models[1], ComparatorMode::Rank);
+        let row = score_row_text(&lines);
+        assert!(!row.contains('#'), "no rank for missing value: {row}");
+    }
+
+    #[test]
+    fn comparator_field_avg_renders_when_model_lacks_value() {
+        // FieldAvg still shows the field context even when the model has no value.
+        let mut file = cmp_file();
+        file.models[1].scores.clear();
+        let lines =
+            build_benchmark_detail_lines(80, &file, &file.models[1], ComparatorMode::FieldAvg);
+        let row = score_row_text(&lines);
+        // Field avg over the OTHER two models (60, 80) = 70.0.
+        assert!(row.contains("avg 70.0"), "field avg w/o own value: {row}");
+        // The value cell itself is an em-dash (model lacks the metric).
+        assert!(row.contains(EM), "missing value is em-dash: {row}");
+    }
+
+    #[test]
+    fn comparator_title_suffix_per_mode() {
+        assert_eq!(ComparatorMode::Off.title_suffix(), "");
+        assert_eq!(
+            ComparatorMode::FieldAvg.title_suffix(),
+            " \u{00B7} vs field avg"
+        );
+        assert_eq!(
+            ComparatorMode::PeerAvg.title_suffix(),
+            " \u{00B7} vs peers (\u{00B1}6mo)"
+        );
+        assert_eq!(ComparatorMode::Rank.title_suffix(), " \u{00B7} rank");
+    }
+
+    #[test]
+    fn comparator_mode_cycles() {
+        let m = ComparatorMode::default();
+        assert_eq!(m, ComparatorMode::FieldAvg);
+        let m = m.next();
+        assert_eq!(m, ComparatorMode::PeerAvg);
+        let m = m.next();
+        assert_eq!(m, ComparatorMode::Rank);
+        let m = m.next();
+        assert_eq!(m, ComparatorMode::Off);
+        let m = m.next();
+        assert_eq!(m, ComparatorMode::FieldAvg);
     }
 
     #[test]

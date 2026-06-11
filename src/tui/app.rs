@@ -210,6 +210,9 @@ pub enum Message {
     CycleScatterX,
     CycleScatterY,
     CycleRadarPreset,
+    /// `a` in browse mode — cycle the detail-panel comparator column
+    /// (field avg → peers → rank → off).
+    CycleComparator,
     ScrollH2HDown,
     ScrollH2HUp,
     ScrollH2HTop,
@@ -1250,6 +1253,9 @@ impl App {
                 if let Some(file) = self.multi_store.file(self.benchmarks_app.active_source) {
                     self.benchmarks_app.cycle_radar_group(file);
                 }
+            }
+            Message::CycleComparator => {
+                self.benchmarks_app.cycle_comparator();
             }
             Message::CopyBenchmarkName
             | Message::OpenBenchmarkUrl

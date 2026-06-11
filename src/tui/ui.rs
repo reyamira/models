@@ -442,6 +442,8 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                         spans.extend([
                             Span::styled(" s ", Style::default().fg(Color::Yellow)),
                             Span::raw("sort  "),
+                            Span::styled(" a ", Style::default().fg(Color::Yellow)),
+                            Span::raw("avg  "),
                             Span::styled(" r ", Style::default().fg(Color::Yellow)),
                             Span::raw("refresh  "),
                             Span::styled(" / ", Style::default().fg(Color::Yellow)),
@@ -674,6 +676,10 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
                 help_section("Actions"),
                 help_line("o", "Open source model page in browser"),
                 help_line("i", "Toggle benchmark glossary"),
+                help_line(
+                    "a",
+                    "Cycle comparator column (field avg → peers → rank → off)",
+                ),
                 Line::from(""),
                 help_section("Compare"),
                 help_line("Space", "Toggle model for comparison (max 8)"),

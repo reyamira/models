@@ -8,6 +8,7 @@
 
 use super::schema::{MetricKind, ModelRow, ReasoningStatus, SourceFile};
 use super::sources::{SourceDescriptor, SOURCES};
+use crate::formatting::parse_date;
 
 /// Progressive load state of a single source.
 pub enum SourceLoad {
@@ -197,6 +198,97 @@ pub fn default_sort(file: &SourceFile) -> SortKey {
     } else {
         SortKey::Metric(0)
     }
+}
+
+// --- Comparator-column computations -----------------------------------------
+//
+// All operate over the source's FULL model list (not the filtered view), per
+// metric, using only models that carry a value for that metric. They power the
+// detail-panel comparator cell (field avg / peer avg / rank) and are pure so
+// they can be unit-tested in isolation.
+
+/// Half-window (in days) for the [`peer_avg`] release-date neighborhood: a peer
+/// is any other model released within ±6 months of the selected model.
+const PEER_WINDOW_DAYS: i64 = 183;
+
+/// The id of the metric at `metric_idx`, if it exists.
+fn metric_id_at(file: &SourceFile, metric_idx: usize) -> Option<&str> {
+    file.metrics.get(metric_idx).map(|m| m.id.as_str())
+}
+
+/// Iterate the values of `metric_idx` across all models that have one.
+fn metric_values<'a>(file: &'a SourceFile, metric_id: &'a str) -> impl Iterator<Item = f64> + 'a {
+    file.models
+        .iter()
+        .filter_map(move |m| m.scores.get(metric_id).map(|c| c.value))
+}
+
+/// Arithmetic mean of `metric_idx` over every model with a value. `None` when
+/// the metric index is stale or no model carries the metric.
+pub fn field_avg(file: &SourceFile, metric_idx: usize) -> Option<f64> {
+    let metric_id = metric_id_at(file, metric_idx)?;
+    let mut sum = 0.0;
+    let mut n = 0usize;
+    for v in metric_values(file, metric_id) {
+        sum += v;
+        n += 1;
+    }
+    (n > 0).then(|| sum / n as f64)
+}
+
+/// Mean of `metric_idx` over models released within ±183 days of `model`'s
+/// release date, **excluding `model` itself**. Returns `(mean, peer_count)`.
+///
+/// `None` when: the metric index is stale, `model` has no parseable release
+/// date, or no peer (other dated model in-window) carries the metric.
+pub fn peer_avg(file: &SourceFile, metric_idx: usize, model: &ModelRow) -> Option<(f64, usize)> {
+    let metric_id = metric_id_at(file, metric_idx)?;
+    let anchor = model.release_date.as_deref().and_then(parse_date)?;
+
+    let mut sum = 0.0;
+    let mut n = 0usize;
+    for peer in &file.models {
+        // Exclude the selected model itself (by identity).
+        if std::ptr::eq(peer, model) {
+            continue;
+        }
+        let Some(date) = peer.release_date.as_deref().and_then(parse_date) else {
+            continue;
+        };
+        if (date - anchor).num_days().abs() > PEER_WINDOW_DAYS {
+            continue;
+        }
+        if let Some(cell) = peer.scores.get(metric_id) {
+            sum += cell.value;
+            n += 1;
+        }
+    }
+    (n > 0).then_some((sum / n as f64, n))
+}
+
+/// 1-based rank of `model`'s `metric_idx` value among all models that carry it,
+/// direction-aware via `MetricDef.higher_is_better` (rank 1 = best). Returns
+/// `(rank, total)`. `None` when the metric index is stale or `model` has no
+/// value for it.
+pub fn rank(file: &SourceFile, metric_idx: usize, model: &ModelRow) -> Option<(usize, usize)> {
+    let metric = file.metrics.get(metric_idx)?;
+    let metric_id = metric.id.as_str();
+    let mine = model.scores.get(metric_id)?.value;
+
+    let mut total = 0usize;
+    let mut better = 0usize;
+    for v in metric_values(file, metric_id) {
+        total += 1;
+        let is_better = if metric.higher_is_better {
+            v > mine
+        } else {
+            v < mine
+        };
+        if is_better {
+            better += 1;
+        }
+    }
+    Some((better + 1, total))
 }
 
 #[cfg(test)]
@@ -507,6 +599,157 @@ mod tests {
         assert!(votes_cells > 0, "arena cells carry no vote counts");
         // Arena has no release dates -> default sort is the first metric.
         assert_eq!(default_sort(&file), SortKey::Metric(0));
+    }
+
+    // --- Comparator computations ---
+
+    /// File with two metrics (one higher-is-better, one lower-is-better) and a
+    /// roster of dated models for the comparator tests.
+    fn comparator_file() -> SourceFile {
+        let mut file = SourceFile {
+            source: meta(),
+            metrics: vec![
+                metric("score", MetricKind::Index, "G", true),
+                metric("price", MetricKind::UsdPerMTok, "G", false),
+            ],
+            models: vec![],
+        };
+        let mk = |id: &str, date: &str, score: Option<f64>, price: Option<f64>| {
+            let mut m = model(id, ReasoningStatus::None, Some(date));
+            if let Some(s) = score {
+                m.scores.insert(
+                    "score".into(),
+                    crate::benchmarks::schema::ScoreCell {
+                        value: s,
+                        date: None,
+                        ci: None,
+                        votes: None,
+                    },
+                );
+            }
+            if let Some(p) = price {
+                m.scores.insert(
+                    "price".into(),
+                    crate::benchmarks::schema::ScoreCell {
+                        value: p,
+                        date: None,
+                        ci: None,
+                        votes: None,
+                    },
+                );
+            }
+            m
+        };
+        file.models = vec![
+            mk("a", "2026-01-01", Some(60.0), Some(4.0)),
+            mk("b", "2026-03-01", Some(70.0), Some(2.0)),
+            mk("c", "2026-04-01", Some(80.0), Some(1.0)),
+            // Far-future model, outside any ±183d window of a/b/c.
+            mk("d", "2027-06-01", Some(100.0), Some(10.0)),
+        ];
+        file
+    }
+
+    #[test]
+    fn test_field_avg() {
+        let file = comparator_file();
+        // mean of 60,70,80,100 = 77.5
+        assert_eq!(field_avg(&file, 0), Some(77.5));
+        // Stale metric index -> None.
+        assert_eq!(field_avg(&file, 9), None);
+    }
+
+    #[test]
+    fn test_field_avg_no_values_is_none() {
+        let mut file = comparator_file();
+        for m in &mut file.models {
+            m.scores.remove("score");
+        }
+        assert_eq!(field_avg(&file, 0), None);
+    }
+
+    #[test]
+    fn test_peer_avg_window_and_self_exclusion() {
+        let file = comparator_file();
+        // Anchor on "b" (2026-03-01). Peers within ±183d: a (2026-01-01, 59d),
+        // c (2026-04-01, 31d). d is far out. Self (b) excluded.
+        // mean of a.score(60) + c.score(80) = 70, peer count 2.
+        let b = &file.models[1];
+        assert_eq!(peer_avg(&file, 0, b), Some((70.0, 2)));
+    }
+
+    #[test]
+    fn test_peer_avg_boundary_183_days_inclusive() {
+        // A peer exactly 183 days away is included; 184 days is excluded.
+        let mut file = comparator_file();
+        file.models.clear();
+        let mk = |id: &str, date: &str, score: f64| {
+            let mut m = model(id, ReasoningStatus::None, Some(date));
+            m.scores.insert(
+                "score".into(),
+                crate::benchmarks::schema::ScoreCell {
+                    value: score,
+                    date: None,
+                    ci: None,
+                    votes: None,
+                },
+            );
+            m
+        };
+        file.models = vec![
+            mk("anchor", "2026-01-01", 50.0),
+            mk("at_183", "2026-07-03", 90.0), // exactly 183 days after Jan 1
+            mk("at_184", "2026-07-04", 10.0), // 184 days -> excluded
+        ];
+        let anchor = &file.models[0];
+        // Only at_183 is in-window -> mean 90, count 1.
+        assert_eq!(peer_avg(&file, 0, anchor), Some((90.0, 1)));
+    }
+
+    #[test]
+    fn test_peer_avg_dateless_anchor_is_none() {
+        let mut file = comparator_file();
+        file.models[1].release_date = None;
+        let b = &file.models[1];
+        assert_eq!(peer_avg(&file, 0, b), None);
+    }
+
+    #[test]
+    fn test_peer_avg_empty_peer_set_is_none() {
+        let file = comparator_file();
+        // Anchor on "d" (2027-06-01): no other model is within ±183d.
+        let d = &file.models[3];
+        assert_eq!(peer_avg(&file, 0, d), None);
+    }
+
+    #[test]
+    fn test_rank_higher_is_better() {
+        let file = comparator_file();
+        // score higher-is-better. Values: a60 b70 c80 d100. c=80 -> rank 2/4.
+        let c = &file.models[2];
+        assert_eq!(rank(&file, 0, c), Some((2, 4)));
+        let d = &file.models[3];
+        assert_eq!(rank(&file, 0, d), Some((1, 4)));
+        let a = &file.models[0];
+        assert_eq!(rank(&file, 0, a), Some((4, 4)));
+    }
+
+    #[test]
+    fn test_rank_lower_is_better() {
+        let file = comparator_file();
+        // price lower-is-better. Values: a4 b2 c1 d10. c=1 is best -> rank 1/4.
+        let c = &file.models[2];
+        assert_eq!(rank(&file, 1, c), Some((1, 4)));
+        let d = &file.models[3]; // price 10, worst -> rank 4/4
+        assert_eq!(rank(&file, 1, d), Some((4, 4)));
+    }
+
+    #[test]
+    fn test_rank_missing_value_is_none() {
+        let mut file = comparator_file();
+        file.models[0].scores.remove("score");
+        let a = &file.models[0];
+        assert_eq!(rank(&file, 0, a), None);
     }
 
     #[test]
