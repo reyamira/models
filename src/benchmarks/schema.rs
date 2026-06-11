@@ -113,6 +113,10 @@ pub struct ScoreCell {
     pub date: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ci: Option<f64>,
+    /// Sample size behind the score (Arena: head-to-head vote count for this
+    /// board). A confidence signal; omitted by sources that don't report it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub votes: Option<u64>,
 }
 
 // The name-parsing facility below (PAREN_RE/DATE_RE/EFFORT_ONLY_RE,

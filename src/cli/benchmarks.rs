@@ -1203,6 +1203,7 @@ mod tests {
             value,
             date: None,
             ci: None,
+            votes: None,
         }
     }
 

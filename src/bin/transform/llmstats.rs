@@ -331,6 +331,7 @@ fn build_source_file(rankings: RawRankingsFile, models: Option<RawModelsFile>) -
                     value,
                     date: ranking.ranked_at.clone(),
                     ci: None,
+                    votes: None,
                 },
             );
         }

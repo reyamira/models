@@ -628,6 +628,7 @@ fn parse_csv(stem: &str, path: &Path) -> Result<ParsedCsv, String> {
                         value,
                         date: run_date.map(|d| d.format("%Y-%m-%d").to_string()),
                         ci: None,
+                        votes: None,
                     },
                 );
                 v.insert(BenchAccum {
@@ -670,6 +671,7 @@ fn parse_csv(stem: &str, path: &Path) -> Result<ParsedCsv, String> {
                             value,
                             date: run_date.map(|d| d.format("%Y-%m-%d").to_string()),
                             ci: None,
+                            votes: None,
                         },
                     );
                     // Prefer a non-empty release date / creator if this winning

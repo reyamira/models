@@ -31,7 +31,9 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     (backfilled from a models.dev match in `finalize_loaded_source`; the
     transforms always emit them as `None`, so they never appear in the data
     files).
-  - `ScoreCell { value, date, ci }` — `ci` carries Arena Elo confidence intervals.
+  - `ScoreCell { value, date, ci, votes }` — `ci` carries Arena Elo confidence
+    intervals; `votes` carries the Arena head-to-head sample size per board
+    (both `Option`, omitted by sources that don't report them).
   - **Self-contained on purpose.** This file is compiled both as
     `crate::benchmarks::schema` AND, via a `#[path]` include, into the transform
     bin (the crate has no lib target). Do **not** reference other crate modules

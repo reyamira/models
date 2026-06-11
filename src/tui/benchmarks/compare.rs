@@ -834,6 +834,7 @@ mod tests {
                     value: *v,
                     date: None,
                     ci: None,
+                    votes: None,
                 },
             );
         }

@@ -1282,6 +1282,13 @@ fn push_metric_row(
                 }
             }
             spans.push(Span::styled(value, Style::default().fg(Color::White)));
+            // Sample size (Arena vote count) as a dim confidence signal.
+            if let Some(votes) = cell.votes {
+                spans.push(Span::styled(
+                    format!(" \u{00B7} {} votes", format_tokens(votes)),
+                    Style::default().fg(Color::DarkGray),
+                ));
+            }
         }
         None => {
             spans.push(Span::styled(
@@ -1490,6 +1497,7 @@ mod tests {
             value,
             ci,
             date: date.map(str::to_string),
+            votes: None,
         }
     }
 
@@ -1638,6 +1646,26 @@ mod tests {
         // Unverified source -> self-reported note on the attribution line.
         assert!(joined.contains("Source: Test Source"));
         assert!(joined.contains("(self-reported)"));
+    }
+
+    #[test]
+    fn detail_elo_appends_vote_count() {
+        // Arena cells carry a vote count -> compact dim sample-size suffix.
+        let mut c = cell(1432.7, Some(8.0), None);
+        c.votes = Some(24_871);
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![metric("elo_text", "Text Elo", MetricKind::Elo, "Arena Elo")],
+            models: vec![model_with(vec![("elo_text", c)])],
+        };
+        let joined = build_benchmark_detail_lines(80, &file, &file.models[0])
+            .iter()
+            .map(line_text)
+            .collect::<Vec<_>>()
+            .join("\n");
+        // value ± ci · {votes} votes
+        assert!(joined.contains("1433 \u{00B1}8"), "got: {joined}");
+        assert!(joined.contains("\u{00B7} 24.9k votes"), "got: {joined}");
     }
 
     #[test]

@@ -357,6 +357,7 @@ fn insert_score(scores: &mut BTreeMap<String, ScoreCell>, id: &str, value: Optio
                 value,
                 date: None,
                 ci: None,
+                votes: None,
             },
         );
     }

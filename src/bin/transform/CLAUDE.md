@@ -62,8 +62,10 @@ Each sub-module exposes `run(...) -> Result<(), String>`. `main` maps `Ok` →
 - A missing board file is a warning (stderr), not an error — the transform
   proceeds with the boards it found.
 - `vendor`→creator (slugified), `license` (`"open"`/`"proprietary"`/null)→
-  `open_weights`, `score`→value, `ci`→ci. Board date = `last_updated`, falling
-  back to the date part of `fetched_at`. No release dates upstream.
+  `open_weights`, `score`→value, `ci`→ci, `votes`→votes (per-board head-to-head
+  sample size, surfaced as a confidence signal in the detail panel). Board date
+  = `last_updated`, falling back to the date part of `fetched_at`. No release
+  dates upstream.
 
 ### `epoch.rs`
 - Input is the **unzipped** ZIP: one wide CSV per benchmark. Uses the `csv`

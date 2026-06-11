@@ -147,7 +147,7 @@ Identity block + one section per metric `group` (`groups_in_order`), values form
 
 **Value cell suffixes**:
 - Elo cells with a confidence interval append ` ±{ci:.0}`.
-- Any cell carrying a per-model `date` appends a dim `(upd {date})`.
+- Cells carrying a `votes` sample size (Arena) append a dim ` · {format_tokens(votes)} votes` (DarkGray) — a confidence signal alongside the CI. Per-cell `date`s are **not** rendered in the score rows (dropped in 8828a67; freshness lives in the glossary meta line).
 - Missing value: em-dash `\u{2014}` in `Color::DarkGray`.
 
 **Section headers** (`group_header_suffix`): combine a uniform-kind scale blurb (`group_kind_blurb`) and a uniform-direction blurb (`group_direction_blurb`) into the header suffix — `(kind · dir)` when both uniform (e.g. `── Pricing ($ per 1M tokens · lower is better) ──`), kind alone or direction alone when only one is uniform, and a plain `── Title ──` header when the group is mixed on both (e.g. AA Performance: speed ↑, latency ↓). Suffixed headers use `ui::section_header_line_with_suffix`, plain headers `ui::section_header_line`; both fill to panel width with `\u{2500}` in `Color::DarkGray`.

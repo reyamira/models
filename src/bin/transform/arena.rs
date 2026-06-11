@@ -116,6 +116,9 @@ struct RawModel {
     score: Option<f64>,
     #[serde(default)]
     ci: Option<f64>,
+    /// Head-to-head vote count backing this board's Elo for the model.
+    #[serde(default)]
+    votes: Option<u64>,
 }
 
 // ---------------------------------------------------------------------------
@@ -246,6 +249,7 @@ fn build_source_file(boards: Vec<(BoardEntry, RawBoard)>) -> SourceFile {
                             Some(date.clone())
                         },
                         ci: raw.ci,
+                        votes: raw.votes,
                     },
                 );
             }
@@ -661,6 +665,15 @@ mod tests {
         let m = row(&sf, "claude-opus-4-7");
         assert_eq!(m.scores["elo_code"].ci, Some(9.0));
         assert_eq!(m.scores["elo_text"].ci, Some(5.0));
+    }
+
+    #[test]
+    fn votes_captured_per_board() {
+        let sf = parse_fixture();
+        let m = row(&sf, "claude-opus-4-7");
+        // Vote counts are per-board (per metric), carried onto each ScoreCell.
+        assert_eq!(m.scores["elo_text"].votes, Some(24871));
+        assert_eq!(m.scores["elo_code"].votes, Some(9933));
     }
 
     #[test]
