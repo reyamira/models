@@ -109,6 +109,9 @@ struct RuntimeHandles {
     disk_cache: Arc<RwLock<GitHubCache>>,
     /// One message per source fetch: `(source_idx, Option<SourceFile>)`.
     bench_rx: mpsc::Receiver<(usize, Option<SourceFile>)>,
+    /// Final URL opened by an async benchmark-url task (Epoch 404-fallback path).
+    url_rx: mpsc::Receiver<String>,
+    url_tx: mpsc::Sender<String>,
     status: StatusRuntime,
 }
 pub async fn run(providers: ProvidersMap) -> Result<()> {
@@ -235,12 +238,15 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
         last_fetch_time: None,
         fetch_generation: 0,
     };
+    let (url_tx, url_rx) = mpsc::channel(8);
     let runtime_handles = RuntimeHandles {
         github_rx: rx,
         github_tx: tx,
         client,
         disk_cache: disk_cache.clone(),
         bench_rx,
+        url_rx,
+        url_tx,
         status: status_runtime,
     };
     let result = run_app(&mut terminal, &mut app, runtime_handles);
@@ -334,6 +340,18 @@ fn run_app(
         // have landed so multiple sources are absorbed in one tick.
         while let Ok((idx, result)) = runtime.bench_rx.try_recv() {
             app.update(app::Message::DataSourceLoaded(idx, result));
+        }
+
+        // Drain async benchmark-url opens (Epoch 404-fallback path) — the final
+        // opened URL arrives as a `BenchmarkUrlOpened` message reported to the
+        // status bar.
+        while let Ok(url) = runtime.url_rx.try_recv() {
+            let msg = app::Message::BenchmarkUrlOpened(url);
+            if let app::Message::BenchmarkUrlOpened(url) = &msg {
+                app.set_status(format!("Opened: {url}"));
+                last_status_time = Some(std::time::Instant::now());
+            }
+            app.update(msg);
         }
 
         if app.pending_status_refresh {
@@ -455,14 +473,47 @@ fn run_app(
                     }
                 }
                 app::Message::OpenBenchmarkUrl => {
-                    // Attribution URL is per-source; the model id is the source slug.
-                    if let Some(file) = app.active_benchmark_file() {
-                        if let Some(model) = app.benchmarks_app.current_model(file) {
-                            let url = format!("{}/models/{}", file.source.url, model.id);
+                    // Per-source URL strategy (sources.rs `model_url`). Epoch's
+                    // per-model pages only resolve for ~70% of ids, so it gets a
+                    // 200-probe with a fallback to the model index page; the
+                    // other sources open synchronously.
+                    let active = app.benchmarks_app.active_source;
+                    let descriptor = crate::tui::benchmarks::BenchmarksApp::active_descriptor(
+                        &app.multi_store,
+                        active,
+                    );
+                    let model_id = app
+                        .active_benchmark_file()
+                        .and_then(|file| app.benchmarks_app.current_model(file))
+                        .map(|model| model.id.clone());
+                    if let (Some(descriptor), Some(model_id)) = (descriptor, model_id) {
+                        let url = descriptor.model_url(&model_id);
+                        if descriptor.id == "epoch" {
+                            // Probe the model page; open it on 200, else the
+                            // model index. Final URL reported via url_tx.
+                            let url_tx = runtime.url_tx.clone();
+                            tokio::spawn(async move {
+                                const FALLBACK: &str = "https://epoch.ai/data/ai-models";
+                                let client = reqwest::Client::builder()
+                                    .user_agent("models-tui")
+                                    .timeout(Duration::from_secs(3))
+                                    .build();
+                                let resolved = match client {
+                                    Ok(client) => match client.head(&url).send().await {
+                                        Ok(resp) if resp.status().is_success() => url,
+                                        _ => FALLBACK.to_string(),
+                                    },
+                                    Err(_) => FALLBACK.to_string(),
+                                };
+                                let _ = open::that_in_background(&resolved);
+                                let _ = url_tx.send(resolved).await;
+                            });
+                            app.set_status("Opening Epoch model page…".to_string());
+                        } else {
                             let _ = open::that_in_background(&url);
                             app.set_status(format!("Opened: {}", url));
-                            last_status_time = Some(std::time::Instant::now());
                         }
+                        last_status_time = Some(std::time::Instant::now());
                     }
                 }
                 app::Message::OpenStatusPage => {

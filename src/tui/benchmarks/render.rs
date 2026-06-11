@@ -159,6 +159,11 @@ fn draw_source_bar(f: &mut Frame, area: Rect, app: &App) {
             }
         }
     }
+    // Source-switch hint, mirroring the header's `[/] switch tabs` styling.
+    left_spans.push(Span::styled(
+        "{ } switch source",
+        Style::default().fg(Color::DarkGray),
+    ));
     f.render_widget(Paragraph::new(Line::from(left_spans)), area);
 
     // Right: freshness + self-reported for the active source.
@@ -917,8 +922,8 @@ fn direction_blurb(higher_is_better: bool) -> &'static str {
 
 /// Registry-driven model detail: identity block + one section per metric group
 /// (`groups_in_order`), values formatted via `format_metric_value`, with `±ci`
-/// for Elo cells and a dim `(upd {date})` suffix where the cell carries a date.
-/// Final line is a source-attribution line.
+/// for Elo cells and a dim `· {N} votes` suffix where the cell carries a vote
+/// count. Source attribution lives in the source bar's freshness text, not here.
 ///
 /// Returns owned `Line<'static>` so the overlay (compare.rs) can render it.
 pub(super) fn build_benchmark_detail_lines(
@@ -1120,20 +1125,6 @@ pub(super) fn build_benchmark_detail_lines(
             );
         }
     }
-
-    // --- Source attribution ---
-    lines.push(Line::from(""));
-    let mut src_spans = vec![Span::styled(
-        format!("Source: {}", file.source.name),
-        Style::default().fg(Color::Gray),
-    )];
-    if !file.source.verified {
-        src_spans.push(Span::styled(
-            " (self-reported)",
-            Style::default().fg(Color::Yellow),
-        ));
-    }
-    lines.push(Line::from(src_spans));
 
     lines
 }
@@ -1559,8 +1550,8 @@ mod tests {
         // Index value formatted as one decimal; percentage *100.
         assert!(joined.contains("70.0"));
         assert!(joined.contains("91.4%"));
-        // Verified source -> no self-reported note.
-        assert!(joined.contains("Source: Test Source"));
+        // Source attribution moved to the source bar — no longer in the detail.
+        assert!(!joined.contains("Source: Test Source"));
         assert!(!joined.contains("self-reported"));
     }
 
@@ -1623,7 +1614,7 @@ mod tests {
     }
 
     #[test]
-    fn detail_lines_elo_ci_and_self_reported() {
+    fn detail_lines_elo_ci_and_no_source_attribution() {
         let file = SourceFile {
             source: meta(false),
             metrics: vec![metric("elo_text", "Text Elo", MetricKind::Elo, "Arena Elo")],
@@ -1643,9 +1634,10 @@ mod tests {
         // rendered (user feedback: noise in the score rows).
         assert!(joined.contains("1433 \u{00B1}8"), "got: {joined}");
         assert!(!joined.contains("(upd"));
-        // Unverified source -> self-reported note on the attribution line.
-        assert!(joined.contains("Source: Test Source"));
-        assert!(joined.contains("(self-reported)"));
+        // Source attribution (incl. the self-reported note) moved to the source
+        // bar — the detail panel no longer carries it, even for unverified sources.
+        assert!(!joined.contains("Source: Test Source"), "got: {joined}");
+        assert!(!joined.contains("(self-reported)"), "got: {joined}");
     }
 
     #[test]

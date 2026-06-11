@@ -32,6 +32,39 @@ pub struct SourceDescriptor {
     pub verified: bool,
 }
 
+impl SourceDescriptor {
+    /// Per-source URL for a model's page, given the source's model id.
+    ///
+    /// The naive `{url}/models/{id}` form 404s on Epoch and Arena (verified live
+    /// 2026-06-11), so each source gets a hand-tuned strategy:
+    /// - `aa` / `llmstats` — straightforward `/models/{id}`.
+    /// - `epoch` — the slug is the last path segment of the id, lowercased with
+    ///   `.` → `-` (e.g. `zai-org/GLM-4-7` → `glm-4-7`). ~70% of Epoch ids
+    ///   resolve this way (≈100% of frontier models); the caller falls back to
+    ///   the model index page on a 404.
+    /// - `arena` — no per-model pages exist (`/models/{id}`, `/model/{id}`,
+    ///   `/models` all 404), so every model points at the text leaderboard.
+    pub fn model_url(&self, model_id: &str) -> String {
+        match self.id {
+            "aa" => format!("https://artificialanalysis.ai/models/{model_id}"),
+            "llmstats" => format!("https://llm-stats.com/models/{model_id}"),
+            "epoch" => {
+                let slug = model_id
+                    .rsplit('/')
+                    .next()
+                    .unwrap_or(model_id)
+                    .to_lowercase()
+                    .replace('.', "-");
+                format!("https://epoch.ai/models/{slug}")
+            }
+            "arena" => "https://arena.ai/leaderboard/text".to_string(),
+            // Unknown source: fall back to the naive form against the attribution
+            // URL so a future source still produces something openable.
+            _ => format!("{}/models/{model_id}", self.url),
+        }
+    }
+}
+
 /// Compiled-in list of all known data sources. Order is display order.
 pub const SOURCES: &[SourceDescriptor] = &[
     SourceDescriptor {
@@ -66,3 +99,62 @@ pub const SOURCES: &[SourceDescriptor] = &[
         verified: true,
     },
 ];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn source(id: &str) -> &'static SourceDescriptor {
+        SOURCES.iter().find(|s| s.id == id).expect("source present")
+    }
+
+    #[test]
+    fn model_url_aa_uses_models_path() {
+        assert_eq!(
+            source("aa").model_url("gpt-5"),
+            "https://artificialanalysis.ai/models/gpt-5"
+        );
+    }
+
+    #[test]
+    fn model_url_llmstats_uses_models_path() {
+        assert_eq!(
+            source("llmstats").model_url("claude-opus-4"),
+            "https://llm-stats.com/models/claude-opus-4"
+        );
+    }
+
+    #[test]
+    fn model_url_arena_always_text_leaderboard() {
+        // No per-model pages exist; every id collapses to the leaderboard.
+        assert_eq!(
+            source("arena").model_url("anything-at-all"),
+            "https://arena.ai/leaderboard/text"
+        );
+    }
+
+    #[test]
+    fn model_url_epoch_strips_org_prefix() {
+        // `org/Name` → last segment, lowercased.
+        assert_eq!(
+            source("epoch").model_url("zai-org/GLM-4-7"),
+            "https://epoch.ai/models/glm-4-7"
+        );
+    }
+
+    #[test]
+    fn model_url_epoch_lowercases_and_dots_to_dashes() {
+        assert_eq!(
+            source("epoch").model_url("DeepSeek-V3.1"),
+            "https://epoch.ai/models/deepseek-v3-1"
+        );
+    }
+
+    #[test]
+    fn model_url_epoch_plain_id_no_prefix() {
+        assert_eq!(
+            source("epoch").model_url("Claude-Opus-4"),
+            "https://epoch.ai/models/claude-opus-4"
+        );
+    }
+}

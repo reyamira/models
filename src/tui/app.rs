@@ -195,6 +195,9 @@ pub enum Message {
     #[allow(dead_code)]
     CopyBenchmarkName,
     OpenBenchmarkUrl,
+    /// An async URL open resolved to a final URL (Epoch 404-fallback path);
+    /// the main loop reports it to the status bar.
+    BenchmarkUrlOpened(String),
     ToggleBenchmarkSelection,
     ClearBenchmarkSelections,
     ToggleDetailOverlay,
@@ -1113,7 +1116,9 @@ impl App {
                     self.benchmarks_app.cycle_radar_group(file);
                 }
             }
-            Message::CopyBenchmarkName | Message::OpenBenchmarkUrl => {
+            Message::CopyBenchmarkName
+            | Message::OpenBenchmarkUrl
+            | Message::BenchmarkUrlOpened(_) => {
                 // Handled in main loop
             }
             Message::GitHubDataReceived(agent_id, data) => {
