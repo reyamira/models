@@ -872,14 +872,46 @@ fn group_kind_blurb(file: &SourceFile, group: &str) -> Option<&'static str> {
     }
 }
 
-/// Direction marker appended to a metric label: `▲` when higher is better,
-/// `▼` when lower is better. Filled triangles (chunkier than thin arrows) in
-/// Cyan — user feedback asked for less-dim, more visible markers.
-fn direction_arrow(higher_is_better: bool) -> &'static str {
-    if higher_is_better {
-        "\u{25B2}"
+/// Direction phrase when every metric in the group agrees on it.
+fn group_direction_blurb(file: &SourceFile, group: &str) -> Option<&'static str> {
+    let mut dirs = file
+        .metrics
+        .iter()
+        .filter(|m| m.group == group)
+        .map(|m| m.higher_is_better);
+    let first = dirs.next()?;
+    if dirs.all(|d| d == first) {
+        Some(if first {
+            "higher is better"
+        } else {
+            "lower is better"
+        })
     } else {
-        "\u{25BC}"
+        None
+    }
+}
+
+/// Combined section-header suffix: scale blurb and/or direction, joined with
+/// " · " when both are present. Per-metric direction markers were removed on
+/// user feedback (too distracting) — the header carries the explanation.
+fn group_header_suffix(file: &SourceFile, group: &str) -> Option<String> {
+    match (
+        group_kind_blurb(file, group),
+        group_direction_blurb(file, group),
+    ) {
+        (Some(kind), Some(dir)) => Some(format!("{kind} \u{00B7} {dir}")),
+        (Some(kind), None) => Some(kind.to_string()),
+        (None, Some(dir)) => Some(dir.to_string()),
+        (None, None) => None,
+    }
+}
+
+/// Direction phrase for a single metric (glossary meta line).
+fn direction_blurb(higher_is_better: bool) -> &'static str {
+    if higher_is_better {
+        "higher is better"
+    } else {
+        "lower is better"
     }
 }
 
@@ -1011,15 +1043,16 @@ pub(super) fn build_benchmark_detail_lines(
         .max()
         .unwrap_or(8)
         .min(label_cap)
-        // +2 for the " ▲" direction marker, +4 clear gutter before the score
-        // column (user feedback: values sat flush against the longest label).
-        + 6;
+        // +4 clear gutter before the score column (user feedback: values sat
+        // flush against the longest label).
+        + 4;
     for group in groups_in_order(file) {
         lines.push(Line::from(""));
-        // Uniform-kind groups get a dim "(scale)" suffix on the header; mixed
-        // groups fall back to the plain dash-padded header.
-        match group_kind_blurb(file, group) {
-            Some(blurb) => lines.push(section_header_line_with_suffix(group, blurb, width)),
+        // Headers carry the scale and/or direction explanation when the
+        // group is uniform, e.g. "── Pricing ($ per 1M tokens · lower is
+        // better) ──". Fully mixed groups get the plain header.
+        match group_header_suffix(file, group) {
+            Some(suffix) => lines.push(section_header_line_with_suffix(group, &suffix, width)),
             None => lines.push(section_header_line(group, width)),
         }
         for mi in metric_indices_in_group(file, group) {
@@ -1031,7 +1064,6 @@ pub(super) fn build_benchmark_detail_lines(
                 metric_label_w,
                 &metric.label,
                 metric.kind,
-                metric.higher_is_better,
                 cell,
             );
         }
@@ -1174,31 +1206,20 @@ fn push_metric_row(
     label_w: usize,
     label: &str,
     kind: MetricKind,
-    higher_is_better: bool,
     cell: Option<&ScoreCell>,
 ) {
-    use unicode_width::UnicodeWidthStr;
+    let shown = truncate(label, label_w.saturating_sub(2).max(6));
 
-    // Reserve 2 cols inside the label column for " ↑" (space + arrow, width 1
-    // each). Truncate the label to the remainder; pad the rest after the arrow.
-    let arrow = direction_arrow(higher_is_better);
-    let avail = label_w.saturating_sub(2).max(6);
-    let shown = truncate(label, avail);
-    let shown_w = UnicodeWidthStr::width(shown.as_str());
-    // Width consumed so far inside the label column: label + 1 space + arrow(1).
-    let consumed = shown_w + 2;
-    let trailing = label_w.saturating_sub(consumed);
-
-    let mut spans = vec![
-        Span::styled(
-            format!("{:indent$}{}", "", shown, indent = indent as usize),
-            Style::default().fg(Color::Gray),
+    let mut spans = vec![Span::styled(
+        format!(
+            "{:indent$}{:<w$}",
+            "",
+            shown,
+            indent = indent as usize,
+            w = label_w
         ),
-        Span::styled(
-            format!(" {}{}", arrow, " ".repeat(trailing)),
-            Style::default().fg(Color::Cyan),
-        ),
-    ];
+        Style::default().fg(Color::Gray),
+    )];
 
     match cell {
         Some(cell) => {
@@ -1302,22 +1323,20 @@ pub(super) fn build_glossary_lines(file: &SourceFile, width: u16) -> Vec<Line<'s
         for mi in metric_indices_in_group(file, group) {
             let metric = &file.metrics[mi];
 
-            // 1. Label + dim direction arrow.
-            lines.push(Line::from(vec![
-                Span::styled(
-                    metric.label.clone(),
-                    Style::default()
-                        .fg(Color::Gray)
-                        .add_modifier(Modifier::BOLD),
-                ),
-                Span::styled(
-                    format!(" {}", direction_arrow(metric.higher_is_better)),
-                    Style::default().fg(Color::Cyan),
-                ),
-            ]));
+            // 1. Label.
+            lines.push(Line::from(Span::styled(
+                metric.label.clone(),
+                Style::default()
+                    .fg(Color::Gray)
+                    .add_modifier(Modifier::BOLD),
+            )));
 
-            // 2. Meta line: kind blurb (+ updated date when present).
-            let mut meta = kind_blurb(metric.kind).to_string();
+            // 2. Meta line: kind blurb · direction (+ updated date when present).
+            let mut meta = format!(
+                "{} \u{00B7} {}",
+                kind_blurb(metric.kind),
+                direction_blurb(metric.higher_is_better)
+            );
             if let Some(updated) = &metric.last_updated {
                 // Sources disagree on `last_updated` shape: epoch/arena emit a
                 // plain `YYYY-MM-DD`, llmstats an RFC3339 timestamp. Show only
@@ -1620,10 +1639,10 @@ mod tests {
         }
     }
 
-    // --- (1) Direction arrows in detail metric rows ---
+    // --- (1) Direction lives in section headers, not metric rows ---
 
     #[test]
-    fn detail_metric_rows_carry_direction_arrows() {
+    fn detail_metric_rows_have_no_direction_markers() {
         let file = SourceFile {
             source: meta(true),
             metrics: vec![
@@ -1662,24 +1681,33 @@ mod tests {
             .iter()
             .find(|l| line_text(l).contains("Input Price"))
             .expect("price row");
-        assert!(
-            line_text(gpqa_row).contains('\u{25B2}'),
-            "higher-is-better -> up triangle, got: {}",
-            line_text(gpqa_row)
-        );
-        assert!(
-            line_text(price_row).contains('\u{25BC}'),
-            "lower-is-better -> down triangle, got: {}",
-            line_text(price_row)
-        );
-        // Direction marker is Cyan (user feedback: less dim than DarkGray),
-        // distinct from the Gray label color.
-        let arrow_span = gpqa_row
-            .spans
+        // Per-metric markers were removed on user feedback (too distracting);
+        // direction lives in the section header suffix instead.
+        for row in [gpqa_row, price_row] {
+            let text = line_text(row);
+            assert!(
+                !text.contains('\u{25B2}') && !text.contains('\u{25BC}'),
+                "metric rows must not carry direction markers, got: {text}"
+            );
+        }
+        let academic_header = lines
             .iter()
-            .find(|s| s.content.contains('\u{25B2}'))
-            .unwrap();
-        assert_eq!(arrow_span.style.fg, Some(Color::Cyan));
+            .find(|l| line_text(l).contains("Academic"))
+            .expect("Academic header");
+        assert!(
+            line_text(academic_header).contains("higher is better"),
+            "direction in header, got: {}",
+            line_text(academic_header)
+        );
+        let pricing_header = lines
+            .iter()
+            .find(|l| line_text(l).contains("Pricing"))
+            .expect("Pricing header");
+        assert!(
+            line_text(pricing_header).contains("lower is better"),
+            "direction in header, got: {}",
+            line_text(pricing_header)
+        );
     }
 
     // --- (2) Section-header scale suffixes ---
@@ -1716,8 +1744,8 @@ mod tests {
             .find(|l| line_text(l).contains("Pricing"))
             .expect("Pricing header");
         assert!(
-            line_text(header).contains("($ per 1M tokens)"),
-            "uniform UsdPerMTok group gets the $ suffix, got: {}",
+            line_text(header).contains("($ per 1M tokens \u{00B7} lower is better)"),
+            "uniform UsdPerMTok group gets scale + direction suffix, got: {}",
             line_text(header)
         );
     }
@@ -1786,11 +1814,15 @@ mod tests {
             .join("\n");
         // Section header for the group.
         assert!(joined.contains("Academic"), "group header present");
-        // Label + up triangle (higher-is-better).
+        // Label, no direction marker glyphs.
         assert!(joined.contains("GPQA Diamond"));
-        assert!(joined.contains('\u{25B2}'));
-        // Meta line: kind blurb + updated date.
+        assert!(!joined.contains('\u{25B2}') && !joined.contains('\u{25BC}'));
+        // Meta line: kind blurb · direction + updated date.
         assert!(joined.contains("% score"), "kind blurb present: {joined}");
+        assert!(
+            joined.contains("higher is better"),
+            "direction in glossary meta: {joined}"
+        );
         assert!(
             joined.contains("updated 2026-05-28"),
             "last_updated rendered: {joined}"
