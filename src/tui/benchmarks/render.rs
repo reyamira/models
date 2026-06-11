@@ -872,13 +872,14 @@ fn group_kind_blurb(file: &SourceFile, group: &str) -> Option<&'static str> {
     }
 }
 
-/// Direction arrow appended to a metric label: `↑` when higher is better,
-/// `↓` when lower is better. Rendered dim (DarkGray) by the caller.
+/// Direction marker appended to a metric label: `▲` when higher is better,
+/// `▼` when lower is better. Filled triangles (chunkier than thin arrows) in
+/// Cyan — user feedback asked for less-dim, more visible markers.
 fn direction_arrow(higher_is_better: bool) -> &'static str {
     if higher_is_better {
-        "\u{2191}"
+        "\u{25B2}"
     } else {
-        "\u{2193}"
+        "\u{25BC}"
     }
 }
 
@@ -1010,7 +1011,9 @@ pub(super) fn build_benchmark_detail_lines(
         .max()
         .unwrap_or(8)
         .min(label_cap)
-        + 2;
+        // +2 for the " ▲" direction marker, +4 clear gutter before the score
+        // column (user feedback: values sat flush against the longest label).
+        + 6;
     for group in groups_in_order(file) {
         lines.push(Line::from(""));
         // Uniform-kind groups get a dim "(scale)" suffix on the header; mixed
@@ -1193,7 +1196,7 @@ fn push_metric_row(
         ),
         Span::styled(
             format!(" {}{}", arrow, " ".repeat(trailing)),
-            Style::default().fg(Color::DarkGray),
+            Style::default().fg(Color::Cyan),
         ),
     ];
 
@@ -1309,7 +1312,7 @@ pub(super) fn build_glossary_lines(file: &SourceFile, width: u16) -> Vec<Line<'s
                 ),
                 Span::styled(
                     format!(" {}", direction_arrow(metric.higher_is_better)),
-                    Style::default().fg(Color::DarkGray),
+                    Style::default().fg(Color::Cyan),
                 ),
             ]));
 
@@ -1660,22 +1663,23 @@ mod tests {
             .find(|l| line_text(l).contains("Input Price"))
             .expect("price row");
         assert!(
-            line_text(gpqa_row).contains('\u{2191}'),
-            "higher-is-better -> up arrow, got: {}",
+            line_text(gpqa_row).contains('\u{25B2}'),
+            "higher-is-better -> up triangle, got: {}",
             line_text(gpqa_row)
         );
         assert!(
-            line_text(price_row).contains('\u{2193}'),
-            "lower-is-better -> down arrow, got: {}",
+            line_text(price_row).contains('\u{25BC}'),
+            "lower-is-better -> down triangle, got: {}",
             line_text(price_row)
         );
-        // Arrow span is dim DarkGray, not the Gray label color.
+        // Direction marker is Cyan (user feedback: less dim than DarkGray),
+        // distinct from the Gray label color.
         let arrow_span = gpqa_row
             .spans
             .iter()
-            .find(|s| s.content.contains('\u{2191}'))
+            .find(|s| s.content.contains('\u{25B2}'))
             .unwrap();
-        assert_eq!(arrow_span.style.fg, Some(Color::DarkGray));
+        assert_eq!(arrow_span.style.fg, Some(Color::Cyan));
     }
 
     // --- (2) Section-header scale suffixes ---
@@ -1782,9 +1786,9 @@ mod tests {
             .join("\n");
         // Section header for the group.
         assert!(joined.contains("Academic"), "group header present");
-        // Label + up arrow (higher-is-better).
+        // Label + up triangle (higher-is-better).
         assert!(joined.contains("GPQA Diamond"));
-        assert!(joined.contains('\u{2191}'));
+        assert!(joined.contains('\u{25B2}'));
         // Meta line: kind blurb + updated date.
         assert!(joined.contains("% score"), "kind blurb present: {joined}");
         assert!(
