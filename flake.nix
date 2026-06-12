@@ -1,6 +1,16 @@
 {
   description = "TUI and CLI for browsing AI models, benchmarks, and coding agents";
 
+  # CI pushes builds to this cache; users who accept the prompt download
+  # prebuilt binaries instead of compiling. The key is the cache's public
+  # signing key (verification only — safe to commit).
+  nixConfig = {
+    extra-substituters = [ "https://modelsdev.cachix.org" ];
+    extra-trusted-public-keys = [
+      "modelsdev.cachix.org-1:P/sJsc6wE55M7DWEGL7SjWAxKTD8TjZMYM8Iows77Ls="
+    ];
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     crane.url = "github:ipetkov/crane";
