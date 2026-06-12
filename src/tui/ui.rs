@@ -559,6 +559,14 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
         help_line("Enter/Esc", "Exit search mode"),
         help_line("Esc", "Clear search (in normal mode)"),
         Line::from(""),
+        // Common: Mouse
+        help_section("Mouse"),
+        help_line("Click row", "Select it / focus its panel"),
+        help_line("Click panel", "Focus it"),
+        help_line("Click tab", "Switch tab"),
+        help_line("Scroll", "Scroll panel under cursor"),
+        help_line("In popups", "Scroll; click a row to select"),
+        Line::from(""),
     ];
 
     // Tab-specific sections
