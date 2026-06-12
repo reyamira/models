@@ -18,11 +18,14 @@ TUI and CLI for browsing AI models, benchmarks, coding agents, and provider stat
 - **11+ coding agents** tracked with version detection, changelogs, and GitHub integration
 - **22 provider statuses** monitored live across 7 status page platforms
 
-## What's New in v0.11.52
+## What's New in v0.12.0
 
-- **Nix flake support** — build, run, or install directly from the GitHub flake
-- **Reproducible Nix CI** — validates the flake across Linux, Linux ARM, and macOS
-- **Shell completions in Nix builds** — packaged completions are generated during the Nix build
+- **Multi-source benchmarks** — 4 switchable data sources (Artificial Analysis, Epoch AI, Arena, LLM Stats) with state-preserving switching, in-app refresh, and a benchmark glossary
+- **Column picker** — choose which metric columns are visible, persisted per source in config.toml
+- **Comparator column** — cycle field average / peer average / rank alongside every score in the detail panel
+- **Refresh keys everywhere** — refresh benchmarks, models.dev data, and agent GitHub data without restarting
+- **`default_tab` config** — launch the TUI straight into your tab of choice
+- **Prebuilt Nix binaries** — builds are pushed to a public Cachix cache; `nix run` downloads instead of compiling
 
 ## Install
 
