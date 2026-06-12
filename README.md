@@ -18,6 +18,10 @@ TUI and CLI for browsing AI models, benchmarks, coding agents, and provider stat
 - **11+ coding agents** tracked with version detection, changelogs, and GitHub integration
 - **22 provider statuses** monitored live across 7 status page platforms
 
+## What's New in v0.12.1
+
+- **Mouse support** — click a row to select it, click a panel to focus it, click a header tab to switch tabs, and scroll with the wheel. Popups (sort, columns, glossary, trackers, help) scroll and accept row clicks too.
+
 ## What's New in v0.12.0
 
 - **Multi-source benchmarks** — 4 switchable data sources (Artificial Analysis, Epoch AI, Arena, LLM Stats) with state-preserving switching, in-app refresh, and a benchmark glossary
