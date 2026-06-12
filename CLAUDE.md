@@ -60,7 +60,7 @@ Each module has its own `CLAUDE.md` with detailed documentation. Top-level highl
 
 ### GitHub Actions
 - `ci.yml` — runs on PR/push: fmt check, clippy, test
-- `build-with-nix.yml` — runs on PR/push/manual dispatch: `nix build .` then `nix flake check` across Linux, Linux ARM, and macOS. Magic Nix Cache uses GitHub Actions cache only; FlakeHub cache is disabled.
+- `build-with-nix.yml` — runs on PR/push/manual dispatch: `nix build .` then `nix flake check` across Linux, Linux ARM, and macOS. Caching is **Cachix** (public cache `modelsdev`, `cachix-action@v17`, `CACHIX_AUTH_TOKEN` repo secret; fork PRs degrade to read-only pulls) — one global pool shared by PR runs, main runs, local dev, and end users. `flake.nix` `nixConfig` advertises the substituter + public signing key so `nix run github:reyamira/models` downloads prebuilt binaries. Replaced Magic Nix Cache/GHA cache 2026-06-12 (branch-scoped, CI-only, and macOS uploads blew the 30-min timeout).
 - `release.yml` — triggered by `v*` tags: builds 5 targets in parallel with Rust caching, packages .deb/.rpm via cargo-binstall (pinned versions), generates SHA256SUMS, publishes to crates.io, and updates AUR package. Homebrew Core updates are handled in `Homebrew/homebrew-core` by Homebrew automation/maintainers, not from this repo. Pre-release tags (containing `-`) skip publish/AUR and mark the GitHub release as prerelease. Scoop Extras handles Windows updates via its own autoupdate mechanism.
 - `flakehub-publish-tagged.yml` — manual-only; dispatch with an existing `v<version>` tag if FlakeHub publishing is intentionally enabled. Do not assume GitHub flake availability requires FlakeHub.
 - `update-benchmarks.yml` — `workflow_dispatch`-only; multi-source. Checks out + builds the `transform` bin (Swatinem/rust-cache). Every trigger: AA (curl+jq → legacy `data/benchmarks.json`, plus the raw response → `transform aa` → `data/v2/aa.json`) and LLM Stats (bounded `/v1/rankings` + `/v1/models` fetch loop → `transform llmstats` → `data/v2/llmstats.json`). Twice-daily-gated (UTC hour 06/18 on the `:17` run, or `refresh_all` dispatch input): Arena (oolong-tea `latest.json` → 6 board JSONs → `transform arena`) and Epoch (epoch.ai ZIP → unzip → `transform epoch`). Each source step is `continue-on-error`; commit-if-changed covers `data/benchmarks.json` + `data/v2/`; jsDelivr purge per changed file. Triggered every 30 min (at `:17` and `:47` UTC) by the Cloudflare Worker in `infra/benchmark-trigger/` — the original GH `schedule:` cron was removed after proving unreliable under GitHub's cron throttling. `mise run refresh-sources` runs the same fetch+transform locally (`mise.toml` ↔ workflow stay in sync); `mise run refresh-benchmarks` is the legacy AA-only jq lane
@@ -88,6 +88,8 @@ Each module has its own `CLAUDE.md` with detailed documentation. Top-level highl
 - Use `line.width()` (unicode-aware) not `.len()` (byte count) when computing wrapped line heights — ratatui wraps on display width, not byte length. Word-wrapping needs +1 buffer per wrapped line since `div_ceil` underestimates
 - TLS uses `rustls-tls-native-roots` (not `rustls-tls`) — loads certificates from the OS trust store to support corporate TLS-inspecting proxies
 - Status-source quirks to preserve: Better Stack resources use `public_name`; Status.io `status_code = 400` means degraded; incident.io incidents and Instatus components need second fetches; the Google adapter is currently summary-derived rather than preserving raw incident rows
+- Nix builds compile from a **filtered fileset** (`flake.nix` `lib.fileset`), not the full checkout — tests that read committed files (e.g. the `data/v2/*.json` drift guards) pass plain CI but fail in the Nix sandbox unless their paths are in the fileset union
+- The benchmarks data bot commits to main every ~30 min — branches that touch `data/benchmarks.json` regrow merge conflicts on that file continuously; the resolution is always to take main's copy (both sides regenerate from the same API)
 
 ## Website (`website/`)
 Astro 6 + Tailwind 4 + TypeScript landing page. See `website/CLAUDE.md` for full details.
@@ -101,9 +103,10 @@ Deployed to GitHub Pages at `/models`. Uses bun, not npm.
 1. Bump version in `Cargo.toml`
 2. `mise run fmt && mise run clippy && mise run test`
 3. Commit `Cargo.toml` and `Cargo.lock` together
-4. `git tag v<version> && git push && git push --tags`
+4. `git tag v<version> && git push && git push origin v<version>` — push the release tag **explicitly**; bare `git push --tags` errors benignly here because an old local tag diverges from the remote
 5. Release workflow runs automatically: builds binaries, packages .deb/.rpm, publishes to crates.io, and updates AUR package. Homebrew Core bumps happen separately in `Homebrew/homebrew-core`.
 6. The GitHub flake is available from the pushed tag automatically (for example, `nix run github:reyamira/models/v<version>`). FlakeHub publishing is manual-only and should only be dispatched after account/org setup is intentionally enabled.
+7. Visuals pass: regenerate screenshots/GIFs against the release binary via the VHS tapes in `public/tapes/` with `PATH=$PWD/target/release:$PATH` (screenshots are committed in `public/assets/` and hot-linked by README + wiki; wiki GIFs republish via `vhs publish` + URL swap; website mp4s are ffmpeg conversions; `public/assets/wiki/` is gitignored intermediates)
 
 ## Secrets
 - `AA_API_KEY` — Artificial Analysis API key (GitHub repo secret, local `.env`)
