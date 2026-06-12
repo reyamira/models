@@ -130,12 +130,15 @@ fn draw_agent_list(f: &mut Frame, area: Rect, app: &mut App) {
         ),
     );
 
-    // Agent rows (manual highlight to preserve status dot color)
-    let selected = agents_app.agent_list_state.selected();
+    // Agent rows (manual highlight to preserve status dot color). Compare
+    // against the 0-based `selected_agent` field, not the list state's
+    // `selected()` — the state is bumped to `selected_agent + 1` below (for the
+    // header item) so its post-render `offset()` is valid for mouse hit-testing.
+    let selected_agent = agents_app.selected_agent;
 
     for (row_idx, &idx) in agents_app.filtered_entries.iter().enumerate() {
         if let Some(entry) = agents_app.entries.get(idx) {
-            let is_selected = selected == Some(row_idx);
+            let is_selected = row_idx == selected_agent;
 
             let agent_type = if entry.agent.categories.contains(&"cli".to_string()) {
                 "CLI"
@@ -188,12 +191,13 @@ fn draw_agent_list(f: &mut Frame, area: Rect, app: &mut App) {
 
     let list = List::new(items);
 
-    // Offset by 1 for header row
-    let mut state = agents_app.agent_list_state;
-    if let Some(selected) = state.selected() {
-        state.select(Some(selected + 1));
-    }
-    f.render_stateful_widget(list, chunks[1], &mut state);
+    // Cache the bare list rect (below the filter row, inside the border) for
+    // mouse hit-testing, and render into the REAL state so its post-render
+    // `offset()` (viewport-clamped) is valid. The state's selection is bumped
+    // to `selected_agent + 1` to account for the header item at index 0.
+    agents_app.agent_list_area = Some(chunks[1]);
+    agents_app.agent_list_state.select(Some(selected_agent + 1));
+    f.render_stateful_widget(list, chunks[1], &mut agents_app.agent_list_state);
 }
 
 fn draw_agent_detail(f: &mut Frame, area: Rect, app: &mut App) {
@@ -494,6 +498,8 @@ fn draw_agent_detail(f: &mut Frame, area: Rect, app: &mut App) {
     if let Some(ref mut agents_app) = app.agents_app {
         agents_app.detail_scroll = scroll_offset.get();
         agents_app.update_search_matches(match_line_indices, match_visual_offsets);
+        // Cache the detail panel's outer rect for mouse hit-testing.
+        agents_app.detail_area = Some(area);
     }
 }
 
@@ -596,4 +602,235 @@ pub(in crate::tui) fn draw_picker_modal(f: &mut Frame, app: &App) {
     list_state.select(Some(agents_app.picker_selected));
 
     f.render_stateful_widget(list, area, &mut list_state);
+}
+
+#[cfg(test)]
+mod mouse_tests {
+    //! End-to-end checks for Agents-tab mouse handling: build an `App` with a
+    //! populated `AgentsApp`, render into a `TestBackend` (which caches the panel
+    //! rects + clamps the list offset through the filter-row + header offsets),
+    //! then synthesize clicks/scroll and assert the resulting selection/focus.
+    //! Mirrors `crate::tui::models::render::mouse_tests`.
+
+    use std::collections::HashMap;
+
+    use crossterm::event::{KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
+    use ratatui::widgets::ListState;
+    use ratatui::{backend::TestBackend, Terminal};
+
+    use crate::agents::{Agent, AgentEntry, FetchStatus, GitHubData, InstalledInfo, Release};
+    use crate::data::ProvidersMap;
+    use crate::tui::agents::app::{
+        handle_agents_mouse, AgentFilters, AgentFocus, AgentSortOrder, AgentsApp,
+    };
+    use crate::tui::app::{App, Tab};
+
+    fn agent_entry(id: &str, name: &str) -> AgentEntry {
+        AgentEntry {
+            id: id.to_string(),
+            agent: Agent {
+                name: name.to_string(),
+                repo: format!("owner/{id}"),
+                categories: vec!["cli".to_string()],
+                installation_method: None,
+                pricing: None,
+                supported_providers: vec![],
+                platform_support: vec![],
+                open_source: true,
+                cli_binary: None,
+                alt_binaries: vec![],
+                version_command: vec![],
+                version_regex: None,
+                config_files: vec![],
+                homepage: None,
+                docs: None,
+            },
+            github: GitHubData {
+                releases: vec![Release {
+                    version: "1.0.0".to_string(),
+                    date: Some("2024-01-01".to_string()),
+                    changelog: None,
+                }],
+                ..GitHubData::default()
+            },
+            installed: InstalledInfo::default(),
+            tracked: true,
+            fetch_status: FetchStatus::Loaded,
+        }
+    }
+
+    /// Build an `AgentsApp` with `n` tracked entries (`a00`..), bypassing the
+    /// thread-spawning `AgentsApp::new`.
+    fn agents_app(n: usize) -> AgentsApp {
+        let entries: Vec<AgentEntry> = (0..n)
+            .map(|i| agent_entry(&format!("a{i:02}"), &format!("Agent {i:02}")))
+            .collect();
+        let mut agent_list_state = ListState::default();
+        agent_list_state.select(Some(0));
+        AgentsApp {
+            filtered_entries: (0..entries.len()).collect(),
+            entries,
+            selected_category: 0,
+            selected_agent: 0,
+            agent_list_state,
+            focus: AgentFocus::List,
+            filters: AgentFilters::default(),
+            search_query: String::new(),
+            sort_order: AgentSortOrder::Name,
+            show_picker: false,
+            picker_selected: 0,
+            picker_changes: HashMap::new(),
+            detail_scroll: 0,
+            search_match_lines: Vec::new(),
+            search_match_visual_offsets: Vec::new(),
+            current_match: 0,
+            loading_github: false,
+            pending_github_fetches: 0,
+            agent_list_area: None,
+            detail_area: None,
+        }
+    }
+
+    fn test_app(n: usize) -> App {
+        // No providers needed; the Agents tab is independent of models data.
+        let map: ProvidersMap = serde_json::from_str("{}").expect("empty providers json");
+        let mut app = App::new(map, None, None);
+        app.current_tab = Tab::Agents;
+        app.agents_app = Some(agents_app(n));
+        app
+    }
+
+    fn render(app: &mut App, w: u16, h: u16) {
+        let backend = TestBackend::new(w, h);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| crate::tui::ui::draw(f, app))
+            .expect("draw");
+    }
+
+    fn click(col: u16, row: u16) -> MouseEvent {
+        MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column: col,
+            row,
+            modifiers: KeyModifiers::NONE,
+        }
+    }
+
+    fn scroll(col: u16, row: u16, down: bool) -> MouseEvent {
+        MouseEvent {
+            kind: if down {
+                MouseEventKind::ScrollDown
+            } else {
+                MouseEventKind::ScrollUp
+            },
+            column: col,
+            row,
+            modifiers: KeyModifiers::NONE,
+        }
+    }
+
+    #[test]
+    fn click_agent_row_at_top_selects_that_agent() {
+        let mut app = test_app(8);
+        render(&mut app, 120, 40);
+        let area = app
+            .agents_app
+            .as_ref()
+            .unwrap()
+            .agent_list_area
+            .expect("agent list rect cached");
+        // Item 0 is the header at area.y; first agent is one row below.
+        handle_agents_mouse(&mut app, click(area.x + 4, area.y + 1));
+        let a = app.agents_app.as_ref().unwrap();
+        assert_eq!(a.focus, AgentFocus::List);
+        assert_eq!(a.selected_agent, 0);
+        // Click two rows below the header → agent index 2.
+        handle_agents_mouse(&mut app, click(area.x + 4, area.y + 3));
+        assert_eq!(app.agents_app.as_ref().unwrap().selected_agent, 2);
+        // Clicking the header row itself changes nothing.
+        handle_agents_mouse(&mut app, click(area.x + 4, area.y));
+        assert_eq!(app.agents_app.as_ref().unwrap().selected_agent, 2);
+    }
+
+    #[test]
+    fn click_agent_row_with_nonzero_scroll_offset() {
+        // Short viewport forces the list to scroll once selection nears the end.
+        let mut app = test_app(30);
+        // Drive selection deep so the list scrolls (header item 0 leaves view).
+        if let Some(ref mut a) = app.agents_app {
+            for _ in 0..25 {
+                a.next_agent();
+            }
+        }
+        render(&mut app, 120, 18);
+        let (area, offset) = {
+            let a = app.agents_app.as_ref().unwrap();
+            (
+                a.agent_list_area.expect("agent list rect cached"),
+                a.agent_list_state.offset(),
+            )
+        };
+        assert!(offset > 0, "list should have scrolled (offset={offset})");
+        // Click two rows below the top visible row. Top visible list-item index
+        // is `offset`; +2 rows → item `offset+2` → agent `offset+1`.
+        handle_agents_mouse(&mut app, click(area.x + 4, area.y + 2));
+        let expected = offset + 2 - 1; // -1 for the header item at index 0
+        assert_eq!(app.agents_app.as_ref().unwrap().selected_agent, expected);
+    }
+
+    #[test]
+    fn scroll_wheel_over_agent_list_focuses_and_moves() {
+        let mut app = test_app(8);
+        render(&mut app, 120, 40);
+        let area = app
+            .agents_app
+            .as_ref()
+            .unwrap()
+            .agent_list_area
+            .expect("agent list rect cached");
+        assert_eq!(app.agents_app.as_ref().unwrap().selected_agent, 0);
+        handle_agents_mouse(&mut app, scroll(area.x + 4, area.y + 5, true));
+        {
+            let a = app.agents_app.as_ref().unwrap();
+            assert_eq!(a.focus, AgentFocus::List);
+            assert_eq!(a.selected_agent, 1);
+        }
+        handle_agents_mouse(&mut app, scroll(area.x + 4, area.y + 5, false));
+        assert_eq!(app.agents_app.as_ref().unwrap().selected_agent, 0);
+    }
+
+    #[test]
+    fn click_detail_panel_focuses_details_only() {
+        let mut app = test_app(8);
+        render(&mut app, 120, 40);
+        let (area, before) = {
+            let a = app.agents_app.as_ref().unwrap();
+            (a.detail_area.expect("detail rect cached"), a.selected_agent)
+        };
+        handle_agents_mouse(&mut app, click(area.x + 2, area.y + 2));
+        let a = app.agents_app.as_ref().unwrap();
+        assert_eq!(a.focus, AgentFocus::Details);
+        assert_eq!(a.selected_agent, before); // no row selection
+    }
+
+    #[test]
+    fn scroll_wheel_over_detail_scrolls() {
+        let mut app = test_app(8);
+        render(&mut app, 120, 40);
+        let area = app
+            .agents_app
+            .as_ref()
+            .unwrap()
+            .detail_area
+            .expect("detail rect cached");
+        handle_agents_mouse(&mut app, scroll(area.x + 2, area.y + 2, true));
+        {
+            let a = app.agents_app.as_ref().unwrap();
+            assert_eq!(a.focus, AgentFocus::Details);
+            assert_eq!(a.detail_scroll, 1);
+        }
+        handle_agents_mouse(&mut app, scroll(area.x + 2, area.y + 2, false));
+        assert_eq!(app.agents_app.as_ref().unwrap().detail_scroll, 0);
+    }
 }

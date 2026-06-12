@@ -1,9 +1,12 @@
 use std::collections::HashMap;
 
+use crossterm::event::{MouseButton, MouseEventKind};
+use ratatui::layout::Rect;
 use ratatui::widgets::ListState;
 
 use crate::agents::{detect_installed, AgentEntry, AgentsFile, FetchStatus, GitHubData};
 use crate::config::Config;
+use crate::tui::mouse::{hit, row_at};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum AgentSortOrder {
@@ -103,6 +106,13 @@ pub struct AgentsApp {
     // Loading state for async GitHub fetches
     pub loading_github: bool,
     pub pending_github_fetches: usize,
+    /// Panel rects cached at render time for mouse hit-testing (see
+    /// `crate::tui::mouse`). `agent_list_area` is the bare list region below the
+    /// filter-toggle row (the header is rendered as list item 0, so `row_at`
+    /// uses `top_skip = 0` and the handler subtracts 1 for the header).
+    /// `detail_area` is the scrollable detail panel's outer rect.
+    pub agent_list_area: Option<Rect>,
+    pub detail_area: Option<Rect>,
 }
 
 impl AgentsApp {
@@ -205,6 +215,8 @@ impl AgentsApp {
             current_match: 0,
             loading_github: true,
             pending_github_fetches: pending_fetches,
+            agent_list_area: None,
+            detail_area: None,
         };
 
         app.update_filtered();
@@ -339,6 +351,17 @@ impl AgentsApp {
         if self.selected_agent > 0 {
             self.selected_agent -= 1;
             self.agent_list_state.select(Some(self.selected_agent));
+            self.detail_scroll = 0;
+        }
+    }
+
+    /// Select an agent by its index into `filtered_entries` (used by mouse
+    /// clicks). The list state stays 0-based here; `render.rs` applies the
+    /// `+1` header offset onto the real state at render time.
+    pub fn select_agent_at_index(&mut self, index: usize) {
+        if index < self.filtered_entries.len() && index != self.selected_agent {
+            self.selected_agent = index;
+            self.agent_list_state.select(Some(index));
             self.detail_scroll = 0;
         }
     }
@@ -527,6 +550,69 @@ impl AgentsApp {
     }
 }
 
+/// Handle a mouse event while the Agents tab is active.
+///
+/// All state changes (focus, selection, scroll) are applied directly to `app`,
+/// so the function returns `None`; the main loop redraws after every event. The
+/// `Option<Message>` return keeps the per-tab handler signature uniform with the
+/// other tabs' dispatchers. See `crate::tui::models::handle_models_mouse` for
+/// the reference pattern and `crate::tui::mouse` for the hit-test helpers.
+pub fn handle_agents_mouse(
+    app: &mut crate::tui::app::App,
+    ev: crossterm::event::MouseEvent,
+) -> Option<crate::tui::app::Message> {
+    let agents_app = match app.agents_app {
+        Some(ref mut a) => a,
+        None => return None,
+    };
+
+    match ev.kind {
+        MouseEventKind::Down(MouseButton::Left) => {
+            if hit(agents_app.agent_list_area, &ev) {
+                agents_app.focus = AgentFocus::List;
+                if let Some(area) = agents_app.agent_list_area {
+                    // Item 0 is the column header; agents occupy items 1..=N.
+                    if let Some(idx) = row_at(
+                        area,
+                        agents_app.agent_list_state.offset(),
+                        0,
+                        agents_app.filtered_entries.len() + 1,
+                        ev.row,
+                    ) {
+                        if let Some(agent_idx) = idx.checked_sub(1) {
+                            agents_app.select_agent_at_index(agent_idx);
+                        }
+                    }
+                }
+            } else if hit(agents_app.detail_area, &ev) {
+                agents_app.focus = AgentFocus::Details;
+            }
+        }
+        // Wheel: focus the panel under the cursor, then scroll it (reusing the
+        // same per-panel nav the arrow keys drive).
+        MouseEventKind::ScrollDown => {
+            if hit(agents_app.agent_list_area, &ev) {
+                agents_app.focus = AgentFocus::List;
+                agents_app.next_agent();
+            } else if hit(agents_app.detail_area, &ev) {
+                agents_app.focus = AgentFocus::Details;
+                agents_app.detail_scroll = agents_app.detail_scroll.saturating_add(1);
+            }
+        }
+        MouseEventKind::ScrollUp => {
+            if hit(agents_app.agent_list_area, &ev) {
+                agents_app.focus = AgentFocus::List;
+                agents_app.prev_agent();
+            } else if hit(agents_app.detail_area, &ev) {
+                agents_app.focus = AgentFocus::Details;
+                agents_app.detail_scroll = agents_app.detail_scroll.saturating_sub(1);
+            }
+        }
+        _ => {}
+    }
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -588,6 +674,8 @@ mod tests {
             current_match: 0,
             loading_github: false,
             pending_github_fetches: 0,
+            agent_list_area: None,
+            detail_area: None,
         }
     }
 

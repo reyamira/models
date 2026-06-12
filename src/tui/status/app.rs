@@ -1,6 +1,8 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::time::Instant;
 
+use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
+use ratatui::layout::Rect;
 use ratatui::widgets::ListState;
 
 use crate::config::Config;
@@ -8,6 +10,8 @@ use crate::status::{
     status_seed_for_provider, ProviderHealth, ProviderStatus, ScheduledMaintenance,
     StatusLoadState, StatusProvenance, StatusProviderSeed, STATUS_REGISTRY,
 };
+use crate::tui::app::{App, Message};
+use crate::tui::mouse::{hit, row_at};
 use crate::tui::widgets::ScrollOffset;
 
 const PAGE_SIZE: usize = 10;
@@ -59,6 +63,39 @@ pub struct StatusApp {
     pub show_picker: bool,
     pub picker_selected: usize,
     pub picker_changes: HashMap<String, bool>,
+    /// Panel rects cached at render time for mouse hit-testing (see
+    /// `crate::tui::mouse`). `provider_list_area` is the bare list-item region
+    /// (block inner, no border), so `row_at` uses `top_skip = 0`; item index
+    /// maps straight to the display index (0 = Overall). The overall/detail
+    /// sub-panel rects are the *outer* SoftCard panel rects (used with `hit()`
+    /// only — those panels have no per-row selection). They are reset to `None`
+    /// each render so a sub-panel that vanishes (e.g. maintenance) can't keep a
+    /// stale rect, and only one of the two sets is live at a time (overall vs
+    /// provider-detail view).
+    pub provider_list_area: Option<Rect>,
+    pub overall_incidents_area: Option<Rect>,
+    pub overall_degradation_area: Option<Rect>,
+    pub overall_maintenance_area: Option<Rect>,
+    pub detail_services_area: Option<Rect>,
+    pub detail_incidents_area: Option<Rect>,
+    pub detail_maintenance_area: Option<Rect>,
+}
+
+/// Sub-panel rects produced by `draw_overall_dashboard`, assigned back onto
+/// `StatusApp` by the caller (which holds the `&mut`).
+#[derive(Default)]
+pub struct OverallPanelRects {
+    pub incidents: Option<Rect>,
+    pub degradation: Option<Rect>,
+    pub maintenance: Option<Rect>,
+}
+
+/// Sub-panel rects produced by `draw_provider_status_detail`.
+#[derive(Default)]
+pub struct DetailPanelRects {
+    pub services: Option<Rect>,
+    pub incidents: Option<Rect>,
+    pub maintenance: Option<Rect>,
 }
 
 impl StatusApp {
@@ -107,6 +144,13 @@ impl StatusApp {
             show_picker: false,
             picker_selected: 0,
             picker_changes: HashMap::new(),
+            provider_list_area: None,
+            overall_incidents_area: None,
+            overall_degradation_area: None,
+            overall_maintenance_area: None,
+            detail_services_area: None,
+            detail_incidents_area: None,
+            detail_maintenance_area: None,
         };
         app.update_filtered();
         app
@@ -318,6 +362,16 @@ impl StatusApp {
         self.selected = self.selected.saturating_sub(1);
         self.list_state.select(Some(self.selected));
         self.reset_detail_scrolls();
+    }
+
+    /// Select a provider by its display index (0 = Overall, 1.. = providers).
+    /// Used by mouse clicks. Out-of-range indices are ignored.
+    pub fn select_at_index(&mut self, index: usize) {
+        if index <= self.filtered_entries.len() && index != self.selected {
+            self.selected = index;
+            self.list_state.select(Some(self.selected));
+            self.reset_detail_scrolls();
+        }
     }
 
     pub fn select_first(&mut self) {
@@ -575,6 +629,122 @@ impl StatusApp {
 
     pub fn page_scroll_active_detail_panel_down(&self) {
         self.active_detail_scroll().increment(PAGE_SIZE as u16);
+    }
+}
+
+/// Handle a mouse event while the Status tab is active.
+///
+/// All state changes (focus, selection, scroll) are applied directly to the
+/// `StatusApp`, so this returns `None`; the main loop redraws after every event.
+///
+/// Hit-testing distinguishes the two detail views by `is_overall_selected()`:
+/// when Overall (display index 0) is selected the right side renders the overall
+/// dashboard (incidents / degradation / maintenance SoftCard panels), otherwise
+/// it renders the selected provider's detail (services / incidents / maintenance
+/// panels). Only the matching rect set is consulted, and `render.rs` resets all
+/// six sub-panel rects to `None` every frame so a vanished panel never matches.
+pub fn handle_status_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
+    let s = app.status_app.as_mut()?;
+    match ev.kind {
+        MouseEventKind::Down(MouseButton::Left) => {
+            if hit(s.provider_list_area, &ev) {
+                s.focus = StatusFocus::List;
+                if let Some(area) = s.provider_list_area {
+                    // item index == display index (0 = Overall, a valid target).
+                    if let Some(idx) = row_at(
+                        area,
+                        s.list_state.offset(),
+                        0,
+                        s.filtered_entries.len() + 1,
+                        ev.row,
+                    ) {
+                        s.select_at_index(idx);
+                    }
+                }
+            } else if s.is_overall_selected() {
+                if hit(s.overall_incidents_area, &ev) {
+                    s.focus = StatusFocus::Details;
+                    s.overall_panel_focus = OverallPanelFocus::Incidents;
+                } else if hit(s.overall_degradation_area, &ev) {
+                    s.focus = StatusFocus::Details;
+                    s.overall_panel_focus = OverallPanelFocus::Degradation;
+                } else if hit(s.overall_maintenance_area, &ev) {
+                    s.focus = StatusFocus::Details;
+                    s.overall_panel_focus = OverallPanelFocus::Maintenance;
+                }
+            } else if hit(s.detail_services_area, &ev) {
+                s.focus = StatusFocus::Details;
+                s.detail_panel_focus = DetailPanelFocus::Services;
+            } else if hit(s.detail_incidents_area, &ev) {
+                s.focus = StatusFocus::Details;
+                s.detail_panel_focus = DetailPanelFocus::Incidents;
+            } else if hit(s.detail_maintenance_area, &ev) {
+                s.focus = StatusFocus::Details;
+                s.detail_panel_focus = DetailPanelFocus::Maintenance;
+            }
+        }
+        // Wheel: focus the panel under the cursor, then scroll it (reusing the
+        // same per-panel actions the arrow keys drive).
+        MouseEventKind::ScrollDown => {
+            if hit(s.provider_list_area, &ev) {
+                s.focus = StatusFocus::List;
+                s.next();
+            } else if s.is_overall_selected() {
+                if let Some(panel) = hit_overall_panel(s, &ev) {
+                    s.focus = StatusFocus::Details;
+                    s.overall_panel_focus = panel;
+                    s.scroll_active_overall_panel_down();
+                }
+            } else if let Some(panel) = hit_detail_panel(s, &ev) {
+                s.focus = StatusFocus::Details;
+                s.detail_panel_focus = panel;
+                s.scroll_active_detail_panel_down();
+            }
+        }
+        MouseEventKind::ScrollUp => {
+            if hit(s.provider_list_area, &ev) {
+                s.focus = StatusFocus::List;
+                s.prev();
+            } else if s.is_overall_selected() {
+                if let Some(panel) = hit_overall_panel(s, &ev) {
+                    s.focus = StatusFocus::Details;
+                    s.overall_panel_focus = panel;
+                    s.scroll_active_overall_panel_up();
+                }
+            } else if let Some(panel) = hit_detail_panel(s, &ev) {
+                s.focus = StatusFocus::Details;
+                s.detail_panel_focus = panel;
+                s.scroll_active_detail_panel_up();
+            }
+        }
+        _ => {}
+    }
+    None
+}
+
+/// Which overall-dashboard sub-panel (if any) the event falls inside.
+fn hit_overall_panel(s: &StatusApp, ev: &MouseEvent) -> Option<OverallPanelFocus> {
+    if hit(s.overall_incidents_area, ev) {
+        Some(OverallPanelFocus::Incidents)
+    } else if hit(s.overall_degradation_area, ev) {
+        Some(OverallPanelFocus::Degradation)
+    } else if hit(s.overall_maintenance_area, ev) {
+        Some(OverallPanelFocus::Maintenance)
+    } else {
+        None
+    }
+}
+
+/// Which provider-detail sub-panel (if any) the event falls inside.
+fn hit_detail_panel(s: &StatusApp, ev: &MouseEvent) -> Option<DetailPanelFocus> {
+    if hit(s.detail_services_area, ev) {
+        Some(DetailPanelFocus::Services)
+    } else if hit(s.detail_incidents_area, ev) {
+        Some(DetailPanelFocus::Incidents)
+    } else if hit(s.detail_maintenance_area, ev) {
+        Some(DetailPanelFocus::Maintenance)
+    } else {
+        None
     }
 }
 

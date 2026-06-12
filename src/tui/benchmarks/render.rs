@@ -70,7 +70,11 @@ pub(in crate::tui) fn draw_benchmarks_main(f: &mut Frame, area: Rect, app: &mut 
             .constraints([Constraint::Length(1), Constraint::Min(0)])
             .split(h_chunks[1]);
 
-        draw_benchmark_subtab_bar(f, v_chunks[0], &app.benchmarks_app);
+        // Cache compare-mode geometry for mouse hit-testing.
+        app.benchmarks_app.subtab_bar_area = Some(v_chunks[0]);
+        app.benchmarks_app.compare_view_area = Some(v_chunks[1]);
+
+        draw_benchmark_subtab_bar(f, v_chunks[0], app);
 
         match app.benchmarks_app.bottom_view {
             super::app::BottomView::H2H => {
@@ -96,6 +100,9 @@ pub(in crate::tui) fn draw_benchmarks_main(f: &mut Frame, area: Rect, app: &mut 
                 Constraint::Percentage(40),
             ])
             .split(area);
+
+        // Cache the detail panel's outer area for click-to-focus.
+        app.benchmarks_app.detail_area = Some(h_chunks[2]);
 
         draw_benchmark_creators(f, h_chunks[0], app);
         draw_benchmark_list(f, h_chunks[1], app);
@@ -127,31 +134,47 @@ pub(in crate::tui) fn draw_benchmarks_main(f: &mut Frame, area: Rect, app: &mut 
 /// loaded-inactive = DarkGray, loading = label + `◐` Yellow, failed = label +
 /// `✗` Red). Right-aligned for the active source: `fetched {relative}` (DarkGray)
 /// + ` self-reported` (Yellow) when the source is unverified.
-fn draw_source_bar(f: &mut Frame, area: Rect, app: &App) {
-    let bench_app = &app.benchmarks_app;
-    let active = bench_app.active_source;
+fn draw_source_bar(f: &mut Frame, area: Rect, app: &mut App) {
+    let active = app.benchmarks_app.active_source;
+
+    // Track the x-position as we build the left spans so each `[name]` label's
+    // clickable range can be recorded against the same geometry that's drawn.
+    let mut label_spans: Vec<(usize, u16, u16, u16)> = Vec::new();
+    let mut x = area.x;
+    let advance = |x: &mut u16, s: &str| {
+        *x = x.saturating_add(s.chars().count() as u16);
+    };
 
     // Left: bracketed source labels.
     let mut left_spans: Vec<Span> = vec![Span::raw(" ")];
+    advance(&mut x, " ");
     for (idx, state) in app.multi_store.sources.iter().enumerate() {
         let name = state.descriptor.name;
+        let label = format!("[{}] ", name);
+        let label_start = x;
         match &state.load {
             SourceLoad::Loading => {
                 left_spans.push(Span::styled(
-                    format!("[{}] ", name),
+                    label.clone(),
                     Style::default().fg(Color::DarkGray),
                 ));
+                advance(&mut x, &label);
+                label_spans.push((idx, label_start, x, area.y));
                 left_spans.push(Span::styled(
                     "\u{25D0} ",
                     Style::default().fg(Color::Yellow),
                 ));
+                advance(&mut x, "\u{25D0} ");
             }
             SourceLoad::Failed => {
                 left_spans.push(Span::styled(
-                    format!("[{}] ", name),
+                    label.clone(),
                     Style::default().fg(Color::DarkGray),
                 ));
+                advance(&mut x, &label);
+                label_spans.push((idx, label_start, x, area.y));
                 left_spans.push(Span::styled("\u{2717} ", Style::default().fg(Color::Red)));
+                advance(&mut x, "\u{2717} ");
             }
             SourceLoad::Loaded(_) => {
                 let style = if idx == active {
@@ -161,10 +184,13 @@ fn draw_source_bar(f: &mut Frame, area: Rect, app: &App) {
                 } else {
                     Style::default().fg(Color::DarkGray)
                 };
-                left_spans.push(Span::styled(format!("[{}] ", name), style));
+                left_spans.push(Span::styled(label.clone(), style));
+                advance(&mut x, &label);
+                label_spans.push((idx, label_start, x, area.y));
             }
         }
     }
+    app.benchmarks_app.source_label_spans = label_spans;
     // Source-switch hint, mirroring the header's `[/] switch tabs` styling.
     left_spans.push(Span::styled(
         "{ } switch source",
@@ -200,28 +226,36 @@ fn draw_source_bar(f: &mut Frame, area: Rect, app: &App) {
     }
 }
 
-fn draw_benchmark_subtab_bar(f: &mut Frame, area: Rect, bench_app: &super::app::BenchmarksApp) {
+fn draw_benchmark_subtab_bar(f: &mut Frame, area: Rect, app: &mut App) {
     use super::app::BottomView;
     let views = [
         ("H2H", BottomView::H2H),
         ("Scatter", BottomView::Scatter),
         ("Radar", BottomView::Radar),
     ];
+    let active_view = app.benchmarks_app.bottom_view;
     let mut spans = Vec::new();
+    let mut subtab_spans: Vec<(BottomView, u16, u16, u16)> = Vec::new();
+    let mut x = area.x;
     for (label, view) in &views {
-        let style = if bench_app.bottom_view == *view {
+        let text = format!(" [{}] ", label);
+        let style = if active_view == *view {
             Style::default()
                 .fg(Color::Cyan)
                 .add_modifier(Modifier::BOLD)
         } else {
             Style::default().fg(Color::DarkGray)
         };
-        spans.push(Span::styled(format!(" [{}] ", label), style));
+        let start = x;
+        x = x.saturating_add(text.chars().count() as u16);
+        subtab_spans.push((*view, start, x, area.y));
+        spans.push(Span::styled(text, style));
     }
+    app.benchmarks_app.subtab_spans = subtab_spans;
     f.render_widget(Paragraph::new(Line::from(spans)), area);
 }
 
-fn draw_benchmark_creators(f: &mut Frame, area: Rect, app: &App) {
+fn draw_benchmark_creators(f: &mut Frame, area: Rect, app: &mut App) {
     use super::app::{
         BenchmarkFocus, CreatorGrouping, CreatorListItem, CreatorRegion, CreatorType,
     };
@@ -360,8 +394,10 @@ fn draw_benchmark_creators(f: &mut Frame, area: Rect, app: &App) {
         )
         .highlight_symbol(caret);
 
-    let mut state = bench_app.creator_list_state;
-    f.render_stateful_widget(list, chunks[1], &mut state);
+    // Cache the bare list rect and render into the real state so its post-render
+    // `offset()` reflects the viewport clamp for mouse hit-testing.
+    app.benchmarks_app.creators_area = Some(chunks[1]);
+    f.render_stateful_widget(list, chunks[1], &mut app.benchmarks_app.creator_list_state);
 }
 
 /// Loading / failed / empty state lines for the active source, or `None` when a
@@ -427,7 +463,7 @@ fn list_value_header(file: Option<&SourceFile>, key: SortKey) -> String {
 }
 
 /// Compact list for compare mode: selection marker + name only, full height.
-fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &App) {
+fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &mut App) {
     use super::app::BenchmarkFocus;
 
     let is_focused = app.benchmarks_app.focus == BenchmarkFocus::List;
@@ -582,9 +618,14 @@ fn draw_benchmark_list_compact(f: &mut Frame, area: Rect, app: &App) {
         )
         .highlight_symbol("");
 
-    let mut state = bench_app.list_state;
-    state.select(Some(bench_app.selected));
-    f.render_stateful_widget(list, inner_area, &mut state);
+    // Cache the bare list rect and render into the real state so its post-render
+    // `offset()` reflects the viewport clamp for mouse hit-testing. The compact
+    // list has no header row, so the selected index maps directly.
+    app.benchmarks_app
+        .list_state
+        .select(Some(app.benchmarks_app.selected));
+    app.benchmarks_app.list_area = Some(inner_area);
+    f.render_stateful_widget(list, inner_area, &mut app.benchmarks_app.list_state);
 }
 
 /// Reasoning status indicator span (R / NR / AR / blank).
@@ -616,7 +657,7 @@ fn openness_span(
     Span::styled(label, Style::default().fg(color))
 }
 
-fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &App) {
+fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
     use super::app::BenchmarkFocus;
 
     let is_focused = app.benchmarks_app.focus == BenchmarkFocus::List;
@@ -943,10 +984,14 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &App) {
     }
 
     let list = List::new(items);
-    let mut state = bench_app.list_state;
-    // Offset by 1 for the header row
-    state.select(Some(bench_app.selected + 1));
-    f.render_stateful_widget(list, inner_area, &mut state);
+    // Offset by 1 for the header row.
+    app.benchmarks_app
+        .list_state
+        .select(Some(app.benchmarks_app.selected + 1));
+    // Cache the bare list rect and render into the real state so its post-render
+    // `offset()` reflects the viewport clamp for mouse hit-testing.
+    app.benchmarks_app.list_area = Some(inner_area);
+    f.render_stateful_widget(list, inner_area, &mut app.benchmarks_app.list_state);
 }
 
 fn draw_benchmark_detail(f: &mut Frame, area: Rect, app: &App) {
@@ -2765,5 +2810,328 @@ mod tests {
             cols.is_empty(),
             "metric visible cols dropped at width=30; got {cols:?}"
         );
+    }
+}
+
+#[cfg(test)]
+mod mouse_tests {
+    //! End-to-end checks for Benchmarks-tab mouse handling: render into a
+    //! `TestBackend` (which stores the panel rects + clamps list offsets exactly
+    //! as the real loop does), then synthesize clicks/scroll and assert the
+    //! resulting selection/focus. Mirrors `crate::tui::models::render::mouse_tests`.
+
+    use crossterm::event::{KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
+    use ratatui::{backend::TestBackend, Terminal};
+    use std::collections::BTreeMap;
+
+    use crate::benchmarks::schema::{
+        MetricDef, MetricKind, ModelRow, ReasoningStatus, ScoreCell, SourceFile, SourceMeta,
+    };
+    use crate::data::ProvidersMap;
+    use crate::tui::app::{App, Tab};
+    use crate::tui::benchmarks::{handle_benchmarks_mouse, BenchmarkFocus, BottomView};
+
+    fn metric(id: &str) -> MetricDef {
+        MetricDef {
+            id: id.into(),
+            label: id.to_uppercase(),
+            kind: MetricKind::Index,
+            group: "Indexes".into(),
+            higher_is_better: true,
+            last_updated: None,
+            description: None,
+            short_label: None,
+        }
+    }
+
+    /// `n` dated models across three creators, each with an `intelligence_index`
+    /// score so the default ReleaseDate sort keeps them all.
+    fn bench_file(n: usize) -> SourceFile {
+        let creators = ["openai", "anthropic", "meta"];
+        let models = (0..n)
+            .map(|i| {
+                let mut scores = BTreeMap::new();
+                scores.insert(
+                    "intelligence_index".to_string(),
+                    ScoreCell {
+                        value: (n - i) as f64,
+                        date: None,
+                        ci: None,
+                        votes: None,
+                    },
+                );
+                let creator = creators[i % creators.len()];
+                ModelRow {
+                    id: format!("m{i:02}"),
+                    name: format!("Model {i:02}"),
+                    display_name: format!("Model {i:02}"),
+                    creator: creator.into(),
+                    creator_name: creator.to_uppercase(),
+                    // Dates descend with i so the default sort order is m00, m01…
+                    release_date: Some(format!("2026-{:02}-01", 12 - (i % 12))),
+                    reasoning_status: ReasoningStatus::None,
+                    effort_level: None,
+                    variant_tag: None,
+                    open_weights: None,
+                    context_window: None,
+                    supports_tools: None,
+                    max_output: None,
+                    scores,
+                }
+            })
+            .collect();
+        SourceFile {
+            source: SourceMeta {
+                id: "test".into(),
+                name: "Test".into(),
+                url: "https://example.com".into(),
+                fetched_at: "2026-06-10T00:00:00+00:00".into(),
+                verified: true,
+            },
+            metrics: vec![metric("intelligence_index")],
+            models,
+        }
+    }
+
+    /// App with an empty provider map and `bench_file(n)` loaded into source 0.
+    fn test_app(n: usize) -> App {
+        let map: ProvidersMap = serde_json::from_str("{}").expect("empty providers");
+        let mut app = App::new(map, None, None);
+        app.current_tab = Tab::Benchmarks;
+        let file = bench_file(n);
+        app.multi_store.set_loaded(0, file);
+        app.benchmarks_app.active_source = 0;
+        if let Some(f) = app.multi_store.file(0) {
+            app.benchmarks_app.rebuild(f);
+        }
+        // Sort by Name so the model order is stable (m00, m01, …) regardless of
+        // the synthesized release dates.
+        app.benchmarks_app.sort_key = crate::benchmarks::multi::SortKey::Name;
+        app.benchmarks_app.sort_descending = false;
+        if let Some(f) = app.multi_store.file(0) {
+            app.benchmarks_app.update_filtered(f);
+        }
+        app
+    }
+
+    fn render(app: &mut App, w: u16, h: u16) {
+        let backend = TestBackend::new(w, h);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| crate::tui::ui::draw(f, app))
+            .expect("draw");
+    }
+
+    fn click(col: u16, row: u16) -> MouseEvent {
+        MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column: col,
+            row,
+            modifiers: KeyModifiers::NONE,
+        }
+    }
+
+    fn scroll(col: u16, row: u16, down: bool) -> MouseEvent {
+        MouseEvent {
+            kind: if down {
+                MouseEventKind::ScrollDown
+            } else {
+                MouseEventKind::ScrollUp
+            },
+            column: col,
+            row,
+            modifiers: KeyModifiers::NONE,
+        }
+    }
+
+    #[test]
+    fn click_benchmark_row_at_top_selects_that_model() {
+        let mut app = test_app(20);
+        render(&mut app, 120, 40);
+        let area = app.benchmarks_app.list_area.expect("list rect cached");
+        // Item 0 is the column header at area.y; first model is one row below.
+        handle_benchmarks_mouse(&mut app, click(area.x + 6, area.y + 1));
+        assert_eq!(app.benchmarks_app.focus, BenchmarkFocus::List);
+        assert_eq!(app.benchmarks_app.selected, 0);
+        // Two rows below the header → model index 2.
+        handle_benchmarks_mouse(&mut app, click(area.x + 6, area.y + 3));
+        assert_eq!(app.benchmarks_app.selected, 2);
+        // Clicking the header row itself selects nothing new.
+        handle_benchmarks_mouse(&mut app, click(area.x + 6, area.y));
+        assert_eq!(app.benchmarks_app.selected, 2);
+    }
+
+    #[test]
+    fn click_benchmark_row_with_nonzero_scroll_offset() {
+        // Short viewport forces the list to scroll once selection nears the end.
+        let mut app = test_app(40);
+        for _ in 0..30 {
+            app.benchmarks_app.next();
+        }
+        render(&mut app, 120, 18);
+        let area = app.benchmarks_app.list_area.expect("list rect cached");
+        let offset = app.benchmarks_app.list_state.offset();
+        assert!(offset > 0, "list should have scrolled (offset={offset})");
+        // Click two rows below the top visible row. Top visible list-item index
+        // is `offset`; +2 rows → item `offset+2` → model `offset+1` (header at 0).
+        handle_benchmarks_mouse(&mut app, click(area.x + 6, area.y + 2));
+        let expected = offset + 2 - 1;
+        assert_eq!(app.benchmarks_app.selected, expected);
+    }
+
+    #[test]
+    fn click_creator_row_selects_and_refilters() {
+        let mut app = test_app(20);
+        render(&mut app, 120, 40);
+        let area = app
+            .benchmarks_app
+            .creators_area
+            .expect("creators rect cached");
+        // Row 0 = "All"; row 1 = first real creator (alphabetical: anthropic).
+        handle_benchmarks_mouse(&mut app, click(area.x + 1, area.y + 1));
+        assert_eq!(app.benchmarks_app.focus, BenchmarkFocus::Creators);
+        assert_eq!(app.benchmarks_app.selected_creator, 1);
+        // Filtered list now restricted to that creator's models (< all 20).
+        assert!(app.benchmarks_app.filtered_indices.len() < 20);
+        assert!(!app.benchmarks_app.filtered_indices.is_empty());
+    }
+
+    #[test]
+    fn scroll_wheel_over_list_focuses_and_moves() {
+        let mut app = test_app(20);
+        render(&mut app, 120, 40);
+        let area = app.benchmarks_app.list_area.expect("list rect cached");
+        assert_eq!(app.benchmarks_app.selected, 0);
+        handle_benchmarks_mouse(&mut app, scroll(area.x + 6, area.y + 5, true));
+        assert_eq!(app.benchmarks_app.focus, BenchmarkFocus::List);
+        assert_eq!(app.benchmarks_app.selected, 1);
+        handle_benchmarks_mouse(&mut app, scroll(area.x + 6, area.y + 5, false));
+        assert_eq!(app.benchmarks_app.selected, 0);
+    }
+
+    #[test]
+    fn click_detail_panel_focuses_details_only() {
+        let mut app = test_app(20);
+        render(&mut app, 120, 40);
+        let area = app.benchmarks_app.detail_area.expect("detail rect cached");
+        let before = app.benchmarks_app.selected;
+        handle_benchmarks_mouse(&mut app, click(area.x + 2, area.y + 2));
+        assert_eq!(app.benchmarks_app.focus, BenchmarkFocus::Details);
+        assert_eq!(app.benchmarks_app.selected, before);
+    }
+
+    #[test]
+    fn source_bar_click_active_source_is_noop() {
+        let mut app = test_app(20);
+        render(&mut app, 120, 40);
+        // Click the active source's own `[name]` label → no change, no message.
+        let active = app.benchmarks_app.active_source;
+        let &(_, x0, _, row) = app
+            .benchmarks_app
+            .source_label_spans
+            .iter()
+            .find(|(idx, _, _, _)| *idx == active)
+            .expect("active source label span recorded");
+        let msg = handle_benchmarks_mouse(&mut app, click(x0, row));
+        assert!(
+            msg.is_none(),
+            "handler applies switches directly, returns None"
+        );
+        assert_eq!(
+            app.benchmarks_app.active_source, active,
+            "clicking the active source is a no-op"
+        );
+    }
+
+    #[test]
+    fn source_bar_click_lands_on_nonadjacent_source_in_one_click() {
+        // Load the same file into two non-adjacent slots (0 and 2) so a single
+        // click on slot 2's label must land exactly there — switch_to_data_source
+        // targets the index directly, not a one-step cycle.
+        let map: ProvidersMap = serde_json::from_str("{}").expect("empty providers");
+        let mut app = App::new(map, None, None);
+        app.current_tab = Tab::Benchmarks;
+        assert!(
+            app.multi_store.sources.len() >= 3,
+            "registry must have ≥3 sources for a non-adjacent click"
+        );
+        app.multi_store.set_loaded(0, bench_file(20));
+        app.multi_store.set_loaded(2, bench_file(20));
+        app.benchmarks_app.active_source = 0;
+        if let Some(f) = app.multi_store.file(0) {
+            app.benchmarks_app.rebuild(f);
+        }
+        render(&mut app, 120, 40);
+        let &(_, x0, _, row) = app
+            .benchmarks_app
+            .source_label_spans
+            .iter()
+            .find(|(idx, _, _, _)| *idx == 2)
+            .expect("source 2 label span recorded");
+        let msg = handle_benchmarks_mouse(&mut app, click(x0, row));
+        assert!(msg.is_none());
+        assert_eq!(
+            app.benchmarks_app.active_source, 2,
+            "single click lands exactly on the clicked (non-adjacent) source"
+        );
+    }
+
+    #[test]
+    fn compare_subtab_click_switches_view() {
+        let mut app = test_app(20);
+        // Enter compare mode by selecting two models.
+        app.toggle_selection(app.benchmarks_app.filtered_indices[0]);
+        app.toggle_selection(app.benchmarks_app.filtered_indices[1]);
+        app.benchmarks_app.update_bottom_view(app.selections.len());
+        assert_eq!(app.selections.len(), 2);
+        render(&mut app, 120, 40);
+        // Default compare view is H2H. Click the [Scatter] subtab.
+        let &(_, x0, _, row) = app
+            .benchmarks_app
+            .subtab_spans
+            .iter()
+            .find(|(v, _, _, _)| *v == BottomView::Scatter)
+            .expect("scatter subtab span");
+        handle_benchmarks_mouse(&mut app, click(x0, row));
+        assert_eq!(app.benchmarks_app.bottom_view, BottomView::Scatter);
+        assert_eq!(app.benchmarks_app.focus, BenchmarkFocus::Compare);
+    }
+
+    #[test]
+    fn compare_click_compact_list_selects_model() {
+        let mut app = test_app(20);
+        app.toggle_selection(app.benchmarks_app.filtered_indices[0]);
+        app.toggle_selection(app.benchmarks_app.filtered_indices[1]);
+        app.benchmarks_app.update_bottom_view(app.selections.len());
+        render(&mut app, 120, 40);
+        let area = app.benchmarks_app.list_area.expect("compact list cached");
+        // Compact list has NO header row: row 0 = model 0, row 2 = model 2.
+        handle_benchmarks_mouse(&mut app, click(area.x + 4, area.y + 2));
+        assert_eq!(app.benchmarks_app.focus, BenchmarkFocus::List);
+        assert_eq!(app.benchmarks_app.selected, 2);
+    }
+
+    #[test]
+    fn compare_wheel_over_h2h_scrolls() {
+        let mut app = test_app(20);
+        app.toggle_selection(app.benchmarks_app.filtered_indices[0]);
+        app.toggle_selection(app.benchmarks_app.filtered_indices[1]);
+        app.benchmarks_app.update_bottom_view(app.selections.len());
+        render(&mut app, 120, 40);
+        let area = app
+            .benchmarks_app
+            .compare_view_area
+            .expect("compare view cached");
+        assert_eq!(app.benchmarks_app.h2h_scroll.get(), 0);
+        handle_benchmarks_mouse(&mut app, scroll(area.x + 4, area.y + 3, true));
+        assert_eq!(app.benchmarks_app.focus, BenchmarkFocus::Compare);
+        assert_eq!(app.benchmarks_app.h2h_scroll.get(), 1);
+    }
+
+    #[test]
+    fn header_click_switches_tab() {
+        // The shared header tab bar is handled by the dispatcher, not this tab's
+        // handler, but assert the geometry helper still resolves the label.
+        assert!(matches!(crate::tui::ui::tab_at(11, 0), Some(Tab::Agents)));
     }
 }

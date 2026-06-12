@@ -86,7 +86,7 @@ fn provider_detail_lines(app: &App) -> Vec<Line<'static>> {
     lines
 }
 
-fn draw_right_panel(f: &mut Frame, area: Rect, app: &App) {
+fn draw_right_panel(f: &mut Frame, area: Rect, app: &mut App) {
     let lines = provider_detail_lines(app);
 
     // Compute visual height: sum of wrapped line heights + 2 for borders.
@@ -116,6 +116,10 @@ fn draw_right_panel(f: &mut Frame, area: Rect, app: &App) {
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(provider_h), Constraint::Min(0)])
         .split(area);
+
+    // Cache rects for mouse hit-testing (provider card focuses Details too).
+    app.models_app.provider_card_area = Some(chunks[0]);
+    app.models_app.model_detail_area = Some(chunks[1]);
 
     draw_provider_detail(f, chunks[0], lines);
     draw_model_detail(f, chunks[1], app);
@@ -233,6 +237,8 @@ fn draw_providers(f: &mut Frame, area: Rect, app: &mut App) {
         )
         .highlight_symbol(caret);
 
+    // Cache the bare list rect (no border, no filter row) for mouse hit-testing.
+    app.models_app.provider_list_area = Some(chunks[1]);
     f.render_stateful_widget(list, chunks[1], &mut app.models_app.provider_list_state);
 }
 
@@ -431,8 +437,10 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
     }
 
     let list = List::new(items);
-    let mut state = app.models_app.model_list_state;
-    f.render_stateful_widget(list, inner_area, &mut state);
+    // Cache the list rect and render into the real state so its post-render
+    // `offset()` (clamped to the viewport) is available for mouse hit-testing.
+    app.models_app.model_list_area = Some(inner_area);
+    f.render_stateful_widget(list, inner_area, &mut app.models_app.model_list_state);
 }
 
 fn draw_provider_detail(f: &mut Frame, area: Rect, lines: Vec<Line<'static>>) {
@@ -797,4 +805,156 @@ pub(super) fn format_filters(filters: &Filters, category: ProviderCategory) -> S
         active.push(category.label());
     }
     active.join(", ")
+}
+
+#[cfg(test)]
+mod mouse_tests {
+    //! End-to-end checks for Models-tab mouse handling: render into a
+    //! `TestBackend` (which stores the panel rects + clamps list offsets exactly
+    //! as the real loop does), then synthesize clicks/scroll and assert the
+    //! resulting selection/focus. This is the integration template the
+    //! Benchmarks/Agents/Status tabs follow for their own handlers.
+
+    use crossterm::event::{KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
+    use ratatui::{backend::TestBackend, Terminal};
+
+    use crate::data::ProvidersMap;
+    use crate::tui::app::{App, Tab};
+    use crate::tui::models::{handle_models_mouse, Focus};
+
+    /// Two providers; `alpha` has 30 dateless models `m00`..`m29` (so they sort
+    /// by id ascending), `beta` has one.
+    fn test_app() -> App {
+        let mut models = String::new();
+        for i in 0..30 {
+            models.push_str(&format!(
+                r#""m{i:02}": {{ "id": "m{i:02}", "name": "Model {i:02}" }}{}"#,
+                if i < 29 { "," } else { "" }
+            ));
+        }
+        let json = format!(
+            r#"{{
+                "alpha": {{ "id": "alpha", "name": "Alpha", "models": {{ {models} }} }},
+                "beta":  {{ "id": "beta",  "name": "Beta",  "models": {{ "b0": {{ "id": "b0", "name": "B0" }} }} }}
+            }}"#
+        );
+        let map: ProvidersMap = serde_json::from_str(&json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+        app.current_tab = Tab::Models;
+        app
+    }
+
+    fn render(app: &mut App, w: u16, h: u16) {
+        let backend = TestBackend::new(w, h);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| crate::tui::ui::draw(f, app))
+            .expect("draw");
+    }
+
+    fn click(col: u16, row: u16) -> MouseEvent {
+        MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column: col,
+            row,
+            modifiers: KeyModifiers::NONE,
+        }
+    }
+
+    fn scroll(col: u16, row: u16, down: bool) -> MouseEvent {
+        MouseEvent {
+            kind: if down {
+                MouseEventKind::ScrollDown
+            } else {
+                MouseEventKind::ScrollUp
+            },
+            column: col,
+            row,
+            modifiers: KeyModifiers::NONE,
+        }
+    }
+
+    #[test]
+    fn click_provider_row_selects_and_focuses() {
+        let mut app = test_app();
+        render(&mut app, 120, 40);
+        let area = app
+            .models_app
+            .provider_list_area
+            .expect("provider rect cached");
+        // Row 0 of the list = "All"; row 1 = first real provider (alpha).
+        handle_models_mouse(&mut app, click(area.x + 1, area.y + 1));
+        assert_eq!(app.models_app.focus, Focus::Providers);
+        assert_eq!(app.models_app.selected_provider, 1); // index 0 is "All"
+    }
+
+    #[test]
+    fn click_model_row_at_top_selects_that_model() {
+        let mut app = test_app();
+        render(&mut app, 120, 40);
+        let area = app.models_app.model_list_area.expect("model rect cached");
+        // Item 0 is the column header at area.y; first model is one row below.
+        handle_models_mouse(&mut app, click(area.x + 6, area.y + 1));
+        assert_eq!(app.models_app.focus, Focus::Models);
+        assert_eq!(app.models_app.selected_model, 0);
+        // Clicking the header row itself selects nothing new.
+        handle_models_mouse(&mut app, click(area.x + 6, area.y + 3));
+        assert_eq!(app.models_app.selected_model, 2);
+        handle_models_mouse(&mut app, click(area.x + 6, area.y)); // header
+        assert_eq!(app.models_app.selected_model, 2); // unchanged
+    }
+
+    #[test]
+    fn click_model_row_with_nonzero_scroll_offset() {
+        // Short viewport forces the list to scroll once selection nears the end.
+        let mut app = test_app();
+        // Drive selection deep so the model list scrolls (header item 0 leaves view).
+        for _ in 0..25 {
+            app.models_app.next_model();
+        }
+        render(&mut app, 120, 20);
+        let area = app.models_app.model_list_area.expect("model rect cached");
+        let offset = app.models_app.model_list_state.offset();
+        assert!(offset > 0, "list should have scrolled (offset={offset})");
+        // Click two rows below the top visible row. Top visible list-item index is
+        // `offset`; +2 rows → item `offset+2` → model `offset+1`.
+        handle_models_mouse(&mut app, click(area.x + 6, area.y + 2));
+        let expected_model = offset + 2 - 1; // -1 for the header item at index 0
+        assert_eq!(app.models_app.selected_model, expected_model);
+    }
+
+    #[test]
+    fn scroll_wheel_over_model_list_focuses_and_moves() {
+        let mut app = test_app();
+        render(&mut app, 120, 40);
+        let area = app.models_app.model_list_area.expect("model rect cached");
+        assert_eq!(app.models_app.selected_model, 0);
+        handle_models_mouse(&mut app, scroll(area.x + 6, area.y + 5, true));
+        assert_eq!(app.models_app.focus, Focus::Models);
+        assert_eq!(app.models_app.selected_model, 1); // moved down one
+        handle_models_mouse(&mut app, scroll(area.x + 6, area.y + 5, false));
+        assert_eq!(app.models_app.selected_model, 0); // moved back up
+    }
+
+    #[test]
+    fn click_detail_panel_focuses_details_only() {
+        let mut app = test_app();
+        render(&mut app, 120, 40);
+        let area = app
+            .models_app
+            .model_detail_area
+            .expect("detail rect cached");
+        let before = app.models_app.selected_model;
+        handle_models_mouse(&mut app, click(area.x + 2, area.y + 2));
+        assert_eq!(app.models_app.focus, Focus::Details);
+        assert_eq!(app.models_app.selected_model, before); // no row selection
+    }
+
+    #[test]
+    fn header_click_switches_tab() {
+        let mut app = test_app();
+        render(&mut app, 120, 40);
+        // "Agents" label sits at x 10..16 on the header row (row 0).
+        assert!(matches!(crate::tui::ui::tab_at(11, 0), Some(Tab::Agents)));
+    }
 }

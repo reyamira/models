@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
+use ratatui::layout::Rect;
 use ratatui::style::Color;
 use ratatui::widgets::ListState;
 
@@ -451,6 +452,28 @@ pub struct BenchmarksApp {
     /// Pending working set for the column picker: indices that are toggled on.
     /// Applying this to `visible_columns` happens on Enter; Esc discards it.
     pub column_picker_pending: Vec<usize>,
+
+    // --- Mouse hit-test geometry (cached at render time; see crate::tui::mouse) ---
+    /// Bare creator-list item region (no border, no filter row). Browse mode, and
+    /// compare mode when `show_creators_in_compare`. `top_skip = 0`.
+    pub creators_area: Option<Rect>,
+    /// Bare benchmark-list item region (no border). In browse mode item 0 is the
+    /// column header; the compact compare list has no header. `top_skip = 0`.
+    pub list_area: Option<Rect>,
+    /// Detail `ScrollablePanel` outer area (browse mode). Click → focus Details.
+    pub detail_area: Option<Rect>,
+    /// Compare-mode subtab bar row (` [H2H]  [Scatter]  [Radar] `).
+    pub subtab_bar_area: Option<Rect>,
+    /// Compare-mode active-view area (H2H / Scatter / Radar). Click/scroll →
+    /// focus Compare (+ scroll the H2H table when that view is active).
+    pub compare_view_area: Option<Rect>,
+    /// Per-source clickable label x-ranges in the source bar: `(source_idx,
+    /// x_start, x_end_exclusive, row)`. Built at render so the handler clicks the
+    /// same geometry that was drawn.
+    pub source_label_spans: Vec<(usize, u16, u16, u16)>,
+    /// Compare-mode subtab clickable x-ranges: `(view, x_start, x_end_exclusive,
+    /// row)`.
+    pub subtab_spans: Vec<(BottomView, u16, u16, u16)>,
 }
 
 impl BenchmarksApp {
@@ -501,6 +524,13 @@ impl BenchmarksApp {
             show_column_picker: false,
             column_picker_selected: 0,
             column_picker_pending: Vec::new(),
+            creators_area: None,
+            list_area: None,
+            detail_area: None,
+            subtab_bar_area: None,
+            compare_view_area: None,
+            source_label_spans: Vec::new(),
+            subtab_spans: Vec::new(),
         };
 
         if let Some(file) = file {
@@ -1176,6 +1206,15 @@ impl BenchmarksApp {
         }
     }
 
+    /// Select a benchmark by its index into `filtered_indices` (mouse clicks).
+    pub fn select_benchmark_at_index(&mut self, index: usize) {
+        if index < self.filtered_indices.len() && index != self.selected {
+            self.selected = index;
+            self.list_state.select(Some(self.selected));
+            self.reset_detail_scroll();
+        }
+    }
+
     pub fn page_down(&mut self) {
         let last_index = self.filtered_indices.len().saturating_sub(1);
         self.selected = (self.selected + PAGE_SIZE).min(last_index);
@@ -1249,6 +1288,19 @@ impl BenchmarksApp {
         }
         self.selected_creator = idx;
         self.creator_list_state.select(Some(idx));
+    }
+
+    /// Select a creator by its index into `creator_list_items` (mouse clicks).
+    /// No-op on a non-selectable group header. The caller re-filters afterward
+    /// (`update_filtered`) so the benchmark list reflects the new creator.
+    pub fn select_creator_at_index(&mut self, index: usize) {
+        if index < self.creator_list_items.len()
+            && !self.is_header(index)
+            && index != self.selected_creator
+        {
+            self.selected_creator = index;
+            self.creator_list_state.select(Some(index));
+        }
     }
 
     pub fn next_creator(&mut self) {
@@ -1527,6 +1579,189 @@ impl BenchmarksApp {
             }
         }
         cols
+    }
+}
+
+/// Handle a mouse event while the Benchmarks tab is active.
+///
+/// All state changes (focus, selection, scroll, subtab switch, data-source
+/// switch) are applied directly to `app`, so the function always returns `None`;
+/// the main loop redraws after every event. A source-bar `[name]` click calls
+/// `App::switch_to_data_source`, which runs the same full switch the `{`/`}`
+/// keys do (selection remap + column-config restore), landing exactly on the
+/// clicked source in one click.
+pub fn handle_benchmarks_mouse(
+    app: &mut crate::tui::app::App,
+    ev: crossterm::event::MouseEvent,
+) -> Option<crate::tui::app::Message> {
+    use crate::tui::mouse::hit;
+    use crossterm::event::{MouseButton, MouseEventKind};
+
+    let in_compare = app.selections.len() >= 2;
+    let show_creators = app.benchmarks_app.show_creators_in_compare;
+
+    match ev.kind {
+        MouseEventKind::Down(MouseButton::Left) => {
+            // Source bar: click a `[name]` label to switch directly to that
+            // source. `App::switch_to_data_source` runs the full keyboard-path
+            // switch (reset_for_source + selection remap + bottom-view update +
+            // Compare-focus demotion + column-config restore) and no-ops when the
+            // target is already active or out of range — so a single click lands
+            // exactly on the clicked source.
+            let clicked_source = app
+                .benchmarks_app
+                .source_label_spans
+                .iter()
+                .find(|&&(_, x0, x1, row)| ev.row == row && ev.column >= x0 && ev.column < x1)
+                .map(|&(idx, _, _, _)| idx);
+            if let Some(idx) = clicked_source {
+                app.switch_to_data_source(idx);
+                return None;
+            }
+
+            if in_compare {
+                // Compare-mode subtab bar: click [H2H]/[Scatter]/[Radar].
+                for &(view, x0, x1, row) in &app.benchmarks_app.subtab_spans {
+                    if ev.row == row && ev.column >= x0 && ev.column < x1 {
+                        app.benchmarks_app.focus = BenchmarkFocus::Compare;
+                        app.benchmarks_app.bottom_view = view;
+                        app.benchmarks_app.h2h_scroll.jump_top();
+                        return None;
+                    }
+                }
+
+                // Left panel in compare mode: creators (if toggled) or the
+                // compact model list.
+                if show_creators && hit(app.benchmarks_app.creators_area, &ev) {
+                    click_creator(app, ev.row);
+                } else if !show_creators && hit(app.benchmarks_app.list_area, &ev) {
+                    click_benchmark(app, ev.row, false);
+                } else if hit(app.benchmarks_app.compare_view_area, &ev) {
+                    app.benchmarks_app.focus = BenchmarkFocus::Compare;
+                }
+            } else {
+                // Browse mode: creators | list | detail.
+                if hit(app.benchmarks_app.creators_area, &ev) {
+                    click_creator(app, ev.row);
+                } else if hit(app.benchmarks_app.list_area, &ev) {
+                    click_benchmark(app, ev.row, true);
+                } else if hit(app.benchmarks_app.detail_area, &ev) {
+                    app.benchmarks_app.focus = BenchmarkFocus::Details;
+                }
+            }
+        }
+        // Wheel: focus the panel under the cursor, then scroll it with the same
+        // per-panel nav the arrow keys drive.
+        MouseEventKind::ScrollDown => {
+            wheel(app, &ev, true, in_compare, show_creators);
+        }
+        MouseEventKind::ScrollUp => {
+            wheel(app, &ev, false, in_compare, show_creators);
+        }
+        _ => {}
+    }
+
+    None
+}
+
+/// Resolve a creator-list click to an item index, select it (skipping headers),
+/// and re-filter the model list. Focuses the Creators panel.
+fn click_creator(app: &mut crate::tui::app::App, click_row: u16) {
+    use crate::tui::mouse::row_at;
+    app.benchmarks_app.focus = BenchmarkFocus::Creators;
+    let Some(area) = app.benchmarks_app.creators_area else {
+        return;
+    };
+    if let Some(idx) = row_at(
+        area,
+        app.benchmarks_app.creator_list_state.offset(),
+        0,
+        app.benchmarks_app.creator_list_items.len(),
+        click_row,
+    ) {
+        app.benchmarks_app.select_creator_at_index(idx);
+        if let Some(file) = app.multi_store.file(app.benchmarks_app.active_source) {
+            app.benchmarks_app.update_filtered(file);
+        }
+    }
+}
+
+/// Resolve a benchmark-list click to a model index and select it. Focuses the
+/// List panel. `has_header` is true for the browse-mode list (item 0 is the
+/// column header); the compact compare list has no header row.
+fn click_benchmark(app: &mut crate::tui::app::App, click_row: u16, has_header: bool) {
+    use crate::tui::mouse::row_at;
+    app.benchmarks_app.focus = BenchmarkFocus::List;
+    let Some(area) = app.benchmarks_app.list_area else {
+        return;
+    };
+    let item_count = app.benchmarks_app.filtered_indices.len() + usize::from(has_header);
+    if let Some(idx) = row_at(
+        area,
+        app.benchmarks_app.list_state.offset(),
+        0,
+        item_count,
+        click_row,
+    ) {
+        let model_idx = if has_header {
+            match idx.checked_sub(1) {
+                Some(m) => m,
+                None => return, // header row click selects nothing
+            }
+        } else {
+            idx
+        };
+        app.benchmarks_app.select_benchmark_at_index(model_idx);
+    }
+}
+
+/// Wheel handler: focus the panel under the cursor, then move/scroll it.
+fn wheel(
+    app: &mut crate::tui::app::App,
+    ev: &crossterm::event::MouseEvent,
+    down: bool,
+    in_compare: bool,
+    show_creators: bool,
+) {
+    use crate::tui::mouse::hit;
+
+    let creators_hit = (!in_compare || show_creators) && hit(app.benchmarks_app.creators_area, ev);
+    let list_hit = (!in_compare || !show_creators) && hit(app.benchmarks_app.list_area, ev);
+
+    if creators_hit {
+        app.benchmarks_app.focus = BenchmarkFocus::Creators;
+        if down {
+            app.benchmarks_app.next_creator();
+        } else {
+            app.benchmarks_app.prev_creator();
+        }
+        if let Some(file) = app.multi_store.file(app.benchmarks_app.active_source) {
+            app.benchmarks_app.update_filtered(file);
+        }
+    } else if list_hit {
+        app.benchmarks_app.focus = BenchmarkFocus::List;
+        if down {
+            app.benchmarks_app.next();
+        } else {
+            app.benchmarks_app.prev();
+        }
+    } else if !in_compare && hit(app.benchmarks_app.detail_area, ev) {
+        app.benchmarks_app.focus = BenchmarkFocus::Details;
+        if down {
+            app.benchmarks_app.detail_scroll.increment(1);
+        } else {
+            app.benchmarks_app.detail_scroll.decrement(1);
+        }
+    } else if in_compare && hit(app.benchmarks_app.compare_view_area, ev) {
+        app.benchmarks_app.focus = BenchmarkFocus::Compare;
+        // Only the H2H view scrolls (scatter/radar are static charts).
+        if app.benchmarks_app.bottom_view == BottomView::H2H {
+            if down {
+                app.benchmarks_app.scroll_h2h_down();
+            } else {
+                app.benchmarks_app.scroll_h2h_up();
+            }
+        }
     }
 }
 

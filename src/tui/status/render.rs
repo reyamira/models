@@ -465,6 +465,16 @@ pub(in crate::tui) fn draw_status_main(f: &mut Frame, area: Rect, app: &mut App)
         return;
     };
 
+    // Reset sub-panel hit-test rects each frame: only one detail view (overall
+    // dashboard vs provider detail) is live at a time, and a sub-panel that
+    // disappears (e.g. maintenance) must not keep a stale rect.
+    status_app.overall_incidents_area = None;
+    status_app.overall_degradation_area = None;
+    status_app.overall_maintenance_area = None;
+    status_app.detail_services_area = None;
+    status_app.detail_incidents_area = None;
+    status_app.detail_maintenance_area = None;
+
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Length(32), Constraint::Min(0)])
@@ -544,19 +554,26 @@ pub(in crate::tui) fn draw_status_main(f: &mut Frame, area: Rect, app: &mut App)
         }
     }
 
-    let list = List::new(items).block(
-        Block::default()
-            .borders(Borders::ALL)
-            .border_style(list_border)
-            .title(title),
-    );
+    // Build the block first so we can cache its bare inner rect (no border) for
+    // mouse hit-testing — `row_at` then uses `top_skip = 0`.
+    let list_block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(list_border)
+        .title(title);
+    status_app.provider_list_area = Some(list_block.inner(chunks[0]));
+    let list = List::new(items).block(list_block);
     f.render_stateful_widget(list, chunks[0], &mut status_app.list_state);
 
-    // Detail area: dispatch based on selection
+    // Detail area: dispatch based on selection. Both branches produce sub-panel
+    // rects; they're captured into locals here and written onto `status_app`
+    // after the borrow ends (the detail branch holds an immutable borrow of
+    // `status_app` for the whole `else if` block).
     let detail_area = chunks[1];
+    let mut overall_rects = super::app::OverallPanelRects::default();
+    let mut detail_rects = super::app::DetailPanelRects::default();
 
     if status_app.is_overall_selected() {
-        super::overall::draw_overall_dashboard(
+        overall_rects = super::overall::draw_overall_dashboard(
             f,
             detail_area,
             status_app,
@@ -587,7 +604,7 @@ pub(in crate::tui) fn draw_status_main(f: &mut Frame, area: Rect, app: &mut App)
 
         let status_note = entry.status_note_text().map(str::to_string);
 
-        super::detail::draw_provider_status_detail(
+        detail_rects = super::detail::draw_provider_status_detail(
             f,
             detail_area,
             &display_name,
@@ -631,6 +648,16 @@ pub(in crate::tui) fn draw_status_main(f: &mut Frame, area: Rect, app: &mut App)
         );
         f.render_widget(paragraph, detail_area);
     }
+
+    // Commit the captured sub-panel rects now that the detail-branch borrow of
+    // `status_app` has ended. Whichever view didn't render leaves its bundle at
+    // the `None` defaults, matching the reset at the top of this frame.
+    status_app.overall_incidents_area = overall_rects.incidents;
+    status_app.overall_degradation_area = overall_rects.degradation;
+    status_app.overall_maintenance_area = overall_rects.maintenance;
+    status_app.detail_services_area = detail_rects.services;
+    status_app.detail_incidents_area = detail_rects.incidents;
+    status_app.detail_maintenance_area = detail_rects.maintenance;
 
     // Render picker modal overlay if active
     if app
@@ -758,7 +785,7 @@ mod tests {
         app
     }
 
-    fn sample_provider_status() -> ProviderStatus {
+    pub(super) fn sample_provider_status() -> ProviderStatus {
         ProviderStatus {
             slug: "openai".to_string(),
             display_name: "OpenAI".to_string(),
@@ -1056,5 +1083,231 @@ mod tests {
 
         assert!(rendered.contains("Latest Update"));
         assert!(rendered.contains("- This is a long update message"));
+    }
+}
+
+#[cfg(test)]
+mod mouse_tests {
+    //! End-to-end checks for Status-tab mouse handling: render into a
+    //! `TestBackend` (which stores the panel rects + clamps the list offset
+    //! exactly as the real loop does), then synthesize clicks/scroll and assert
+    //! the resulting selection / panel focus. Mirrors the Models-tab template.
+
+    use std::{collections::HashMap, time::Instant};
+
+    use crossterm::event::{KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
+    use ratatui::{backend::TestBackend, Terminal};
+
+    use super::tests::sample_provider_status;
+    use crate::status::{ProviderHealth, ProviderStatus, StatusLoadState, StatusProvenance};
+    use crate::tui::app::{App, Tab};
+    use crate::tui::status::{
+        handle_status_mouse, DetailPanelFocus, OverallPanelFocus, StatusApp, StatusFocus,
+    };
+
+    /// A minimal Loaded provider with the given slug/name and no incidents,
+    /// components, or maintenance — used to pad the provider list so it scrolls.
+    fn plain_provider(slug: &str, name: &str) -> ProviderStatus {
+        let mut entry = sample_provider_status();
+        entry.slug = slug.to_string();
+        entry.display_name = name.to_string();
+        entry.source_slug = slug.to_string();
+        entry.health = ProviderHealth::Operational;
+        entry.provenance = StatusProvenance::Official;
+        entry.load_state = StatusLoadState::Loaded;
+        entry.components.clear();
+        entry.incidents.clear();
+        entry.scheduled_maintenances.clear();
+        entry
+    }
+
+    /// Build a Status App from an explicit list of entries, all tracked,
+    /// selecting `selected` (display index; 0 = Overall).
+    fn app_with(entries: Vec<ProviderStatus>, selected: usize) -> App {
+        let mut app = App::new(HashMap::new(), None, None);
+        app.current_tab = Tab::Status;
+        let s = app.status_app.as_mut().expect("status app");
+        s.tracked = entries.iter().map(|e| e.slug.clone()).collect();
+        s.entries = entries;
+        s.loading = false;
+        s.last_refreshed = Some(Instant::now());
+        s.update_filtered();
+        s.selected = selected;
+        s.list_state.select(Some(selected));
+        app
+    }
+
+    fn render(app: &mut App, w: u16, h: u16) {
+        let backend = TestBackend::new(w, h);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| super::draw_status_main(f, f.area(), app))
+            .expect("draw");
+    }
+
+    fn status(app: &App) -> &StatusApp {
+        app.status_app.as_ref().expect("status app")
+    }
+
+    fn click(col: u16, row: u16) -> MouseEvent {
+        MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column: col,
+            row,
+            modifiers: KeyModifiers::NONE,
+        }
+    }
+
+    fn scroll(col: u16, row: u16, down: bool) -> MouseEvent {
+        MouseEvent {
+            kind: if down {
+                MouseEventKind::ScrollDown
+            } else {
+                MouseEventKind::ScrollUp
+            },
+            column: col,
+            row,
+            modifiers: KeyModifiers::NONE,
+        }
+    }
+
+    #[test]
+    fn click_overall_row_selects_overall() {
+        // Start on a provider (display index 1), then click the "Overall" row.
+        let mut app = app_with(vec![sample_provider_status()], 1);
+        render(&mut app, 140, 40);
+        let area = status(&app).provider_list_area.expect("list rect cached");
+        // Row 0 of the bare item region = "Overall".
+        handle_status_mouse(&mut app, click(area.x + 1, area.y));
+        assert_eq!(status(&app).focus, StatusFocus::List);
+        assert!(status(&app).is_overall_selected());
+        assert_eq!(status(&app).selected, 0);
+    }
+
+    #[test]
+    fn click_provider_row_selects_that_provider() {
+        // Two providers: list rows are Overall(0), alpha(1), beta(2).
+        let entries = vec![
+            plain_provider("alpha", "Alpha"),
+            plain_provider("beta", "Beta"),
+        ];
+        let mut app = app_with(entries, 0); // start on Overall
+        render(&mut app, 140, 40);
+        let area = status(&app).provider_list_area.expect("list rect cached");
+        // Click the second provider row (display index 2).
+        handle_status_mouse(&mut app, click(area.x + 1, area.y + 2));
+        assert_eq!(status(&app).focus, StatusFocus::List);
+        assert_eq!(status(&app).selected, 2);
+        assert!(!status(&app).is_overall_selected());
+    }
+
+    #[test]
+    fn click_provider_row_with_nonzero_scroll_offset() {
+        // Many providers + short viewport forces the list to scroll once the
+        // selection nears the end.
+        let entries: Vec<_> = (0..30)
+            .map(|i| plain_provider(&format!("p{i:02}"), &format!("Provider {i:02}")))
+            .collect();
+        let mut app = app_with(entries, 0);
+        // Drive selection deep so the list scrolls.
+        for _ in 0..25 {
+            app.status_app.as_mut().unwrap().next();
+        }
+        render(&mut app, 140, 16);
+        let area = status(&app).provider_list_area.expect("list rect cached");
+        let offset = status(&app).list_state.offset();
+        assert!(offset > 0, "list should have scrolled (offset={offset})");
+        // Click two rows below the top visible row → display index offset+2.
+        handle_status_mouse(&mut app, click(area.x + 1, area.y + 2));
+        assert_eq!(status(&app).selected, offset + 2);
+    }
+
+    #[test]
+    fn scroll_wheel_over_provider_list_moves_selection() {
+        let entries = vec![
+            plain_provider("alpha", "Alpha"),
+            plain_provider("beta", "Beta"),
+        ];
+        let mut app = app_with(entries, 0);
+        render(&mut app, 140, 40);
+        let area = status(&app).provider_list_area.expect("list rect cached");
+        handle_status_mouse(&mut app, scroll(area.x + 1, area.y + 1, true));
+        assert_eq!(status(&app).focus, StatusFocus::List);
+        assert_eq!(status(&app).selected, 1); // moved down one
+        handle_status_mouse(&mut app, scroll(area.x + 1, area.y + 1, false));
+        assert_eq!(status(&app).selected, 0); // moved back up to Overall
+    }
+
+    #[test]
+    fn click_detail_services_panel_sets_focus() {
+        // sample_provider_status() carries components, incidents, and
+        // maintenance, so all three detail sub-panels render.
+        let mut app = app_with(vec![sample_provider_status()], 1);
+        render(&mut app, 140, 40);
+        let services = status(&app)
+            .detail_services_area
+            .expect("services rect cached");
+        handle_status_mouse(&mut app, click(services.x + 2, services.y + 1));
+        assert_eq!(status(&app).focus, StatusFocus::Details);
+        assert_eq!(status(&app).detail_panel_focus, DetailPanelFocus::Services);
+    }
+
+    #[test]
+    fn click_detail_incidents_panel_sets_focus() {
+        let mut app = app_with(vec![sample_provider_status()], 1);
+        render(&mut app, 140, 40);
+        let incidents = status(&app)
+            .detail_incidents_area
+            .expect("incidents rect cached");
+        handle_status_mouse(&mut app, click(incidents.x + 2, incidents.y + 1));
+        assert_eq!(status(&app).focus, StatusFocus::Details);
+        assert_eq!(status(&app).detail_panel_focus, DetailPanelFocus::Incidents);
+    }
+
+    #[test]
+    fn click_overall_degradation_panel_sets_focus() {
+        // On the Overall dashboard, the degradation panel is the second panel.
+        let mut app = app_with(vec![sample_provider_status()], 0);
+        render(&mut app, 140, 40);
+        let degradation = status(&app)
+            .overall_degradation_area
+            .expect("degradation rect cached");
+        handle_status_mouse(&mut app, click(degradation.x + 2, degradation.y + 1));
+        assert_eq!(status(&app).focus, StatusFocus::Details);
+        assert_eq!(
+            status(&app).overall_panel_focus,
+            OverallPanelFocus::Degradation
+        );
+    }
+
+    #[test]
+    fn scroll_over_overall_incidents_panel_focuses_and_scrolls() {
+        let mut app = app_with(vec![sample_provider_status()], 0);
+        render(&mut app, 140, 40);
+        let incidents = status(&app)
+            .overall_incidents_area
+            .expect("incidents rect cached");
+        handle_status_mouse(&mut app, scroll(incidents.x + 2, incidents.y + 1, true));
+        assert_eq!(status(&app).focus, StatusFocus::Details);
+        assert_eq!(
+            status(&app).overall_panel_focus,
+            OverallPanelFocus::Incidents
+        );
+    }
+
+    #[test]
+    fn detail_rects_clear_when_switching_to_overall() {
+        // Render a provider detail first (caches detail rects), then switch to
+        // Overall and re-render: the detail rects must be cleared so a stale
+        // detail rect can't match an Overall-view click.
+        let mut app = app_with(vec![sample_provider_status()], 1);
+        render(&mut app, 140, 40);
+        assert!(status(&app).detail_services_area.is_some());
+
+        app.status_app.as_mut().unwrap().select_at_index(0);
+        render(&mut app, 140, 40);
+        assert!(status(&app).detail_services_area.is_none());
+        assert!(status(&app).detail_incidents_area.is_none());
+        assert!(status(&app).overall_incidents_area.is_some());
     }
 }

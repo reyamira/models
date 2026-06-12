@@ -179,3 +179,14 @@ Focus::Providers  →  Focus::Models  →  Focus::Details
 - Details (`ScrollablePanel`): Cyan border when focused, scrollable
 
 `reset_detail_scroll()` is called on every navigation, sort, filter, and search change.
+
+---
+
+## 8. Mouse
+
+This tab is the **reference implementation** for TUI mouse support (`handle_models_mouse` + `mouse_tests` in `src/tui/models/`). See style guide §12 for the shared pattern.
+
+- **Cached rects** (`ModelsApp`, written at render time): `provider_list_area` (bare list region below the filter-toggle row), `model_list_area` (the list inner area — the column header is list item 0), `provider_card_area`, `model_detail_area`.
+- **Click:** provider row → focus Providers + select (category-header rows are skipped); model row → focus Models + select (item 0 is the header → ignored, `idx - 1` maps to the model); provider card or model detail → focus Details only.
+- **Wheel (focus-then-scroll):** over providers → prev/next provider; over models → prev/next model; over the right panel → scroll the model detail.
+- The model list renders into the **real** `model_list_state` so `offset()` is valid for click-to-select while scrolled (this is the `ListState` copy gotcha — see CLAUDE.md).

@@ -176,7 +176,8 @@ pub(super) fn draw_provider_status_detail(
     services_scroll: &ScrollOffset,
     detail_panel_focus: super::app::DetailPanelFocus,
     maintenance_scroll: &ScrollOffset,
-) {
+) -> super::app::DetailPanelRects {
+    let mut rects = super::app::DetailPanelRects::default();
     // Compute dynamic subpanel heights
     // Base: gauge + legend + 2 borders = 4
     let mut status_h: u16 = 4;
@@ -384,6 +385,7 @@ pub(super) fn draw_provider_status_detail(
     if has_components {
         let services_area = panel_chunks[chunk_idx];
         chunk_idx += 1;
+        rects.services = Some(services_area);
 
         // Build title with health summary icons
         let services_title = build_services_title(components);
@@ -567,6 +569,9 @@ pub(super) fn draw_provider_status_detail(
         } else {
             (bottom_area, None)
         };
+
+        rects.incidents = Some(incidents_area);
+        rects.maintenance = maint_area;
 
         // ── Incidents ──
         let incidents_focused =
@@ -758,4 +763,6 @@ pub(super) fn draw_provider_status_detail(
             }
         }
     }
+
+    rects
 }

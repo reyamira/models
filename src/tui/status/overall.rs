@@ -320,7 +320,8 @@ pub(super) fn draw_overall_dashboard(
     area: Rect,
     status_app: &super::app::StatusApp,
     is_focused: bool,
-) {
+) -> super::app::OverallPanelRects {
+    let mut rects = super::app::OverallPanelRects::default();
     let (op, _deg, out, other) = status_app.health_counts();
     let total = status_app
         .entries
@@ -425,6 +426,12 @@ pub(super) fn draw_overall_dashboard(
             .constraints(constraints)
             .split(board_area);
 
+        rects.incidents = Some(panels[0]);
+        rects.degradation = Some(panels[1]);
+        if maintenance_visible {
+            rects.maintenance = Some(panels[2]);
+        }
+
         let incident_cards = build_incidents_panel_cards(
             &incident_entries,
             usize::from(panels[0].width.saturating_sub(4)).max(24),
@@ -485,6 +492,12 @@ pub(super) fn draw_overall_dashboard(
                 .split(columns[1])
         };
 
+        rects.incidents = Some(columns[0]);
+        rects.degradation = Some(right_panels[0]);
+        if maintenance_visible {
+            rects.maintenance = Some(right_panels[1]);
+        }
+
         let incident_cards = build_incidents_panel_cards(
             &incident_entries,
             usize::from(columns[0].width.saturating_sub(4)).max(24),
@@ -529,4 +542,6 @@ pub(super) fn draw_overall_dashboard(
             );
         }
     }
+
+    rects
 }

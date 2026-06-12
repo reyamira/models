@@ -1,9 +1,11 @@
 use std::time::Duration;
 
 use anyhow::Result;
-use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
+use crossterm::event::{
+    self, Event, KeyCode, KeyEventKind, KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
+};
 
-use super::app::{App, Message, Mode};
+use super::app::{App, Message, Mode, Tab};
 use super::models::Focus;
 
 /// Shared navigation actions across all tabs
@@ -42,34 +44,125 @@ fn parse_nav_key(code: KeyCode, modifiers: KeyModifiers) -> Option<NavAction> {
     }
 }
 
-pub fn handle_events(app: &App) -> Result<Option<Message>> {
+pub fn handle_events(app: &mut App) -> Result<Option<Message>> {
     if event::poll(Duration::from_millis(100))? {
-        if let Event::Key(key) = event::read()? {
-            if key.kind != KeyEventKind::Press {
-                return Ok(None);
-            }
+        match event::read()? {
+            Event::Key(key) => {
+                if key.kind != KeyEventKind::Press {
+                    return Ok(None);
+                }
 
-            // When help is showing, handle scroll and dismiss keys
-            if app.show_help {
-                let msg = match key.code {
-                    KeyCode::Char('?') | KeyCode::Esc => Some(Message::ToggleHelp),
-                    KeyCode::Char('j') | KeyCode::Down => Some(Message::ScrollHelpDown),
-                    KeyCode::Char('k') | KeyCode::Up => Some(Message::ScrollHelpUp),
-                    _ => None,
+                // When help is showing, handle scroll and dismiss keys
+                if app.show_help {
+                    let msg = match key.code {
+                        KeyCode::Char('?') | KeyCode::Esc => Some(Message::ToggleHelp),
+                        KeyCode::Char('j') | KeyCode::Down => Some(Message::ScrollHelpDown),
+                        KeyCode::Char('k') | KeyCode::Up => Some(Message::ScrollHelpUp),
+                        _ => None,
+                    };
+                    return Ok(msg);
+                }
+
+                let msg = match app.mode {
+                    Mode::Normal => handle_normal_mode(app, key.code, key.modifiers),
+                    Mode::Search => handle_search_mode(key.code),
                 };
+
                 return Ok(msg);
             }
-
-            let msg = match app.mode {
-                Mode::Normal => handle_normal_mode(app, key.code, key.modifiers),
-                Mode::Search => handle_search_mode(key.code),
-            };
-
-            return Ok(msg);
+            Event::Mouse(ev) => return Ok(handle_mouse(app, ev)),
+            _ => {}
         }
     }
 
     Ok(None)
+}
+
+/// True when a per-tab modal popup is open and should swallow mouse input so
+/// clicks/scroll don't leak to the panels behind it. (The global help popup is
+/// handled separately in `handle_mouse`.)
+fn modal_popup_open(app: &App) -> bool {
+    match app.current_tab {
+        Tab::Agents => app.agents_app.as_ref().is_some_and(|a| a.show_picker),
+        Tab::Status => app.status_app.as_ref().is_some_and(|a| a.show_picker),
+        Tab::Benchmarks => {
+            app.benchmarks_app.show_sort_picker
+                || app.benchmarks_app.show_glossary
+                || app.benchmarks_app.show_column_picker
+        }
+        Tab::Models => false,
+    }
+}
+
+/// Mouse handling while a per-tab modal popup is open: the wheel drives the
+/// popup's own scroll/selection (the same action its arrow keys do), and clicks
+/// are swallowed so they can't reach the panels behind. Mirrors the popup key
+/// handlers (`handle_picker_keys`, `handle_sort_picker_keys`,
+/// `handle_glossary_keys`, `handle_column_picker_keys`).
+fn handle_modal_popup_mouse(app: &App, ev: MouseEvent) -> Option<Message> {
+    let (down, up) = match app.current_tab {
+        // Agents / Status provider-tracker checkbox modals.
+        Tab::Agents | Tab::Status => (Message::PickerNext, Message::PickerPrev),
+        Tab::Benchmarks if app.benchmarks_app.show_sort_picker => {
+            (Message::SortPickerNext, Message::SortPickerPrev)
+        }
+        Tab::Benchmarks if app.benchmarks_app.show_glossary => {
+            (Message::ScrollGlossaryDown, Message::ScrollGlossaryUp)
+        }
+        Tab::Benchmarks if app.benchmarks_app.show_column_picker => {
+            (Message::ColumnPickerNext, Message::ColumnPickerPrev)
+        }
+        _ => return None,
+    };
+    match ev.kind {
+        MouseEventKind::ScrollDown => Some(down),
+        MouseEventKind::ScrollUp => Some(up),
+        // Swallow clicks (and anything else) so they don't fall through to the
+        // panels behind the popup.
+        _ => None,
+    }
+}
+
+/// Dispatch a mouse event. High-frequency `Moved`/`Drag` events are dropped
+/// (mouse capture enables any-motion tracking, which would otherwise flood the
+/// loop). Popups take precedence over panels; the header tab bar is clickable;
+/// otherwise the active tab's handler runs. Per-tab handlers apply focus,
+/// selection, and scroll directly to `app`.
+fn handle_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
+    if matches!(ev.kind, MouseEventKind::Moved | MouseEventKind::Drag(_)) {
+        return None;
+    }
+
+    // Global help popup: scroll or click-to-close; never leaks to panels behind.
+    if app.show_help {
+        return match ev.kind {
+            MouseEventKind::ScrollDown => Some(Message::ScrollHelpDown),
+            MouseEventKind::ScrollUp => Some(Message::ScrollHelpUp),
+            MouseEventKind::Down(MouseButton::Left) => Some(Message::ToggleHelp),
+            _ => None,
+        };
+    }
+
+    // Per-tab modal popups: route the wheel to the popup's own scroll/selection
+    // and swallow clicks so nothing leaks to the panels behind.
+    if modal_popup_open(app) {
+        return handle_modal_popup_mouse(app, ev);
+    }
+
+    // Header tab bar: left-click a label to switch tabs.
+    if let MouseEventKind::Down(MouseButton::Left) = ev.kind {
+        if let Some(tab) = super::ui::tab_at(ev.column, ev.row) {
+            app.current_tab = tab;
+            return None;
+        }
+    }
+
+    match app.current_tab {
+        Tab::Models => super::models::handle_models_mouse(app, ev),
+        Tab::Agents => super::agents::handle_agents_mouse(app, ev),
+        Tab::Benchmarks => super::benchmarks::handle_benchmarks_mouse(app, ev),
+        Tab::Status => super::status::handle_status_mouse(app, ev),
+    }
 }
 
 fn handle_normal_mode(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Option<Message> {
@@ -528,5 +621,108 @@ fn handle_search_mode(code: KeyCode) -> Option<Message> {
         KeyCode::Backspace => Some(Message::SearchBackspace),
         KeyCode::Char(c) => Some(Message::SearchInput(c)),
         _ => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn app() -> App {
+        App::new(Default::default(), None, None)
+    }
+
+    fn wheel(down: bool) -> MouseEvent {
+        MouseEvent {
+            kind: if down {
+                MouseEventKind::ScrollDown
+            } else {
+                MouseEventKind::ScrollUp
+            },
+            column: 5,
+            row: 5,
+            modifiers: KeyModifiers::NONE,
+        }
+    }
+
+    fn left_click() -> MouseEvent {
+        MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column: 5,
+            row: 5,
+            modifiers: KeyModifiers::NONE,
+        }
+    }
+
+    // `Message` does not derive `PartialEq`, so assert via `matches!`.
+
+    #[test]
+    fn glossary_popup_wheel_scrolls_glossary() {
+        let mut a = app();
+        a.current_tab = Tab::Benchmarks;
+        a.benchmarks_app.show_glossary = true;
+        // Full dispatch path: handle_mouse → modal_popup_open → popup scroll.
+        assert!(matches!(
+            handle_mouse(&mut a, wheel(true)),
+            Some(Message::ScrollGlossaryDown)
+        ));
+        assert!(matches!(
+            handle_mouse(&mut a, wheel(false)),
+            Some(Message::ScrollGlossaryUp)
+        ));
+        // Clicks are swallowed so they don't leak to the panel behind the popup.
+        assert!(handle_mouse(&mut a, left_click()).is_none());
+    }
+
+    #[test]
+    fn sort_picker_wheel_moves_selection() {
+        let mut a = app();
+        a.current_tab = Tab::Benchmarks;
+        a.benchmarks_app.show_sort_picker = true;
+        assert!(matches!(
+            handle_mouse(&mut a, wheel(true)),
+            Some(Message::SortPickerNext)
+        ));
+        assert!(matches!(
+            handle_mouse(&mut a, wheel(false)),
+            Some(Message::SortPickerPrev)
+        ));
+    }
+
+    #[test]
+    fn column_picker_wheel_moves_selection() {
+        let mut a = app();
+        a.current_tab = Tab::Benchmarks;
+        a.benchmarks_app.show_column_picker = true;
+        assert!(matches!(
+            handle_mouse(&mut a, wheel(true)),
+            Some(Message::ColumnPickerNext)
+        ));
+    }
+
+    #[test]
+    fn help_popup_wheel_scrolls_and_click_closes() {
+        let mut a = app();
+        a.show_help = true;
+        assert!(matches!(
+            handle_mouse(&mut a, wheel(true)),
+            Some(Message::ScrollHelpDown)
+        ));
+        assert!(matches!(
+            handle_mouse(&mut a, left_click()),
+            Some(Message::ToggleHelp)
+        ));
+    }
+
+    #[test]
+    fn moved_events_are_ignored() {
+        let mut a = app();
+        let moved = MouseEvent {
+            kind: MouseEventKind::Moved,
+            column: 5,
+            row: 5,
+            modifiers: KeyModifiers::NONE,
+        };
+        assert!(handle_mouse(&mut a, moved).is_none());
     }
 }

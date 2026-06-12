@@ -257,6 +257,37 @@ pub fn draw(f: &mut Frame, app: &mut App) {
     }
 }
 
+/// Map a click coordinate to a tab, if it lands on a header tab label.
+///
+/// The header is a single line at the top of the screen (`row == 0`). The x
+/// ranges are computed from the same label/separator layout `draw_header`
+/// renders, so the two stay in lockstep. Returns `None` for clicks off the
+/// labels (separators, the hint text, or any other row).
+pub(super) fn tab_at(column: u16, row: u16) -> Option<Tab> {
+    if row != 0 {
+        return None;
+    }
+    // Mirror of draw_header: leading space, then "Label" / " | " / "Label" …
+    let labels = [
+        ("Models", Tab::Models),
+        ("Agents", Tab::Agents),
+        ("Benchmarks", Tab::Benchmarks),
+        ("Status", Tab::Status),
+    ];
+    let mut x: u16 = 1; // leading Span::raw(" ")
+    for (i, (label, tab)) in labels.iter().enumerate() {
+        let w = label.len() as u16;
+        if column >= x && column < x + w {
+            return Some(*tab);
+        }
+        x += w;
+        if i + 1 < labels.len() {
+            x += 3; // " | " separator
+        }
+    }
+    None
+}
+
 fn draw_header(f: &mut Frame, area: Rect, app: &App) {
     let tab_style = |tab: Tab| {
         if app.current_tab == tab {

@@ -1,7 +1,11 @@
+use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
+use ratatui::layout::Rect;
 use ratatui::widgets::ListState;
 
 use crate::data::{Model, Provider};
 use crate::provider_category::{provider_category, ProviderCategory};
+use crate::tui::app::{App, Message};
+use crate::tui::mouse::{hit, row_at};
 use crate::tui::widgets::scroll_offset::ScrollOffset;
 
 /// Page size for page up/down navigation
@@ -71,6 +75,15 @@ pub struct ModelsApp {
     pub provider_list_items: Vec<ProviderListItem>,
     filtered_models: Vec<ModelEntry>,
     pub detail_scroll: ScrollOffset,
+    /// Panel rects cached at render time for mouse hit-testing (see
+    /// `crate::tui::mouse`). The stored areas are the exact rects the list /
+    /// detail widgets render into — `provider_list_area`/`model_list_area` are
+    /// the bare item regions (no border, no filter row), so `row_at` uses
+    /// `top_skip = 0`.
+    pub provider_list_area: Option<Rect>,
+    pub model_list_area: Option<Rect>,
+    pub provider_card_area: Option<Rect>,
+    pub model_detail_area: Option<Rect>,
 }
 
 impl ModelsApp {
@@ -95,6 +108,10 @@ impl ModelsApp {
             provider_list_items: Vec::new(),
             filtered_models: Vec::new(),
             detail_scroll: ScrollOffset::default(),
+            provider_list_area: None,
+            model_list_area: None,
+            provider_card_area: None,
+            model_detail_area: None,
         };
 
         app.update_provider_list(providers);
@@ -517,6 +534,16 @@ impl ModelsApp {
         }
     }
 
+    /// Select a model by its index into `filtered_models` (used by mouse clicks).
+    pub fn select_model_at_index(&mut self, index: usize) {
+        if index < self.filtered_models.len() && index != self.selected_model {
+            self.selected_model = index;
+            self.model_list_state.select(Some(self.selected_model + 1));
+            // +1 for header
+            self.reset_detail_scroll();
+        }
+    }
+
     pub fn select_first_model(&mut self) {
         if self.selected_model > 0 {
             self.selected_model = 0;
@@ -676,4 +703,89 @@ impl ModelsApp {
         self.model_list_state.select(Some(self.selected_model + 1));
         self.reset_detail_scroll();
     }
+}
+
+/// Handle a mouse event while the Models tab is active.
+///
+/// All state changes (focus, selection, scroll) are applied directly to `app`,
+/// so the function returns `None`; the main loop redraws after every event. The
+/// `Option<Message>` return keeps the per-tab handler signature uniform with the
+/// other tabs' dispatchers.
+pub fn handle_models_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
+    match ev.kind {
+        MouseEventKind::Down(MouseButton::Left) => {
+            if hit(app.models_app.provider_list_area, &ev) {
+                app.models_app.focus = Focus::Providers;
+                if let Some(area) = app.models_app.provider_list_area {
+                    if let Some(idx) = row_at(
+                        area,
+                        app.models_app.provider_list_state.offset(),
+                        0,
+                        app.models_app.provider_list_items.len(),
+                        ev.row,
+                    ) {
+                        // Skip non-selectable category headers.
+                        if !matches!(
+                            app.models_app.provider_list_items.get(idx),
+                            Some(ProviderListItem::CategoryHeader(_))
+                        ) {
+                            app.models_app.select_provider_at_index(idx, &app.providers);
+                        }
+                    }
+                }
+            } else if hit(app.models_app.model_list_area, &ev) {
+                app.models_app.focus = Focus::Models;
+                if let Some(area) = app.models_app.model_list_area {
+                    // Item 0 is the column header; models occupy items 1..=N.
+                    if let Some(idx) = row_at(
+                        area,
+                        app.models_app.model_list_state.offset(),
+                        0,
+                        app.models_app.filtered_models.len() + 1,
+                        ev.row,
+                    ) {
+                        if let Some(model_idx) = idx.checked_sub(1) {
+                            app.models_app.select_model_at_index(model_idx);
+                        }
+                    }
+                }
+            } else if hit(app.models_app.model_detail_area, &ev)
+                || hit(app.models_app.provider_card_area, &ev)
+            {
+                app.models_app.focus = Focus::Details;
+            }
+        }
+        // Wheel: focus the panel under the cursor, then scroll it (reusing the
+        // same per-panel nav the arrow keys drive).
+        MouseEventKind::ScrollDown => {
+            if hit(app.models_app.provider_list_area, &ev) {
+                app.models_app.focus = Focus::Providers;
+                app.models_app.next_provider(&app.providers);
+            } else if hit(app.models_app.model_list_area, &ev) {
+                app.models_app.focus = Focus::Models;
+                app.models_app.next_model();
+            } else if hit(app.models_app.model_detail_area, &ev)
+                || hit(app.models_app.provider_card_area, &ev)
+            {
+                app.models_app.focus = Focus::Details;
+                app.models_app.detail_scroll.increment(1);
+            }
+        }
+        MouseEventKind::ScrollUp => {
+            if hit(app.models_app.provider_list_area, &ev) {
+                app.models_app.focus = Focus::Providers;
+                app.models_app.prev_provider(&app.providers);
+            } else if hit(app.models_app.model_list_area, &ev) {
+                app.models_app.focus = Focus::Models;
+                app.models_app.prev_model();
+            } else if hit(app.models_app.model_detail_area, &ev)
+                || hit(app.models_app.provider_card_area, &ev)
+            {
+                app.models_app.focus = Focus::Details;
+                app.models_app.detail_scroll.decrement(1);
+            }
+        }
+        _ => {}
+    }
+    None
 }

@@ -250,3 +250,15 @@ All empty state messages use `Color::DarkGray`:
 - `"Select a provider to view details"` (detail area when nothing selected)
 
 Title line of empty state: `Color::Green` (positive confirmation tone). Subtitle: `Color::DarkGray`.
+
+---
+
+## 16. Mouse
+
+`handle_status_mouse` (in `status/app.rs`); see style guide §12 for the shared pattern.
+
+- **Cached rects** (`StatusApp`): `provider_list_area` (the block's bare inner rect, `top_skip = 0`; item 0 = "Overall", so the hit index maps straight to the display index), plus six sub-panel rects — `overall_{incidents,degradation,maintenance}_area` (Overall dashboard) and `detail_{services,incidents,maintenance}_area` (provider detail). `draw_overall_dashboard` / `draw_provider_status_detail` **return** their rects; `draw_status_main` writes them onto `StatusApp` after the detail-branch borrow ends. **All six are reset to `None` at the top of every frame** so a vanished panel can't keep a stale rect and only the active view's set is live.
+- **Hit-test branches on `is_overall_selected()`** — only the matching rect set is consulted.
+- **Click:** provider row → focus List + `select_at_index` (0 = Overall is valid); a dashboard sub-panel → set `OverallPanelFocus`; a provider-detail sub-panel → set `DetailPanelFocus`. Sub-panels use `hit()` only (no per-row selection in v1).
+- **Wheel (focus-then-scroll):** the panel/sub-panel under the cursor gains focus, then its matching scroll (`detail_scroll`, `overall_*_scroll`, `services_scroll`, `maintenance_scroll`).
+- The provider list already rendered into the real `&mut list_state`, so `offset()` was valid — no copy bug to fix here.

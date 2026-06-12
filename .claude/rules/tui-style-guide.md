@@ -289,3 +289,38 @@ All popups follow these rules:
 - User should always see feedback — never silently swallow errors
 - Fallback/empty states: descriptive message in `Color::DarkGray` (e.g., `"No model selected"`, `"No matching results"`)
 
+## 12. Mouse Interaction
+
+Mouse capture is on for the whole TUI. All tabs support the same three interactions; keep the behavior consistent when adding panels.
+
+### 12.1 Interaction model
+
+| Input | Effect |
+|-------|--------|
+| **Left-click a list row** | Focus that panel **and** select the row under the cursor |
+| **Left-click a panel** (detail / scrollable / chart) | Focus that panel only — no row selection |
+| **Left-click header tab label** | Switch to that tab |
+| **Left-click clickable chrome** | Activate it (e.g. Benchmarks source-bar `[name]` → switch source; `[H2H] [Scatter] [Radar]` subtab → switch view) |
+| **Scroll wheel** | **Focus-then-scroll**: the panel under the cursor gains focus, then scrolls/navigates with the same action the arrow keys drive |
+| **Mouse move / drag** | Ignored (not consumed) |
+
+- **Single-click only.** No double-click or click-to-activate in v1 — keyboard retains activation (`Enter`/`o`/`Space`).
+- **Popups take precedence.** While a popup is open, the **wheel scrolls/navigates the popup** (help, benchmarks sort picker / glossary / column picker, and the agents/status tracker modals) by emitting that popup's existing scroll/nav `Message`; clicks are swallowed so they can't leak to the panels behind, and the help popup also closes on click. Routed in `handle_modal_popup_mouse` (`event.rs`). In-popup row-clicking (selecting a specific popup row by click) is out of scope for v1.
+- **No new `Message` variants.** Mouse handlers receive `&mut App` and apply focus/selection/scroll directly via existing sub-app methods, returning `None`. This keeps the shared `Message` enum collision-free.
+
+### 12.2 Implementation pattern (geometry cache)
+
+ratatui recomputes and discards layout `Rect`s every frame, so hit-testing a click requires retained geometry:
+
+1. Each sub-app stores `Option<Rect>` fields (`ratatui::layout::Rect`) for its focusable panels / clickable lists, initialized `None`.
+2. The tab's `render.rs` writes the **exact rect each widget rendered into** at render time (the loop draws before it handles events, so the cache and any `ListState::offset()` reflect the clicked frame).
+3. The tab's `handle_<tab>_mouse(app, ev)` hit-tests with the pure helpers in `src/tui/mouse.rs`:
+   - `hit(area: Option<Rect>, &MouseEvent) -> bool` — `Rect::contains` wrapper.
+   - `row_at(area, offset, top_skip, item_count, click_row) -> Option<usize>` — maps a click row to a list index. `top_skip` = non-item rows at the top of the stored rect (0 for a bare item region, 1 if it still includes a top border). An in-list header rendered as item 0 is a real item — pass `item_count = visible + 1` and subtract 1 from the result (see the Models model list).
+
+**`ListState::offset()` is only valid after the widget renders into that same state object** — never render into a copy of the list state, or `offset()` goes stale and click-to-select breaks on a scrolled list.
+
+### 12.3 Testing
+
+Mouse logic is verified without a real terminal: render the tab into a `ratatui::backend::TestBackend` `Terminal` (which stores the panel rects and clamps `ListState` offsets exactly as the live loop does), then synthesize `MouseEvent`s and assert the resulting focus/selection. Every tab with a scrollable list includes a **non-zero-scroll-offset** click test (the case that catches the `offset()` bug). The reference is `mouse_tests` in `src/tui/models/render.rs`.
+
