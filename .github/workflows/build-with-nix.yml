@@ -24,11 +24,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-# Magic Nix Cache authenticates to GitHub's cache service with OIDC, so the
-# workflow needs the minimal read + ID token permissions in both jobs.
 permissions:
   contents: read
-  id-token: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -50,11 +47,15 @@ jobs:
         uses: actions/checkout@v6
       - name: Install Nix
         uses: DeterminateSystems/determinate-nix-action@v3
-      - name: Enable Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@v13
+      # Cachix is a real binary cache (CDN-backed, shared across PRs, main,
+      # local dev, and end users) — replaces the CI-only GitHub Actions cache,
+      # whose slow Darwin uploads blew the 30-min job timeout. Fork PRs get no
+      # authToken and fall back to read-only pulls from the public cache.
+      - name: Enable Cachix
+        uses: cachix/cachix-action@v17
         with:
-          use-flakehub: disabled
-          use-gha-cache: enabled
+          name: modelsdev
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Build Packages / ${{ matrix.os }}
         run: nix build .
       - name: Check Flake / ${{ matrix.os }}
