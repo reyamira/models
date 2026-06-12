@@ -37,6 +37,12 @@ mise run fmt && mise run clippy && mise run test
 ### Async Pattern
 Background fetches use tokio::spawn + mpsc channels. Results arrive as `Message` variants processed in the main loop (`src/tui/mod.rs`). The app never blocks on network calls.
 
+### Mouse Interaction
+Mouse capture is enabled at startup (`EnableMouseCapture` in `src/tui/mod.rs`). The event loop (`src/tui/event.rs`) handles `Event::Mouse` in `handle_mouse`: high-frequency `Moved`/`Drag` events are dropped, popups take precedence (the wheel scrolls/navigates whichever popup is open and a left-click selects/toggles the row under the cursor — sort picker applies, checkbox pickers toggle; clicks outside rows are swallowed so they don't leak behind; the help popup closes on click), header tab-bar clicks switch tabs (`ui::tab_at`), then the event routes to the active tab's `handle_<tab>_mouse(app, ev)`. Single-click selects a list row / focuses a panel; the wheel is **focus-then-scroll** (the panel under the cursor gets focus, then the same nav the arrow keys drive). No double-click/activation in v1.
+- **Geometry cache pattern:** ratatui discards layout `Rect`s each frame, so each sub-app stores `Option<Rect>` fields for its focusable panels, written at render time and read by its mouse handler on the next event (valid because the loop draws before it handles events). Pure hit-test helpers live in `src/tui/mouse.rs` (`hit`, `row_at`) with unit tests; `handle_<tab>_mouse` mutates sub-app state directly (focus/selection/scroll) and adds **no new `Message` variants**.
+- **`ListState::offset()` gotcha:** a list's `offset()` is only correct *after* the widget renders into **that same** state object. Rendering into a *copy* (`let mut s = self.list_state; render(.., &mut s)`) leaves the real state's `offset()` stale and silently breaks click-to-select on a scrolled list — render into `&mut self.list_state` instead.
+- Per-tab clickable regions and mouse tests are documented in each `.claude/rules/tui-*-tab.md`; the reference implementation is the Models tab (`handle_models_mouse` + `mouse_tests` in `src/tui/models/`).
+
 ### Agents & CLI
 See `src/agents/CLAUDE.md` and `src/cli/CLAUDE.md` for detailed module docs.
 - Binary aliases: `models agents <cmd>` or `agents <cmd>` via argv[0] symlink detection. Alias names configurable via `[aliases]` in config.toml (defaults: `agents`, `benchmarks`, `mstatus`)
@@ -74,6 +80,7 @@ Each module has its own `CLAUDE.md` with detailed documentation. Top-level highl
 - Status detail semantics use parallel `*_state` metadata on `ProviderStatus`; UI and assessment logic should use helper methods instead of inferring meaning from empty vectors
 
 ## Gotchas
+- Mouse handlers read a list's scroll position via `ListState::offset()` — this is only valid when the widget rendered into **that same** state object. Several lists historically rendered into a throwaway copy (`let mut s = self.list_state; …`), which leaves `offset()` stale and breaks click-to-select on a scrolled list. Render into the real `&mut self.list_state`. See the Mouse Interaction section above.
 - clippy `-D warnings` treats unused enum variant fields as errors — if a Message variant's payload is only passed through (e.g., error strings logged nowhere), use a unit variant instead
 - `Cargo.lock` must be committed after `Cargo.toml` version bumps
 - GitHub Actions `workflow_dispatch` only works when the workflow file exists on the default branch — cannot test from feature branches

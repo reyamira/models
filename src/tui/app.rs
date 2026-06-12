@@ -392,6 +392,39 @@ impl App {
         self.restore_saved_columns(new_active);
     }
 
+    /// Switch the active benchmark data source directly to `target` (an index
+    /// into the compiled-in sources), applying the same selection remap, focus
+    /// demotion, and column restore as the `{`/`}` cycle. No-op when `target` is
+    /// already active or out of range. Used by mouse clicks on the source-bar
+    /// labels so a click lands on the source clicked, not one step toward it.
+    pub fn switch_to_data_source(&mut self, target: usize) {
+        let old_active = self.benchmarks_app.active_source;
+        if target == old_active || target >= self.multi_store.sources.len() {
+            return;
+        }
+        self.benchmarks_app.active_source = target;
+        self.benchmarks_app.reset_for_source(&self.multi_store);
+
+        match (
+            self.multi_store.file(old_active),
+            self.multi_store.file(target),
+        ) {
+            (Some(old_file), Some(new_file)) => {
+                self.selections =
+                    Self::remap_selections_by_id(&self.selections, old_file, new_file);
+            }
+            _ => self.clear_selections(),
+        }
+        self.benchmarks_app
+            .update_bottom_view(self.selections.len());
+        if self.selections.len() < 2
+            && self.benchmarks_app.focus == super::benchmarks::BenchmarkFocus::Compare
+        {
+            self.benchmarks_app.focus = super::benchmarks::BenchmarkFocus::List;
+        }
+        self.restore_saved_columns(target);
+    }
+
     /// Restore `visible_columns` for source `idx` from the config-persisted
     /// metric ids (per-source `[benchmarks.columns]`). No-op when the source
     /// isn't loaded or nothing is saved for it.

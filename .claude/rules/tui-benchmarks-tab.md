@@ -316,3 +316,16 @@ Used in scatter and radar views. Reusable widget from `src/tui/widgets/compariso
 - Active source still loading / not yet landed: the content area shows the standard loading state (`active_is_loading`); the detail/list panels render `"Loading..."` (Yellow) appropriately.
 - Active source failed: standard error state in the content area.
 - A source that produced no metrics yields a `"No metrics for this source"` glossary fallback (DarkGray).
+
+---
+
+## 18. Mouse
+
+`handle_benchmarks_mouse` (in `benchmarks/app.rs`); see style guide §12 for the shared pattern. This tab has the most clickable chrome.
+
+- **Cached rects** (`BenchmarksApp`): `creators_area`, `list_area`, `detail_area`, `subtab_bar_area`, `compare_view_area`, plus span x-ranges recorded per-label: `source_label_spans: Vec<(source_idx, x_start, x_end_excl, row)>` (source bar) and `subtab_spans: Vec<(BottomView, …)>` (compare subtab bar). The source-bar / subtab draw fns take `&mut App` and record the exact drawn geometry span-by-span.
+- **Mode-dependent:** browse mode (<2 selections) caches creators/list/detail; compare mode (≥2) caches the compact list + subtab bar + view. The handler hit-tests against whichever mode rendered the frame (guard on `selections.len()`, same condition render uses).
+- **Click:** source-bar `[name]` → `app.switch_to_data_source(idx)` (a **single** click lands exactly on that source; active/out-of-range is a no-op); benchmark row → focus List + `select_benchmark_at_index`; creator row → `select_creator_at_index` (group-header rows skipped, then re-filter); detail → focus Details; compare subtab `[H2H] [Scatter] [Radar]` → set `bottom_view`; compact list row → select.
+- **Wheel (focus-then-scroll):** over a list → prev/next; over detail / H2H → scroll that view.
+- **`switch_to_data_source(target)` lives on `App`** (top-level `app.rs`, public) because switching remaps compare selections + restores per-source columns via `App`-private helpers — the benchmarks module calls it; it does **not** duplicate that logic.
+- Three lists (`creators`, `list`, compact compare list) were fixed to render into their **real** `ListState`s so `offset()` is valid while scrolled (the `ListState` copy gotcha — see CLAUDE.md).

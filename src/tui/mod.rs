@@ -15,6 +15,7 @@ pub mod benchmarks;
 pub mod event;
 pub mod markdown;
 pub mod models;
+pub mod mouse;
 pub mod status;
 pub mod ui;
 pub mod widgets;

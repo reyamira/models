@@ -173,3 +173,15 @@ Popup for tracking/untracking agents (opened with `p`):
 Selected row: Yellow + BOLD (applied via `ListItem::style`, overrides per-span styles).
 
 **Key interception**: modal must intercept `q` before the global handler to prevent accidental quit.
+
+---
+
+## 8. Mouse
+
+`handle_agents_mouse` (in `agents/app.rs`); see style guide §12 for the shared pattern.
+
+- **Cached rects** (`AgentsApp`): `agent_list_area` (the bare list region **below** the `Length(1)` filter-toggle row, so `top_skip = 0`), `detail_area` (the scrollable detail panel).
+- The agent list's header (`"St Agent … Type"`) is rendered as **list item 0** (the `agent_list_state` is offset by +1, same as Models). The handler passes `item_count = filtered_entries.len() + 1` to `row_at` and `checked_sub(1)`s the result to map item → agent.
+- **Click:** agent row → focus List + `select_agent_at_index`; detail → focus Details only.
+- **Wheel (focus-then-scroll):** over the list → prev/next agent; over the detail → adjust `detail_scroll` (a `u16`, clamped at render).
+- The list renders into the **real** `agent_list_state` so `offset()` is valid while scrolled (fixed the `ListState` copy gotcha — see CLAUDE.md).
