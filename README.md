@@ -14,7 +14,7 @@ TUI and CLI for browsing AI models, benchmarks, coding agents, and provider stat
 ## Highlights
 
 - **~4,000+ models** across 85+ providers from [models.dev](https://models.dev) — filter by capability, price, context, and provider category
-- **~400 benchmark entries** from [Artificial Analysis](https://artificialanalysis.ai) — compare models head-to-head with scatter plots and radar charts
+- **~1,000 benchmark entries** across 4 data sources — [Artificial Analysis](https://artificialanalysis.ai), [Epoch AI](https://epoch.ai), [Arena](https://arena.ai), and [LLM Stats](https://llm-stats.com) — compare models head-to-head with scatter plots and radar charts
 - **11+ coding agents** tracked with version detection, changelogs, and GitHub integration
 - **22 provider statuses** monitored live across 7 status page platforms
 
@@ -86,7 +86,7 @@ Curated catalog of 12+ agents with automatic version detection, GitHub release t
 
 ![Benchmarks tab](public/assets/benchmark-screenshot.png)
 
-~400 entries with quality indexes, speed, and pricing. Compare mode with head-to-head tables, scatter plots, and radar charts. Filter by creator, region, type, reasoning, and open/closed source.
+~1,000 entries across 4 switchable data sources (Artificial Analysis, Epoch AI, Arena, LLM Stats) with quality indexes, Elo ratings, speed, and pricing. Compare mode with head-to-head tables, scatter plots, and radar charts. Choose visible metric columns, cycle a field-average/peer-average/rank comparator in the detail panel, and refresh any source in-app. Filter by creator, region, type, reasoning, and open/closed source.
 
 [Benchmarks wiki page](https://github.com/reyamira/models/wiki/Benchmarks) &#8226; CLI: `models benchmarks list`, `models benchmarks show`
 
@@ -118,7 +118,7 @@ Full documentation lives in the [wiki](https://github.com/reyamira/models/wiki):
 ## Data Sources
 
 - **Models**: [models.dev](https://models.dev) by [SST](https://github.com/sst/models.dev)
-- **Benchmarks**: [Artificial Analysis](https://artificialanalysis.ai)
+- **Benchmarks**: [Artificial Analysis](https://artificialanalysis.ai), [Epoch AI](https://epoch.ai) (CC-BY), [Arena](https://arena.ai), [LLM Stats](https://llm-stats.com)
 - **Agents**: Curated catalog in [`data/agents.json`](data/agents.json) — contributions welcome!
 - **Status**: Official provider status pages ([Statuspage](https://www.atlassian.com/software/statuspage), [BetterStack](https://betterstack.com), [Instatus](https://instatus.com), [incident.io](https://incident.io), and more)
 

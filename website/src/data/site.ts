@@ -30,10 +30,15 @@ export const CRATES_URL = `https://crates.io/crates/${CRATE_NAME}`;
 
 // --- Local data files ---
 
-const benchmarksJson = JSON.parse(readRepoFile("data/benchmarks.json"));
-export const BENCHMARK_COUNT = Array.isArray(benchmarksJson)
-  ? benchmarksJson.length
-  : Object.keys(benchmarksJson).length;
+// Sum of model rows across the four v2 benchmark sources (aa, epoch, arena,
+// llmstats). The legacy data/benchmarks.json is the frozen single-source lane
+// for released binaries — not representative of the tab anymore.
+const BENCHMARK_SOURCE_IDS = ["aa", "epoch", "arena", "llmstats"] as const;
+export const BENCHMARK_SOURCE_COUNT = BENCHMARK_SOURCE_IDS.length;
+export const BENCHMARK_COUNT = BENCHMARK_SOURCE_IDS.reduce((total, id) => {
+  const sourceFile = JSON.parse(readRepoFile(`data/v2/${id}.json`));
+  return total + (sourceFile.models?.length ?? 0);
+}, 0);
 
 const agentsJson = JSON.parse(readRepoFile("data/agents.json"));
 const agents = agentsJson.agents ?? {};
