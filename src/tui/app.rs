@@ -77,6 +77,18 @@ impl Tab {
             Tab::Status => Tab::Benchmarks,
         }
     }
+
+    /// Parse a config `display.default_tab` value. Case-insensitive; unknown
+    /// or missing values fall back to the default tab (Models).
+    pub fn from_config(value: Option<&str>) -> Self {
+        match value.map(str::to_ascii_lowercase).as_deref() {
+            Some("models") => Tab::Models,
+            Some("agents") => Tab::Agents,
+            Some("benchmarks") => Tab::Benchmarks,
+            Some("status") => Tab::Status,
+            _ => Tab::default(),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -324,7 +336,7 @@ impl App {
             status_message: None,
             show_help: false,
             help_scroll: ScrollOffset::default(),
-            current_tab: Tab::default(),
+            current_tab: Tab::from_config(config.display.default_tab.as_deref()),
             models_app,
             agents_app,
             config,
@@ -1562,6 +1574,22 @@ mod tests {
     use std::ffi::OsString;
     use std::path::PathBuf;
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    #[test]
+    fn tab_from_config_parses_known_values_case_insensitively() {
+        assert_eq!(Tab::from_config(Some("benchmarks")), Tab::Benchmarks);
+        assert_eq!(Tab::from_config(Some("Benchmarks")), Tab::Benchmarks);
+        assert_eq!(Tab::from_config(Some("STATUS")), Tab::Status);
+        assert_eq!(Tab::from_config(Some("agents")), Tab::Agents);
+        assert_eq!(Tab::from_config(Some("models")), Tab::Models);
+    }
+
+    #[test]
+    fn tab_from_config_falls_back_to_default_on_unknown_or_missing() {
+        assert_eq!(Tab::from_config(Some("benchmark")), Tab::default());
+        assert_eq!(Tab::from_config(Some("")), Tab::default());
+        assert_eq!(Tab::from_config(None), Tab::default());
+    }
 
     fn test_agent(name: &str, repo: &str) -> Agent {
         Agent {
