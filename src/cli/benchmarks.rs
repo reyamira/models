@@ -775,18 +775,28 @@ fn run_show(model: &str, json: bool) -> Result<()> {
 ///
 /// AA is `SOURCES[0]`. The fetch runs on a one-shot blocking runtime so the CLI
 /// stays synchronous.
-//
-// TODO(phase-3): `ModelRow.open_weights` is `None` for AA here — the trait-based
-// openness enrichment is currently TUI-side only, so the `S` column renders an
-// em-dash. A later phase may call
-// `crate::benchmarks::apply_model_traits(&providers, &mut file.models)` here
-// (after `crate::api::fetch_providers()`) to populate it, matching the TUI.
+///
+/// The rows are then enriched from models.dev exactly like the TUI lane
+/// (`apply_model_traits`): this fills `open_weights` — without it the
+/// `--open`/`--closed` filters match nothing and the picker's O/C column is all
+/// em-dashes. models.dev being unreachable degrades to unenriched rows; the
+/// warning prints before any picker enters raw mode.
 fn load_benchmarks() -> Result<SourceFile> {
     let runtime = tokio::runtime::Runtime::new()?;
-    match runtime.block_on(fetch_source(&SOURCES[0])) {
-        Some(file) => Ok(file),
+    let mut file = match runtime.block_on(fetch_source(&SOURCES[0])) {
+        Some(file) => file,
         None => bail!("Failed to fetch benchmark data from the CDN"),
+    };
+    match crate::api::fetch_providers() {
+        Ok(providers_map) => {
+            let providers: Vec<_> = providers_map.into_iter().collect();
+            crate::benchmarks::apply_model_traits(&providers, &mut file.models);
+        }
+        Err(_) => eprintln!(
+            "warning: models.dev unreachable — open/closed weights and capability data unavailable"
+        ),
     }
+    Ok(file)
 }
 
 fn filter_entries<'a>(models: &'a [ModelRow], options: &ListOptions) -> Vec<&'a ModelRow> {
