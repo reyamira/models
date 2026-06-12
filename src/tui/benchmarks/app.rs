@@ -1,186 +1,28 @@
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
 use ratatui::style::Color;
 use ratatui::widgets::ListState;
 
-use crate::benchmarks::{BenchmarkEntry, BenchmarkStore, ReasoningFilter};
+use crate::benchmarks::creator_openness;
+use crate::benchmarks::multi::{
+    default_sort, format_metric_value, radar_groups, MultiStore, ReasoningFilter, SortKey,
+    SourceLoad,
+};
+use crate::benchmarks::schema::{ModelRow, SourceFile};
+use crate::benchmarks::sources::SourceDescriptor;
 use crate::formatting::{cmp_opt_f64, parse_date_to_numeric};
 use crate::tui::widgets::scroll_offset::ScrollOffset;
 
 /// Page size for page up/down navigation
 const PAGE_SIZE: usize = 10;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum BenchmarkSortColumn {
-    Intelligence,
-    Coding,
-    Math,
-    Gpqa,
-    MMLUPro,
-    Hle,
-    LiveCode,
-    SciCode,
-    IFBench,
-    Lcr,
-    Terminal,
-    Tau2,
-    Speed,
-    Ttft,
-    Ttfat,
-    PriceInput,
-    PriceOutput,
-    PriceBlended,
-    Name,
-    #[default]
-    ReleaseDate,
-}
-
-impl BenchmarkSortColumn {
-    pub const ALL: &[Self] = &[
-        Self::ReleaseDate,
-        Self::Intelligence,
-        Self::Coding,
-        Self::Math,
-        Self::Gpqa,
-        Self::MMLUPro,
-        Self::Hle,
-        Self::LiveCode,
-        Self::SciCode,
-        Self::IFBench,
-        Self::Lcr,
-        Self::Terminal,
-        Self::Tau2,
-        Self::Speed,
-        Self::Ttft,
-        Self::Ttfat,
-        Self::PriceInput,
-        Self::PriceOutput,
-        Self::PriceBlended,
-        Self::Name,
-    ];
-
-    pub fn picker_label(&self) -> &'static str {
-        match self {
-            Self::Intelligence => "Intelligence Index",
-            Self::Coding => "Coding Index",
-            Self::Math => "Math Index",
-            Self::Gpqa => "GPQA Diamond",
-            Self::MMLUPro => "MMLU-Pro",
-            Self::Hle => "HLE",
-            Self::LiveCode => "LiveCodeBench",
-            Self::SciCode => "SciCode",
-            Self::IFBench => "IFBench",
-            Self::Lcr => "LCR",
-            Self::Terminal => "TerminalBench",
-            Self::Tau2 => "Tau2",
-            Self::Speed => "Output Speed (tok/s)",
-            Self::Ttft => "Time to First Token",
-            Self::Ttfat => "Time to First Action Token",
-            Self::PriceInput => "Price: Input $/M",
-            Self::PriceOutput => "Price: Output $/M",
-            Self::PriceBlended => "Price: Blended $/M",
-            Self::Name => "Name",
-            Self::ReleaseDate => "Release Date",
-        }
-    }
-
-    pub fn label(&self) -> &'static str {
-        match self {
-            Self::Intelligence => "Intel",
-            Self::Coding => "Code",
-            Self::Math => "Math",
-            Self::Gpqa => "GPQA",
-            Self::MMLUPro => "MMLU",
-            Self::Hle => "HLE",
-            Self::LiveCode => "LCBench",
-            Self::SciCode => "SciCode",
-            Self::IFBench => "IFBench",
-            Self::Lcr => "LCR",
-            Self::Terminal => "Terminal",
-            Self::Tau2 => "Tau2",
-            Self::Speed => "Tok/s",
-            Self::Ttft => "TTFT",
-            Self::Ttfat => "TTFAT",
-            Self::PriceInput => "In $/M",
-            Self::PriceOutput => "Out $/M",
-            Self::PriceBlended => "Bld $/M",
-            Self::Name => "Name",
-            Self::ReleaseDate => "Date",
-        }
-    }
-
-    /// Whether descending is the default sort direction for this column
-    pub fn default_descending(&self) -> bool {
-        !matches!(
-            self,
-            Self::Name
-                | Self::Ttft
-                | Self::Ttfat
-                | Self::PriceInput
-                | Self::PriceOutput
-                | Self::PriceBlended
-        )
-    }
-
-    /// Returns the columns to display in the list based on the active sort.
-    /// Always includes Name + the 3 composite indexes, plus the sort column's group.
-    pub fn visible_columns(&self) -> Vec<BenchmarkSortColumn> {
-        use BenchmarkSortColumn::*;
-
-        // Always-shown base columns
-        let mut cols = vec![Name, Intelligence, Coding, Math];
-
-        // Add the group that the sort column belongs to
-        let group = match self {
-            Intelligence | Coding | Math => vec![],
-            Gpqa | MMLUPro | Hle => vec![Gpqa, MMLUPro, Hle],
-            LiveCode | SciCode | Terminal => vec![LiveCode, SciCode, Terminal],
-            IFBench | Lcr | Tau2 => vec![IFBench, Lcr, Tau2],
-            Speed | Ttft | Ttfat => vec![Speed, Ttft, Ttfat],
-            PriceInput | PriceOutput | PriceBlended => vec![PriceInput, PriceOutput, PriceBlended],
-            Name => vec![Speed],
-            ReleaseDate => vec![ReleaseDate],
-        };
-
-        for col in group {
-            if !cols.contains(&col) {
-                cols.push(col);
-            }
-        }
-
-        cols
-    }
-
-    /// Extract the relevant field value from a benchmark entry.
-    /// Returns `Some` for numeric columns with data, `None` for missing data.
-    /// Name always returns `Some` (never filters out entries).
-    pub fn extract(&self, entry: &BenchmarkEntry) -> Option<f64> {
-        match self {
-            Self::Intelligence => entry.intelligence_index,
-            Self::Coding => entry.coding_index,
-            Self::Math => entry.math_index,
-            Self::Gpqa => entry.gpqa,
-            Self::MMLUPro => entry.mmlu_pro,
-            Self::Hle => entry.hle,
-            Self::LiveCode => entry.livecodebench,
-            Self::SciCode => entry.scicode,
-            Self::IFBench => entry.ifbench,
-            Self::Lcr => entry.lcr,
-            Self::Terminal => entry.terminalbench_hard,
-            Self::Tau2 => entry.tau2,
-            Self::Speed => entry.output_tps,
-            Self::Ttft => entry.ttft,
-            Self::Ttfat => entry.ttfat,
-            Self::PriceInput => entry.price_input,
-            Self::PriceOutput => entry.price_output,
-            Self::PriceBlended => entry.price_blended,
-            Self::Name => Some(0.0),
-            Self::ReleaseDate => entry
-                .release_date
-                .as_ref()
-                .and_then(|d| parse_date_to_numeric(d)),
-        }
-    }
+/// A single entry in the dynamic sort picker, paired with the metric index it
+/// targets (only meaningful for `SortKey::Metric`).
+#[derive(Debug, Clone)]
+pub struct SortOption {
+    pub key: SortKey,
+    pub label: String,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -199,7 +41,9 @@ pub enum CreatorListItem {
     Creator(String),     // creator slug
 }
 
-/// Per-model source filter: uses open_weights_map only (unmatched entries excluded from filtering).
+/// Per-model source filter: prefers the model's own `open_weights`, falling back
+/// to the creator-openness map. Entries with unknown openness (model `None` and
+/// creator absent from the map) are excluded when filtering by Open or Closed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SourceFilter {
     #[default]
@@ -225,20 +69,18 @@ impl SourceFilter {
         }
     }
 
-    /// Check if an entry passes the filter using per-model open_weights_map.
-    /// Unmatched entries (not in the map) are excluded when filtering by Open or Closed.
-    pub fn matches(
-        self,
-        entry: &BenchmarkEntry,
-        open_weights_map: &std::collections::HashMap<String, bool>,
-    ) -> bool {
+    /// Check if a model passes the filter. Openness is resolved per-model first
+    /// (`ModelRow.open_weights`), falling back to the creator-openness map.
+    /// Models with unknown openness (model `None` and creator absent from the
+    /// map) are excluded when filtering by Open or Closed.
+    pub fn matches(self, model: &ModelRow, openness: &HashMap<String, bool>) -> bool {
+        let open = model
+            .open_weights
+            .or_else(|| openness.get(&model.creator).copied());
         match self {
             Self::All => true,
-            Self::Open => open_weights_map.get(&entry.slug).copied().unwrap_or(false),
-            Self::Closed => open_weights_map
-                .get(&entry.slug)
-                .map(|&ow| !ow)
-                .unwrap_or(false),
+            Self::Open => open == Some(true),
+            Self::Closed => open == Some(false),
         }
     }
 }
@@ -251,6 +93,7 @@ pub enum CreatorRegion {
     MiddleEast,
     SouthKorea,
     Canada,
+    India,
     Other,
 }
 
@@ -263,6 +106,7 @@ impl CreatorRegion {
             Self::MiddleEast => "Middle East",
             Self::SouthKorea => "S. Korea",
             Self::Canada => "Canada",
+            Self::India => "India",
             Self::Other => "Other",
         }
     }
@@ -275,6 +119,7 @@ impl CreatorRegion {
             Self::MiddleEast => "ME",
             Self::SouthKorea => "KR",
             Self::Canada => "CA",
+            Self::India => "IN",
             Self::Other => "??",
         }
     }
@@ -287,6 +132,7 @@ impl CreatorRegion {
             Self::MiddleEast => Color::Yellow,
             Self::SouthKorea => Color::Cyan,
             Self::Canada => Color::Green,
+            Self::India => Color::Rgb(255, 153, 51), // saffron
             Self::Other => Color::DarkGray,
         }
     }
@@ -299,34 +145,17 @@ impl CreatorRegion {
             "Middle East" => Some(Self::MiddleEast),
             "S. Korea" => Some(Self::SouthKorea),
             "Canada" => Some(Self::Canada),
+            "India" => Some(Self::India),
             "Other" => Some(Self::Other),
             _ => None,
         }
     }
 
+    /// HQ region for a creator slug, resolved through the shared
+    /// [`creator_class`] table (handles cross-source slug aliases). Unknown
+    /// slugs fall back to `Other`.
     pub fn from_creator(slug: &str) -> Self {
-        match slug {
-            // United States
-            "openai" | "anthropic" | "google" | "meta" | "xai" | "aws" | "nvidia"
-            | "perplexity" | "azure" | "ibm" | "databricks" | "servicenow" | "snowflake"
-            | "liquidai" | "nous-research" | "ai2" | "prime-intellect" | "deepcogito"
-            | "reka-ai" => Self::US,
-            // China
-            "deepseek" | "alibaba" | "kimi" | "minimax" | "stepfun" | "baidu"
-            | "bytedance_seed" | "xiaomi" | "inclusionai" | "kwaikat" | "zai" | "openchat" => {
-                Self::China
-            }
-            // Europe
-            "mistral" => Self::Europe,
-            // Middle East (UAE, Israel)
-            "tii-uae" | "mbzuai" | "ai21-labs" => Self::MiddleEast,
-            // South Korea
-            "naver" | "korea-telecom" | "lg" | "upstage" | "motif-technologies" => Self::SouthKorea,
-            // Canada
-            "cohere" => Self::Canada,
-            // Other
-            _ => Self::Other,
-        }
+        creator_class(slug).map_or(Self::Other, |(region, _)| region)
     }
 }
 
@@ -380,18 +209,133 @@ impl CreatorType {
         }
     }
 
+    /// Organization type for a creator slug, resolved through the shared
+    /// [`creator_class`] table. Unknown slugs fall back to `Startup` (the most
+    /// common type for an unrecognized AI model creator).
     pub fn from_creator(slug: &str) -> Self {
-        match slug {
-            // Big tech / large corporations
-            "google" | "meta" | "aws" | "nvidia" | "alibaba" | "azure" | "ibm" | "servicenow"
-            | "snowflake" | "baidu" | "bytedance_seed" | "xiaomi" | "naver" | "korea-telecom"
-            | "lg" | "kwaikat" | "databricks" | "zai" | "inclusionai" => Self::Giant,
-            // Research labs / institutes / nonprofits
-            "tii-uae" | "mbzuai" | "nous-research" | "ai2" | "openchat" => Self::Research,
-            // AI-focused startups (default)
-            _ => Self::Startup,
-        }
+        creator_class(slug).map_or(Self::Startup, |(_, ctype)| ctype)
     }
+}
+
+/// One creator entity: its HQ region, organization type, and every per-source
+/// slug that refers to it. The four sources name the same lab differently
+/// (Alibaba is `alibaba` in AA but `qwen` in LLM Stats; Amazon is `aws` vs
+/// `amazon`; Moonshot is `kimi`/`moonshot`/`moonshotai`), so each entity lists
+/// all known aliases — classification keys on whichever slug the active source
+/// uses (no cross-source merging is needed; one source uses one slug).
+///
+/// `region` is factual (HQ country). `ctype` is a judgment call at the margins,
+/// applied by this convention (documented so the boundary can be corrected):
+///
+/// - `Giant` — a pre-existing large corporation/conglomerate where AI/LLMs are
+///   NOT the core business (Google, Meta, Amazon, telecoms…).
+/// - `Research` — an academic institution, university, nonprofit, or research
+///   institute.
+/// - `Startup` — an AI-first company, regardless of size (OpenAI, DeepSeek…).
+struct CreatorClass {
+    region: CreatorRegion,
+    ctype: CreatorType,
+    slugs: &'static [&'static str],
+}
+
+use CreatorRegion as R;
+use CreatorType as T;
+
+#[rustfmt::skip]
+static CREATOR_CLASSES: &[CreatorClass] = &[
+    // ---- United States ----
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["openai"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["anthropic"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["google", "google-deepmind"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["meta", "meta-ai", "llama"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["xai"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["amazon", "aws"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["microsoft", "microsoft-research", "azure"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["nvidia"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["perplexity", "perplexity-ai"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["ibm"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["salesforce"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["servicenow"] },
+    CreatorClass { region: R::US, ctype: T::Giant,    slugs: &["snowflake"] },
+    // Databricks: data+AI is its core business, so by the convention's operative
+    // clause ("Giant = AI NOT core") it's Startup despite its size (judgment call).
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["databricks"] },
+    CreatorClass { region: R::US, ctype: T::Research, slugs: &["ai2", "allen-institute-for-ai"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["nous-research"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["liquidai"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["prime-intellect"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["reka-ai"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["deepcogito"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["diffbot"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["cerebras-systems"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["mosaicml"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["hugging-face"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["inception"] },
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["arcee"] },
+    // Abacus.AI — US ML/agent platform; appears as an enriched models.dev
+    // provider id for some empty-creator rows.
+    CreatorClass { region: R::US, ctype: T::Startup,  slugs: &["abacus"] },
+    // ---- China ----
+    // Alibaba / Qwen — incl. models.dev regional + coding-plan provider-id
+    // variants that the runtime enrichment can assign as the creator.
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["alibaba", "qwen", "alibaba-cn", "alibaba-coding-plan", "alibaba-coding-plan-cn"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["deepseek"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["baidu"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["bytedance", "bytedance_seed"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["tencent"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["xiaomi"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["kimi", "moonshot", "moonshotai", "moonshotai-cn"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["minimax", "minimax-cn", "minimax-coding-plan", "minimax-cn-coding-plan"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["stepfun"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["zai", "z.ai", "z-ai-zhipu-ai", "zai-org", "zhipuai", "zhipuai-coding-plan", "zai-coding-plan"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["01-ai"] },
+    CreatorClass { region: R::China, ctype: T::Startup,  slugs: &["baichuan"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["inclusionai"] },
+    CreatorClass { region: R::China, ctype: T::Research, slugs: &["openbmb"] },
+    CreatorClass { region: R::China, ctype: T::Research, slugs: &["openchat"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["china-mobile"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["meituan"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["kwaikat"] },
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["longcat"] },
+    // Nanbeige: LLM lab inside BOSS Zhipin / Kanzhun (a non-AI recruitment
+    // giant) -> Giant per the "lab inside non-AI giant" convention.
+    CreatorClass { region: R::China, ctype: T::Giant,    slugs: &["nanbeige"] },
+    CreatorClass { region: R::China, ctype: T::Research, slugs: &["tsinghua-university"] },
+    // ---- Europe ----
+    CreatorClass { region: R::Europe, ctype: T::Startup,  slugs: &["mistral", "mistral-ai"] },
+    CreatorClass { region: R::Europe, ctype: T::Startup,  slugs: &["stability-ai"] },
+    CreatorClass { region: R::Europe, ctype: T::Research, slugs: &["swiss-ai-initiative"] },
+    // ---- Middle East ----
+    CreatorClass { region: R::MiddleEast, ctype: T::Research, slugs: &["tii-uae", "technology-innovation-institute"] },
+    CreatorClass { region: R::MiddleEast, ctype: T::Research, slugs: &["mbzuai"] },
+    CreatorClass { region: R::MiddleEast, ctype: T::Startup,  slugs: &["ai21-labs"] },
+    // ---- South Korea ----
+    CreatorClass { region: R::SouthKorea, ctype: T::Giant,   slugs: &["naver"] },
+    CreatorClass { region: R::SouthKorea, ctype: T::Giant,   slugs: &["korea-telecom"] },
+    CreatorClass { region: R::SouthKorea, ctype: T::Giant,   slugs: &["lg"] },
+    CreatorClass { region: R::SouthKorea, ctype: T::Startup, slugs: &["upstage"] },
+    CreatorClass { region: R::SouthKorea, ctype: T::Startup, slugs: &["motif-technologies"] },
+    CreatorClass { region: R::SouthKorea, ctype: T::Startup, slugs: &["trillionlabs"] },
+    // ---- Canada ----
+    CreatorClass { region: R::Canada, ctype: T::Startup, slugs: &["cohere"] },
+    // ---- India ----
+    CreatorClass { region: R::India, ctype: T::Startup, slugs: &["sarvam", "sarvamai"] },
+];
+
+/// Resolve a creator slug to its `(region, type)` via the shared table. Built
+/// once into a slug→class map. Returns `None` for unrecognized slugs.
+fn creator_class(slug: &str) -> Option<(CreatorRegion, CreatorType)> {
+    static MAP: LazyLock<HashMap<&'static str, (CreatorRegion, CreatorType)>> =
+        LazyLock::new(|| {
+            let mut m = HashMap::new();
+            for c in CREATOR_CLASSES {
+                for s in c.slugs {
+                    m.insert(*s, (c.region, c.ctype));
+                }
+            }
+            m
+        });
+    MAP.get(slug).copied()
 }
 
 /// Pre-computed creator info: display name and model counts.
@@ -399,74 +343,6 @@ struct CreatorInfo {
     display_name: String,
     count: usize,
     filtered_count: usize,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum ScatterAxis {
-    #[default]
-    Intelligence,
-    Coding,
-    Math,
-    Speed,
-    Price,
-}
-
-impl ScatterAxis {
-    pub fn next(self) -> Self {
-        match self {
-            Self::Intelligence => Self::Coding,
-            Self::Coding => Self::Math,
-            Self::Math => Self::Speed,
-            Self::Speed => Self::Price,
-            Self::Price => Self::Intelligence,
-        }
-    }
-
-    pub fn label(self) -> &'static str {
-        match self {
-            Self::Intelligence => "Intelligence",
-            Self::Coding => "Coding",
-            Self::Math => "Math",
-            Self::Speed => "Speed (tok/s)",
-            Self::Price => "Price ($/M)",
-        }
-    }
-
-    pub fn extract(self) -> fn(&crate::benchmarks::BenchmarkEntry) -> Option<f64> {
-        match self {
-            Self::Intelligence => |e| e.intelligence_index,
-            Self::Coding => |e| e.coding_index,
-            Self::Math => |e| e.math_index,
-            Self::Speed => |e| e.output_tps,
-            Self::Price => |e| e.price_blended,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum RadarPreset {
-    #[default]
-    Agentic,
-    Academic,
-    Indexes,
-}
-
-impl RadarPreset {
-    pub fn label(self) -> &'static str {
-        match self {
-            Self::Agentic => "Agentic",
-            Self::Academic => "Academic",
-            Self::Indexes => "Indexes",
-        }
-    }
-
-    pub fn next(self) -> Self {
-        match self {
-            Self::Agentic => Self::Academic,
-            Self::Academic => Self::Indexes,
-            Self::Indexes => Self::Agentic,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -478,12 +354,55 @@ pub enum BottomView {
     Radar,
 }
 
+/// Comparator column shown next to each metric value in the browse-mode detail
+/// panel. A display preference (persists across source switches/refreshes), not
+/// per-source view state.
+///
+/// - `FieldAvg` — the field-wide arithmetic mean of the metric.
+/// - `PeerAvg` — the mean over models released within ±6 months of the selected
+///   model (its release-date "peers").
+/// - `Rank` — the selected model's 1-based, direction-aware rank.
+/// - `Off` — no comparator cell.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ComparatorMode {
+    #[default]
+    FieldAvg,
+    PeerAvg,
+    Rank,
+    Off,
+}
+
+impl ComparatorMode {
+    /// Cycle `FieldAvg → PeerAvg → Rank → Off → FieldAvg`.
+    pub fn next(self) -> Self {
+        match self {
+            Self::FieldAvg => Self::PeerAvg,
+            Self::PeerAvg => Self::Rank,
+            Self::Rank => Self::Off,
+            Self::Off => Self::FieldAvg,
+        }
+    }
+
+    /// Detail-panel title suffix for the active mode (` Details · …`), or empty
+    /// for `Off`.
+    pub fn title_suffix(self) -> &'static str {
+        match self {
+            Self::FieldAvg => " \u{00B7} vs field avg",
+            Self::PeerAvg => " \u{00B7} vs peers (\u{00B1}6mo)",
+            Self::Rank => " \u{00B7} rank",
+            Self::Off => "",
+        }
+    }
+}
+
 pub struct BenchmarksApp {
+    /// Index into [`crate::benchmarks::sources::SOURCES`] / `MultiStore::sources`.
+    pub active_source: usize,
     pub filtered_indices: Vec<usize>,
     pub selected: usize,
     pub list_state: ListState,
     pub focus: BenchmarkFocus,
-    pub sort_column: BenchmarkSortColumn,
+    pub sort_key: SortKey,
     pub sort_descending: bool,
     pub search_query: String,
     // Creator sidebar
@@ -494,33 +413,64 @@ pub struct BenchmarksApp {
     pub reasoning_filter: ReasoningFilter,
     pub creator_grouping: CreatorGrouping,
     creator_info: HashMap<String, CreatorInfo>,
+    // Model totals independent of creator attribution — sources like Epoch
+    // carry no Organization data, so creator-summed counts would read 0.
+    all_models_count: usize,
+    all_models_filtered_count: usize,
+    /// Creator -> openness, derived from the active source's models.
+    creator_openness: HashMap<String, bool>,
     pub bottom_view: BottomView,
+    /// Detail-panel comparator column (field avg / peers / rank / off). A display
+    /// preference — persists across source switches and refreshes.
+    pub comparator: ComparatorMode,
     pub h2h_scroll: ScrollOffset,
     pub show_detail_overlay: bool,
     pub show_creators_in_compare: bool,
-    pub scatter_x: ScatterAxis,
-    pub scatter_y: ScatterAxis,
-    pub radar_preset: RadarPreset,
+    /// Scatter axis metric indices into the active source's `metrics`.
+    pub scatter_x: usize,
+    pub scatter_y: usize,
+    /// Index into `radar_groups(file)` of the active radar preset group.
+    pub radar_group: usize,
     pub show_sort_picker: bool,
     pub sort_picker_selected: usize,
     pub loading: bool,
     pub detail_scroll: ScrollOffset,
+    /// Whether the benchmark-glossary popup (`i`) is open.
+    pub show_glossary: bool,
+    /// Scroll position of the glossary popup.
+    pub glossary_scroll: ScrollOffset,
+    // --- Column visibility picker (Phase 2) ---
+    /// Metric indices (into the active source's `file.metrics`) that the user
+    /// has chosen to show as extra columns in the browse-mode list. Kept in
+    /// file order. **Session-only** (no config persistence).
+    pub visible_columns: Vec<usize>,
+    /// Whether the column-visibility picker popup (`C`) is open.
+    pub show_column_picker: bool,
+    /// Cursor position in the column picker list.
+    pub column_picker_selected: usize,
+    /// Pending working set for the column picker: indices that are toggled on.
+    /// Applying this to `visible_columns` happens on Enter; Esc discards it.
+    pub column_picker_pending: Vec<usize>,
 }
 
 impl BenchmarksApp {
-    pub fn new(store: &BenchmarkStore, open_weights_map: &HashMap<String, bool>) -> Self {
+    /// Construct against the active source's file (or `None` while it loads).
+    pub fn new(file: Option<&SourceFile>) -> Self {
         let mut list_state = ListState::default();
         list_state.select(Some(0));
 
         let mut creator_list_state = ListState::default();
         creator_list_state.select(Some(0));
 
+        let sort_key = file.map(default_sort).unwrap_or(SortKey::ReleaseDate);
+
         let mut app = Self {
+            active_source: 0,
             filtered_indices: Vec::new(),
             selected: 0,
             list_state,
             focus: BenchmarkFocus::default(),
-            sort_column: BenchmarkSortColumn::default(),
+            sort_key,
             sort_descending: true,
             search_query: String::new(),
             creator_list_items: Vec::new(),
@@ -530,49 +480,279 @@ impl BenchmarksApp {
             reasoning_filter: ReasoningFilter::default(),
             creator_grouping: CreatorGrouping::default(),
             creator_info: HashMap::new(),
+            all_models_count: 0,
+            all_models_filtered_count: 0,
+            creator_openness: HashMap::new(),
             bottom_view: BottomView::default(),
+            comparator: ComparatorMode::default(),
             h2h_scroll: ScrollOffset::default(),
             show_detail_overlay: false,
             show_creators_in_compare: false,
-            scatter_x: ScatterAxis::default(),
-            scatter_y: ScatterAxis::Coding,
-            radar_preset: RadarPreset::default(),
+            scatter_x: 0,
+            scatter_y: 1,
+            radar_group: 0,
             show_sort_picker: false,
             sort_picker_selected: 0,
             loading: true,
             detail_scroll: ScrollOffset::default(),
+            show_glossary: false,
+            glossary_scroll: ScrollOffset::default(),
+            visible_columns: Vec::new(),
+            show_column_picker: false,
+            column_picker_selected: 0,
+            column_picker_pending: Vec::new(),
         };
 
-        app.build_creator_list(store, open_weights_map);
-        app.update_filtered(store, open_weights_map);
+        if let Some(file) = file {
+            app.creator_openness = creator_openness(&file.models);
+            app.build_creator_list(file);
+            app.update_filtered(file);
+        }
         app
     }
 
-    /// Rebuild all derived state after the underlying store changes.
-    /// Re-derives creator list, filtered indices, and resets selection.
-    pub fn rebuild(&mut self, store: &BenchmarkStore, open_weights_map: &HashMap<String, bool>) {
-        self.build_creator_list(store, open_weights_map);
+    // --- Active source / descriptor accessors ---
+
+    /// Descriptor of the active source.
+    pub fn active_descriptor(
+        store: &MultiStore,
+        active: usize,
+    ) -> Option<&'static SourceDescriptor> {
+        store.sources.get(active).map(|s| s.descriptor)
+    }
+
+    /// The active source's `SourceFile`, if loaded.
+    pub fn active_file(store: &MultiStore, active: usize) -> Option<&SourceFile> {
+        store.file(active)
+    }
+
+    /// `true` when the active source is still loading.
+    pub fn active_is_loading(store: &MultiStore, active: usize) -> bool {
+        matches!(
+            store.sources.get(active).map(|s| &s.load),
+            Some(SourceLoad::Loading)
+        )
+    }
+
+    /// `true` when the active source failed to load.
+    pub fn active_is_failed(store: &MultiStore, active: usize) -> bool {
+        matches!(
+            store.sources.get(active).map(|s| &s.load),
+            Some(SourceLoad::Failed)
+        )
+    }
+
+    /// Whether the active source has any model carrying a reasoning status, used
+    /// to hide the `7` reasoning filter when it would be a no-op. Returns `false`
+    /// when the source is not loaded.
+    pub fn reasoning_filter_available(file: Option<&SourceFile>) -> bool {
+        file.map(|f| {
+            f.models
+                .iter()
+                .any(|m| !matches!(m.reasoning_status, crate::benchmarks::ReasoningStatus::None))
+        })
+        .unwrap_or(false)
+    }
+
+    /// Snapshot of the active source's creator-openness map (for render).
+    pub fn creator_openness(&self) -> &HashMap<String, bool> {
+        &self.creator_openness
+    }
+
+    // --- Source switching ---
+
+    /// Switch to the next/previous source (wrapping). Resets per-source view
+    /// state (selection, scrolls, scatter/radar axes, popups) but **preserves**
+    /// cross-source query/filter/grouping/sort intent — see [`reset_for_source`].
+    ///
+    /// Selecting a Loading/Failed source is allowed — the views render the
+    /// loading/error state. `App` remaps its shared `selections` by id separately
+    /// (see the `CycleDataSource*` handlers).
+    ///
+    /// [`reset_for_source`]: Self::reset_for_source
+    pub fn switch_source(&mut self, store: &MultiStore, forward: bool) {
+        let count = store.sources.len();
+        if count == 0 {
+            return;
+        }
+        self.active_source = if forward {
+            (self.active_source + 1) % count
+        } else {
+            (self.active_source + count - 1) % count
+        };
+        self.reset_for_source(store);
+    }
+
+    /// Reset view state for the newly active source, **preserving** cross-source
+    /// query/filter/grouping/sort intent where it still maps:
+    ///
+    /// Kept across the switch:
+    /// - `search_query` (re-applied against the new source via the rebuild)
+    /// - `source_filter` (open-weights) and `creator_grouping`
+    /// - `reasoning_filter` — except when the new source carries no reasoning
+    ///   metadata (the `7` key is a no-op there); a stuck invisible filter would
+    ///   silently empty the list, so it is reset to `All`
+    /// - sort: `ReleaseDate` / `Name` keys (and direction) survive; a
+    ///   `Metric(i)` key does not map across sources, so it falls back to the
+    ///   new source's `default_sort` + its default direction
+    ///
+    /// Reset per-source (view) state: selected row/creator indices, all scrolls,
+    /// scatter/radar axes, `bottom_view`, and all popups (sort picker, glossary,
+    /// detail overlay).
+    pub fn reset_for_source(&mut self, store: &MultiStore) {
+        let active = self.active_source;
+
+        // Per-source view state always resets.
+        self.selected = 0;
+        self.selected_creator = 0;
+        self.list_state.select(Some(0));
+        self.creator_list_state.select(Some(0));
+        self.scatter_x = 0;
+        self.scatter_y = 1;
+        self.radar_group = 0;
+        self.bottom_view = BottomView::default();
+        self.show_detail_overlay = false;
+        self.show_sort_picker = false;
+        // Close the glossary and reset its scroll: its contents are per-source.
+        self.show_glossary = false;
+        self.glossary_scroll.jump_top();
+        self.h2h_scroll.jump_top();
+        self.reset_detail_scroll();
+        // Column picker: indices are per-source, so reset on every switch.
+        self.visible_columns = Vec::new();
+        self.show_column_picker = false;
+
+        if let Some(file) = store.file(active) {
+            self.loading = false;
+            // Reasoning filter: keep it unless the new source can't honor it.
+            if !Self::reasoning_filter_available(Some(file)) {
+                self.reasoning_filter = ReasoningFilter::default();
+            }
+            // Sort: keep date/name (with direction); a metric index is
+            // source-specific, so remap it to the new source's default.
+            if matches!(self.sort_key, SortKey::Metric(_)) {
+                self.sort_key = default_sort(file);
+                self.sort_descending = Self::default_descending(file, self.sort_key);
+            }
+            self.creator_openness = creator_openness(&file.models);
+            self.build_creator_list(file);
+            self.update_filtered(file);
+        } else {
+            self.loading = !Self::active_is_failed(store, active);
+            // No file to honor a metric sort or reasoning data against — fall
+            // back to safe defaults; the preserved search/filters re-apply once
+            // the source lands and rebuilds.
+            if matches!(self.sort_key, SortKey::Metric(_)) {
+                self.sort_key = SortKey::ReleaseDate;
+                self.sort_descending = true;
+            }
+            self.reasoning_filter = ReasoningFilter::default();
+            self.creator_openness = HashMap::new();
+            self.creator_info = HashMap::new();
+            self.creator_list_items = vec![CreatorListItem::All];
+            self.filtered_indices = Vec::new();
+        }
+    }
+
+    // --- Rebuilds (require the active file) ---
+
+    /// Rebuild all derived state after the active source's file first lands.
+    /// Re-derives creator list, filtered indices, openness, applies the
+    /// per-source default sort, and resets selection.
+    pub fn rebuild(&mut self, file: &SourceFile) {
+        self.loading = false;
+        self.sort_key = default_sort(file);
+        self.sort_descending = Self::default_descending(file, self.sort_key);
+        self.creator_openness = creator_openness(&file.models);
+        self.build_creator_list(file);
         self.selected_creator = 0;
         self.creator_list_state.select(Some(0));
         self.selected = 0;
-        self.update_filtered(store, open_weights_map);
+        self.update_filtered(file);
+        self.reset_detail_scroll();
+    }
+
+    /// State-preserving rebuild used by an in-app refresh of the active source.
+    ///
+    /// Unlike [`rebuild`], this keeps the user's intent against the refreshed
+    /// file:
+    /// - the current sort key + direction, when still valid — a `Metric(i)` that
+    ///   now indexes past the (possibly shrunk) metric list falls back to
+    ///   `default_sort`
+    /// - search / filters / grouping (they live on the app and re-apply via
+    ///   `build_creator_list` + `update_filtered`)
+    /// - the selected creator by slug and the selected model by id, each falling
+    ///   back to index 0 when it no longer exists
+    ///
+    /// `App.selections` (compare set) is remapped by id at the call site.
+    ///
+    /// `prev_model_id` is the id of the model that was selected against the
+    /// *previous* file (the caller must capture it before the store is swapped,
+    /// since `self.filtered_indices` still holds indices into the old file).
+    ///
+    /// [`rebuild`]: Self::rebuild
+    pub fn rebuild_preserving(&mut self, file: &SourceFile, prev_model_id: Option<String>) {
+        self.loading = false;
+
+        // Sort: keep it unless a metric index is now out of range.
+        if let SortKey::Metric(mi) = self.sort_key {
+            if mi >= file.metrics.len() {
+                self.sort_key = default_sort(file);
+                self.sort_descending = Self::default_descending(file, self.sort_key);
+            }
+        }
+
+        // Column visibility: drop entries that are out of range after a refresh
+        // that shrank the metric list.
+        self.visible_columns.retain(|&i| i < file.metrics.len());
+
+        // The selected creator slug is file-independent (slugs are strings), so
+        // it can be read here; the selected model id is captured by the caller
+        // against the previous file.
+        let prev_creator_slug = match self.creator_list_items.get(self.selected_creator) {
+            Some(CreatorListItem::Creator(slug)) => Some(slug.clone()),
+            _ => None,
+        };
+
+        self.creator_openness = creator_openness(&file.models);
+        self.build_creator_list(file);
+
+        // Restore the selected creator by slug, else fall back to "All" (index 0).
+        let new_creator_pos = prev_creator_slug.and_then(|prev_slug| {
+            self.creator_list_items.iter().position(
+                |item| matches!(item, CreatorListItem::Creator(slug) if *slug == prev_slug),
+            )
+        });
+        self.selected_creator = new_creator_pos.unwrap_or(0);
+        self.creator_list_state.select(Some(self.selected_creator));
+
+        self.update_filtered(file);
+
+        // Restore the selected model by id within the rebuilt filtered view.
+        if let Some(prev_id) = prev_model_id {
+            if let Some(pos) = self
+                .filtered_indices
+                .iter()
+                .position(|&i| file.models[i].id == prev_id)
+            {
+                self.selected = pos;
+                self.list_state.select(Some(pos));
+            }
+        }
+
         self.reset_detail_scroll();
     }
 
     /// Rebuild creator list and filtered entries after any search/filter change.
     /// Preserves the selected creator if it's still visible.
-    pub fn rebuild_after_filter_change(
-        &mut self,
-        store: &BenchmarkStore,
-        open_weights_map: &HashMap<String, bool>,
-    ) {
+    pub fn rebuild_after_filter_change(&mut self, file: &SourceFile) {
         // Remember which creator was selected
         let prev_creator_slug = match self.creator_list_items.get(self.selected_creator) {
             Some(CreatorListItem::Creator(slug)) => Some(slug.clone()),
             _ => None, // All or GroupHeader
         };
 
-        self.build_creator_list(store, open_weights_map);
+        self.build_creator_list(file);
 
         // Try to find the previously selected creator in the new list
         let new_pos = prev_creator_slug.and_then(|prev_slug| {
@@ -584,7 +764,7 @@ impl BenchmarksApp {
         self.selected_creator = new_pos.unwrap_or(0);
         self.creator_list_state.select(Some(self.selected_creator));
         self.selected = 0;
-        self.update_filtered(store, open_weights_map);
+        self.update_filtered(file);
         self.reset_detail_scroll();
     }
 
@@ -594,40 +774,39 @@ impl BenchmarksApp {
             || self.reasoning_filter != ReasoningFilter::default()
     }
 
-    fn entry_matches_filters(
-        &self,
-        entry: &BenchmarkEntry,
-        open_weights_map: &HashMap<String, bool>,
-    ) -> bool {
-        if !self.source_filter.matches(entry, open_weights_map) {
+    fn model_matches_filters(&self, model: &ModelRow) -> bool {
+        if !self.source_filter.matches(model, &self.creator_openness) {
             return false;
         }
-        if !self.reasoning_filter.matches(entry) {
+        if !self.reasoning_filter.matches(model) {
             return false;
         }
         if !self.search_query.is_empty() {
             let query_lower = self.search_query.to_lowercase();
-            return entry.name.to_lowercase().contains(&query_lower)
-                || entry.creator.to_lowercase().contains(&query_lower)
-                || entry.slug.to_lowercase().contains(&query_lower);
+            return model.display_name.to_lowercase().contains(&query_lower)
+                || model.name.to_lowercase().contains(&query_lower)
+                || model.creator.to_lowercase().contains(&query_lower)
+                || model.creator_name.to_lowercase().contains(&query_lower);
         }
         true
     }
 
-    fn build_creator_list(
-        &mut self,
-        store: &BenchmarkStore,
-        open_weights_map: &HashMap<String, bool>,
-    ) {
+    fn build_creator_list(&mut self, file: &SourceFile) {
         let mut info: HashMap<String, CreatorInfo> = HashMap::new();
         let filtering = self.has_active_filters();
 
-        for entry in store.entries() {
-            if entry.creator.is_empty() {
+        let mut total = 0usize;
+        let mut filtered_total = 0usize;
+        for model in &file.models {
+            let passes = !filtering || self.model_matches_filters(model);
+            total += 1;
+            if passes {
+                filtered_total += 1;
+            }
+            if model.creator.is_empty() {
                 continue;
             }
-            let passes = !filtering || self.entry_matches_filters(entry, open_weights_map);
-            info.entry(entry.creator.clone())
+            info.entry(model.creator.clone())
                 .and_modify(|i| {
                     i.count += 1;
                     if passes {
@@ -635,15 +814,18 @@ impl BenchmarksApp {
                     }
                 })
                 .or_insert_with(|| CreatorInfo {
-                    display_name: if entry.creator_name.is_empty() {
-                        entry.creator.clone()
+                    display_name: if model.creator_name.is_empty() {
+                        model.creator.clone()
                     } else {
-                        entry.creator_name.clone()
+                        model.creator_name.clone()
                     },
                     count: 1,
                     filtered_count: if passes { 1 } else { 0 },
                 });
         }
+
+        self.all_models_count = total;
+        self.all_models_filtered_count = filtered_total;
 
         let mut creators: Vec<String> = if filtering {
             info.iter()
@@ -676,6 +858,7 @@ impl BenchmarksApp {
                     CreatorRegion::MiddleEast,
                     CreatorRegion::SouthKorea,
                     CreatorRegion::Canada,
+                    CreatorRegion::India,
                     CreatorRegion::Other,
                 ];
                 for region in &regions {
@@ -739,18 +922,13 @@ impl BenchmarksApp {
 
     /// Total filtered count across all visible creators.
     pub fn filtered_creator_count(&self) -> usize {
+        // Counts ALL models (creator-attributed or not) — sources like Epoch
+        // ship no Organization data, and summing per-creator counts there
+        // would render "All (0)" beside a populated list.
         if self.has_active_filters() {
-            self.creator_list_items
-                .iter()
-                .filter_map(|item| match item {
-                    CreatorListItem::Creator(slug) => {
-                        self.creator_info.get(slug).map(|i| i.filtered_count)
-                    }
-                    _ => None,
-                })
-                .sum()
+            self.all_models_filtered_count
         } else {
-            self.creator_info.values().map(|i| i.count).sum()
+            self.all_models_count
         }
     }
 
@@ -768,55 +946,63 @@ impl BenchmarksApp {
         Some(self.creator_display(slug).0)
     }
 
-    pub fn update_filtered(
-        &mut self,
-        store: &BenchmarkStore,
-        open_weights_map: &HashMap<String, bool>,
-    ) {
+    pub fn update_filtered(&mut self, file: &SourceFile) {
         let query_lower = self.search_query.to_lowercase();
         let creator_slug = self.selected_creator_slug().map(|s| s.to_owned());
         let source_filter = self.source_filter;
-        let reasoning_filter = self.reasoning_filter.clone();
+        let reasoning_filter = self.reasoning_filter;
 
-        self.filtered_indices = store
-            .entries()
+        self.filtered_indices = file
+            .models
             .iter()
             .enumerate()
-            .filter(|(_, entry)| {
+            .filter(|(_, model)| {
                 // Per-model source filter (open/closed)
-                if !source_filter.matches(entry, open_weights_map) {
+                if !source_filter.matches(model, &self.creator_openness) {
                     return false;
                 }
                 // Reasoning filter
-                if !reasoning_filter.matches(entry) {
+                if !reasoning_filter.matches(model) {
                     return false;
                 }
                 // Creator filter
                 if let Some(ref slug) = creator_slug {
-                    if entry.creator != *slug {
+                    if model.creator != *slug {
                         return false;
                     }
                 }
                 // Search filter
                 if !query_lower.is_empty() {
-                    return entry.name.to_lowercase().contains(&query_lower)
-                        || entry.creator.to_lowercase().contains(&query_lower)
-                        || entry.slug.to_lowercase().contains(&query_lower);
+                    return model.display_name.to_lowercase().contains(&query_lower)
+                        || model.name.to_lowercase().contains(&query_lower)
+                        || model.creator.to_lowercase().contains(&query_lower)
+                        || model.creator_name.to_lowercase().contains(&query_lower);
                 }
                 true
             })
             .map(|(i, _)| i)
             .collect();
 
-        // Null-filter: hide entries missing data for the active sort column
-        if !matches!(self.sort_column, BenchmarkSortColumn::Name) {
-            let col = self.sort_column;
-            let entries = store.entries();
-            self.filtered_indices
-                .retain(|&i| col.extract(&entries[i]).is_some());
+        // Null-filter: hide models missing data for the active sort key. Matches
+        // the legacy behavior — every key except `Name` drops rows with no value
+        // for the active column (ReleaseDate drops dateless models, Metric drops
+        // models with no score for that metric).
+        match self.sort_key {
+            SortKey::Name => {}
+            SortKey::ReleaseDate => {
+                self.filtered_indices
+                    .retain(|&i| file.models[i].release_date.is_some());
+            }
+            SortKey::Metric(mi) => {
+                if let Some(metric) = file.metrics.get(mi) {
+                    let metric_id = metric.id.clone();
+                    self.filtered_indices
+                        .retain(|&i| file.models[i].scores.contains_key(&metric_id));
+                }
+            }
         }
 
-        self.apply_sort(store);
+        self.apply_sort(file);
 
         if self.selected >= self.filtered_indices.len() {
             self.selected = 0;
@@ -825,49 +1011,33 @@ impl BenchmarksApp {
         self.reset_detail_scroll();
     }
 
-    pub fn apply_sort(&mut self, store: &BenchmarkStore) {
-        let entries = store.entries();
-        let col = self.sort_column;
+    /// Extract the numeric value of `key` for a model (None when missing).
+    fn extract(file: &SourceFile, model: &ModelRow, key: SortKey) -> Option<f64> {
+        match key {
+            SortKey::Name => Some(0.0),
+            SortKey::ReleaseDate => model
+                .release_date
+                .as_ref()
+                .and_then(|d| parse_date_to_numeric(d)),
+            SortKey::Metric(mi) => file
+                .metrics
+                .get(mi)
+                .and_then(|m| model.scores.get(&m.id))
+                .map(|cell| cell.value),
+        }
+    }
+
+    pub fn apply_sort(&mut self, file: &SourceFile) {
+        let key = self.sort_key;
         let desc = self.sort_descending;
 
         self.filtered_indices.sort_by(|&a, &b| {
-            let ea = &entries[a];
-            let eb = &entries[b];
+            let ma = &file.models[a];
+            let mb = &file.models[b];
 
-            let ord = match col {
-                BenchmarkSortColumn::Intelligence => {
-                    cmp_opt_f64(ea.intelligence_index, eb.intelligence_index)
-                }
-                BenchmarkSortColumn::Coding => cmp_opt_f64(ea.coding_index, eb.coding_index),
-                BenchmarkSortColumn::Math => cmp_opt_f64(ea.math_index, eb.math_index),
-                BenchmarkSortColumn::Gpqa => cmp_opt_f64(ea.gpqa, eb.gpqa),
-                BenchmarkSortColumn::MMLUPro => cmp_opt_f64(ea.mmlu_pro, eb.mmlu_pro),
-                BenchmarkSortColumn::Hle => cmp_opt_f64(ea.hle, eb.hle),
-                BenchmarkSortColumn::LiveCode => cmp_opt_f64(ea.livecodebench, eb.livecodebench),
-                BenchmarkSortColumn::SciCode => cmp_opt_f64(ea.scicode, eb.scicode),
-                BenchmarkSortColumn::IFBench => cmp_opt_f64(ea.ifbench, eb.ifbench),
-                BenchmarkSortColumn::Lcr => cmp_opt_f64(ea.lcr, eb.lcr),
-                BenchmarkSortColumn::Terminal => {
-                    cmp_opt_f64(ea.terminalbench_hard, eb.terminalbench_hard)
-                }
-                BenchmarkSortColumn::Tau2 => cmp_opt_f64(ea.tau2, eb.tau2),
-                BenchmarkSortColumn::Speed => cmp_opt_f64(ea.output_tps, eb.output_tps),
-                BenchmarkSortColumn::Ttft => cmp_opt_f64(ea.ttft, eb.ttft),
-                BenchmarkSortColumn::Ttfat => cmp_opt_f64(ea.ttfat, eb.ttfat),
-                BenchmarkSortColumn::PriceInput => cmp_opt_f64(ea.price_input, eb.price_input),
-                BenchmarkSortColumn::PriceOutput => cmp_opt_f64(ea.price_output, eb.price_output),
-                BenchmarkSortColumn::PriceBlended => {
-                    cmp_opt_f64(ea.price_blended, eb.price_blended)
-                }
-                BenchmarkSortColumn::Name => ea.name.cmp(&eb.name),
-                BenchmarkSortColumn::ReleaseDate => cmp_opt_f64(
-                    ea.release_date
-                        .as_ref()
-                        .and_then(|d| parse_date_to_numeric(d)),
-                    eb.release_date
-                        .as_ref()
-                        .and_then(|d| parse_date_to_numeric(d)),
-                ),
+            let ord = match key {
+                SortKey::Name => ma.name.cmp(&mb.name),
+                _ => cmp_opt_f64(Self::extract(file, ma, key), Self::extract(file, mb, key)),
             };
 
             if desc {
@@ -878,35 +1048,93 @@ impl BenchmarksApp {
         });
     }
 
-    pub fn toggle_sort_direction(&mut self, store: &BenchmarkStore) {
+    pub fn toggle_sort_direction(&mut self, file: &SourceFile) {
         self.sort_descending = !self.sort_descending;
-        self.apply_sort(store);
+        self.apply_sort(file);
     }
 
-    /// Jump directly to a sort column. If already on that column, toggle direction.
-    pub fn quick_sort(
-        &mut self,
-        col: BenchmarkSortColumn,
-        store: &BenchmarkStore,
-        open_weights_map: &HashMap<String, bool>,
-    ) {
-        if self.sort_column == col {
-            self.sort_descending = !self.sort_descending;
-            self.apply_sort(store);
-        } else {
-            self.sort_column = col;
-            self.sort_descending = col.default_descending();
-            self.update_filtered(store, open_weights_map);
+    /// Default descending for everything except Name and lower-is-better metrics
+    /// (latency, pricing).
+    fn default_descending(file: &SourceFile, key: SortKey) -> bool {
+        match key {
+            SortKey::Name => false,
+            SortKey::ReleaseDate => true,
+            SortKey::Metric(mi) => file
+                .metrics
+                .get(mi)
+                .map(|m| m.higher_is_better)
+                .unwrap_or(true),
         }
     }
 
-    pub fn current_entry<'a>(
-        &self,
-        store: &'a BenchmarkStore,
-    ) -> Option<&'a crate::benchmarks::BenchmarkEntry> {
+    /// Jump directly to a sort key (sort-picker confirm). Re-selecting the
+    /// already-active key toggles direction instead.
+    pub fn select_sort_key(&mut self, key: SortKey, file: &SourceFile) {
+        if self.sort_key == key {
+            self.sort_descending = !self.sort_descending;
+            self.apply_sort(file);
+        } else {
+            self.sort_key = key;
+            self.sort_descending = Self::default_descending(file, key);
+            self.update_filtered(file);
+        }
+    }
+
+    /// Build the dynamic sort-picker option list for the active file:
+    /// `[ReleaseDate, Name, Metric(0..n) in file order]`.
+    pub fn sort_options(file: &SourceFile) -> Vec<SortOption> {
+        let mut opts = Vec::with_capacity(file.metrics.len() + 2);
+        opts.push(SortOption {
+            key: SortKey::ReleaseDate,
+            label: "Release Date".to_string(),
+        });
+        opts.push(SortOption {
+            key: SortKey::Name,
+            label: "Name".to_string(),
+        });
+        for (i, metric) in file.metrics.iter().enumerate() {
+            opts.push(SortOption {
+                key: SortKey::Metric(i),
+                label: metric.label.clone(),
+            });
+        }
+        opts
+    }
+
+    /// Short label for the active sort key, shown in the list title.
+    pub fn sort_label(file: Option<&SourceFile>, key: SortKey) -> String {
+        match key {
+            SortKey::Name => "Name".to_string(),
+            SortKey::ReleaseDate => "Date".to_string(),
+            SortKey::Metric(mi) => file
+                .and_then(|f| f.metrics.get(mi))
+                .map(|m| m.label.clone())
+                .unwrap_or_else(|| "—".to_string()),
+        }
+    }
+
+    pub fn current_model<'a>(&self, file: &'a SourceFile) -> Option<&'a ModelRow> {
         self.filtered_indices
             .get(self.selected)
-            .and_then(|&i| store.entries().get(i))
+            .and_then(|&i| file.models.get(i))
+    }
+
+    /// Id of the currently selected model, resolved against `file` (which must
+    /// be the file the current `filtered_indices` were built against). Used to
+    /// snapshot the selection before a refresh swaps the underlying file.
+    pub fn selected_model_id(&self, file: &SourceFile) -> Option<String> {
+        self.current_model(file).map(|m| m.id.clone())
+    }
+
+    /// Format the value of `metric_idx` for `model`, or em-dash when missing.
+    pub fn formatted_score(
+        file: &SourceFile,
+        model: &ModelRow,
+        metric_idx: usize,
+    ) -> Option<String> {
+        let metric = file.metrics.get(metric_idx)?;
+        let cell = model.scores.get(&metric.id)?;
+        Some(format_metric_value(metric.kind, cell.value))
     }
 
     // --- List navigation ---
@@ -961,50 +1189,34 @@ impl BenchmarksApp {
         self.reset_detail_scroll();
     }
 
-    pub fn cycle_source_filter(
-        &mut self,
-        store: &BenchmarkStore,
-        open_weights_map: &HashMap<String, bool>,
-    ) {
+    pub fn cycle_source_filter(&mut self, file: &SourceFile) {
         self.source_filter = self.source_filter.next();
-        self.rebuild_after_filter_change(store, open_weights_map);
+        self.rebuild_after_filter_change(file);
     }
 
-    pub fn cycle_reasoning_filter(
-        &mut self,
-        store: &BenchmarkStore,
-        open_weights_map: &HashMap<String, bool>,
-    ) {
+    pub fn cycle_reasoning_filter(&mut self, file: &SourceFile) {
         self.reasoning_filter = self.reasoning_filter.next();
-        self.rebuild_after_filter_change(store, open_weights_map);
+        self.rebuild_after_filter_change(file);
     }
 
-    pub fn toggle_region_grouping(
-        &mut self,
-        store: &BenchmarkStore,
-        open_weights_map: &HashMap<String, bool>,
-    ) {
+    pub fn toggle_region_grouping(&mut self, file: &SourceFile) {
         self.creator_grouping = if self.creator_grouping == CreatorGrouping::ByRegion {
             CreatorGrouping::None
         } else {
             CreatorGrouping::ByRegion
         };
-        self.build_creator_list(store, open_weights_map);
+        self.build_creator_list(file);
         self.selected_creator = 0;
         self.creator_list_state.select(Some(0));
     }
 
-    pub fn toggle_type_grouping(
-        &mut self,
-        store: &BenchmarkStore,
-        open_weights_map: &HashMap<String, bool>,
-    ) {
+    pub fn toggle_type_grouping(&mut self, file: &SourceFile) {
         self.creator_grouping = if self.creator_grouping == CreatorGrouping::ByType {
             CreatorGrouping::None
         } else {
             CreatorGrouping::ByType
         };
-        self.build_creator_list(store, open_weights_map);
+        self.build_creator_list(file);
         self.selected_creator = 0;
         self.creator_list_state.select(Some(0));
     }
@@ -1072,6 +1284,12 @@ impl BenchmarksApp {
         self.skip_to_selectable(target, true);
     }
 
+    /// Cycle the detail-panel comparator column (browse mode).
+    pub fn cycle_comparator(&mut self) {
+        self.comparator = self.comparator.next();
+        self.reset_detail_scroll();
+    }
+
     pub fn cycle_bottom_view(&mut self) {
         self.bottom_view = match self.bottom_view {
             BottomView::H2H => BottomView::Scatter,
@@ -1081,16 +1299,28 @@ impl BenchmarksApp {
         };
     }
 
-    pub fn cycle_scatter_x(&mut self) {
-        self.scatter_x = self.scatter_x.next();
+    /// Cycle the scatter X-axis metric (wraps over the active file's metrics).
+    pub fn cycle_scatter_x(&mut self, file: &SourceFile) {
+        let n = file.metrics.len();
+        if n > 0 {
+            self.scatter_x = (self.scatter_x + 1) % n;
+        }
     }
 
-    pub fn cycle_scatter_y(&mut self) {
-        self.scatter_y = self.scatter_y.next();
+    /// Cycle the scatter Y-axis metric (wraps over the active file's metrics).
+    pub fn cycle_scatter_y(&mut self, file: &SourceFile) {
+        let n = file.metrics.len();
+        if n > 0 {
+            self.scatter_y = (self.scatter_y + 1) % n;
+        }
     }
 
-    pub fn cycle_radar_preset(&mut self) {
-        self.radar_preset = self.radar_preset.next();
+    /// Cycle the radar preset group (wraps over the active file's radar groups).
+    pub fn cycle_radar_group(&mut self, file: &SourceFile) {
+        let n = radar_groups(file).len();
+        if n > 0 {
+            self.radar_group = (self.radar_group + 1) % n;
+        }
     }
 
     /// Auto-transition bottom view based on selection count.
@@ -1169,5 +1399,888 @@ impl BenchmarksApp {
 
     pub fn scroll_h2h_page_up(&mut self, page: usize) {
         self.h2h_scroll.decrement(page as u16);
+    }
+
+    // --- Glossary popup ---
+
+    /// Toggle the glossary popup. Opening resets the scroll to the top.
+    pub fn toggle_glossary(&mut self) {
+        self.show_glossary = !self.show_glossary;
+        if self.show_glossary {
+            self.glossary_scroll.jump_top();
+        }
+    }
+
+    pub fn scroll_glossary_down(&mut self) {
+        self.glossary_scroll.increment(1);
+    }
+
+    pub fn scroll_glossary_up(&mut self) {
+        self.glossary_scroll.decrement(1);
+    }
+
+    // --- Column visibility picker (`C`, browse mode) ---
+
+    /// Open the column picker, initialising the pending set from the current
+    /// `visible_columns` (so previously-selected columns appear pre-checked).
+    pub fn open_column_picker(&mut self, file: &SourceFile) {
+        self.column_picker_pending = self.visible_columns.clone();
+        // Clamp the cursor to the current metric count.
+        if file.metrics.is_empty() {
+            self.column_picker_selected = 0;
+        } else {
+            self.column_picker_selected = self.column_picker_selected.min(file.metrics.len() - 1);
+        }
+        self.show_column_picker = true;
+    }
+
+    /// Toggle the metric at `column_picker_selected` in the pending set.
+    pub fn column_picker_toggle(&mut self, file: &SourceFile) {
+        let idx = self.column_picker_selected;
+        if idx >= file.metrics.len() {
+            return;
+        }
+        if let Some(pos) = self.column_picker_pending.iter().position(|&i| i == idx) {
+            self.column_picker_pending.remove(pos);
+        } else {
+            // Insert in file order (sorted).
+            let insert_pos = self.column_picker_pending.partition_point(|&i| i < idx);
+            self.column_picker_pending.insert(insert_pos, idx);
+        }
+    }
+
+    /// Move the column picker cursor down by one, clamped to the metric count.
+    pub fn column_picker_next(&mut self, file: &SourceFile) {
+        if !file.metrics.is_empty() {
+            self.column_picker_selected =
+                (self.column_picker_selected + 1).min(file.metrics.len() - 1);
+        }
+    }
+
+    /// Move the column picker cursor up by one.
+    pub fn column_picker_prev(&mut self) {
+        self.column_picker_selected = self.column_picker_selected.saturating_sub(1);
+    }
+
+    /// Jump to the first metric.
+    pub fn column_picker_first(&mut self) {
+        self.column_picker_selected = 0;
+    }
+
+    /// Jump to the last metric.
+    pub fn column_picker_last(&mut self, file: &SourceFile) {
+        if !file.metrics.is_empty() {
+            self.column_picker_selected = file.metrics.len() - 1;
+        }
+    }
+
+    /// Apply the pending set to `visible_columns` and close the picker.
+    pub fn column_picker_save(&mut self) {
+        self.visible_columns = self.column_picker_pending.clone();
+        self.show_column_picker = false;
+    }
+
+    /// Discard the pending set and close the picker.
+    pub fn column_picker_cancel(&mut self) {
+        self.show_column_picker = false;
+        self.column_picker_pending = Vec::new();
+    }
+
+    /// Resolve saved column metric **ids** (from config) onto `visible_columns`
+    /// indices for `file`, in file order. Ids whose metric no longer exists are
+    /// silently dropped — Epoch's auto-prune retires metrics between pipeline
+    /// runs, so a stale id is expected, not an error.
+    pub fn apply_saved_columns(&mut self, file: &SourceFile, saved: &[String]) {
+        self.visible_columns = file
+            .metrics
+            .iter()
+            .enumerate()
+            .filter(|(_, m)| saved.contains(&m.id))
+            .map(|(i, _)| i)
+            .collect();
+    }
+
+    /// The current `visible_columns` as metric **ids** (the stable handle the
+    /// config persists — indices shift when a source's metric set changes).
+    pub fn visible_column_ids(&self, file: &SourceFile) -> Vec<String> {
+        self.visible_columns
+            .iter()
+            .filter_map(|&i| file.metrics.get(i).map(|m| m.id.clone()))
+            .collect()
+    }
+
+    /// Compute the effective set of column metric indices to render in the
+    /// browse-mode list:
+    ///
+    /// - All `visible_columns` entries (in file order), PLUS
+    /// - The active sort column appended at the end, **if** it is a
+    ///   `SortKey::Metric(i)` not already present. `SortKey::ReleaseDate` is the
+    ///   "Released" column (handled separately); `SortKey::Name` adds nothing.
+    ///
+    /// This preserves today's sort-value-column behaviour while allowing the
+    /// user to add extra columns.
+    pub fn effective_columns(&self) -> Vec<usize> {
+        let mut cols = self.visible_columns.clone();
+        if let SortKey::Metric(i) = self.sort_key {
+            if !cols.contains(&i) {
+                cols.push(i);
+            }
+        }
+        cols
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::benchmarks::schema::{
+        MetricDef, MetricKind, ReasoningStatus, ScoreCell, SourceMeta,
+    };
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn creator_classes_have_no_duplicate_slugs() {
+        let mut seen = std::collections::HashSet::new();
+        for c in CREATOR_CLASSES {
+            for s in c.slugs {
+                assert!(seen.insert(*s), "duplicate slug in CREATOR_CLASSES: {s}");
+            }
+        }
+    }
+
+    #[test]
+    fn cross_source_aliases_classify_consistently() {
+        // The same lab is named differently per source — all aliases must land
+        // on the same (region, type).
+        // Alibaba / Qwen.
+        assert_eq!(CreatorRegion::from_creator("alibaba"), CreatorRegion::China);
+        assert_eq!(CreatorRegion::from_creator("qwen"), CreatorRegion::China);
+        assert_eq!(CreatorType::from_creator("qwen"), CreatorType::Giant);
+        // Amazon: AA `aws` vs models.dev/llmstats `amazon`.
+        assert_eq!(CreatorRegion::from_creator("aws"), CreatorRegion::US);
+        assert_eq!(CreatorRegion::from_creator("amazon"), CreatorRegion::US);
+        assert_eq!(CreatorType::from_creator("amazon"), CreatorType::Giant);
+        // Moonshot: `kimi` (AA) / `moonshot` (Arena/Epoch) / `moonshotai` (llmstats).
+        for s in ["kimi", "moonshot", "moonshotai"] {
+            assert_eq!(CreatorRegion::from_creator(s), CreatorRegion::China, "{s}");
+            assert_eq!(CreatorType::from_creator(s), CreatorType::Startup, "{s}");
+        }
+        // Sarvam -> India (newly added region).
+        assert_eq!(CreatorRegion::from_creator("sarvam"), CreatorRegion::India);
+        assert_eq!(
+            CreatorRegion::from_creator("sarvamai"),
+            CreatorRegion::India
+        );
+        // Unknown slug -> Other / Startup defaults.
+        assert_eq!(
+            CreatorRegion::from_creator("totally-unknown-xyz"),
+            CreatorRegion::Other
+        );
+        assert_eq!(
+            CreatorType::from_creator("totally-unknown-xyz"),
+            CreatorType::Startup
+        );
+    }
+
+    fn meta() -> SourceMeta {
+        SourceMeta {
+            id: "test".into(),
+            name: "Test".into(),
+            url: "https://example.com".into(),
+            fetched_at: "2026-06-10T00:00:00+00:00".into(),
+            verified: true,
+        }
+    }
+
+    fn metric(id: &str, kind: MetricKind, group: &str, hib: bool) -> MetricDef {
+        MetricDef {
+            id: id.into(),
+            label: id.to_uppercase(),
+            kind,
+            group: group.into(),
+            higher_is_better: hib,
+            last_updated: None,
+            description: None,
+            short_label: None,
+        }
+    }
+
+    fn model(
+        id: &str,
+        creator: &str,
+        reasoning: ReasoningStatus,
+        release: Option<&str>,
+        scores: &[(&str, f64)],
+    ) -> ModelRow {
+        let mut score_map = BTreeMap::new();
+        for (mid, v) in scores {
+            score_map.insert(
+                (*mid).to_string(),
+                ScoreCell {
+                    value: *v,
+                    date: None,
+                    ci: None,
+                    votes: None,
+                },
+            );
+        }
+        ModelRow {
+            id: id.into(),
+            name: id.into(),
+            display_name: id.into(),
+            creator: creator.into(),
+            creator_name: creator.to_uppercase(),
+            release_date: release.map(str::to_string),
+            reasoning_status: reasoning,
+            effort_level: None,
+            variant_tag: None,
+            open_weights: None,
+            context_window: None,
+            supports_tools: None,
+            max_output: None,
+            scores: score_map,
+        }
+    }
+
+    /// AA-shaped file with index + percentage + speed + price metrics, 3 models.
+    fn sample_file() -> SourceFile {
+        SourceFile {
+            source: meta(),
+            metrics: vec![
+                metric("intelligence_index", MetricKind::Index, "Indexes", true),
+                metric("coding_index", MetricKind::Index, "Indexes", true),
+                metric("math_index", MetricKind::Index, "Indexes", true),
+                metric("gpqa", MetricKind::Percentage, "Academic", true),
+                metric("mmlu_pro", MetricKind::Percentage, "Academic", true),
+                metric("hle", MetricKind::Percentage, "Academic", true),
+                metric("output_tps", MetricKind::TokensPerSec, "Performance", true),
+                metric("price_input", MetricKind::UsdPerMTok, "Pricing", false),
+            ],
+            models: vec![
+                model(
+                    "alpha-1",
+                    "openai",
+                    ReasoningStatus::Reasoning,
+                    Some("2026-01-01"),
+                    &[
+                        ("intelligence_index", 70.0),
+                        ("output_tps", 120.0),
+                        ("price_input", 2.0),
+                    ],
+                ),
+                model(
+                    "beta-1",
+                    "meta",
+                    ReasoningStatus::NonReasoning,
+                    Some("2026-02-01"),
+                    &[("intelligence_index", 60.0), ("price_input", 1.0)],
+                ),
+                model(
+                    "gamma-1",
+                    "anthropic",
+                    ReasoningStatus::None,
+                    None,
+                    &[("coding_index", 80.0)],
+                ),
+            ],
+        }
+    }
+
+    fn store_with(file: SourceFile) -> MultiStore {
+        // Load the same sample file into every registered source slot so that
+        // cycling/switching lands on a slot that always has a file regardless of
+        // how many sources the registry compiles in.
+        let mut store = MultiStore::new();
+        for idx in 0..store.sources.len() {
+            store.set_loaded(idx, file.clone());
+        }
+        store
+    }
+
+    #[test]
+    fn new_with_no_file_is_empty() {
+        let app = BenchmarksApp::new(None);
+        assert!(app.filtered_indices.is_empty());
+        assert_eq!(app.active_source, 0);
+        assert_eq!(app.sort_key, SortKey::ReleaseDate);
+        assert!(app.loading);
+    }
+
+    #[test]
+    fn new_builds_filtered_and_creators() {
+        let file = sample_file();
+        let app = BenchmarksApp::new(Some(&file));
+        // Default sort = ReleaseDate, which drops dateless models (gamma-1).
+        // alpha-1 + beta-1 remain.
+        assert_eq!(app.filtered_indices.len(), 2);
+        // Creator sidebar is built over ALL models (no sort null-filter):
+        // "All" + 3 creators.
+        assert_eq!(app.creator_list_items.len(), 4);
+    }
+
+    #[test]
+    fn default_sort_release_date_descending() {
+        let file = sample_file();
+        let app = BenchmarksApp::new(Some(&file));
+        assert_eq!(app.sort_key, SortKey::ReleaseDate);
+        // ReleaseDate drops gamma-1 (no date). Descending: beta-1 (2026-02-01)
+        // before alpha-1 (2026-01-01).
+        let first = app.current_model(&file).unwrap();
+        assert_eq!(first.id, "beta-1");
+        assert_eq!(app.filtered_indices.len(), 2);
+    }
+
+    /// Set a sort key with its default direction and re-filter — what the sort
+    /// picker does (the quick-sort keys were removed; `s`/`S` cover sorting).
+    fn set_sort(app: &mut BenchmarksApp, key: SortKey, file: &SourceFile) {
+        app.sort_key = key;
+        app.sort_descending = BenchmarksApp::default_descending(file, key);
+        app.update_filtered(file);
+    }
+
+    #[test]
+    fn apply_saved_columns_resolves_file_order_and_drops_stale() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        // Saved order is gpqa-first, but resolution is FILE order; the unknown
+        // id drops silently (Epoch auto-prune retires metrics between runs).
+        app.apply_saved_columns(
+            &file,
+            &[
+                "gpqa".to_string(),
+                "retired-metric".to_string(),
+                "intelligence_index".to_string(),
+            ],
+        );
+        assert_eq!(app.visible_columns, vec![0, 3]);
+    }
+
+    #[test]
+    fn select_sort_key_toggles_direction_when_same_key() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.select_sort_key(SortKey::Metric(0), &file);
+        assert!(app.sort_descending);
+        app.select_sort_key(SortKey::Metric(0), &file);
+        assert!(!app.sort_descending);
+    }
+
+    #[test]
+    fn metric_sort_drops_missing() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        // Sort by Metric(0) = intelligence_index. gamma-1 lacks it -> dropped.
+        set_sort(&mut app, SortKey::Metric(0), &file);
+        assert_eq!(app.filtered_indices.len(), 2);
+        // Descending (higher_is_better) -> alpha-1 (70) before beta-1 (60).
+        let first = app.current_model(&file).unwrap();
+        assert_eq!(first.id, "alpha-1");
+    }
+
+    #[test]
+    fn sort_options_order() {
+        let file = sample_file();
+        let opts = BenchmarksApp::sort_options(&file);
+        // ReleaseDate, Name, then 8 metrics in order.
+        assert_eq!(opts.len(), 2 + 8);
+        assert_eq!(opts[0].key, SortKey::ReleaseDate);
+        assert_eq!(opts[1].key, SortKey::Name);
+        assert_eq!(opts[2].key, SortKey::Metric(0));
+        assert_eq!(opts[2].label, "INTELLIGENCE_INDEX");
+    }
+
+    #[test]
+    fn sort_label_uses_metric_label() {
+        let file = sample_file();
+        assert_eq!(
+            BenchmarksApp::sort_label(Some(&file), SortKey::Metric(6)),
+            "OUTPUT_TPS"
+        );
+        assert_eq!(
+            BenchmarksApp::sort_label(Some(&file), SortKey::ReleaseDate),
+            "Date"
+        );
+        assert_eq!(
+            BenchmarksApp::sort_label(Some(&file), SortKey::Name),
+            "Name"
+        );
+    }
+
+    #[test]
+    fn reasoning_filter_available_helper() {
+        let file = sample_file();
+        assert!(BenchmarksApp::reasoning_filter_available(Some(&file)));
+
+        // A file where every model has reasoning_status None.
+        let mut plain = sample_file();
+        for m in &mut plain.models {
+            m.reasoning_status = ReasoningStatus::None;
+        }
+        assert!(!BenchmarksApp::reasoning_filter_available(Some(&plain)));
+        assert!(!BenchmarksApp::reasoning_filter_available(None));
+    }
+
+    #[test]
+    fn reasoning_filter_filters_models() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.cycle_reasoning_filter(&file); // -> Reasoning
+        assert_eq!(app.reasoning_filter, ReasoningFilter::Reasoning);
+        // Only alpha-1 is Reasoning.
+        assert_eq!(app.filtered_indices.len(), 1);
+        assert_eq!(app.current_model(&file).unwrap().id, "alpha-1");
+    }
+
+    #[test]
+    fn search_filters_by_name_and_creator() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        // Sort by Name so the date null-filter doesn't drop dateless gamma-1.
+        set_sort(&mut app, SortKey::Name, &file);
+        app.search_query = "anthropic".to_string();
+        app.rebuild_after_filter_change(&file);
+        assert_eq!(app.filtered_indices.len(), 1);
+        assert_eq!(app.current_model(&file).unwrap().id, "gamma-1");
+    }
+
+    #[test]
+    fn creator_filter_restricts_list() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        // Find the "meta" creator position.
+        let pos = app
+            .creator_list_items
+            .iter()
+            .position(|i| matches!(i, CreatorListItem::Creator(s) if s == "meta"))
+            .unwrap();
+        app.selected_creator = pos;
+        app.update_filtered(&file);
+        assert_eq!(app.filtered_indices.len(), 1);
+        assert_eq!(app.current_model(&file).unwrap().id, "beta-1");
+    }
+
+    #[test]
+    fn cycle_scatter_wraps() {
+        let file = sample_file(); // 8 metrics
+        let mut app = BenchmarksApp::new(Some(&file));
+        assert_eq!(app.scatter_x, 0);
+        assert_eq!(app.scatter_y, 1);
+        for _ in 0..8 {
+            app.cycle_scatter_x(&file);
+        }
+        assert_eq!(app.scatter_x, 0); // wrapped
+    }
+
+    #[test]
+    fn cycle_radar_group_wraps() {
+        let file = sample_file();
+        // radar_groups: Indexes (3 hib), Academic (3 hib). Performance/Pricing excluded.
+        assert_eq!(radar_groups(&file).len(), 2);
+        let mut app = BenchmarksApp::new(Some(&file));
+        assert_eq!(app.radar_group, 0);
+        app.cycle_radar_group(&file);
+        assert_eq!(app.radar_group, 1);
+        app.cycle_radar_group(&file);
+        assert_eq!(app.radar_group, 0);
+    }
+
+    #[test]
+    fn switch_source_resets_view_keeps_intent() {
+        // Cross-source intent (search/filters/grouping/reasoning + date sort)
+        // PERSISTS across a switch; only per-source view state resets. The same
+        // sample file is loaded into every slot, so the assertions hold
+        // regardless of which index the switch lands on.
+        let file = sample_file();
+        let store = store_with(file.clone());
+        let mut app = BenchmarksApp::new(Some(&file));
+
+        // Dirty per-source view state + cross-source intent.
+        app.search_query = "a".to_string(); // matches several models
+        app.source_filter = SourceFilter::Open;
+        app.reasoning_filter = ReasoningFilter::Reasoning;
+        app.creator_grouping = CreatorGrouping::ByRegion;
+        app.rebuild_after_filter_change(&file);
+        // A ReleaseDate sort with non-default direction survives.
+        app.sort_key = SortKey::ReleaseDate;
+        app.sort_descending = false;
+        app.scatter_x = 4;
+        app.scatter_y = 5;
+        app.radar_group = 1;
+        app.show_detail_overlay = true;
+
+        app.switch_source(&store, true);
+        assert_eq!(app.active_source, 1);
+
+        // Per-source view state reset.
+        assert_eq!(app.scatter_x, 0);
+        assert_eq!(app.scatter_y, 1);
+        assert_eq!(app.radar_group, 0);
+        assert!(!app.show_detail_overlay);
+        assert_eq!(app.selected, 0);
+
+        // Cross-source intent preserved.
+        assert_eq!(app.search_query, "a");
+        assert_eq!(app.source_filter, SourceFilter::Open);
+        assert_eq!(app.reasoning_filter, ReasoningFilter::Reasoning);
+        assert_eq!(app.creator_grouping, CreatorGrouping::ByRegion);
+        // ReleaseDate sort + ascending direction survive (date/name only).
+        assert_eq!(app.sort_key, SortKey::ReleaseDate);
+        assert!(!app.sort_descending);
+    }
+
+    #[test]
+    fn switch_source_metric_sort_falls_back() {
+        // A `Metric(i)` sort key does not map across sources -> reset to the new
+        // source's default sort + its default direction.
+        let file = sample_file();
+        let store = store_with(file.clone());
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(3);
+        app.sort_descending = false;
+        app.switch_source(&store, true);
+        assert_eq!(app.sort_key, default_sort(&file));
+        assert!(app.sort_descending); // ReleaseDate default direction
+    }
+
+    #[test]
+    fn switch_source_resets_reasoning_when_target_lacks_reasoning() {
+        // Target source carries no reasoning metadata -> reasoning filter resets
+        // to All (a stuck invisible filter would silently empty the list).
+        let mut plain = sample_file();
+        for m in &mut plain.models {
+            m.reasoning_status = ReasoningStatus::None;
+        }
+        let store = store_with(plain.clone());
+        let mut app = BenchmarksApp::new(Some(&plain));
+        app.reasoning_filter = ReasoningFilter::Reasoning;
+        app.switch_source(&store, true);
+        assert_eq!(app.reasoning_filter, ReasoningFilter::All);
+    }
+
+    #[test]
+    fn rebuild_preserving_keeps_sort_search_selection() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        // Name sort so dateless gamma-1 stays in the filtered view.
+        set_sort(&mut app, SortKey::Name, &file);
+        app.sort_descending = true;
+        // An active SEARCH that narrows the list to gamma-1 only; it must survive
+        // the state-preserving rebuild and re-apply against the refreshed file.
+        app.search_query = "gamma".to_string();
+        app.rebuild_after_filter_change(&file);
+        assert_eq!(app.filtered_indices.len(), 1);
+        // Select gamma-1 (the model we'll track across the rebuild).
+        let gamma_pos = app
+            .filtered_indices
+            .iter()
+            .position(|&i| file.models[i].id == "gamma-1")
+            .unwrap();
+        app.selected = gamma_pos;
+
+        // Capture the selected id against the OLD file before the swap.
+        let prev_id = app.selected_model_id(&file);
+        assert_eq!(prev_id.as_deref(), Some("gamma-1"));
+
+        // A refreshed file reordering the models: gamma-1 first.
+        let mut refreshed = sample_file();
+        refreshed.models.rotate_right(1); // [gamma-1, alpha-1, beta-1]
+        app.rebuild_preserving(&refreshed, prev_id);
+
+        // Sort + direction preserved.
+        assert_eq!(app.sort_key, SortKey::Name);
+        assert!(app.sort_descending);
+        // SEARCH preserved + re-applied: still only gamma-1 in the filtered view.
+        assert_eq!(app.search_query, "gamma");
+        assert_eq!(app.filtered_indices.len(), 1);
+        // Selected model preserved by id.
+        assert_eq!(app.current_model(&refreshed).unwrap().id, "gamma-1");
+    }
+
+    #[test]
+    fn rebuild_preserving_falls_back_stale_metric_sort() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(7); // last metric in the 8-metric file
+
+        // A refreshed file with fewer metrics -> Metric(7) is out of range.
+        let mut shrunk = sample_file();
+        shrunk.metrics.truncate(3);
+        app.rebuild_preserving(&shrunk, None);
+
+        assert_eq!(app.sort_key, default_sort(&shrunk));
+    }
+
+    #[test]
+    fn reset_for_source_loading_shows_empty() {
+        // A second slot would be Loading; with one source we simulate via a fresh
+        // store where index 0 is Loading (not loaded).
+        let store = MultiStore::new(); // index 0 = Loading
+        let mut app = BenchmarksApp::new(None);
+        app.reset_for_source(&store);
+        assert!(app.loading);
+        assert!(app.filtered_indices.is_empty());
+        assert_eq!(app.creator_list_items, vec![CreatorListItem::All]);
+    }
+
+    #[test]
+    fn open_weights_filter_prefers_model_then_creator() {
+        let mut file = sample_file();
+        // Per-model override on alpha-1 that diverges from its creator map entry:
+        // creator "openai" is closed, but this specific model is open. The filter
+        // must follow the model-level value, not the creator aggregate.
+        file.models[0].open_weights = Some(true);
+        let mut app = BenchmarksApp::new(Some(&file));
+        // Seed openness: openai closed, meta open, anthropic unknown.
+        app.creator_openness =
+            HashMap::from([("openai".to_string(), false), ("meta".to_string(), true)]);
+
+        app.source_filter = SourceFilter::Open;
+        app.update_filtered(&file);
+        // alpha-1 (model-level open, overriding closed creator) + beta-1 (creator
+        // open, no model-level value) both pass; gamma-1 (anthropic unknown) drops.
+        // gamma-1 is also dateless, so the default ReleaseDate sort would drop it
+        // regardless; the openness logic is what excludes it here.
+        let open_ids: Vec<&str> = app
+            .filtered_indices
+            .iter()
+            .map(|&i| file.models[i].id.as_str())
+            .collect();
+        assert_eq!(app.filtered_indices.len(), 2);
+        assert!(open_ids.contains(&"alpha-1"));
+        assert!(open_ids.contains(&"beta-1"));
+
+        app.source_filter = SourceFilter::Closed;
+        app.update_filtered(&file);
+        // No model is closed: alpha-1 is model-level open, beta-1 is creator open,
+        // gamma-1 is unknown.
+        assert_eq!(app.filtered_indices.len(), 0);
+    }
+
+    #[test]
+    fn formatted_score_and_missing() {
+        let file = sample_file();
+        let alpha = &file.models[0];
+        // intelligence_index = 70.0 (Index) -> "70.0"
+        assert_eq!(
+            BenchmarksApp::formatted_score(&file, alpha, 0),
+            Some("70.0".to_string())
+        );
+        // gpqa (idx 3) missing on alpha -> None
+        assert_eq!(BenchmarksApp::formatted_score(&file, alpha, 3), None);
+    }
+
+    #[test]
+    fn focus_right_browse_mode_cycles() {
+        let mut app = BenchmarksApp::new(None);
+        app.focus = BenchmarkFocus::Creators;
+        app.focus_right(false);
+        assert_eq!(app.focus, BenchmarkFocus::List);
+        app.focus_right(false);
+        assert_eq!(app.focus, BenchmarkFocus::Details);
+        app.focus_right(false);
+        assert_eq!(app.focus, BenchmarkFocus::Creators);
+    }
+
+    #[test]
+    fn cycle_bottom_view_order() {
+        let mut app = BenchmarksApp::new(None);
+        app.bottom_view = BottomView::H2H;
+        app.cycle_bottom_view();
+        assert_eq!(app.bottom_view, BottomView::Scatter);
+        app.cycle_bottom_view();
+        assert_eq!(app.bottom_view, BottomView::Radar);
+        app.cycle_bottom_view();
+        assert_eq!(app.bottom_view, BottomView::H2H);
+    }
+
+    #[test]
+    fn h2h_scroll_methods() {
+        let mut app = BenchmarksApp::new(None);
+        assert_eq!(app.h2h_scroll.get(), 0);
+        app.scroll_h2h_down();
+        assert_eq!(app.h2h_scroll.get(), 1);
+        app.scroll_h2h_page_down(10);
+        assert_eq!(app.h2h_scroll.get(), 11);
+        app.scroll_h2h_page_up(100);
+        assert_eq!(app.h2h_scroll.get(), 0);
+    }
+
+    #[test]
+    fn glossary_toggle_resets_scroll_on_open() {
+        let mut app = BenchmarksApp::new(None);
+        assert!(!app.show_glossary);
+        // Scroll while closed, then open: opening must reset to top.
+        app.scroll_glossary_down();
+        app.scroll_glossary_down();
+        app.toggle_glossary();
+        assert!(app.show_glossary);
+        assert_eq!(app.glossary_scroll.get(), 0);
+        // Scroll, then toggle closed: state flips off (scroll untouched on close).
+        app.scroll_glossary_down();
+        app.toggle_glossary();
+        assert!(!app.show_glossary);
+    }
+
+    #[test]
+    fn switch_source_closes_glossary() {
+        let file = sample_file();
+        let store = store_with(file.clone());
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.toggle_glossary();
+        app.scroll_glossary_down();
+        assert!(app.show_glossary);
+        app.switch_source(&store, true);
+        assert!(!app.show_glossary);
+        assert_eq!(app.glossary_scroll.get(), 0);
+    }
+
+    // --- Phase 2: column picker ---
+
+    #[test]
+    fn column_picker_toggle_apply_cancel() {
+        let file = sample_file(); // 8 metrics
+        let mut app = BenchmarksApp::new(Some(&file));
+
+        // Open picker — pending set initialises from visible_columns (empty).
+        app.open_column_picker(&file);
+        assert!(app.show_column_picker);
+        assert!(app.column_picker_pending.is_empty());
+
+        // Toggle metric 2 on.
+        app.column_picker_selected = 2;
+        app.column_picker_toggle(&file);
+        assert_eq!(app.column_picker_pending, vec![2]);
+
+        // Toggle metric 0 on — should be inserted before 2 (file order).
+        app.column_picker_selected = 0;
+        app.column_picker_toggle(&file);
+        assert_eq!(app.column_picker_pending, vec![0, 2]);
+
+        // Toggle metric 2 off.
+        app.column_picker_selected = 2;
+        app.column_picker_toggle(&file);
+        assert_eq!(app.column_picker_pending, vec![0]);
+
+        // Apply — visible_columns updated; picker closed.
+        app.column_picker_save();
+        assert!(!app.show_column_picker);
+        assert_eq!(app.visible_columns, vec![0]);
+
+        // Re-open and cancel — visible_columns unchanged.
+        app.open_column_picker(&file);
+        app.column_picker_selected = 3;
+        app.column_picker_toggle(&file);
+        app.column_picker_cancel();
+        assert!(!app.show_column_picker);
+        // visible_columns still [0] from the previous apply.
+        assert_eq!(app.visible_columns, vec![0]);
+    }
+
+    #[test]
+    fn visible_columns_reset_on_source_switch() {
+        let file = sample_file();
+        let store = store_with(file.clone());
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.visible_columns = vec![1, 3, 5];
+        app.switch_source(&store, true);
+        assert!(
+            app.visible_columns.is_empty(),
+            "visible_columns must reset on source switch"
+        );
+    }
+
+    #[test]
+    fn visible_columns_out_of_range_dropped_on_refresh() {
+        let file = sample_file(); // 8 metrics
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.visible_columns = vec![2, 5, 7]; // all in range
+
+        // A refreshed file with only 4 metrics: indices 5 and 7 are out of range.
+        let mut shrunk = sample_file();
+        shrunk.metrics.truncate(4);
+        app.rebuild_preserving(&shrunk, None);
+
+        assert_eq!(
+            app.visible_columns,
+            vec![2],
+            "out-of-range visible_columns dropped after shrink"
+        );
+    }
+
+    #[test]
+    fn effective_columns_appends_sort_metric_when_absent() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(3);
+        app.visible_columns = vec![1, 2];
+        // Sort metric (3) not in visible_columns -> appended.
+        assert_eq!(app.effective_columns(), vec![1, 2, 3]);
+    }
+
+    #[test]
+    fn effective_columns_no_duplicate_sort_metric() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.sort_key = SortKey::Metric(2);
+        app.visible_columns = vec![1, 2]; // 2 already present
+                                          // Sort metric (2) already in visible_columns -> NOT duplicated.
+        assert_eq!(app.effective_columns(), vec![1, 2]);
+    }
+
+    #[test]
+    fn effective_columns_name_sort_adds_nothing() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        set_sort(&mut app, SortKey::Name, &file);
+        app.visible_columns = vec![0];
+        // Name sort -> no extra column appended.
+        assert_eq!(app.effective_columns(), vec![0]);
+    }
+
+    #[test]
+    fn effective_columns_release_date_sort_not_in_effective() {
+        // ReleaseDate is handled as a separate Released column in rendering,
+        // not via effective_columns(). effective_columns() should not include
+        // any synthetic index for it.
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        // Default sort is ReleaseDate.
+        assert!(matches!(app.sort_key, SortKey::ReleaseDate));
+        app.visible_columns = vec![1];
+        // ReleaseDate adds nothing to effective_columns.
+        assert_eq!(app.effective_columns(), vec![1]);
+    }
+
+    #[test]
+    fn column_picker_nav_clamps_to_metric_count() {
+        let file = sample_file(); // 8 metrics (indices 0..7)
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.open_column_picker(&file);
+        app.column_picker_selected = 7; // last
+
+        // Next should stay at 7 (already at end).
+        app.column_picker_next(&file);
+        assert_eq!(app.column_picker_selected, 7);
+
+        // First / last helpers.
+        app.column_picker_first();
+        assert_eq!(app.column_picker_selected, 0);
+        app.column_picker_last(&file);
+        assert_eq!(app.column_picker_selected, 7);
+
+        // Prev from 0 should stay at 0.
+        app.column_picker_first();
+        app.column_picker_prev();
+        assert_eq!(app.column_picker_selected, 0);
+    }
+
+    #[test]
+    fn column_picker_open_seeds_pending_from_visible() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.visible_columns = vec![1, 4];
+        app.open_column_picker(&file);
+        // Pending set seeds from current visible_columns.
+        assert_eq!(app.column_picker_pending, vec![1, 4]);
     }
 }

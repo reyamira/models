@@ -126,6 +126,44 @@ pub(in crate::tui) fn section_header_line(title: &str, width: usize) -> Line<'st
     ))
 }
 
+/// Like [`section_header_line`], but with an inline `(suffix)` blurb after the
+/// title, e.g. `"── Pricing ($ per 1M tokens) ──────"`. The title keeps the
+/// DarkGray + BOLD style; the suffix (including its parens and surrounding
+/// spaces) is DarkGray **without** bold so it reads as a secondary annotation.
+/// The trailing dash fill respects the suffix's visual width.
+///
+/// Passing an empty `suffix` is equivalent to [`section_header_line`].
+#[allow(dead_code)]
+pub(in crate::tui) fn section_header_line_with_suffix(
+    title: &str,
+    suffix: &str,
+    width: usize,
+) -> Line<'static> {
+    if suffix.is_empty() {
+        return section_header_line(title, width);
+    }
+    let prefix = format!("\u{2500}\u{2500} {} ", title);
+    let suffix_text = format!("({}) ", suffix);
+    let consumed = prefix.chars().count() + suffix_text.chars().count();
+    let fill_len = width.saturating_sub(consumed);
+    let fill = "\u{2500}".repeat(fill_len);
+    Line::from(vec![
+        Span::styled(
+            prefix,
+            Style::default()
+                .fg(Color::DarkGray)
+                .add_modifier(Modifier::BOLD),
+        ),
+        Span::styled(suffix_text, Style::default().fg(Color::DarkGray)),
+        Span::styled(
+            fill,
+            Style::default()
+                .fg(Color::DarkGray)
+                .add_modifier(Modifier::BOLD),
+        ),
+    ])
+}
+
 /// Build filter toggle spans in `[N] label` format.
 ///
 /// Each tuple is `(key, label, active)`. Active keys render in Green, inactive
@@ -206,7 +244,7 @@ pub fn draw(f: &mut Frame, app: &mut App) {
 
     // Draw help popup on top if visible
     if app.show_help {
-        draw_help_popup(f, &app.help_scroll, app.current_tab);
+        draw_help_popup(f, &app.help_scroll, app);
     }
 
     // Draw picker modal on top if visible (agents tab only)
@@ -278,6 +316,8 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                     Span::raw("sort  "),
                     Span::styled(" 1-6 ", Style::default().fg(Color::Yellow)),
                     Span::raw("filter  "),
+                    Span::styled(" r ", Style::default().fg(Color::Yellow)),
+                    Span::raw("refresh  "),
                     Span::styled(" c ", Style::default().fg(Color::Yellow)),
                     Span::raw("copy"),
                 ]),
@@ -293,7 +333,9 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                     Span::styled(" o ", Style::default().fg(Color::Yellow)),
                     Span::raw("docs  "),
                     Span::styled(" r ", Style::default().fg(Color::Yellow)),
-                    Span::raw("repo"),
+                    Span::raw("repo  "),
+                    Span::styled(" R ", Style::default().fg(Color::Yellow)),
+                    Span::raw("refresh"),
                 ]),
                 Tab::Benchmarks => {
                     if app.selections.len() >= 2 {
@@ -346,35 +388,48 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                         spans.extend([
                             Span::styled(" c ", Style::default().fg(Color::Yellow)),
                             Span::raw("clear  "),
-                            Span::styled(" s ", Style::default().fg(Color::Yellow)),
+                            Span::styled(" s/S ", Style::default().fg(Color::Yellow)),
                             Span::raw("sort  "),
+                            Span::styled(" r ", Style::default().fg(Color::Yellow)),
+                            Span::raw("refresh  "),
                             Span::styled(" / ", Style::default().fg(Color::Yellow)),
                             Span::raw("search"),
                         ]);
                         Line::from(spans)
                     } else {
-                        Line::from(vec![
+                        let active_file = app.multi_store.file(app.benchmarks_app.active_source);
+                        let mut spans = vec![
                             Span::styled(" q ", Style::default().fg(Color::Yellow)),
                             Span::raw("quit  "),
-                            Span::styled(" 1 ", Style::default().fg(Color::Yellow)),
-                            Span::raw("intel  "),
-                            Span::styled(" 2 ", Style::default().fg(Color::Yellow)),
-                            Span::raw("date  "),
-                            Span::styled(" 3 ", Style::default().fg(Color::Yellow)),
-                            Span::raw("speed  "),
-                            Span::styled(" 4 ", Style::default().fg(Color::Yellow)),
-                            Span::raw("source  "),
-                            Span::styled(" 5-6 ", Style::default().fg(Color::Yellow)),
+                            Span::styled(" 1-2 ", Style::default().fg(Color::Yellow)),
                             Span::raw("group  "),
-                            Span::styled(" 7 ", Style::default().fg(Color::Yellow)),
-                            Span::raw("reasoning  "),
-                            Span::styled(" s ", Style::default().fg(Color::Yellow)),
+                        ];
+                        // Reasoning filter hint hidden when the active source
+                        // carries no reasoning metadata (key is a no-op then).
+                        if super::benchmarks::BenchmarksApp::reasoning_filter_available(active_file)
+                        {
+                            spans.push(Span::styled(" 3 ", Style::default().fg(Color::Yellow)));
+                            spans.push(Span::raw("reasoning  "));
+                        }
+                        spans.extend([
+                            Span::styled(" 4 ", Style::default().fg(Color::Yellow)),
+                            Span::raw("weights  "),
+                            Span::styled(" s/S ", Style::default().fg(Color::Yellow)),
                             Span::raw("sort  "),
+                            Span::styled(" C ", Style::default().fg(Color::Yellow)),
+                            Span::raw("columns  "),
+                            Span::styled(" a ", Style::default().fg(Color::Yellow)),
+                            Span::raw("avg  "),
+                            Span::styled(" r ", Style::default().fg(Color::Yellow)),
+                            Span::raw("refresh  "),
                             Span::styled(" / ", Style::default().fg(Color::Yellow)),
                             Span::raw("search  "),
+                            Span::styled(" i ", Style::default().fg(Color::Yellow)),
+                            Span::raw("glossary  "),
                             Span::styled(" Space ", Style::default().fg(Color::Yellow)),
                             Span::raw("select"),
-                        ])
+                        ]);
+                        Line::from(spans)
                     }
                 }
                 Tab::Status => {
@@ -436,7 +491,8 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
     };
 }
 
-fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, current_tab: Tab) {
+fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
+    let current_tab = app.current_tab;
     let area = centered_rect(50, 70, f.area());
 
     // Clear the area behind the popup
@@ -488,6 +544,9 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, current_tab: Tab) {
                 help_line("5", "Cycle provider category filter"),
                 help_line("6", "Toggle category grouping"),
                 Line::from(""),
+                help_section("Actions"),
+                help_line("r", "Refresh models.dev data"),
+                Line::from(""),
                 help_section("Copy & Open"),
                 help_line("c", "Copy provider/model"),
                 help_line("C", "Copy model only"),
@@ -508,6 +567,7 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, current_tab: Tab) {
                 help_section("Actions"),
                 help_line("o", "Open docs in browser"),
                 help_line("r", "Open GitHub repo in browser"),
+                help_line("R", "Refresh GitHub data"),
                 help_line("c", "Copy agent name"),
                 help_line("a", "Add/remove tracked agents"),
                 Line::from(""),
@@ -544,23 +604,39 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, current_tab: Tab) {
         }
         Tab::Benchmarks => {
             help_text.extend(vec![
-                help_section("Quick Sort (press again to flip direction)"),
-                help_line("1", "Sort by Intelligence index"),
-                help_line("2", "Sort by Release date"),
-                help_line("3", "Sort by Speed (tok/s)"),
+                help_section("Data Source"),
+                help_line("}", "Next data source"),
+                help_line("{", "Previous data source"),
+                help_line("r", "Refresh active source"),
                 Line::from(""),
-                help_section("Filters"),
-                help_line("4", "Cycle source filter (Open/Closed/Mixed)"),
-                help_line("5", "Cycle region filter (US/China/Europe/...)"),
-                help_line("6", "Cycle type filter (Startup/Big Tech/Research)"),
-                help_line("7", "Cycle reasoning filter (All/Reasoning/Non-reasoning)"),
+                help_section("Filters & Grouping"),
+                help_line("1", "Cycle region grouping (US/China/Europe/...)"),
+                help_line("2", "Cycle type grouping (Startup/Big Tech/Research)"),
+            ]);
+            // Hidden when the active source has no reasoning metadata (key no-op).
+            if super::benchmarks::BenchmarksApp::reasoning_filter_available(
+                app.multi_store.file(app.benchmarks_app.active_source),
+            ) {
+                help_text.push(help_line(
+                    "3",
+                    "Cycle reasoning filter (All/Reasoning/Non-reasoning)",
+                ));
+            }
+            help_text.extend(vec![
+                help_line("4", "Cycle open-weights filter (All/Open/Closed)"),
                 Line::from(""),
-                help_section("Sort (full cycle)"),
+                help_section("Sort"),
                 help_line("s", "Open sort picker"),
                 help_line("S", "Toggle sort direction"),
                 Line::from(""),
                 help_section("Actions"),
-                help_line("o", "Open Artificial Analysis page"),
+                help_line("C", "Choose visible metric columns (browse mode)"),
+                help_line("o", "Open source model page in browser"),
+                help_line("i", "Toggle benchmark glossary"),
+                help_line(
+                    "a",
+                    "Cycle comparator column (field avg → peers → rank → off)",
+                ),
                 Line::from(""),
                 help_section("Compare"),
                 help_line("Space", "Toggle model for comparison (max 8)"),
@@ -686,6 +762,31 @@ mod tests {
         let line = section_header_line("Title", 5);
         let text: String = line.spans.iter().map(|s| s.content.as_ref()).collect();
         assert!(text.contains("Title"));
+    }
+
+    #[test]
+    fn section_header_line_with_suffix_format() {
+        let line = section_header_line_with_suffix("Pricing", "$ per 1M tokens", 40);
+        let text: String = line.spans.iter().map(|s| s.content.as_ref()).collect();
+        assert!(text.starts_with("\u{2500}\u{2500} Pricing ($ per 1M tokens) "));
+        assert_eq!(text.chars().count(), 40);
+        // Title span is BOLD DarkGray; the suffix span is DarkGray without BOLD.
+        let suffix_span = line
+            .spans
+            .iter()
+            .find(|s| s.content.contains("($ per 1M tokens)"))
+            .expect("suffix span present");
+        assert_eq!(suffix_span.style.fg, Some(Color::DarkGray));
+        assert!(!suffix_span.style.add_modifier.contains(Modifier::BOLD));
+    }
+
+    #[test]
+    fn section_header_line_with_suffix_empty_matches_plain() {
+        let with = section_header_line_with_suffix("Indexes", "", 30);
+        let plain = section_header_line("Indexes", 30);
+        let wt: String = with.spans.iter().map(|s| s.content.as_ref()).collect();
+        let pt: String = plain.spans.iter().map(|s| s.content.as_ref()).collect();
+        assert_eq!(wt, pt);
     }
 
     #[test]

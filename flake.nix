@@ -35,6 +35,7 @@
           root = unfilteredRoot;
           fileset = lib.fileset.unions [
             ./data/agents.json # required for compilation
+            ./data/v2 # committed source files read by drift-guard tests
             (craneLib.fileset.commonCargoSources unfilteredRoot)
           ];
         };

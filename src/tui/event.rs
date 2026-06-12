@@ -93,6 +93,15 @@ fn handle_normal_mode(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
     if app.current_tab == super::app::Tab::Benchmarks && app.benchmarks_app.show_sort_picker {
         return handle_sort_picker_keys(code);
     }
+    // Glossary popup intercepts keys before the global handler so 'q' scrolls/
+    // closes rather than quitting the app.
+    if app.current_tab == super::app::Tab::Benchmarks && app.benchmarks_app.show_glossary {
+        return handle_glossary_keys(code);
+    }
+    // Column picker intercepts all keys while open (browse mode only).
+    if app.current_tab == super::app::Tab::Benchmarks && app.benchmarks_app.show_column_picker {
+        return handle_column_picker_keys(code, modifiers);
+    }
 
     // Global keys (work on any tab)
     match code {
@@ -164,6 +173,7 @@ fn handle_models_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
         KeyCode::Char('D') => Some(Message::CopyProviderDoc),
         KeyCode::Char('A') => Some(Message::CopyProviderApi),
         KeyCode::Char('o') => Some(Message::OpenProviderDoc),
+        KeyCode::Char('r') => Some(Message::RefreshModels),
         KeyCode::Char('s') => Some(Message::CycleSort),
         KeyCode::Char('S') => Some(Message::ToggleSortDir),
         KeyCode::Char('1') => Some(Message::ToggleReasoning),
@@ -242,6 +252,7 @@ fn handle_agents_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
     match code {
         KeyCode::Char('o') => Some(Message::OpenAgentDocs),
         KeyCode::Char('r') => Some(Message::OpenAgentRepo),
+        KeyCode::Char('R') => Some(Message::RefreshAgents),
         KeyCode::Char('c') => Some(Message::CopyAgentName),
         KeyCode::Char('1') => Some(Message::ToggleInstalledFilter),
         KeyCode::Char('2') => Some(Message::ToggleCliFilter),
@@ -260,6 +271,40 @@ fn handle_sort_picker_keys(code: KeyCode) -> Option<Message> {
         KeyCode::Char('k') | KeyCode::Up => Some(Message::SortPickerPrev),
         KeyCode::Enter => Some(Message::SortPickerConfirm),
         KeyCode::Esc | KeyCode::Char('s') => Some(Message::CloseSortPicker),
+        _ => None,
+    }
+}
+
+/// Glossary popup keys: `i`/`Esc` close, arrows/`j`/`k` scroll. All other keys
+/// are swallowed so the popup is modal (e.g. `q` does not quit).
+fn handle_glossary_keys(code: KeyCode) -> Option<Message> {
+    match code {
+        KeyCode::Char('i') | KeyCode::Esc => Some(Message::ToggleGlossary),
+        KeyCode::Char('j') | KeyCode::Down => Some(Message::ScrollGlossaryDown),
+        KeyCode::Char('k') | KeyCode::Up => Some(Message::ScrollGlossaryUp),
+        _ => None,
+    }
+}
+
+/// Column picker popup keys. Intercepts all keys so `q` / `?` / etc. don't pass
+/// through to the global handler.
+fn handle_column_picker_keys(code: KeyCode, modifiers: KeyModifiers) -> Option<Message> {
+    match code {
+        KeyCode::Char('j') | KeyCode::Down => Some(Message::ColumnPickerNext),
+        KeyCode::Char('k') | KeyCode::Up => Some(Message::ColumnPickerPrev),
+        KeyCode::Char('g') => Some(Message::ColumnPickerFirst),
+        KeyCode::Char('G') => Some(Message::ColumnPickerLast),
+        KeyCode::Char('d') if modifiers.contains(KeyModifiers::CONTROL) => {
+            Some(Message::ColumnPickerLast)
+        }
+        KeyCode::Char('u') if modifiers.contains(KeyModifiers::CONTROL) => {
+            Some(Message::ColumnPickerFirst)
+        }
+        KeyCode::PageDown => Some(Message::ColumnPickerLast),
+        KeyCode::PageUp => Some(Message::ColumnPickerFirst),
+        KeyCode::Char(' ') => Some(Message::ColumnPickerToggle),
+        KeyCode::Enter => Some(Message::ColumnPickerSave),
+        KeyCode::Esc => Some(Message::ColumnPickerCancel),
         _ => None,
     }
 }
@@ -330,16 +375,32 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
         return resolve_benchmarks_nav(app, action);
     }
     match code {
-        KeyCode::Char('1') => Some(Message::QuickSortIntelligence),
-        KeyCode::Char('2') => Some(Message::QuickSortDate),
-        KeyCode::Char('3') => Some(Message::QuickSortSpeed),
+        // Number row: 1/2 = creator grouping, 3 = reasoning filter, 4 = weights
+        // filter. There are no quick-sort number keys — the `s` sort picker and
+        // `S` direction toggle cover sorting.
+        KeyCode::Char('1') => Some(Message::ToggleRegionGrouping),
+        KeyCode::Char('2') => Some(Message::ToggleTypeGrouping),
+        // `3` cycles the reasoning filter — no-op (and footer-hidden) when no
+        // model in the active source carries a reasoning status.
+        KeyCode::Char('3')
+            if super::benchmarks::BenchmarksApp::reasoning_filter_available(
+                app.multi_store.file(app.benchmarks_app.active_source),
+            ) =>
+        {
+            Some(Message::CycleReasoningFilter)
+        }
         KeyCode::Char('4') => Some(Message::CycleBenchmarkSource),
-        KeyCode::Char('5') => Some(Message::ToggleRegionGrouping),
-        KeyCode::Char('6') => Some(Message::ToggleTypeGrouping),
-        KeyCode::Char('7') => Some(Message::CycleReasoningFilter),
+        // `{` / `}` cycle data source prev/next (tab-local; `[` / `]` stay global).
+        KeyCode::Char('{') => Some(Message::CycleDataSourcePrev),
+        KeyCode::Char('}') => Some(Message::CycleDataSourceNext),
+        // `r` re-fetches the active source (stale-while-revalidate).
+        KeyCode::Char('r') => Some(Message::RefreshBenchmarkSource),
         KeyCode::Char('s') => Some(Message::OpenSortPicker),
         KeyCode::Char('S') => Some(Message::ToggleBenchmarkSortDir),
+        KeyCode::Char('i') => Some(Message::ToggleGlossary),
         KeyCode::Char('c') if !app.selections.is_empty() => Some(Message::ClearBenchmarkSelections),
+        // `C` opens the column picker — browse mode only (< 2 selections).
+        KeyCode::Char('C') if app.selections.len() < 2 => Some(Message::OpenColumnPicker),
         KeyCode::Char('o') => Some(Message::OpenBenchmarkUrl),
         KeyCode::Char(' ') => Some(Message::ToggleBenchmarkSelection),
         KeyCode::Char('v') if app.selections.len() >= 2 => Some(Message::CycleBenchmarkView),
@@ -358,6 +419,10 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
         {
             Some(Message::CycleRadarPreset)
         }
+        // Browse mode (< 2 selections): `a` cycles the detail comparator column.
+        // The radar-preset `a` above is guarded to compare mode (Radar view), so
+        // the two never collide.
+        KeyCode::Char('a') if app.selections.len() < 2 => Some(Message::CycleComparator),
         KeyCode::Char('d') if app.selections.len() >= 2 => Some(Message::ToggleDetailOverlay),
         KeyCode::Char('t') if app.selections.len() >= 2 => Some(Message::ToggleComparePanel),
         _ => None,

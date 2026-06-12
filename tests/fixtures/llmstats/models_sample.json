@@ -1,0 +1,66 @@
+{
+  "models": [
+    {
+      "id": "claude-opus-4-8",
+      "name": "Claude Opus 4.8",
+      "organization": {
+        "id": "anthropic",
+        "name": "Anthropic"
+      },
+      "open_weight": false,
+      "context_window": 200000,
+      "param_count": null,
+      "release_date": "2026-05-01",
+      "model_type": "llm",
+      "license": {
+        "id": "proprietary",
+        "name": "Proprietary",
+        "allow_commercial": false
+      },
+      "created_at": "2026-05-01T00:00:00Z",
+      "updated_at": "2026-06-10T00:00:00Z"
+    },
+    {
+      "id": "gemini-3-pro",
+      "name": "Gemini 3 Pro",
+      "organization": {
+        "id": "google",
+        "name": "Google"
+      },
+      "open_weight": false,
+      "context_window": 1000000,
+      "param_count": null,
+      "release_date": "2026-03-15",
+      "model_type": "llm",
+      "license": {
+        "id": "proprietary",
+        "name": "Proprietary",
+        "allow_commercial": false
+      },
+      "created_at": "2026-03-15T00:00:00Z",
+      "updated_at": "2026-06-10T00:00:00Z"
+    },
+    {
+      "id": "qwen3-max",
+      "name": "Qwen3 Max",
+      "organization": {
+        "id": "alibaba",
+        "name": "Alibaba"
+      },
+      "open_weight": true,
+      "context_window": null,
+      "param_count": null,
+      "release_date": null,
+      "model_type": "llm",
+      "license": {
+        "id": "apache-2.0",
+        "name": "Apache 2.0",
+        "allow_commercial": true
+      },
+      "created_at": "2026-02-01T00:00:00Z",
+      "updated_at": "2026-06-10T00:00:00Z"
+    }
+  ],
+  "next_cursor": null,
+  "total": 3
+}

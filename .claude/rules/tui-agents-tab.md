@@ -92,6 +92,15 @@ Sort direction is always descending (`\u{2193}`) in the title — `AgentSortOrde
 
 ---
 
+## 4b. Refresh
+
+`R` (capital — `r` is Open repo) re-triggers the conditional GitHub fetch for
+all **tracked** agents via the same spawn helper as startup: entries flip to
+Loading (`◐`), `pending_github_fetches`/`loading_github` are set, and results
+flow through the existing `FetchResult` channel. ETag conditional requests
+make unchanged repos cheap (NotModified → disk-cache hit). Status message:
+`Refreshing agents…`. Footer hint: ` R ` (Yellow) + `refresh`.
+
 ## 5. Agent Detail Panel
 
 Content rendered top-to-bottom in this order:

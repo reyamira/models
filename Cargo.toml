@@ -2,6 +2,8 @@
 name = "modelsdev"
 version = "0.11.52"
 edition = "2021"
+# The `transform` [[bin]] makes bare `cargo run` ambiguous without this.
+default-run = "models"
 description = "A fast TUI and CLI for browsing AI models, benchmarks, and coding agents"
 license = "MIT"
 repository = "https://github.com/reyamira/models"
@@ -12,6 +14,17 @@ categories = ["command-line-utilities"]
 [[bin]]
 name = "models"
 path = "src/main.rs"
+
+# Data pipeline transform binary — NOT built by default (so `cargo install
+# modelsdev` skips it). Build/run with `--features pipeline`. Shares the v2
+# schema via a `#[path]` module include since the crate has no lib target.
+[[bin]]
+name = "transform"
+path = "src/bin/transform/main.rs"
+required-features = ["pipeline"]
+
+[features]
+pipeline = ["dep:csv"]
 
 [dependencies]
 # CLI
@@ -76,6 +89,11 @@ comrak = { version = "0.36", default-features = false }
 
 # Date/time handling
 chrono = { version = "0.4", features = ["serde"] }
+
+# CSV parsing — ONLY for the `pipeline` feature's `transform epoch` (RFC-4180
+# quoting / embedded newlines in Epoch CSVs). Optional + feature-gated so the
+# published `models` binary never links it.
+csv = { version = "1", optional = true }
 
 # Terminal styling (used for dialoguer theme)
 console = "0.15"

@@ -1,0 +1,136 @@
+{
+  "rankings": [
+    {
+      "category": "general",
+      "method": "trueskill",
+      "ranked_at": "2026-06-10T21:57:00.000000Z",
+      "models": [
+        {
+          "rank": 1,
+          "model_id": "claude-opus-4-8",
+          "model_name": "Claude Opus 4.8",
+          "organization": "anthropic",
+          "score": 378.7,
+          "conservative_rating": 67.14,
+          "open_weight": false,
+          "min_input_price": 5.0,
+          "benchmarks_evaluated": 5,
+          "source": "LLM Stats",
+          "url": "https://llm-stats.com/models/claude-opus-4-8"
+        },
+        {
+          "rank": 2,
+          "model_id": "gemini-3-pro",
+          "model_name": "Gemini 3 Pro (Reasoning, High Effort)",
+          "organization": "google",
+          "score": 350.1,
+          "conservative_rating": 65.02,
+          "open_weight": false,
+          "min_input_price": 2.0,
+          "benchmarks_evaluated": 4,
+          "source": "LLM Stats",
+          "url": "https://llm-stats.com/models/gemini-3-pro"
+        },
+        {
+          "rank": 3,
+          "model_id": "qwen3-max",
+          "model_name": "Qwen3 Max",
+          "organization": "alibaba",
+          "score": 300.0,
+          "conservative_rating": 60.5,
+          "open_weight": true,
+          "min_input_price": 0.5,
+          "benchmarks_evaluated": 3,
+          "source": "LLM Stats",
+          "url": "https://llm-stats.com/models/qwen3-max"
+        }
+      ]
+    },
+    {
+      "category": "code",
+      "method": "trueskill",
+      "ranked_at": "2026-06-10T22:01:00.000000Z",
+      "models": [
+        {
+          "rank": 1,
+          "model_id": "claude-opus-4-8",
+          "model_name": "Claude Opus 4.8",
+          "organization": "anthropic",
+          "score": 0.9,
+          "conservative_rating": 56.63,
+          "open_weight": false,
+          "min_input_price": 5.0,
+          "benchmarks_evaluated": 6,
+          "source": "LLM Stats",
+          "url": "https://llm-stats.com/models/claude-opus-4-8"
+        },
+        {
+          "rank": 2,
+          "model_id": "qwen3-max",
+          "model_name": "Qwen3 Max",
+          "organization": "alibaba",
+          "score": 0.85,
+          "conservative_rating": 52.1,
+          "open_weight": true,
+          "min_input_price": 0.5,
+          "benchmarks_evaluated": 4,
+          "source": "LLM Stats",
+          "url": "https://llm-stats.com/models/qwen3-max"
+        }
+      ]
+    },
+    {
+      "category": "vision",
+      "method": "trueskill",
+      "ranked_at": "2026-06-09T10:00:00.000000Z",
+      "models": [
+        {
+          "rank": 1,
+          "model_id": "gemini-3-pro",
+          "model_name": "Gemini 3 Pro (Reasoning, High Effort)",
+          "organization": "google",
+          "score": 0.8,
+          "conservative_rating": 50.3,
+          "open_weight": false,
+          "min_input_price": 2.0,
+          "benchmarks_evaluated": 3,
+          "source": "LLM Stats",
+          "url": "https://llm-stats.com/models/gemini-3-pro"
+        },
+        {
+          "rank": 2,
+          "model_id": "phantom-no-meta",
+          "model_name": "Phantom (Non-Reasoning)",
+          "organization": "mystery-org",
+          "score": 0.7,
+          "conservative_rating": 40.0,
+          "open_weight": false,
+          "min_input_price": null,
+          "benchmarks_evaluated": 1,
+          "source": "LLM Stats",
+          "url": "https://llm-stats.com/models/phantom-no-meta"
+        }
+      ]
+    },
+    {
+      "category": "safety",
+      "method": "trueskill",
+      "ranked_at": "2026-06-10T22:05:00.000000Z",
+      "models": [
+        {
+          "rank": 1,
+          "model_id": "claude-opus-4-8",
+          "model_name": "Claude Opus 4.8",
+          "organization": "anthropic",
+          "score": 0.9,
+          "conservative_rating": 34.44,
+          "open_weight": false,
+          "min_input_price": 5.0,
+          "benchmarks_evaluated": 2,
+          "source": "LLM Stats",
+          "url": "https://llm-stats.com/models/claude-opus-4-8"
+        }
+      ]
+    }
+  ]
+}

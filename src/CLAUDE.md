@@ -5,17 +5,17 @@
 | Directory | Purpose | CLAUDE.md |
 |-----------|---------|-----------|
 | `agents/` | Agent data, GitHub integration, caching, changelog parsing, agent-to-status-provider mapping (`health.rs`) | Yes |
-| `benchmarks/` | Benchmark store, CDN fetching, models.dev trait matching | Yes |
+| `benchmarks/` | Multi-source v2 schema, source registry, per-source CDN fetching, registry-driven view helpers, models.dev trait matching/enrichment | Yes |
 | `cli/` | Subcommands, inline pickers, shared picker infrastructure | Yes |
 | `status/` | Provider health types, registry, assessment, fetch adapters | Yes |
 | `tui/` | App state, sub-apps, event handling, per-tab rendering | Yes |
-| `bin/` | `agents` binary alias (argv[0] symlink detection) | — |
+| `bin/` | `transform/` — offline benchmark data-pipeline bin (feature `pipeline`); not built by default | Yes |
 
 ## Top-Level Files
 
 | File | Purpose |
 |------|---------|
-| `main.rs` | Clap CLI definition, command dispatch, TUI launch |
+| `main.rs` | Clap CLI definition, command dispatch, TUI launch; argv[0] symlink-alias detection (`agents`/`benchmarks`/`mstatus`) via `Config::match_alias` |
 | `api.rs` | Synchronous models.dev API fetch (blocking reqwest — intentionally not async, runs before tokio runtime) |
 | `data.rs` | `Provider`, `Model`, `ProvidersMap` — core data structures from models.dev. Used by nearly every module |
 | `config.rs` | User config (`~/.config/models/config.toml`) — tracked agents, cache settings, display preferences, symlink aliases (`[aliases]` section) |

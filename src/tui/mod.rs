@@ -22,7 +22,9 @@ pub mod widgets;
 use crate::agents::{
     load_agents, AsyncGitHubClient, ConditionalFetchResult, GitHubCache, GitHubData,
 };
-use crate::benchmarks::{BenchmarkFetchResult, BenchmarkFetcher, BenchmarkStore};
+use crate::benchmarks::fetch_source;
+use crate::benchmarks::schema::SourceFile;
+use crate::benchmarks::sources::SOURCES;
 use crate::config::Config;
 use crate::data::ProvidersMap;
 use crate::status::{StatusFetchResult, StatusFetcher};
@@ -40,6 +42,29 @@ fn copy_to_clipboard(text: String) {
             std::thread::sleep(std::time::Duration::from_secs(2));
         }
     });
+}
+
+/// Peek the label of the metric that a scatter axis will advance to, used for
+/// the status-bar message before `app.update` runs the cycle.
+fn peek_next_metric_label(app: &app::App, current: usize) -> Option<String> {
+    let file = app.active_benchmark_file()?;
+    let n = file.metrics.len();
+    if n == 0 {
+        return None;
+    }
+    let next = (current + 1) % n;
+    Some(file.metrics[next].label.clone())
+}
+
+/// Peek the name of the radar group the preset will advance to.
+fn peek_next_radar_group_label(app: &app::App) -> Option<String> {
+    let file = app.active_benchmark_file()?;
+    let groups = crate::benchmarks::multi::radar_groups(file);
+    if groups.is_empty() {
+        return None;
+    }
+    let next = (app.benchmarks_app.radar_group + 1) % groups.len();
+    Some(groups[next].clone())
 }
 
 /// Result of a GitHub fetch operation for an agent.
@@ -64,7 +89,17 @@ struct RuntimeHandles {
     github_tx: mpsc::Sender<FetchResult>,
     client: AsyncGitHubClient,
     disk_cache: Arc<RwLock<GitHubCache>>,
-    bench_rx: mpsc::Receiver<BenchmarkFetchResult>,
+    /// One message per source fetch: `(source_idx, Option<SourceFile>)`.
+    bench_rx: mpsc::Receiver<(usize, Option<SourceFile>)>,
+    /// `r`-triggered active-source refetch results: `(source_idx, Option<SourceFile>)`.
+    refresh_rx: mpsc::Receiver<(usize, Option<SourceFile>)>,
+    refresh_tx: mpsc::Sender<(usize, Option<SourceFile>)>,
+    /// `r`-triggered models.dev refetch result.
+    models_refresh_rx: mpsc::Receiver<Option<crate::data::ProvidersMap>>,
+    models_refresh_tx: mpsc::Sender<Option<crate::data::ProvidersMap>>,
+    /// Final URL opened by an async benchmark-url task (Epoch 404-fallback path).
+    url_rx: mpsc::Receiver<String>,
+    url_tx: mpsc::Sender<String>,
     status: StatusRuntime,
 }
 pub async fn run(providers: ProvidersMap) -> Result<()> {
@@ -74,14 +109,14 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
     let agents_file = load_agents().ok();
     let config = Config::load().ok();
 
-    // Benchmark data fetched from CDN in background; starts empty until loaded.
-    let benchmark_store = BenchmarkStore::empty();
+    // Benchmark data fetched from CDN in background; the multi-store starts with
+    // every source in the Loading state until each fetch lands.
 
     // Load disk cache for GitHub data (load before wrapping to avoid blocking in async)
     let disk_cache = GitHubCache::load();
 
     // Create app BEFORE entering alternate screen
-    let mut app = app::App::new(providers, agents_file.as_ref(), config, benchmark_store);
+    let mut app = app::App::new(providers, agents_file.as_ref(), config);
 
     // Install panic hook to restore terminal on crash
     let original_hook = std::panic::take_hook();
@@ -123,47 +158,30 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
     let (tx, rx) = mpsc::channel(100);
 
     // Spawn background GitHub fetches for agents (non-blocking)
-    // Uses conditional fetches with ETag to avoid re-downloading unchanged data
+    // Uses conditional fetches with ETag to avoid re-downloading unchanged data.
+    // Uses the shared `spawn_agent_fetches` helper so the refresh path (`R`) is
+    // identical.
     let fetch_handles = if let Some(ref agents_app) = app.agents_app {
-        let tracked_entries: Vec<_> = agents_app.entries.iter().filter(|e| e.tracked).collect();
-        let mut handles = Vec::with_capacity(tracked_entries.len());
-
-        for entry in tracked_entries {
-            let tx = tx.clone();
-            let client = client.clone();
-            let id = entry.id.clone();
-            let repo = entry.agent.repo.clone();
-            let cache = disk_cache.clone();
-
-            let handle = tokio::spawn(async move {
-                let result = match client.fetch_conditional(&repo).await {
-                    ConditionalFetchResult::Fresh(data, _etag) => FetchResult::Success(id, data),
-                    ConditionalFetchResult::NotModified => {
-                        let cache_guard = cache.read().await;
-                        if let Some(cached) = cache_guard.get(&repo) {
-                            FetchResult::Success(id, cached.data.clone().into())
-                        } else {
-                            FetchResult::Failure(id, "Cache miss on NotModified".to_string())
-                        }
-                    }
-                    ConditionalFetchResult::Error(e) => FetchResult::Failure(id, e),
-                };
-                let _ = tx.send(result).await;
-            });
-            handles.push(handle);
-        }
-        handles
+        spawn_agent_fetches(
+            &agents_app.entries,
+            tx.clone(),
+            client.clone(),
+            disk_cache.clone(),
+        )
     } else {
         Vec::new()
     };
 
-    // Spawn background benchmark fetch from CDN
-    let (bench_tx, bench_rx) = mpsc::channel(1);
-    tokio::spawn(async move {
-        let fetcher = BenchmarkFetcher::new();
-        let result = fetcher.fetch().await;
-        let _ = bench_tx.send(result).await;
-    });
+    // Spawn one background fetch per compiled-in data source. Each posts its
+    // source index alongside the result so the main loop can route it.
+    let (bench_tx, bench_rx) = mpsc::channel(SOURCES.len().max(1));
+    for (idx, descriptor) in SOURCES.iter().enumerate() {
+        let bench_tx = bench_tx.clone();
+        tokio::spawn(async move {
+            let result = fetch_source(descriptor).await;
+            let _ = bench_tx.send((idx, result)).await;
+        });
+    }
 
     let (status_tx, status_rx) = mpsc::channel(4);
     let status_client = reqwest::Client::builder()
@@ -188,12 +206,21 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
         last_fetch_time: None,
         fetch_generation: 0,
     };
+    let (url_tx, url_rx) = mpsc::channel(8);
+    let (refresh_tx, refresh_rx) = mpsc::channel(SOURCES.len().max(1));
+    let (models_refresh_tx, models_refresh_rx) = mpsc::channel(2);
     let runtime_handles = RuntimeHandles {
         github_rx: rx,
         github_tx: tx,
         client,
         disk_cache: disk_cache.clone(),
         bench_rx,
+        refresh_rx,
+        refresh_tx,
+        models_refresh_rx,
+        models_refresh_tx,
+        url_rx,
+        url_tx,
         status: status_runtime,
     };
     let result = run_app(&mut terminal, &mut app, runtime_handles);
@@ -220,6 +247,54 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
     terminal.show_cursor()?;
 
     result
+}
+
+/// Spawn conditional GitHub fetches for tracked agents — used both at startup
+/// and when `R` is pressed on the Agents tab. Only spawns for entries that are
+/// `tracked` and in a `Loading` or `NotStarted` fetch state. Each fetch posts
+/// its result to `tx`. Returns the spawned task handles so the caller can abort
+/// them on shutdown if needed.
+fn spawn_agent_fetches(
+    entries: &[crate::agents::AgentEntry],
+    tx: mpsc::Sender<FetchResult>,
+    client: AsyncGitHubClient,
+    cache: Arc<RwLock<GitHubCache>>,
+) -> Vec<tokio::task::JoinHandle<()>> {
+    use crate::agents::FetchStatus;
+    let mut handles = Vec::new();
+    for entry in entries.iter().filter(|e| {
+        e.tracked
+            && matches!(
+                e.fetch_status,
+                FetchStatus::Loading | FetchStatus::NotStarted
+            )
+    }) {
+        let tx = tx.clone();
+        let client = client.clone();
+        let id = entry.id.clone();
+        let repo = entry.agent.repo.clone();
+        let cache = cache.clone();
+
+        let handle = tokio::spawn(async move {
+            let result = match client.fetch_conditional(&repo).await {
+                crate::agents::ConditionalFetchResult::Fresh(data, _etag) => {
+                    FetchResult::Success(id, data)
+                }
+                crate::agents::ConditionalFetchResult::NotModified => {
+                    let cache_guard = cache.read().await;
+                    if let Some(cached) = cache_guard.get(&repo) {
+                        FetchResult::Success(id, cached.data.clone().into())
+                    } else {
+                        FetchResult::Failure(id, "Cache miss on NotModified".to_string())
+                    }
+                }
+                crate::agents::ConditionalFetchResult::Error(e) => FetchResult::Failure(id, e),
+            };
+            let _ = tx.send(result).await;
+        });
+        handles.push(handle);
+    }
+    handles
 }
 
 fn run_app(
@@ -283,16 +358,35 @@ fn run_app(
             }
         }
 
-        // Check for benchmark data updates (non-blocking)
-        if let Ok(result) = runtime.bench_rx.try_recv() {
-            match result {
-                BenchmarkFetchResult::Fresh(entries) => {
-                    app.update(app::Message::BenchmarkDataReceived(entries));
-                }
-                BenchmarkFetchResult::Error => {
-                    app.update(app::Message::BenchmarkFetchFailed);
-                }
+        // Check for benchmark source updates (non-blocking) — drain all that
+        // have landed so multiple sources are absorbed in one tick.
+        while let Ok((idx, result)) = runtime.bench_rx.try_recv() {
+            app.update(app::Message::DataSourceLoaded(idx, result));
+        }
+
+        // Drain `r`-triggered refresh results — the handler sets its own status
+        // (Refreshed / Failed to refresh).
+        while let Ok((idx, result)) = runtime.refresh_rx.try_recv() {
+            app.update(app::Message::DataSourceRefreshed(idx, result));
+            last_status_time = Some(std::time::Instant::now());
+        }
+
+        // Drain `r`-triggered models.dev refresh results.
+        while let Ok(result) = runtime.models_refresh_rx.try_recv() {
+            app.update(app::Message::ProvidersRefreshed(result));
+            last_status_time = Some(std::time::Instant::now());
+        }
+
+        // Drain async benchmark-url opens (Epoch 404-fallback path) — the final
+        // opened URL arrives as a `BenchmarkUrlOpened` message reported to the
+        // status bar.
+        while let Ok(url) = runtime.url_rx.try_recv() {
+            let msg = app::Message::BenchmarkUrlOpened(url);
+            if let app::Message::BenchmarkUrlOpened(url) = &msg {
+                app.set_status(format!("Opened: {url}"));
+                last_status_time = Some(std::time::Instant::now());
             }
+            app.update(msg);
         }
 
         if app.pending_status_refresh {
@@ -333,6 +427,11 @@ fn run_app(
         }
 
         if let Some(msg) = event::handle_events(app)? {
+            // Set when RefreshAgents is seen — spawn must run AFTER app.update()
+            // marks tracked entries Loading (so the filter in spawn_agent_fetches
+            // matches them). See ordering note below.
+            let mut need_refresh_agents = false;
+
             // Handle clipboard operations and set status with timer
             match &msg {
                 app::Message::CopyFull => {
@@ -405,17 +504,55 @@ fn run_app(
                     }
                 }
                 app::Message::CopyBenchmarkName => {
-                    if let Some(entry) = app.benchmarks_app.current_entry(&app.benchmark_store) {
-                        copy_to_clipboard(entry.name.clone());
-                        app.set_status(format!("Copied: {}", entry.name));
-                        last_status_time = Some(std::time::Instant::now());
+                    if let Some(file) = app.active_benchmark_file() {
+                        if let Some(model) = app.benchmarks_app.current_model(file) {
+                            copy_to_clipboard(model.display_name.clone());
+                            app.set_status(format!("Copied: {}", model.display_name));
+                            last_status_time = Some(std::time::Instant::now());
+                        }
                     }
                 }
                 app::Message::OpenBenchmarkUrl => {
-                    if let Some(entry) = app.benchmarks_app.current_entry(&app.benchmark_store) {
-                        let url = format!("https://artificialanalysis.ai/models/{}", entry.slug);
-                        let _ = open::that_in_background(&url);
-                        app.set_status(format!("Opened: {}", url));
+                    // Per-source URL strategy (sources.rs `model_url`). Epoch's
+                    // per-model pages only resolve for ~70% of ids, so it gets a
+                    // 200-probe with a fallback to the model index page; the
+                    // other sources open synchronously.
+                    let active = app.benchmarks_app.active_source;
+                    let descriptor = crate::tui::benchmarks::BenchmarksApp::active_descriptor(
+                        &app.multi_store,
+                        active,
+                    );
+                    let model_id = app
+                        .active_benchmark_file()
+                        .and_then(|file| app.benchmarks_app.current_model(file))
+                        .map(|model| model.id.clone());
+                    if let (Some(descriptor), Some(model_id)) = (descriptor, model_id) {
+                        let url = descriptor.model_url(&model_id);
+                        if descriptor.id == "epoch" {
+                            // Probe the model page; open it on 200, else the
+                            // model index. Final URL reported via url_tx.
+                            let url_tx = runtime.url_tx.clone();
+                            tokio::spawn(async move {
+                                const FALLBACK: &str = "https://epoch.ai/data/ai-models";
+                                let client = reqwest::Client::builder()
+                                    .user_agent("models-tui")
+                                    .timeout(Duration::from_secs(3))
+                                    .build();
+                                let resolved = match client {
+                                    Ok(client) => match client.head(&url).send().await {
+                                        Ok(resp) if resp.status().is_success() => url,
+                                        _ => FALLBACK.to_string(),
+                                    },
+                                    Err(_) => FALLBACK.to_string(),
+                                };
+                                let _ = open::that_in_background(&resolved);
+                                let _ = url_tx.send(resolved).await;
+                            });
+                            app.set_status("Opening Epoch model page…".to_string());
+                        } else {
+                            let _ = open::that_in_background(&url);
+                            app.set_status(format!("Opened: {}", url));
+                        }
                         last_status_time = Some(std::time::Instant::now());
                     }
                 }
@@ -436,6 +573,10 @@ fn run_app(
                     // Picker save sets its own status message via app.update
                     last_status_time = Some(std::time::Instant::now());
                 }
+                app::Message::ColumnPickerSave => {
+                    // Column persistence sets its own status via app.update
+                    last_status_time = Some(std::time::Instant::now());
+                }
                 app::Message::ToggleBenchmarkSelection => {
                     // Look up the model name for the status message
                     if let Some(&store_idx) = app
@@ -444,10 +585,9 @@ fn run_app(
                         .get(app.benchmarks_app.selected)
                     {
                         let name = app
-                            .benchmark_store
-                            .entries()
-                            .get(store_idx)
-                            .map(|e| e.name.as_str())
+                            .active_benchmark_file()
+                            .and_then(|f| f.models.get(store_idx))
+                            .map(|m| m.display_name.as_str())
                             .unwrap_or("?");
                         let is_already_selected = app.selections.contains(&store_idx);
                         if is_already_selected {
@@ -494,18 +634,61 @@ fn run_app(
                     last_status_time = Some(std::time::Instant::now());
                 }
                 app::Message::CycleScatterX => {
-                    let next_axis = app.benchmarks_app.scatter_x.next();
-                    app.set_status(format!("X-axis: {}", next_axis.label()));
-                    last_status_time = Some(std::time::Instant::now());
+                    if let Some(label) = peek_next_metric_label(app, app.benchmarks_app.scatter_x) {
+                        app.set_status(format!("X-axis: {}", label));
+                        last_status_time = Some(std::time::Instant::now());
+                    }
                 }
                 app::Message::CycleScatterY => {
-                    let next_axis = app.benchmarks_app.scatter_y.next();
-                    app.set_status(format!("Y-axis: {}", next_axis.label()));
-                    last_status_time = Some(std::time::Instant::now());
+                    if let Some(label) = peek_next_metric_label(app, app.benchmarks_app.scatter_y) {
+                        app.set_status(format!("Y-axis: {}", label));
+                        last_status_time = Some(std::time::Instant::now());
+                    }
                 }
                 app::Message::CycleRadarPreset => {
-                    let next_preset = app.benchmarks_app.radar_preset.next();
-                    app.set_status(format!("Radar: {}", next_preset.label()));
+                    if let Some(label) = peek_next_radar_group_label(app) {
+                        app.set_status(format!("Radar: {}", label));
+                        last_status_time = Some(std::time::Instant::now());
+                    }
+                }
+                app::Message::RefreshBenchmarkSource => {
+                    // Re-fetch the active source without flipping it to Loading
+                    // (stale-while-revalidate): the current data keeps rendering
+                    // while the fetch runs. The result routes to
+                    // `DataSourceRefreshed` so a failure keeps the old file.
+                    let idx = app.benchmarks_app.active_source;
+                    if let Some(descriptor) = SOURCES.get(idx) {
+                        let name = descriptor.name;
+                        let refresh_tx = runtime.refresh_tx.clone();
+                        tokio::spawn(async move {
+                            let result = fetch_source(descriptor).await;
+                            let _ = refresh_tx.send((idx, result)).await;
+                        });
+                        app.set_status(format!("Refreshing {name}…"));
+                        last_status_time = Some(std::time::Instant::now());
+                    }
+                }
+                app::Message::RefreshModels => {
+                    // Spawn an async models.dev refetch. Runs the blocking
+                    // reqwest call in a `spawn_blocking` wrapper so the event
+                    // loop is never blocked. Result arrives via `ProvidersRefreshed`.
+                    let models_refresh_tx = runtime.models_refresh_tx.clone();
+                    tokio::spawn(async move {
+                        let result =
+                            tokio::task::spawn_blocking(|| crate::api::fetch_providers().ok())
+                                .await
+                                .unwrap_or(None);
+                        let _ = models_refresh_tx.send(result).await;
+                    });
+                    app.set_status("Refreshing models.dev…".to_string());
+                    last_status_time = Some(std::time::Instant::now());
+                }
+                app::Message::RefreshAgents => {
+                    // app.update() (below) must run first — it marks tracked entries
+                    // Loading so spawn_agent_fetches' filter can match them. Spawning
+                    // here, before update(), would race against Loaded entries and
+                    // dispatch zero fetches. Set the flag; spawn after update().
+                    need_refresh_agents = true;
                     last_status_time = Some(std::time::Instant::now());
                 }
                 _ => {}
@@ -513,6 +696,21 @@ fn run_app(
 
             if !app.update(msg) {
                 return Ok(());
+            }
+
+            // Post-update: spawn fetches now that app.update(RefreshAgents) has
+            // flipped tracked entries to Loading. spawn_agent_fetches filters on
+            // Loading | NotStarted, so this ordering is required for the refresh
+            // to actually dispatch network requests after the initial load.
+            if need_refresh_agents {
+                if let Some(ref agents_app) = app.agents_app {
+                    spawn_agent_fetches(
+                        &agents_app.entries,
+                        runtime.github_tx.clone(),
+                        runtime.client.clone(),
+                        runtime.disk_cache.clone(),
+                    );
+                }
             }
         }
     }

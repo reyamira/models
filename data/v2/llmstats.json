@@ -1,0 +1,3641 @@
+{
+  "source": {
+    "id": "llmstats",
+    "name": "LLM Stats",
+    "url": "https://llm-stats.com",
+    "fetched_at": "2026-06-11T22:41:02.909343256+00:00",
+    "verified": true
+  },
+  "metrics": [
+    {
+      "id": "agents",
+      "label": "Agents",
+      "kind": "index",
+      "group": "Categories I",
+      "last_updated": "2026-06-11T22:40:59.029977Z",
+      "description": "Capability on agentic, multi-step tool-using tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
+    },
+    {
+      "id": "code",
+      "label": "Code",
+      "kind": "index",
+      "group": "Categories I",
+      "last_updated": "2026-06-11T22:40:59.256598Z",
+      "description": "Capability on programming and code-generation tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
+    },
+    {
+      "id": "finance",
+      "label": "Finance",
+      "kind": "index",
+      "group": "Categories I",
+      "last_updated": "2026-06-11T22:40:59.381474Z",
+      "description": "Capability on finance-domain tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
+    },
+    {
+      "id": "frontend_development",
+      "label": "Frontend Dev",
+      "kind": "index",
+      "group": "Categories I",
+      "last_updated": "2026-06-11T22:40:59.633773Z",
+      "description": "Capability on front-end / web-UI development tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better.",
+      "short_label": "Front. Dev"
+    },
+    {
+      "id": "general",
+      "label": "General",
+      "kind": "index",
+      "group": "Categories I",
+      "last_updated": "2026-06-11T22:40:59.817122Z",
+      "description": "Overall general-capability rating across all tracked benchmarks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
+    },
+    {
+      "id": "healthcare",
+      "label": "Healthcare",
+      "kind": "index",
+      "group": "Categories I",
+      "last_updated": "2026-06-11T22:40:59.904252Z",
+      "description": "Capability on healthcare and medical-domain tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
+    },
+    {
+      "id": "legal",
+      "label": "Legal",
+      "kind": "index",
+      "group": "Categories II",
+      "last_updated": "2026-06-11T22:41:00.045947Z",
+      "description": "Capability on legal-domain tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
+    },
+    {
+      "id": "math",
+      "label": "Math",
+      "kind": "index",
+      "group": "Categories II",
+      "last_updated": "2026-06-11T22:41:00.306801Z",
+      "description": "Capability on mathematical problem-solving tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
+    },
+    {
+      "id": "multimodal",
+      "label": "Multimodal",
+      "kind": "index",
+      "group": "Categories II",
+      "last_updated": "2026-06-11T22:41:00.567588Z",
+      "description": "Capability on multimodal tasks spanning more than one input modality. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
+    },
+    {
+      "id": "reasoning",
+      "label": "Reasoning",
+      "kind": "index",
+      "group": "Categories II",
+      "last_updated": "2026-06-11T22:41:00.735503Z",
+      "description": "Capability on logical and multi-step reasoning tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
+    },
+    {
+      "id": "vision",
+      "label": "Vision",
+      "kind": "index",
+      "group": "Categories II",
+      "last_updated": "2026-06-11T22:41:00.982398Z",
+      "description": "Capability on visual understanding tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
+    }
+  ],
+  "models": [
+    {
+      "id": "claude-fable-5",
+      "name": "Claude Fable 5",
+      "display_name": "Claude Fable 5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-06-09",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 50.32,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 56.62,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 36.43,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 51.29,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 66.52,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "legal": {
+          "value": 38.15,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 56.09,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 49.32,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 70.5,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 49.97,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "claude-mythos-preview",
+      "name": "Claude Mythos Preview",
+      "display_name": "Claude Mythos Preview",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 47.18,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 55.99,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 49.88,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 67.45,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 62.56,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 50.2,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 71.16,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 50.3,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-8",
+      "name": "Claude Opus 4.8",
+      "display_name": "Claude Opus 4.8",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-05-28",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 43.84,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 51.56,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 47.7,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 67.07,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "legal": {
+          "value": 35.42,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 53.81,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 49.9,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 64.31,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 47.15,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.5-pro",
+      "name": "GPT-5.5 Pro",
+      "display_name": "GPT-5.5 Pro",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-04-23",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 43.39,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "math": {
+          "value": 50.99,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 60.55,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 41.07,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.5",
+      "name": "GPT-5.5",
+      "display_name": "GPT-5.5",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-04-23",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 42.31,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 50.3,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "general": {
+          "value": 61.51,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 48.38,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 46.6,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 60.78,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 44.77,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gemini-3.5-flash",
+      "name": "Gemini 3.5 Flash",
+      "display_name": "Gemini 3.5 Flash",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-05-19",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 40.21,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 45.61,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "general": {
+          "value": 57.26,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "legal": {
+          "value": 32.7,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 40.58,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 46.47,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 55.69,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 40.03,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-7",
+      "name": "Claude Opus 4.7",
+      "display_name": "Claude Opus 4.7",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-04-16",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 40.19,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 48.47,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 36.5,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 46.43,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 55.5,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 36.7,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "math": {
+          "value": 52.35,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 45.55,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 57.77,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 43.36,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.7-max",
+      "name": "Qwen3.7 Max",
+      "display_name": "Qwen3.7 Max",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-05-19",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 39.47,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 47.5,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 60.8,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 40.68,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 56.41,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 60.05,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 60.81,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 54.74,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 39.08,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 59.42,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 33.79,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "kimi-k2.6",
+      "name": "Kimi K2.6",
+      "display_name": "Kimi K2.6",
+      "creator": "moonshotai",
+      "creator_name": "Moonshot AI",
+      "release_date": "2026-04-20",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 37.23,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 43.07,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 39.95,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 57.19,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 49.97,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 43.62,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 57.27,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 37.09,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-6",
+      "name": "Claude Opus 4.6",
+      "display_name": "Claude Opus 4.6",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-02-05",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 36.67,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 42.91,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 32.02,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 44.21,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 51.38,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 52.79,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 34.36,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 58.06,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 35.26,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.4",
+      "name": "GPT-5.4",
+      "display_name": "GPT-5.4",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-03-05",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 36.6,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 42.42,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "general": {
+          "value": 59.57,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 38.57,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "math": {
+          "value": 46.74,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 40.29,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 54.63,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 36.9,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "minimax-m3",
+      "name": "MiniMax M3",
+      "display_name": "MiniMax M3",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
+      "release_date": "2026-06-01",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 35.56,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 45.54,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 40.85,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 44.33,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 40.18,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "multimodal": {
+          "value": 39.06,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 54.55,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 33.2,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.3-codex",
+      "name": "GPT-5.3 Codex",
+      "display_name": "GPT-5.3 Codex",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-02-05",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 35.09,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 42.63,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "multimodal": {
+          "value": 31.0,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 53.71,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 25.96,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "mimo-v2.5-pro",
+      "name": "MiMo-V2.5-Pro",
+      "display_name": "MiMo-V2.5-Pro",
+      "creator": "xiaomi",
+      "creator_name": "Xiaomi",
+      "release_date": "2026-04-27",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 34.95,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 41.67,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 36.57,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "vision": {
+          "value": 24.93,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "deepseek-v4-pro-max",
+      "name": "DeepSeek-V4-Pro-Max",
+      "display_name": "DeepSeek-V4-Pro-Max",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2026-04-23",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 34.48,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 42.72,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 40.12,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 43.3,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 50.57,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 48.61,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 40.31,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 53.28,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 55.63,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 33.55,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gemini-3.1-pro-preview",
+      "name": "Gemini 3.1 Pro",
+      "display_name": "Gemini 3.1 Pro",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-02-19",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 33.56,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 42.67,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 42.14,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 53.72,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 55.52,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 39.23,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 58.06,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 40.52,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "glm-5.1",
+      "name": "GLM-5.1",
+      "display_name": "GLM-5.1",
+      "creator": "zai-org",
+      "creator_name": "Zhipu AI",
+      "release_date": "2026-04-07",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 33.39,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 42.35,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "general": {
+          "value": 49.21,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 46.72,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 52.33,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 38.79,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "claude-sonnet-4-6",
+      "name": "Claude Sonnet 4.6",
+      "display_name": "Claude Sonnet 4.6",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-02-17",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 32.34,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 35.93,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 34.3,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 37.9,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 43.05,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "legal": {
+          "value": 31.17,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 44.08,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 30.69,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 46.99,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 33.07,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "mimo-v2.5",
+      "name": "MiMo-V2.5",
+      "display_name": "MiMo-V2.5",
+      "creator": "xiaomi",
+      "creator_name": "Xiaomi",
+      "release_date": "2026-04-22",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 30.97,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 37.84,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "general": {
+          "value": 42.51,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "multimodal": {
+          "value": 38.58,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 49.57,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 32.99,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.2-codex",
+      "name": "GPT-5.2 Codex",
+      "display_name": "GPT-5.2 Codex",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-01-14",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 30.39,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 37.75,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "reasoning": {
+          "value": 49.33,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.6-plus",
+      "name": "Qwen3.6 Plus",
+      "display_name": "Qwen3.6 Plus",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-03-31",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 30.17,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 40.7,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 54.97,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 36.09,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 51.56,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 52.91,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 55.01,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 49.06,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 40.76,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 51.09,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 34.71,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "minimax-m2.7",
+      "name": "MiniMax M2.7",
+      "display_name": "MiniMax M2.7",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
+      "release_date": "2026-03-18",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 29.28,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 38.05,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "reasoning": {
+          "value": 50.82,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.2-pro-2025-12-11",
+      "name": "GPT-5.2 Pro",
+      "display_name": "GPT-5.2 Pro",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-12-11",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 28.57,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "general": {
+          "value": 63.25,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 51.14,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 55.98,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 32.15,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "mimo-v2-pro",
+      "name": "MiMo-V2-Pro",
+      "display_name": "MiMo-V2-Pro",
+      "creator": "xiaomi",
+      "creator_name": "Xiaomi",
+      "release_date": "2026-03-18",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 28.56,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 33.85,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 34.89,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "reasoning": {
+          "value": 49.49,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "glm-5v-turbo",
+      "name": "GLM-5V-Turbo",
+      "display_name": "GLM-5V-Turbo",
+      "creator": "zai-org",
+      "creator_name": "Zhipu AI",
+      "release_date": "2026-04-02",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 28.54,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "multimodal": {
+          "value": 31.49,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "vision": {
+          "value": 26.83,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "glm-5",
+      "name": "GLM-5",
+      "display_name": "GLM-5",
+      "creator": "zai-org",
+      "creator_name": "Zhipu AI",
+      "release_date": "2026-02-11",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 28.26,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 35.38,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 34.18,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "reasoning": {
+          "value": 50.44,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "seed-2.0-pro",
+      "name": "Seed 2.0 Pro",
+      "display_name": "Seed 2.0 Pro",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2026-02-14",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 28.07,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 31.94,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 31.98,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 57.49,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 44.81,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 53.33,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "minimax-m2.5",
+      "name": "MiniMax M2.5",
+      "display_name": "MiniMax M2.5",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
+      "release_date": "2026-02-12",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 27.98,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 37.31,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 38.87,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "reasoning": {
+          "value": 50.85,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.4-mini",
+      "name": "GPT-5.4 mini",
+      "display_name": "GPT-5.4 mini",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-03-17",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 27.79,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 32.94,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "multimodal": {
+          "value": 33.34,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "vision": {
+          "value": 27.92,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-397b-a17b",
+      "name": "Qwen3.5-397B-A17B",
+      "display_name": "Qwen3.5-397B-A17B",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-02-16",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 27.14,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 29.41,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 53.94,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 30.76,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 50.16,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 53.16,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 53.97,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 45.76,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 33.05,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 48.36,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 27.55,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "deepseek-v4-flash-max",
+      "name": "DeepSeek-V4-Flash-Max",
+      "display_name": "DeepSeek-V4-Flash-Max",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2026-04-23",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 27.08,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 36.73,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 34.25,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 37.2,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "healthcare": {
+          "value": 45.08,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 34.34,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 51.58,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 50.88,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 31.14,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.6-27b",
+      "name": "Qwen3.6-27B",
+      "display_name": "Qwen3.6-27B",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-04-21",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 26.57,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 33.6,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 46.94,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 32.64,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 43.78,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 46.04,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 47.0,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 42.59,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 35.65,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 45.12,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 29.77,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-5-20251101",
+      "name": "Claude Opus 4.5",
+      "display_name": "Claude Opus 4.5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2025-11-24",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 26.56,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 39.16,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 45.18,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 43.23,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 43.38,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 29.09,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 53.16,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 29.03,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "minimax-m2.1",
+      "name": "MiniMax M2.1",
+      "display_name": "MiniMax M2.1",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
+      "release_date": "2025-12-23",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 25.41,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "finance": {
+          "value": 50.79,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 50.47,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 50.79,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.2-2025-12-11",
+      "name": "GPT-5.2",
+      "display_name": "GPT-5.2",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-12-11",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 24.99,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 34.2,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 38.76,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 55.43,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 43.88,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "math": {
+          "value": 50.2,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 42.65,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 52.68,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 34.84,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "claude-sonnet-4-5-20250929",
+      "name": "Claude Sonnet 4.5",
+      "display_name": "Claude Sonnet 4.5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2025-09-29",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 24.78,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 31.23,
+          "date": "2026-06-11T22:40:59.256598Z"
+        }
+      }
+    },
+    {
+      "id": "mimo-v2-omni",
+      "name": "MiMo-V2-Omni",
+      "display_name": "MiMo-V2-Omni",
+      "creator": "xiaomi",
+      "creator_name": "Xiaomi",
+      "release_date": "2026-03-18",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 24.4,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 27.54,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 27.01,
+          "date": "2026-06-11T22:40:59.633773Z"
+        }
+      }
+    },
+    {
+      "id": "gemini-3-flash-preview",
+      "name": "Gemini 3 Flash",
+      "display_name": "Gemini 3 Flash",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2025-12-17",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 24.22,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 29.94,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 35.18,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 50.23,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 42.01,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "math": {
+          "value": 51.26,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 37.56,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 48.32,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 32.47,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "kimi-k2.5",
+      "name": "Kimi K2.5",
+      "display_name": "Kimi K2.5",
+      "creator": "moonshotai",
+      "creator_name": "Moonshot AI",
+      "release_date": "2026-01-27",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 23.72,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 30.34,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 47.74,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 31.84,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 47.83,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 46.66,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 47.73,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 47.68,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 39.79,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 49.58,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 34.94,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "muse-spark",
+      "name": "Muse Spark",
+      "display_name": "Muse Spark",
+      "creator": "meta",
+      "creator_name": "Meta",
+      "release_date": "2026-04-08",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 23.29,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 30.88,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 32.75,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 51.14,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 48.47,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "math": {
+          "value": 54.8,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 43.97,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 51.29,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 39.0,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gemini-3-pro-preview",
+      "name": "Gemini 3 Pro",
+      "display_name": "Gemini 3 Pro",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2025-11-18",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 22.84,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 31.59,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 28.45,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 54.12,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 49.26,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "math": {
+          "value": 51.93,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 38.97,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 48.96,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 33.4,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "step-3.5-flash",
+      "name": "Step-3.5-Flash",
+      "display_name": "Step-3.5-Flash",
+      "creator": "stepfun",
+      "creator_name": "StepFun",
+      "release_date": "2026-02-02",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 22.3,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 27.36,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 26.19,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 48.27,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 47.2,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 48.74,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "gemma-4-31b-it",
+      "name": "Gemma 4 31B",
+      "display_name": "Gemma 4 31B",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-04-02",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 22.1,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "finance": {
+          "value": 43.01,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "general": {
+          "value": 43.48,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 37.47,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 43.0,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 39.2,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 32.42,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "vision": {
+          "value": 26.9,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "kimi-k2-thinking-0905",
+      "name": "Kimi K2-Thinking-0905",
+      "display_name": "Kimi K2-Thinking-0905",
+      "creator": "moonshotai",
+      "creator_name": "Moonshot AI",
+      "release_date": "2025-09-05",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 21.58,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "general": {
+          "value": 44.84,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 40.71,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "math": {
+          "value": 47.17,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 45.14,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 36.43,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-122b-a10b",
+      "name": "Qwen3.5-122B-A10B",
+      "display_name": "Qwen3.5-122B-A10B",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-02-24",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 21.38,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "finance": {
+          "value": 49.47,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 18.58,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 44.1,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 47.74,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 49.55,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 44.03,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 36.86,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "vision": {
+          "value": 30.19,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gemma-4-26b-a4b-it",
+      "name": "Gemma 4 26B-A4B",
+      "display_name": "Gemma 4 26B-A4B",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-04-02",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 20.43,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "finance": {
+          "value": 33.11,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "legal": {
+          "value": 33.09,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "multimodal": {
+          "value": 27.51,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-27b",
+      "name": "Qwen3.5-27B",
+      "display_name": "Qwen3.5-27B",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-02-24",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 19.95,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "finance": {
+          "value": 46.38,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 19.07,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "healthcare": {
+          "value": 43.7,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 46.5,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 42.37,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 35.23,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "vision": {
+          "value": 28.88,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-1-20250805",
+      "name": "Claude Opus 4.1",
+      "display_name": "Claude Opus 4.1",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2025-08-05",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 19.32,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "code": {
+          "value": 27.76,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 26.96,
+          "date": "2026-06-11T22:40:59.633773Z"
+        }
+      }
+    },
+    {
+      "id": "claude-haiku-4-5-20251001",
+      "name": "Claude Haiku 4.5",
+      "display_name": "Claude Haiku 4.5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2025-10-15",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 18.86,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "frontend_development": {
+          "value": 22.06,
+          "date": "2026-06-11T22:40:59.633773Z"
+        }
+      }
+    },
+    {
+      "id": "nova-pro",
+      "name": "Nova Pro",
+      "display_name": "Nova Pro",
+      "creator": "amazon",
+      "creator_name": "Amazon",
+      "release_date": "2024-11-20",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 18.84,
+          "date": "2026-06-11T22:40:59.029977Z"
+        },
+        "frontend_development": {
+          "value": 21.84,
+          "date": "2026-06-11T22:40:59.633773Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5-2025-08-07",
+      "name": "GPT-5",
+      "display_name": "GPT-5",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-08-07",
+      "open_weights": false,
+      "scores": {
+        "code": {
+          "value": 33.36,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 45.13,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 27.9,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 51.08,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 40.73,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 45.19,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "multimodal": {
+          "value": 36.2,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "vision": {
+          "value": 27.5,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "mistral-medium-3-5",
+      "name": "Mistral Medium 3.5",
+      "display_name": "Mistral Medium 3.5",
+      "creator": "mistral",
+      "creator_name": "Mistral AI",
+      "release_date": "2026-04-29",
+      "open_weights": true,
+      "scores": {
+        "code": {
+          "value": 33.35,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 33.42,
+          "date": "2026-06-11T22:40:59.633773Z"
+        }
+      }
+    },
+    {
+      "id": "minicpm-sala",
+      "name": "MiniCPM-SALA",
+      "display_name": "MiniCPM-SALA",
+      "creator": "openbmb",
+      "creator_name": "OpenBMB",
+      "release_date": "2026-02-11",
+      "open_weights": true,
+      "scores": {
+        "code": {
+          "value": 32.37,
+          "date": "2026-06-11T22:40:59.256598Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.1-2025-11-13",
+      "name": "GPT-5.1",
+      "display_name": "GPT-5.1",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-11-13",
+      "open_weights": false,
+      "scores": {
+        "code": {
+          "value": 30.59,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 30.44,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 56.15,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 47.65,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "math": {
+          "value": 41.58,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 41.13,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 47.03,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 34.3,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.1-instant-2025-11-12",
+      "name": "GPT-5.1 Instant",
+      "display_name": "GPT-5.1 Instant",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-11-12",
+      "open_weights": false,
+      "scores": {
+        "code": {
+          "value": 30.09,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 29.89,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 54.28,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 45.59,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "math": {
+          "value": 40.17,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 37.99,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 47.9,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 31.1,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.1-thinking-2025-11-12",
+      "name": "GPT-5.1 Thinking",
+      "display_name": "GPT-5.1 Thinking",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-11-12",
+      "reasoning_status": "Reasoning",
+      "open_weights": false,
+      "scores": {
+        "code": {
+          "value": 29.6,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 29.35,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 54.64,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 43.98,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "multimodal": {
+          "value": 39.46,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "reasoning": {
+          "value": 46.88,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 32.63,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "kimi-k2-0905",
+      "name": "Kimi K2 0905",
+      "display_name": "Kimi K2 0905",
+      "creator": "moonshotai",
+      "creator_name": "Moonshot AI",
+      "release_date": "2025-09-05",
+      "open_weights": false,
+      "scores": {
+        "code": {
+          "value": 29.37,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 35.11,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "legal": {
+          "value": 35.14,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "deepseek-reasoner",
+      "name": "DeepSeek-V3.2 (Thinking)",
+      "display_name": "DeepSeek-V3.2",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2025-12-01",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
+      "scores": {
+        "code": {
+          "value": 28.61,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 41.04,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 21.55,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 44.82,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 40.63,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 41.03,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 39.26,
+          "date": "2026-06-11T22:41:00.306801Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.6-35b-a3b",
+      "name": "Qwen3.6-35B-A3B",
+      "display_name": "Qwen3.6-35B-A3B",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-04-16",
+      "open_weights": true,
+      "scores": {
+        "code": {
+          "value": 27.7,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 42.2,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 22.6,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "healthcare": {
+          "value": 42.44,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 42.3,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 39.23,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 34.1,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "vision": {
+          "value": 28.21,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.1-codex",
+      "name": "GPT-5.1 Codex",
+      "display_name": "GPT-5.1 Codex",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-11-19",
+      "open_weights": false,
+      "scores": {
+        "code": {
+          "value": 27.69,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "frontend_development": {
+          "value": 24.46,
+          "date": "2026-06-11T22:40:59.633773Z"
+        }
+      }
+    },
+    {
+      "id": "deepseek-v3.2",
+      "name": "DeepSeek-V3.2",
+      "display_name": "DeepSeek-V3.2",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2025-12-01",
+      "open_weights": true,
+      "scores": {
+        "code": {
+          "value": 27.59,
+          "date": "2026-06-11T22:40:59.256598Z"
+        },
+        "finance": {
+          "value": 40.43,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 20.96,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 43.48,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 40.03,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 40.43,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 39.16,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "vision": {
+          "value": 28.8,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "ernie-5.0",
+      "name": "ERNIE 5.0",
+      "display_name": "ERNIE 5.0",
+      "creator": "baidu",
+      "creator_name": "Baidu",
+      "release_date": "2026-01-22",
+      "open_weights": false,
+      "scores": {
+        "finance": {
+          "value": 47.0,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "general": {
+          "value": 47.59,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 46.68,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 46.99,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 40.17,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 43.73,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 27.06,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "glm-4.5",
+      "name": "GLM-4.5",
+      "display_name": "GLM-4.5",
+      "creator": "zai-org",
+      "creator_name": "Zhipu AI",
+      "release_date": "2025-07-28",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 42.58,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 37.85,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 38.2,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "o1-2024-12-17",
+      "name": "o1",
+      "display_name": "o1",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2024-12-17",
+      "open_weights": false,
+      "scores": {
+        "finance": {
+          "value": 42.13,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 37.27,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 42.2,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-35b-a3b",
+      "name": "Qwen3.5-35B-A3B",
+      "display_name": "Qwen3.5-35B-A3B",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-02-24",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 42.04,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 40.13,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 42.21,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "multimodal": {
+          "value": 31.53,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "vision": {
+          "value": 25.53,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3-235b-a22b-thinking-2507",
+      "name": "Qwen3-235B-A22B-Thinking-2507",
+      "display_name": "Qwen3-235B-A22B-Thinking-2507",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2025-07-25",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 41.96,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 41.4,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 43.1,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "deepseek-r1-0528",
+      "name": "DeepSeek-R1-0528",
+      "display_name": "DeepSeek-R1-0528",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2025-05-28",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 41.28,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 40.86,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 41.28,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "mai-thinking-1",
+      "name": "MAI-Thinking-1",
+      "display_name": "MAI-Thinking-1",
+      "creator": "microsoft",
+      "creator_name": "Microsoft",
+      "release_date": "2026-06-02",
+      "reasoning_status": "Reasoning",
+      "open_weights": false,
+      "scores": {
+        "finance": {
+          "value": 40.1,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 24.32,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "legal": {
+          "value": 39.55,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 44.77,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 43.89,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "deepseek-v3.2-exp",
+      "name": "DeepSeek-V3.2-Exp",
+      "display_name": "DeepSeek-V3.2-Exp",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2025-09-29",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 39.86,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 39.47,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 39.86,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-4.5",
+      "name": "GPT-4.5",
+      "display_name": "GPT-4.5",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-02-27",
+      "open_weights": false,
+      "scores": {
+        "finance": {
+          "value": 39.77,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 35.48,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 39.85,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3-vl-235b-a22b-thinking",
+      "name": "Qwen3 VL 235B A22B Thinking",
+      "display_name": "Qwen3 VL 235B A22B Thinking",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2025-09-22",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 39.5,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 39.28,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 40.16,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "multimodal": {
+          "value": 27.07,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3-max",
+      "name": "Qwen3 Max",
+      "display_name": "Qwen3 Max",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2025-12-15",
+      "open_weights": false,
+      "scores": {
+        "finance": {
+          "value": 39.46,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 38.56,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 39.66,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "mimo-v2-flash",
+      "name": "MiMo-V2-Flash",
+      "display_name": "MiMo-V2-Flash",
+      "creator": "xiaomi",
+      "creator_name": "Xiaomi",
+      "release_date": "2025-12-16",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 38.82,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 23.0,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "healthcare": {
+          "value": 38.44,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 38.81,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "o1-preview",
+      "name": "o1-preview",
+      "display_name": "o1-preview",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2024-09-12",
+      "open_weights": false,
+      "scores": {
+        "finance": {
+          "value": 38.2,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 36.97,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 38.29,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "longcat-flash-thinking",
+      "name": "LongCat-Flash-Thinking",
+      "display_name": "LongCat-Flash-Thinking",
+      "creator": "meituan",
+      "creator_name": "Meituan",
+      "release_date": "2025-09-22",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 37.42,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "legal": {
+          "value": 32.99,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "glm-4.7",
+      "name": "GLM-4.7",
+      "display_name": "GLM-4.7",
+      "creator": "zai-org",
+      "creator_name": "Zhipu AI",
+      "release_date": "2025-12-22",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 36.89,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "frontend_development": {
+          "value": 25.2,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 45.83,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 36.56,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 36.88,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "math": {
+          "value": 44.21,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 43.79,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 29.92,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "k-exaone-236b-a23b",
+      "name": "K-EXAONE-236B-A23B",
+      "display_name": "K-EXAONE-236B-A23B",
+      "creator": "lg",
+      "creator_name": "LG AI Research",
+      "release_date": "2025-12-31",
+      "open_weights": false,
+      "scores": {
+        "finance": {
+          "value": 36.84,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 36.51,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 36.83,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "nemotron-3-super-120b-a12b",
+      "name": "Nemotron 3 Super (120B A12B)",
+      "display_name": "Nemotron 3 Super",
+      "creator": "nvidia",
+      "creator_name": "NVIDIA",
+      "release_date": "2026-03-11",
+      "variant_tag": "120B A12B",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 36.12,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 35.82,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 36.23,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "glm-4.5-air",
+      "name": "GLM-4.5-Air",
+      "display_name": "GLM-4.5-Air",
+      "creator": "zai-org",
+      "creator_name": "Zhipu AI",
+      "release_date": "2025-07-28",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 36.02,
+          "date": "2026-06-11T22:40:59.381474Z"
+        }
+      }
+    },
+    {
+      "id": "sarvam-105b",
+      "name": "Sarvam-105B",
+      "display_name": "Sarvam-105B",
+      "creator": "sarvamai",
+      "creator_name": "Sarvam AI",
+      "release_date": "2026-03-06",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 35.45,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "legal": {
+          "value": 35.48,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3-235b-a22b-instruct-2507",
+      "name": "Qwen3-235B-A22B-Instruct-2507",
+      "display_name": "Qwen3-235B-A22B-Instruct-2507",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2025-07-22",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 35.11,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 36.86,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 35.7,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "longcat-flash-chat",
+      "name": "LongCat-Flash-Chat",
+      "display_name": "LongCat-Flash-Chat",
+      "creator": "meituan",
+      "creator_name": "Meituan",
+      "release_date": "2025-08-29",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 34.91,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "legal": {
+          "value": 34.94,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3-next-80b-a3b-thinking",
+      "name": "Qwen3-Next-80B-A3B-Thinking",
+      "display_name": "Qwen3-Next-80B-A3B-Thinking",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2025-09-10",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 34.7,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 35.13,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 33.46,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "deepseek-v3.1",
+      "name": "DeepSeek-V3.1",
+      "display_name": "DeepSeek-V3.1",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2025-01-10",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 34.55,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "legal": {
+          "value": 34.54,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3-vl-32b-thinking",
+      "name": "Qwen3 VL 32B Thinking",
+      "display_name": "Qwen3 VL 32B Thinking",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2025-09-22",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 33.8,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "legal": {
+          "value": 33.6,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "multimodal": {
+          "value": 25.96,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-4.1-2025-04-14",
+      "name": "GPT-4.1",
+      "display_name": "GPT-4.1",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-04-14",
+      "open_weights": false,
+      "scores": {
+        "finance": {
+          "value": 32.81,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "legal": {
+          "value": 32.88,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3-vl-235b-a22b-instruct",
+      "name": "Qwen3 VL 235B A22B Instruct",
+      "display_name": "Qwen3 VL 235B A22B Instruct",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2025-09-22",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 32.15,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "legal": {
+          "value": 33.81,
+          "date": "2026-06-11T22:41:00.045947Z"
+        },
+        "multimodal": {
+          "value": 27.94,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3-next-80b-a3b-instruct",
+      "name": "Qwen3-Next-80B-A3B-Instruct",
+      "display_name": "Qwen3-Next-80B-A3B-Instruct",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2025-09-10",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 32.12,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "legal": {
+          "value": 32.35,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-oss-120b",
+      "name": "GPT OSS 120B",
+      "display_name": "GPT OSS 120B",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-08-05",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 31.51,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "healthcare": {
+          "value": 39.49,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "legal": {
+          "value": 31.58,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "kimi-k2-instruct",
+      "name": "Kimi K2 Instruct",
+      "display_name": "Kimi K2 Instruct",
+      "creator": "moonshotai",
+      "creator_name": "Moonshot AI",
+      "release_date": "2025-07-11",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 31.18,
+          "date": "2026-06-11T22:40:59.381474Z"
+        },
+        "legal": {
+          "value": 31.25,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5-codex-2025-09-15",
+      "name": "GPT-5 Codex",
+      "display_name": "GPT-5 Codex",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-09-15",
+      "open_weights": false,
+      "scores": {
+        "frontend_development": {
+          "value": 26.22,
+          "date": "2026-06-11T22:40:59.633773Z"
+        }
+      }
+    },
+    {
+      "id": "seed-2.0-lite",
+      "name": "Seed 2.0 Lite",
+      "display_name": "Seed 2.0 Lite",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2026-02-14",
+      "open_weights": false,
+      "scores": {
+        "frontend_development": {
+          "value": 24.36,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "general": {
+          "value": 44.91,
+          "date": "2026-06-11T22:40:59.817122Z"
+        }
+      }
+    },
+    {
+      "id": "deepseek-v3.2-speciale",
+      "name": "DeepSeek-V3.2-Speciale",
+      "display_name": "DeepSeek-V3.2-Speciale",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2025-12-01",
+      "open_weights": true,
+      "scores": {
+        "frontend_development": {
+          "value": 20.54,
+          "date": "2026-06-11T22:40:59.633773Z"
+        },
+        "math": {
+          "value": 45.76,
+          "date": "2026-06-11T22:41:00.306801Z"
+        }
+      }
+    },
+    {
+      "id": "claude-sonnet-4-20250514",
+      "name": "Claude Sonnet 4",
+      "display_name": "Claude Sonnet 4",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2025-05-22",
+      "open_weights": false,
+      "scores": {
+        "frontend_development": {
+          "value": 20.05,
+          "date": "2026-06-11T22:40:59.633773Z"
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-20250514",
+      "name": "Claude Opus 4",
+      "display_name": "Claude Opus 4",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2025-05-22",
+      "open_weights": false,
+      "scores": {
+        "frontend_development": {
+          "value": 19.31,
+          "date": "2026-06-11T22:40:59.633773Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.1-high-2025-11-12",
+      "name": "GPT-5.1 High",
+      "display_name": "GPT-5.1 High",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-11-12",
+      "open_weights": false,
+      "scores": {
+        "general": {
+          "value": 55.52,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 48.42,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 54.07,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5-medium-2025-08-07",
+      "name": "GPT-5 Medium",
+      "display_name": "GPT-5 Medium",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-08-07",
+      "open_weights": false,
+      "scores": {
+        "general": {
+          "value": 54.03,
+          "date": "2026-06-11T22:40:59.817122Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5-high-2025-08-07",
+      "name": "GPT-5 High",
+      "display_name": "GPT-5 High",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-08-07",
+      "open_weights": false,
+      "scores": {
+        "general": {
+          "value": 51.58,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 40.55,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 48.44,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "grok-4-heavy",
+      "name": "Grok-4 Heavy",
+      "display_name": "Grok-4 Heavy",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "open_weights": false,
+      "scores": {
+        "general": {
+          "value": 48.88,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 53.56,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 52.96,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 36.19,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "grok-4-fast",
+      "name": "Grok 4 Fast",
+      "display_name": "Grok 4 Fast",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2025-08-28",
+      "open_weights": false,
+      "scores": {
+        "general": {
+          "value": 46.94,
+          "date": "2026-06-11T22:40:59.817122Z"
+        }
+      }
+    },
+    {
+      "id": "grok-4",
+      "name": "Grok-4",
+      "display_name": "Grok-4",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2025-07-09",
+      "open_weights": false,
+      "scores": {
+        "general": {
+          "value": 45.91,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "math": {
+          "value": 40.01,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 44.04,
+          "date": "2026-06-11T22:41:00.735503Z"
+        },
+        "vision": {
+          "value": 27.19,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.5-instant",
+      "name": "GPT-5.5 Instant",
+      "display_name": "GPT-5.5 Instant",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-05-05",
+      "open_weights": false,
+      "scores": {
+        "general": {
+          "value": 44.4,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "multimodal": {
+          "value": 34.59,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "vision": {
+          "value": 28.98,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gemini-3.1-flash-lite-preview",
+      "name": "Gemini 3.1 Flash-Lite",
+      "display_name": "Gemini 3.1 Flash-Lite",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-03-03",
+      "open_weights": false,
+      "scores": {
+        "general": {
+          "value": 43.93,
+          "date": "2026-06-11T22:40:59.817122Z"
+        },
+        "healthcare": {
+          "value": 38.76,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "multimodal": {
+          "value": 33.52,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    },
+    {
+      "id": "grok-3-mini",
+      "name": "Grok-3 Mini",
+      "display_name": "Grok-3 Mini",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2025-02-17",
+      "open_weights": false,
+      "scores": {
+        "general": {
+          "value": 43.65,
+          "date": "2026-06-11T22:40:59.817122Z"
+        }
+      }
+    },
+    {
+      "id": "mai-code-1-flash",
+      "name": "MAI-Code-1-Flash",
+      "display_name": "MAI-Code-1-Flash",
+      "creator": "microsoft",
+      "creator_name": "Microsoft",
+      "release_date": "2026-06-02",
+      "open_weights": false,
+      "scores": {
+        "general": {
+          "value": 42.65,
+          "date": "2026-06-11T22:40:59.817122Z"
+        }
+      }
+    },
+    {
+      "id": "o3-2025-04-16",
+      "name": "o3",
+      "display_name": "o3",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-04-16",
+      "open_weights": false,
+      "scores": {
+        "healthcare": {
+          "value": 40.54,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "multimodal": {
+          "value": 35.62,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "vision": {
+          "value": 27.58,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gemini-2.5-pro-preview-06-05",
+      "name": "Gemini 2.5 Pro Preview 06-05",
+      "display_name": "Gemini 2.5 Pro Preview 06-05",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2025-06-05",
+      "open_weights": false,
+      "scores": {
+        "healthcare": {
+          "value": 39.54,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "multimodal": {
+          "value": 34.45,
+          "date": "2026-06-11T22:41:00.567588Z"
+        },
+        "vision": {
+          "value": 25.63,
+          "date": "2026-06-11T22:41:00.982398Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.4-nano",
+      "name": "GPT-5.4 nano",
+      "display_name": "GPT-5.4 nano",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-03-17",
+      "open_weights": false,
+      "scores": {
+        "healthcare": {
+          "value": 39.42,
+          "date": "2026-06-11T22:40:59.904252Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.3-chat-latest",
+      "name": "GPT-5.3 Chat",
+      "display_name": "GPT-5.3 Chat",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-03-04",
+      "open_weights": false,
+      "scores": {
+        "healthcare": {
+          "value": 36.11,
+          "date": "2026-06-11T22:40:59.904252Z"
+        }
+      }
+    },
+    {
+      "id": "o4-mini",
+      "name": "o4-mini",
+      "display_name": "o4-mini",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-04-16",
+      "open_weights": false,
+      "scores": {
+        "healthcare": {
+          "value": 34.94,
+          "date": "2026-06-11T22:40:59.904252Z"
+        },
+        "multimodal": {
+          "value": 31.53,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-9b",
+      "name": "Qwen3.5-9B",
+      "display_name": "Qwen3.5-9B",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-03-02",
+      "open_weights": true,
+      "scores": {
+        "legal": {
+          "value": 30.92,
+          "date": "2026-06-11T22:41:00.045947Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-oss-20b-high",
+      "name": "GPT OSS 20B High",
+      "display_name": "GPT OSS 20B High",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-08-05",
+      "open_weights": true,
+      "scores": {
+        "math": {
+          "value": 46.32,
+          "date": "2026-06-11T22:41:00.306801Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.1-medium-2025-11-12",
+      "name": "GPT-5.1 Medium",
+      "display_name": "GPT-5.1 Medium",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-11-12",
+      "open_weights": false,
+      "scores": {
+        "math": {
+          "value": 45.09,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 46.47,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.1-codex-high",
+      "name": "GPT-5.1 Codex High",
+      "display_name": "GPT-5.1 Codex High",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-11-12",
+      "open_weights": false,
+      "scores": {
+        "math": {
+          "value": 43.01,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 44.42,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "longcat-flash-thinking-2601",
+      "name": "LongCat-Flash-Thinking-2601",
+      "display_name": "LongCat-Flash-Thinking-2601",
+      "creator": "meituan",
+      "creator_name": "Meituan",
+      "release_date": "2026-01-14",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
+      "scores": {
+        "math": {
+          "value": 41.67,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "reasoning": {
+          "value": 45.71,
+          "date": "2026-06-11T22:41:00.735503Z"
+        }
+      }
+    },
+    {
+      "id": "grok-3",
+      "name": "Grok-3",
+      "display_name": "Grok-3",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2025-02-17",
+      "open_weights": false,
+      "scores": {
+        "math": {
+          "value": 38.89,
+          "date": "2026-06-11T22:41:00.306801Z"
+        },
+        "multimodal": {
+          "value": 27.18,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    },
+    {
+      "id": "gemini-2.5-pro",
+      "name": "Gemini 2.5 Pro",
+      "display_name": "Gemini 2.5 Pro",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2025-05-20",
+      "open_weights": false,
+      "scores": {
+        "multimodal": {
+          "value": 32.1,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    },
+    {
+      "id": "step3-vl-10b",
+      "name": "Step3-VL-10B",
+      "display_name": "Step3-VL-10B",
+      "creator": "stepfun",
+      "creator_name": "StepFun",
+      "release_date": "2026-01-15",
+      "open_weights": true,
+      "scores": {
+        "multimodal": {
+          "value": 29.29,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "name": "Gemini 2.5 Flash",
+      "display_name": "Gemini 2.5 Flash",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2025-05-20",
+      "open_weights": false,
+      "scores": {
+        "multimodal": {
+          "value": 28.87,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    },
+    {
+      "id": "mistral-large-3-2509",
+      "name": "Mistral Large 3",
+      "display_name": "Mistral Large 3",
+      "creator": "mistral",
+      "creator_name": "Mistral AI",
+      "release_date": "2025-09-01",
+      "open_weights": true,
+      "scores": {
+        "multimodal": {
+          "value": 28.72,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-4o",
+      "name": "predict",
+      "display_name": "predict",
+      "creator": "",
+      "creator_name": "",
+      "open_weights": false,
+      "scores": {
+        "multimodal": {
+          "value": 27.41,
+          "date": "2026-06-11T22:41:00.567588Z"
+        }
+      }
+    }
+  ]
+}
