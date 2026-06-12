@@ -1,4 +1,6 @@
-# models
+<p align="center">
+  <img src="public/assets/logo.svg" alt="models" width="420">
+</p>
 
 <p align="center">
   <a href="https://crates.io/crates/modelsdev"><img src="https://img.shields.io/crates/v/modelsdev.svg?label=version" alt="Version"></a>
