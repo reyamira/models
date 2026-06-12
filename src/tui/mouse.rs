@@ -55,6 +55,25 @@ pub fn row_at(
     (idx < item_count).then_some(idx)
 }
 
+/// Map a click to a row index in a **popup list** that renders a fresh
+/// `ListState` every frame (seeded with `selected`, starting from offset 0 —
+/// true for all the picker popups). `inner` is the popup's inner list rect
+/// (borders already excluded). The render offset is therefore deterministic:
+/// ratatui scrolls a from-zero state just far enough to keep `selected` visible,
+/// i.e. `offset = max(0, selected - (visible_rows - 1))`. Returns the clicked
+/// item index, or `None` when the click is outside the item rows / past the
+/// last item.
+pub fn popup_row_at(
+    inner: Rect,
+    selected: usize,
+    item_count: usize,
+    click_row: u16,
+) -> Option<usize> {
+    let visible = inner.height as usize;
+    let offset = selected.saturating_sub(visible.saturating_sub(1));
+    row_at(inner, offset, 0, item_count, click_row)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -138,5 +157,24 @@ mod tests {
         let a = rect(0, 5, 20, 10);
         assert_eq!(row_at(a, 0, 0, 3, 7), Some(2)); // last real item
         assert_eq!(row_at(a, 0, 0, 3, 8), None); // empty row below items
+    }
+
+    #[test]
+    fn popup_row_at_no_scroll_when_fits() {
+        // inner rect y:5..10 (5 rows), 4 items, selection irrelevant (all fit)
+        let inner = rect(0, 5, 20, 5);
+        assert_eq!(popup_row_at(inner, 0, 4, 5), Some(0)); // first row
+        assert_eq!(popup_row_at(inner, 3, 4, 7), Some(2)); // third row
+        assert_eq!(popup_row_at(inner, 0, 4, 9), None); // empty row past items
+        assert_eq!(popup_row_at(inner, 0, 4, 4), None); // above the inner rect
+    }
+
+    #[test]
+    fn popup_row_at_accounts_for_scroll() {
+        // inner viewport only 5 rows tall, 30 items, selected near the end →
+        // offset = 20 - (5 - 1) = 16, so the top visible row is item 16.
+        let inner = rect(0, 5, 20, 5);
+        assert_eq!(popup_row_at(inner, 20, 30, 5), Some(16)); // top visible row
+        assert_eq!(popup_row_at(inner, 20, 30, 9), Some(20)); // bottom (selected)
     }
 }

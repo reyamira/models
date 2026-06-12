@@ -1571,6 +1571,11 @@ fn draw_sort_picker(f: &mut Frame, area: Rect, app: &App) {
     let width = 30u16.min(area.width);
     let popup_area = centered_rect_fixed(width, height, area);
 
+    // Cache the inner list rect for click hit-testing.
+    bench_app.sort_picker_area.set(Some(
+        Block::default().borders(Borders::ALL).inner(popup_area),
+    ));
+
     f.render_widget(Clear, popup_area);
 
     let items: Vec<ListItem> = options
@@ -1627,6 +1632,11 @@ fn draw_column_picker(f: &mut Frame, area: Rect, app: &App) {
     let popup_width = 50u16.min(area.width.saturating_sub(4));
     let popup_height = ((metrics.len() + 2) as u16).min(area.height.saturating_sub(4));
     let popup_area = centered_rect_fixed(popup_width, popup_height, area);
+
+    // Cache the inner list rect for click hit-testing.
+    bench_app.column_picker_area.set(Some(
+        Block::default().borders(Borders::ALL).inner(popup_area),
+    ));
 
     f.render_widget(Clear, popup_area);
 

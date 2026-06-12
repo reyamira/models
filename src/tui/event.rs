@@ -95,11 +95,15 @@ fn modal_popup_open(app: &App) -> bool {
 }
 
 /// Mouse handling while a per-tab modal popup is open: the wheel drives the
-/// popup's own scroll/selection (the same action its arrow keys do), and clicks
-/// are swallowed so they can't reach the panels behind. Mirrors the popup key
-/// handlers (`handle_picker_keys`, `handle_sort_picker_keys`,
-/// `handle_glossary_keys`, `handle_column_picker_keys`).
-fn handle_modal_popup_mouse(app: &App, ev: MouseEvent) -> Option<Message> {
+/// popup's own scroll/selection, a left-click selects/toggles the row under the
+/// cursor, and everything else is swallowed so it can't reach the panels
+/// behind. Mirrors the popup key handlers (`handle_picker_keys`,
+/// `handle_sort_picker_keys`, `handle_glossary_keys`, `handle_column_picker_keys`).
+fn handle_modal_popup_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
+    if let MouseEventKind::Down(MouseButton::Left) = ev.kind {
+        return handle_modal_popup_click(app, ev);
+    }
+    // Wheel → the open popup's own scroll/navigation message.
     let (down, up) = match app.current_tab {
         // Agents / Status provider-tracker checkbox modals.
         Tab::Agents | Tab::Status => (Message::PickerNext, Message::PickerPrev),
@@ -117,9 +121,64 @@ fn handle_modal_popup_mouse(app: &App, ev: MouseEvent) -> Option<Message> {
     match ev.kind {
         MouseEventKind::ScrollDown => Some(down),
         MouseEventKind::ScrollUp => Some(up),
-        // Swallow clicks (and anything else) so they don't fall through to the
-        // panels behind the popup.
         _ => None,
+    }
+}
+
+/// Left-click inside a modal popup: map the click to the row under the cursor
+/// (via the popup's cached inner rect + `mouse::popup_row_at`), set that row as
+/// the popup's selection, and return its "act on the current row" message —
+/// confirm for the sort picker (click-to-apply), toggle for the checkbox
+/// pickers. Clicks outside the rows are swallowed; the glossary has no rows.
+fn handle_modal_popup_click(app: &mut App, ev: MouseEvent) -> Option<Message> {
+    use super::mouse::popup_row_at;
+    match app.current_tab {
+        Tab::Benchmarks if app.benchmarks_app.show_sort_picker => {
+            let count = app
+                .multi_store
+                .file(app.benchmarks_app.active_source)
+                .map(|f| super::benchmarks::BenchmarksApp::sort_options(f).len())
+                .unwrap_or(0);
+            let rect = app.benchmarks_app.sort_picker_area.get()?;
+            let item = popup_row_at(rect, app.benchmarks_app.sort_picker_selected, count, ev.row)?;
+            app.benchmarks_app.sort_picker_selected = item;
+            Some(Message::SortPickerConfirm)
+        }
+        Tab::Benchmarks if app.benchmarks_app.show_column_picker => {
+            let count = app
+                .multi_store
+                .file(app.benchmarks_app.active_source)
+                .map(|f| f.metrics.len())
+                .unwrap_or(0);
+            let rect = app.benchmarks_app.column_picker_area.get()?;
+            let item = popup_row_at(
+                rect,
+                app.benchmarks_app.column_picker_selected,
+                count,
+                ev.row,
+            )?;
+            app.benchmarks_app.column_picker_selected = item;
+            Some(Message::ColumnPickerToggle)
+        }
+        // Glossary popup has no selectable rows — swallow the click.
+        Tab::Benchmarks => None,
+        Tab::Agents => {
+            let a = app.agents_app.as_mut()?;
+            let count = a.entries.len();
+            let rect = a.picker_area.get()?;
+            let item = popup_row_at(rect, a.picker_selected, count, ev.row)?;
+            a.picker_selected = item;
+            Some(Message::PickerToggle)
+        }
+        Tab::Status => {
+            let s = app.status_app.as_mut()?;
+            let count = crate::status::STATUS_REGISTRY.len();
+            let rect = s.picker_area.get()?;
+            let item = popup_row_at(rect, s.picker_selected, count, ev.row)?;
+            s.picker_selected = item;
+            Some(Message::PickerToggle)
+        }
+        Tab::Models => None,
     }
 }
 
@@ -627,9 +686,19 @@ fn handle_search_mode(code: KeyCode) -> Option<Message> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ratatui::layout::Rect;
 
     fn app() -> App {
         App::new(Default::default(), None, None)
+    }
+
+    fn click_at(column: u16, row: u16) -> MouseEvent {
+        MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column,
+            row,
+            modifiers: KeyModifiers::NONE,
+        }
     }
 
     fn wheel(down: bool) -> MouseEvent {
@@ -712,6 +781,28 @@ mod tests {
             handle_mouse(&mut a, left_click()),
             Some(Message::ToggleHelp)
         ));
+    }
+
+    #[test]
+    fn tracker_modal_click_selects_and_toggles_row() {
+        let mut a = app();
+        a.current_tab = Tab::Status;
+        {
+            let s = a.status_app.as_mut().unwrap();
+            s.show_picker = true;
+            // Inner list rect: rows 5..25, tall enough that the registry fits
+            // (offset 0). Click the 5th row (y = 5 + 4) → item index 4.
+            s.picker_area.set(Some(Rect::new(0, 5, 50, 20)));
+        }
+        assert!(matches!(
+            handle_mouse(&mut a, click_at(10, 9)),
+            Some(Message::PickerToggle)
+        ));
+        assert_eq!(a.status_app.as_ref().unwrap().picker_selected, 4);
+
+        // A click below the item rows is swallowed and changes nothing.
+        assert!(handle_mouse(&mut a, click_at(10, 200)).is_none());
+        assert_eq!(a.status_app.as_ref().unwrap().picker_selected, 4);
     }
 
     #[test]

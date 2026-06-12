@@ -113,6 +113,9 @@ pub struct AgentsApp {
     /// `detail_area` is the scrollable detail panel's outer rect.
     pub agent_list_area: Option<Rect>,
     pub detail_area: Option<Rect>,
+    /// Inner list rect of the tracker modal (borders excluded), cached for click
+    /// hit-testing. `Cell` so the `&App` render path can write it.
+    pub picker_area: std::cell::Cell<Option<Rect>>,
 }
 
 impl AgentsApp {
@@ -217,6 +220,7 @@ impl AgentsApp {
             pending_github_fetches: pending_fetches,
             agent_list_area: None,
             detail_area: None,
+            picker_area: std::cell::Cell::new(None),
         };
 
         app.update_filtered();
@@ -676,6 +680,7 @@ mod tests {
             pending_github_fetches: 0,
             agent_list_area: None,
             detail_area: None,
+            picker_area: std::cell::Cell::new(None),
         }
     }
 

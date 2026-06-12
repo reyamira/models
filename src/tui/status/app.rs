@@ -79,6 +79,9 @@ pub struct StatusApp {
     pub detail_services_area: Option<Rect>,
     pub detail_incidents_area: Option<Rect>,
     pub detail_maintenance_area: Option<Rect>,
+    /// Inner list rect of the provider-tracker modal (borders excluded), cached
+    /// for click hit-testing. `Cell` so the `&App` render path can write it.
+    pub picker_area: std::cell::Cell<Option<Rect>>,
 }
 
 /// Sub-panel rects produced by `draw_overall_dashboard`, assigned back onto
@@ -151,6 +154,7 @@ impl StatusApp {
             detail_services_area: None,
             detail_incidents_area: None,
             detail_maintenance_area: None,
+            picker_area: std::cell::Cell::new(None),
         };
         app.update_filtered();
         app

@@ -474,6 +474,11 @@ pub struct BenchmarksApp {
     /// Compare-mode subtab clickable x-ranges: `(view, x_start, x_end_exclusive,
     /// row)`.
     pub subtab_spans: Vec<(BottomView, u16, u16, u16)>,
+    /// Inner list rects of the sort / column picker popups (borders excluded),
+    /// cached for click hit-testing. `Cell` so the `&App` render path can write
+    /// them (same interior-mutability pattern as `ScrollOffset`).
+    pub sort_picker_area: std::cell::Cell<Option<Rect>>,
+    pub column_picker_area: std::cell::Cell<Option<Rect>>,
 }
 
 impl BenchmarksApp {
@@ -528,6 +533,8 @@ impl BenchmarksApp {
             list_area: None,
             detail_area: None,
             subtab_bar_area: None,
+            sort_picker_area: std::cell::Cell::new(None),
+            column_picker_area: std::cell::Cell::new(None),
             compare_view_area: None,
             source_label_spans: Vec::new(),
             subtab_spans: Vec::new(),

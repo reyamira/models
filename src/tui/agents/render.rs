@@ -520,6 +520,11 @@ pub(in crate::tui) fn draw_picker_modal(f: &mut Frame, app: &App) {
     // Center the popup
     let area = centered_rect_fixed(popup_width, popup_height, f.area());
 
+    // Cache the inner list rect for click hit-testing.
+    agents_app
+        .picker_area
+        .set(Some(Block::default().borders(Borders::ALL).inner(area)));
+
     // Clear the background
     f.render_widget(Clear, area);
 
@@ -688,6 +693,7 @@ mod mouse_tests {
             pending_github_fetches: 0,
             agent_list_area: None,
             detail_area: None,
+            picker_area: std::cell::Cell::new(None),
         }
     }
 

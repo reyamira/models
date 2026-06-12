@@ -686,6 +686,11 @@ fn draw_status_picker_modal(f: &mut Frame, app: &App) {
 
     let area = centered_rect_fixed(popup_width, popup_height, f.area());
 
+    // Cache the inner list rect for click hit-testing.
+    status_app
+        .picker_area
+        .set(Some(Block::default().borders(Borders::ALL).inner(area)));
+
     f.render_widget(Clear, area);
 
     let items: Vec<ListItem> = STATUS_REGISTRY
