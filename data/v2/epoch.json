@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-12T01:26:24.948575300+00:00",
+    "fetched_at": "2026-06-12T06:18:26.098128851+00:00",
     "verified": true
   },
   "metrics": [
@@ -37,7 +37,7 @@
       "label": "FrontierMath",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-05-27",
+      "last_updated": "2026-06-08",
       "description": "Hundreds of original, expert-crafted research-level math problems spanning number theory, analysis, algebraic geometry, and more — each taking specialists hours to days. Scored as accuracy (% of problems solved); higher is better.",
       "short_label": "FrontMath"
     },
@@ -46,7 +46,7 @@
       "label": "FrontierMath Tier 4",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-05-28",
+      "last_updated": "2026-06-08",
       "description": "The 50 hardest, research-level problems of FrontierMath — its most difficult expansion tier. Scored as accuracy (% of problems solved); higher is better.",
       "short_label": "FM Tier 4"
     },
@@ -116,7 +116,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-05-28",
+      "last_updated": "2026-05-29",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -125,7 +125,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-05-22",
+      "last_updated": "2026-06-07",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -134,7 +134,7 @@
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-05-25",
+      "last_updated": "2026-06-07",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -152,7 +152,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-05-27",
+      "last_updated": "2026-05-29",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     }
@@ -192,9 +192,33 @@
           "value": 0.7208,
           "date": "2026-05-28"
         },
+        "chess_puzzles": {
+          "value": 0.34,
+          "date": "2026-05-29"
+        },
+        "frontiermath": {
+          "value": 0.4724137931034483,
+          "date": "2026-06-08"
+        },
+        "frontiermath_tier_4": {
+          "value": 0.3125,
+          "date": "2026-06-08"
+        },
+        "gpqa_diamond": {
+          "value": 0.9103535353535354,
+          "date": "2026-06-07"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9833333333333333,
+          "date": "2026-06-07"
+        },
         "simplebench": {
           "value": 0.648,
           "date": "2026-05-28"
+        },
+        "simpleqa_verified": {
+          "value": 0.395,
+          "date": "2026-05-29"
         },
         "weirdml": {
           "value": 0.8289,
