@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-13T06:18:20.575197285+00:00",
+    "fetched_at": "2026-06-13T18:18:12.728417959+00:00",
     "verified": true
   },
   "metrics": [
@@ -116,7 +116,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-09",
+      "last_updated": "2026-06-13",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -125,7 +125,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-07",
+      "last_updated": "2026-06-12",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -134,7 +134,7 @@
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-10",
+      "last_updated": "2026-06-13",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -152,12 +152,38 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-09",
+      "last_updated": "2026-06-13",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     }
   ],
   "models": [
+    {
+      "id": "kimi-k2.7-code",
+      "name": "kimi-k2.7-code",
+      "display_name": "kimi-k2.7-code",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
+      "release_date": "2026-06-12",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.21,
+          "date": "2026-06-12"
+        },
+        "gpqa_diamond": {
+          "value": 0.8952020202020202,
+          "date": "2026-06-12"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9638888888888889,
+          "date": "2026-06-13"
+        },
+        "simpleqa_verified": {
+          "value": 0.392,
+          "date": "2026-06-12"
+        }
+      }
+    },
     {
       "id": "claude-fable-5",
       "name": "claude-fable-5",
@@ -338,9 +364,25 @@
       "creator_name": "Alibaba",
       "release_date": "2026-05-19",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.22,
+          "date": "2026-06-13"
+        },
+        "gpqa_diamond": {
+          "value": 0.9160353535353535,
+          "date": "2026-06-12"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.95,
+          "date": "2026-06-13"
+        },
         "simplebench": {
           "value": 0.7040000000000001,
           "date": "2026-05-19"
+        },
+        "simpleqa_verified": {
+          "value": 0.5851703406813628,
+          "date": "2026-06-13"
         }
       }
     },
