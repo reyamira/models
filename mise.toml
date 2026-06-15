@@ -208,5 +208,9 @@ echo "Updated data/v2/epoch.json ($(jq '.models | length' data/v2/epoch.json) mo
 echo "Updated data/v2/llmstats.json ($(jq '.models | length' data/v2/llmstats.json) models)"
 """
 
+[tasks.snapshot-stats]
+description = "Snapshot daily jsDelivr CDN hits per data file into data/stats/jsdelivr-history.json (app-launch proxy)"
+run = "bash scripts/snapshot-stats.sh"
+
 [tools]
 xh = "latest"

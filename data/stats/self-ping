@@ -1,0 +1,3 @@
+self-traffic sentinel — fetched only by the maintainer's wrapped `models` launches.
+Its jsDelivr hit count is subtracted from the data-file hits to estimate other-user
+launches. See data/stats/README.md. (Non-empty on purpose: jsDelivr can mis-serve 0-byte files.)

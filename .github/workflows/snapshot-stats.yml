@@ -1,0 +1,42 @@
+name: Snapshot CDN Stats
+
+# Records daily jsDelivr CDN hits per data file into data/stats/jsdelivr-history.json
+# as a long-term proxy for app launches (the app has no telemetry). The snapshot
+# self-heals: each run re-pulls the trailing ~30 days and upserts, so a dropped
+# scheduled run loses nothing as long as we snapshot at least every ~25 days.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily at 09:00 UTC. GitHub's scheduled cron is throttled/unreliable here
+    # (same reason update-benchmarks is poked by a Cloudflare Worker), but this
+    # job tolerates missed runs by design — see the self-heal note above.
+    - cron: "0 9 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so the rebase-before-push (vs the benchmark bot, which
+          # also pushes to main every ~30 min) isn't fighting a shallow clone.
+          fetch-depth: 0
+
+      - name: Snapshot jsDelivr stats
+        run: bash scripts/snapshot-stats.sh
+
+      - name: Commit and push if changed
+        run: |
+          git add data/stats/jsdelivr-history.json
+          git diff --cached --quiet && echo "no change" && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: snapshot jsDelivr CDN stats"
+          # The benchmark bot also pushes to main; rebase to avoid a racey reject.
+          for i in 1 2 3; do
+            git pull --rebase --autostash && git push && break || sleep 5
+          done
