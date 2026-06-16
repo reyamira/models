@@ -31,6 +31,15 @@ have to daily app launches**.
   legacy lane). It will decay as users upgrade.
 - Spikes around a release date or a `data/v2/*` commit are mostly the
   **data-bot + jsDelivr purge**, not humans — discount them.
+- **External scraper spikes isolated to `benchmarks.json`** are a distinct case:
+  if `benchmarks.json` jumps while the four `data/v2/*` files stay flat, it is
+  **not** a bot/purge artifact (the same bot runs commit + purge the v2 files
+  too, so a purge spike would move them in lockstep). It is external traffic on
+  the legacy file — discount it for the sunset decision; it does not reflect real
+  pre-v2 launches. Observed 2026-06-13/14: `benchmarks.json` ~40→~410/day while
+  `aa.json` held at 37–80. Because jsDelivr stats are aggregate-only (see below),
+  the source of such a spike is not attributable from the CDN data — judge it by
+  the v2-relative shape, not the raw count.
 
 ## Why a snapshot (vs. just querying the API)
 
