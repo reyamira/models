@@ -20,8 +20,14 @@ pub struct SourceDescriptor {
     /// hardcode their model-page hosts instead (see `model_url`), so changing
     /// this field does not repoint their opened pages.
     pub url: &'static str,
-    /// jsDelivr CDN URL of the source's v2 `SourceFile` JSON.
-    pub data_url: &'static str,
+    /// Repo-relative path of the source's v2 `SourceFile` JSON (e.g.
+    /// `data/v2/aa.json`). `fetch.rs` builds the multi-host fallback chain
+    /// (jsDelivr CDN → Fastly edge → GitHub raw) from [`DATA_REPO`]/[`DATA_REF`]
+    /// plus this path. Stored as coordinates rather than a full URL because the
+    /// GitHub-raw tier has a different URL shape than the jsDelivr tiers (no
+    /// `/gh/` segment, and `/{ref}` instead of `@{ref}`) that string-rewriting a
+    /// CDN URL can't produce cleanly.
+    pub data_path: &'static str,
     /// `true` when the data is third-party verified; `false` renders a
     /// "self-reported" badge.
     // TODO(phase-3+): verification is currently read from the data file's
@@ -64,34 +70,42 @@ impl SourceDescriptor {
     }
 }
 
+/// GitHub `owner/repo` the v2 data files live in. Compiled in (like the
+/// `model_url` host hardcoding) so `fetch.rs` can build every fallback-tier URL.
+pub const DATA_REPO: &str = "reyamira/models";
+/// Git ref the v2 data files are served from — the benchmark bot commits fresh
+/// data to this branch every ~30 min, so it must track the branch HEAD (not a
+/// frozen tag).
+pub const DATA_REF: &str = "main";
+
 /// Compiled-in list of all known data sources. Order is display order.
 pub const SOURCES: &[SourceDescriptor] = &[
     SourceDescriptor {
         id: "aa",
         name: "Artificial Analysis",
         url: "https://artificialanalysis.ai",
-        data_url: "https://cdn.jsdelivr.net/gh/reyamira/models@main/data/v2/aa.json",
+        data_path: "data/v2/aa.json",
         verified: true,
     },
     SourceDescriptor {
         id: "epoch",
         name: "Epoch AI",
         url: "https://epoch.ai",
-        data_url: "https://cdn.jsdelivr.net/gh/reyamira/models@main/data/v2/epoch.json",
+        data_path: "data/v2/epoch.json",
         verified: true,
     },
     SourceDescriptor {
         id: "arena",
         name: "Arena",
         url: "https://arena.ai",
-        data_url: "https://cdn.jsdelivr.net/gh/reyamira/models@main/data/v2/arena.json",
+        data_path: "data/v2/arena.json",
         verified: true,
     },
     SourceDescriptor {
         id: "llmstats",
         name: "LLM Stats",
         url: "https://llm-stats.com",
-        data_url: "https://cdn.jsdelivr.net/gh/reyamira/models@main/data/v2/llmstats.json",
+        data_path: "data/v2/llmstats.json",
         // Aggregates third-party benchmark results; its methodology excludes
         // provider self-reported numbers from the ingested rankings, so it is
         // verified like the others (plan amendment 2026-06-11).

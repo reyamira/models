@@ -94,8 +94,12 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
 - **sources.rs** — compile-time `SourceDescriptor` registry. `SOURCES` is a
   4-entry `const` slice in display order: `aa` (verified), `epoch` (verified),
   `arena` (verified), `llmstats` (verified). Each entry carries `id`
-  (= `data/v2/` filename stem), `name`, `url`, `data_url` (jsDelivr `@main`), and
-  `verified`. Only the source list is compiled in; metric definitions stay
+  (= `data/v2/` filename stem), `name`, `url`, `data_path` (repo-relative, e.g.
+  `data/v2/aa.json`), and `verified`. Repo coordinates live in module consts
+  `DATA_REPO` (`reyamira/models`) + `DATA_REF` (`main`); `fetch.rs` builds the
+  multi-host fallback chain from those + `data_path` (the field is coordinates,
+  not a full URL, because the GitHub-raw tier has a different URL shape than the
+  jsDelivr tiers). Only the source list is compiled in; metric definitions stay
   data-driven in the files. `verified` is part of the binding contract but
   currently `#[allow(dead_code)]` — the UI reads verification from the data
   file's `SourceMeta` today.
@@ -110,12 +114,27 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     does not repoint the known sources' opened pages.
 
 - **fetch.rs** — `fetch_source(&SourceDescriptor) -> Option<SourceFile>`.
-  - Async reqwest GET + JSON deserialize; returns `None` on any error (network,
-    non-2xx, parse) — no error payload is carried (keeps the failure path
-    data-free, matching `MultiStore::set_failed`).
-  - `MODELS_DATA_BASE_URL` env override: when set and non-empty, fetches
-    `{base}/{id}.json` instead of `desc.data_url` — a sanctioned dev override for
-    serving data files from a local dir or staging host.
+  - Async reqwest GET + JSON deserialize over a **multi-host fallback chain**
+    (`candidate_urls`): tries each host in order and returns the first that
+    deserializes; `None` only when all fail (network, non-2xx, parse) — no error
+    payload carried (keeps the failure path data-free, matching
+    `MultiStore::set_failed`). The chain is **cdn.jsdelivr.net@main →
+    fastly.jsdelivr.net@main → raw.githubusercontent.com/…/main/…**. Fastly is a
+    warm-cache shortcut (NOT independent — all jsDelivr edges sit in front of the
+    same branch resolver; it only rescues *short* outages); GitHub raw is the
+    real backstop (bypasses jsDelivr's resolution entirely). Motivated by the
+    2026-06-16 jsDelivr branch-resolution outage that 301-looped every `@main`
+    URL and took the whole tab down.
+  - The client caps redirects (`Policy::limited(2)`) so a 301-redirect loop
+    fast-fails into the next host instead of burning 10 hops, and sets a 10s
+    timeout; healthy jsDelivr serves `200` with no redirect.
+  - `MODELS_DATA_BASE_URL` env override: when set and non-empty, **bypasses the
+    chain** and fetches a single `{base}/{id}.json` — a sanctioned dev override
+    for serving data files from a local dir or staging host.
+  - Two tests: a pure `candidate_urls` unit test (asserts the cdn/fastly/raw URL
+    shapes + the override), and an `#[ignore]`d live-network probe
+    (`fetch_source_falls_through_to_a_working_host`) run manually to observe the
+    fallthrough against a real outage.
   - The TUI spawns 4 of these in parallel at startup; results arrive as
     `Message::DataSourceLoaded(idx, Option<SourceFile>)`.
 
