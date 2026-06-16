@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-16T06:18:23.299061960+00:00",
+    "fetched_at": "2026-06-16T18:18:36.550531909+00:00",
     "verified": true
   },
   "metrics": [
@@ -112,6 +112,13 @@
       "short_label": "Chess"
     },
     {
+      "id": "frontierswe",
+      "label": "Frontierswe",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-06-09"
+    },
+    {
       "id": "gpqa_diamond",
       "label": "GPQA Diamond",
       "kind": "percentage",
@@ -119,6 +126,13 @@
       "last_updated": "2026-06-12",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
+    },
+    {
+      "id": "gbaeval",
+      "label": "Gbaeval",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-06-09"
     },
     {
       "id": "otis_mock_aime_2024_2025",
@@ -199,6 +213,14 @@
           "value": 160.8699064903107,
           "date": "2026-06-09"
         },
+        "frontierswe": {
+          "value": 0.9,
+          "date": "2026-06-09"
+        },
+        "gbaeval": {
+          "value": 0.7447198828312318,
+          "date": "2026-06-09"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9972222222222222,
           "date": "2026-06-10"
@@ -228,6 +250,20 @@
         "weirdml": {
           "value": 0.43450000000000005,
           "date": "2026-06-04"
+        }
+      }
+    },
+    {
+      "id": "MiniMax-M3",
+      "name": "MiniMax-M3",
+      "display_name": "MiniMax-M3",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
+      "release_date": "2026-06-01",
+      "scores": {
+        "gbaeval": {
+          "value": 0.009136320401503086,
+          "date": "2026-06-01"
         }
       }
     },
@@ -266,6 +302,14 @@
         "frontiermath_tier_4": {
           "value": 0.3125,
           "date": "2026-06-08"
+        },
+        "frontierswe": {
+          "value": 0.78,
+          "date": "2026-05-28"
+        },
+        "gbaeval": {
+          "value": 0.7090450062635527,
+          "date": "2026-05-28"
         },
         "gpqa_diamond": {
           "value": 0.9103535353535354,
@@ -329,6 +373,10 @@
           "value": 0.14583333333333334,
           "date": "2026-05-25"
         },
+        "gbaeval": {
+          "value": 0.06701366402557545,
+          "date": "2026-05-19"
+        },
         "gpqa_diamond": {
           "value": 0.928030303030303,
           "date": "2026-05-22"
@@ -369,6 +417,10 @@
         },
         "epoch_capabilities_index": {
           "value": 154.12243768320374,
+          "date": "2026-05-19"
+        },
+        "gbaeval": {
+          "value": 0.004066608893369503,
           "date": "2026-05-19"
         },
         "gpqa_diamond": {
@@ -463,6 +515,10 @@
       "creator_name": "DeepSeek",
       "release_date": "2026-04-24",
       "scores": {
+        "frontierswe": {
+          "value": 0.31,
+          "date": "2026-04-24"
+        },
         "simplebench": {
           "value": 0.612,
           "date": "2026-04-24"
@@ -495,6 +551,14 @@
         },
         "epoch_capabilities_index": {
           "value": 158.6719149348326,
+          "date": "2026-04-23"
+        },
+        "frontierswe": {
+          "value": 0.76,
+          "date": "2026-04-23"
+        },
+        "gbaeval": {
+          "value": 0.5322037178151383,
           "date": "2026-04-23"
         },
         "gpqa_diamond": {
@@ -654,6 +718,14 @@
           "value": 0.1458,
           "date": "2026-05-08"
         },
+        "frontierswe": {
+          "value": 0.28,
+          "date": "2026-04-20"
+        },
+        "gbaeval": {
+          "value": 0.008624932115315736,
+          "date": "2026-04-20"
+        },
         "gpqa_diamond": {
           "value": 0.9078282828282829,
           "date": "2026-05-01"
@@ -772,6 +844,14 @@
           "value": 0.22916666666666666,
           "date": "2026-04-17"
         },
+        "frontierswe": {
+          "value": 0.66,
+          "date": "2026-04-16"
+        },
+        "gbaeval": {
+          "value": 0.43811361876085897,
+          "date": "2026-04-16"
+        },
         "gpqa_diamond": {
           "value": 0.9015151515151515,
           "date": "2026-04-17"
@@ -886,6 +966,14 @@
           "value": 0.125,
           "date": "2026-05-12"
         },
+        "frontierswe": {
+          "value": 0.32,
+          "date": "2026-04-07"
+        },
+        "gbaeval": {
+          "value": 0.0,
+          "date": "2026-04-07"
+        },
         "gpqa_diamond": {
           "value": 0.8547979797979798,
           "date": "2026-05-06"
@@ -954,6 +1042,10 @@
           "value": 0.08333333333333333,
           "date": "2026-05-12"
         },
+        "frontierswe": {
+          "value": 0.24,
+          "date": "2026-03-31"
+        },
         "gpqa_diamond": {
           "value": 0.8737373737373737,
           "date": "2026-05-12"
@@ -980,6 +1072,10 @@
       "creator_name": "MiniMax",
       "release_date": "2026-03-18",
       "scores": {
+        "gbaeval": {
+          "value": 0.0,
+          "date": "2026-03-18"
+        },
         "terminalbench": {
           "value": 0.451,
           "date": "2026-05-14"
@@ -1133,6 +1229,14 @@
         "frontiermath_tier_4": {
           "value": 0.271,
           "date": "2026-03-06"
+        },
+        "frontierswe": {
+          "value": 0.56,
+          "date": "2026-03-05"
+        },
+        "gbaeval": {
+          "value": 0.3160372478663838,
+          "date": "2026-03-05"
         },
         "gpqa_diamond": {
           "value": 0.933,
@@ -1324,6 +1428,14 @@
           "value": 0.167,
           "date": "2026-02-19"
         },
+        "frontierswe": {
+          "value": 0.41000000000000003,
+          "date": "2026-02-19"
+        },
+        "gbaeval": {
+          "value": 0.008462790979968672,
+          "date": "2026-02-19"
+        },
         "gpqa_diamond": {
           "value": 0.941,
           "date": "2026-02-20"
@@ -1411,6 +1523,10 @@
         "frontiermath_tier_4": {
           "value": 0.083,
           "date": "2026-02-21"
+        },
+        "gbaeval": {
+          "value": 0.4875663483204475,
+          "date": "2026-02-17"
         },
         "gpqa_diamond": {
           "value": 0.8737373737373737,
@@ -1668,6 +1784,14 @@
           "value": 0.229,
           "date": "2026-02-12"
         },
+        "frontierswe": {
+          "value": 0.59,
+          "date": "2026-02-05"
+        },
+        "gbaeval": {
+          "value": 0.4411559216788414,
+          "date": "2026-02-05"
+        },
         "gpqa_diamond": {
           "value": 0.9053030303030303,
           "date": "2026-02-06"
@@ -1814,6 +1938,10 @@
         },
         "epoch_capabilities_index": {
           "value": 148.00344266799104,
+          "date": "2026-01-27"
+        },
+        "frontierswe": {
+          "value": 0.27,
           "date": "2026-01-27"
         },
         "posttrainbench": {
