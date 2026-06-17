@@ -63,7 +63,7 @@ After the labels: `{ } switch source` in `Color::DarkGray` (mirrors the header's
 **Source identity appears here only** — the detail panel has no attribution line and switching sources does not flash the source name in the status bar.
 
 **Right — active source freshness** (right-aligned, omitted unless the active source is loaded):
-- `fetched {relative}` in `Color::DarkGray` (relative time from `SourceMeta.fetched_at`)
+- `updated {relative}` in `Color::DarkGray` (relative time from `SourceMeta.fetched_at`). This is the data's build-time last-change timestamp baked into the file by the pipeline, **not** the client fetch time (the app fetches fresh every launch). Labeled "updated" (not "fetched") so the twice-daily Arena/Epoch sources reading 6–18h old don't look like a failed fetch. Note: jsDelivr can serve a stale `@main` copy when its purge fails, in which case even AA/LLM Stats read hours old here — see project CLAUDE.md "Benchmark data".
 - ` self-reported` in `Color::Yellow` when `SourceMeta.verified == false` (generic mechanism; **no source currently sets `verified == false`** — LLM Stats was flipped to verified on 2026-06-11, so this badge is dormant)
 
 ---

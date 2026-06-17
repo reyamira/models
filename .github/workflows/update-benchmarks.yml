@@ -205,8 +205,35 @@ jobs:
       - name: Purge jsDelivr cache
         if: steps.commit.outputs.changed == 'true'
         run: |
-          curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/benchmarks.json" || true
-          curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/v2/aa.json" || true
-          curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/v2/epoch.json" || true
-          curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/v2/arena.json" || true
-          curl -sf "https://purge.jsdelivr.net/gh/reyamira/models@main/data/v2/llmstats.json" || true
+          # jsDelivr aliased (@main) URLs can serve stale content "up to 7 days"
+          # without a successful purge, and its purge endpoint intermittently
+          # returns a 200 body of "no available server" (observed 2026-06-16/17,
+          # tail of the branch-resolution outage). curl can't auto-retry a 200,
+          # so retry with backoff on that body. Non-fatal: a failed purge just
+          # leaves the CDN stale until the next run re-purges the changed file.
+          purge() {
+            url="$1"
+            for attempt in 1 2 3 4 5; do
+              resp=$(curl -s --max-time 20 "$url" || true)
+              case "$resp" in
+                *"no available server"*|"")
+                  echo "purge attempt $attempt failed for $url: ${resp:-<empty>}"
+                  sleep $((attempt * 5))
+                  ;;
+                *)
+                  echo "purged $url: $resp"
+                  return 0
+                  ;;
+              esac
+            done
+            echo "::warning::jsDelivr purge failed after retries for $url"
+            return 0
+          }
+          for f in \
+            data/benchmarks.json \
+            data/v2/aa.json \
+            data/v2/epoch.json \
+            data/v2/arena.json \
+            data/v2/llmstats.json; do
+            purge "https://purge.jsdelivr.net/gh/reyamira/models@main/$f"
+          done

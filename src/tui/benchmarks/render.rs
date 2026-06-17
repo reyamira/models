@@ -132,8 +132,11 @@ pub(in crate::tui) fn draw_benchmarks_main(f: &mut Frame, area: Rect, app: &mut 
 
 /// Source bar: one bracketed label per compiled-in source (active = Cyan+BOLD,
 /// loaded-inactive = DarkGray, loading = label + `◐` Yellow, failed = label +
-/// `✗` Red). Right-aligned for the active source: `fetched {relative}` (DarkGray)
-/// + ` self-reported` (Yellow) when the source is unverified.
+/// `✗` Red). Right-aligned for the active source: `updated {relative}` (DarkGray),
+/// then ` self-reported` (Yellow) when the source is unverified. The timestamp is
+/// the data's last-change time baked into the file by the build-time pipeline
+/// (`SourceMeta.fetched_at`), NOT the client fetch time — the app always fetches
+/// fresh per launch, so labeling it "fetched" wrongly implied a stale fetch.
 fn draw_source_bar(f: &mut Frame, area: Rect, app: &mut App) {
     let active = app.benchmarks_app.active_source;
 
@@ -204,7 +207,7 @@ fn draw_source_bar(f: &mut Frame, area: Rect, app: &mut App) {
         if let SourceLoad::Loaded(file) = &state.load {
             right_spans.push(Span::styled(
                 format!(
-                    "fetched {}",
+                    "updated {}",
                     format_relative_time_from_str(&file.source.fetched_at)
                 ),
                 Style::default().fg(Color::DarkGray),
