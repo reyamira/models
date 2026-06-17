@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-17T06:18:33.047181780+00:00",
+    "fetched_at": "2026-06-17T18:19:41.276963148+00:00",
     "verified": true
   },
   "metrics": [
@@ -107,7 +107,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-13",
+      "last_updated": "2026-06-16",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -123,7 +123,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-12",
+      "last_updated": "2026-06-16",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -139,7 +139,7 @@
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-13",
+      "last_updated": "2026-06-17",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -157,7 +157,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-13",
+      "last_updated": "2026-06-16",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     }
@@ -515,13 +515,29 @@
       "creator_name": "DeepSeek",
       "release_date": "2026-04-24",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.2,
+          "date": "2026-06-16"
+        },
         "frontierswe": {
           "value": 0.31,
           "date": "2026-04-24"
         },
+        "gpqa_diamond": {
+          "value": 0.8964646464646465,
+          "date": "2026-06-16"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9666666666666667,
+          "date": "2026-06-17"
+        },
         "simplebench": {
           "value": 0.612,
           "date": "2026-04-24"
+        },
+        "simpleqa_verified": {
+          "value": 0.57,
+          "date": "2026-06-16"
         },
         "weirdml": {
           "value": 0.489,
