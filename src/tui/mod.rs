@@ -104,8 +104,6 @@ struct RuntimeHandles {
     status: StatusRuntime,
 }
 pub async fn run(providers: ProvidersMap) -> Result<()> {
-    use crate::agents::FetchStatus;
-
     // Load remaining data
     let agents_file = load_agents().ok();
     let config = Config::load().ok();
@@ -135,14 +133,20 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    // Pre-populate agent entries from disk cache for instant display
+    // Pre-populate agent entries from disk cache for instant display, but leave
+    // the fetch_status at the constructor's `Loading` (set for tracked entries
+    // in AgentsApp::new). `spawn_agent_fetches` only dispatches for `Loading |
+    // NotStarted` entries, so marking these `Loaded` here would skip the startup
+    // background fetch entirely — leaving stale cached changelogs on screen until
+    // the user pressed `R`. Seeding the cached data gives instant display; the
+    // background fetch then revalidates and flips the status to Loaded on
+    // success (stale-while-revalidate).
     if let Some(ref mut agents_app) = app.agents_app {
         for entry in &mut agents_app.entries {
             if entry.tracked {
                 // Look up cached data by repo (cache keys are repos)
                 if let Some(cached) = disk_cache.get(&entry.agent.repo) {
                     entry.github = cached.data.clone().into();
-                    entry.fetch_status = FetchStatus::Loaded;
                 }
             }
         }
