@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-19T06:18:34.430874356+00:00",
+    "fetched_at": "2026-06-19T18:18:35.949130453+00:00",
     "verified": true
   },
   "metrics": [
@@ -107,7 +107,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-16",
+      "last_updated": "2026-06-17",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -123,7 +123,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-16",
+      "last_updated": "2026-06-17",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -821,6 +821,33 @@
         "weirdml": {
           "value": 0.4989,
           "date": "2026-04-17"
+        }
+      }
+    },
+    {
+      "id": "grok-4.3",
+      "name": "grok-4.3_high",
+      "display_name": "grok-4.3",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2026-04-17",
+      "effort_level": "high",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.25,
+          "date": "2026-06-17"
+        },
+        "gpqa_diamond": {
+          "value": 0.8882575757575758,
+          "date": "2026-06-17"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9333333333333333,
+          "date": "2026-06-17"
+        },
+        "simpleqa_verified": {
+          "value": 0.38,
+          "date": "2026-06-16"
         }
       }
     },

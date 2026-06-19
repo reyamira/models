@@ -3,7 +3,7 @@
     "id": "arena",
     "name": "Arena",
     "url": "https://arena.ai",
-    "fetched_at": "2026-06-18T18:18:34.925978661+00:00",
+    "fetched_at": "2026-06-19T18:18:35.531699926+00:00",
     "verified": true
   },
   "metrics": [
@@ -36,7 +36,7 @@
       "label": "Agent",
       "kind": "elo",
       "group": "Arena Elo",
-      "last_updated": "2026-06-15",
+      "last_updated": "2026-06-18",
       "description": "Human-preference ranking for agentic, autonomous task completion. Score is an Elo rating from blind side-by-side votes; higher is better."
     },
     {
@@ -44,7 +44,7 @@
       "label": "Search",
       "kind": "elo",
       "group": "Arena Elo",
-      "last_updated": "2026-06-18",
+      "last_updated": "2026-06-15",
       "description": "Human-preference ranking for search-augmented answers that combine retrieval with language understanding. Score is an Elo rating from blind side-by-side votes; higher is better."
     },
     {
@@ -69,9 +69,9 @@
       "scores": {
         "elo_agent": {
           "value": 14.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 2.0,
-          "votes": 16238
+          "votes": 16232
         }
       }
     },
@@ -84,10 +84,10 @@
       "open_weights": false,
       "scores": {
         "elo_agent": {
-          "value": 6.0,
-          "date": "2026-06-15",
+          "value": 7.0,
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 29628
+          "votes": 29957
         }
       }
     },
@@ -101,9 +101,9 @@
       "scores": {
         "elo_agent": {
           "value": 8.0,
-          "date": "2026-06-15",
-          "ci": 2.0,
-          "votes": 29643
+          "date": "2026-06-18",
+          "ci": 1.0,
+          "votes": 29959
         }
       }
     },
@@ -118,9 +118,9 @@
       "scores": {
         "elo_agent": {
           "value": 8.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 29596
+          "votes": 29921
         }
       }
     },
@@ -134,9 +134,9 @@
       "scores": {
         "elo_agent": {
           "value": 3.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 2.0,
-          "votes": 25134
+          "votes": 25435
         }
       }
     },
@@ -151,9 +151,9 @@
       "scores": {
         "elo_agent": {
           "value": 9.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 27603
+          "votes": 27924
         }
       }
     },
@@ -167,9 +167,9 @@
       "scores": {
         "elo_agent": {
           "value": 3.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 29606
+          "votes": 29929
         }
       }
     },
@@ -182,10 +182,10 @@
       "open_weights": true,
       "scores": {
         "elo_agent": {
-          "value": 1.0,
-          "date": "2026-06-15",
+          "value": 2.0,
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 34109
+          "votes": 35372
         }
       }
     },
@@ -200,10 +200,10 @@
       "open_weights": false,
       "scores": {
         "elo_agent": {
-          "value": 6.0,
-          "date": "2026-06-15",
+          "value": 7.0,
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 38900
+          "votes": 40194
         }
       }
     },
@@ -218,10 +218,10 @@
       "open_weights": false,
       "scores": {
         "elo_agent": {
-          "value": 7.0,
-          "date": "2026-06-15",
+          "value": 8.0,
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 38826
+          "votes": 40101
         }
       }
     },
@@ -237,9 +237,31 @@
       "scores": {
         "elo_agent": {
           "value": 8.0,
+          "date": "2026-06-18",
+          "ci": 1.0,
+          "votes": 13590
+        }
+      }
+    },
+    {
+      "id": "grok-4.3",
+      "name": "Grok 4.3",
+      "display_name": "Grok 4.3",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "open_weights": false,
+      "scores": {
+        "elo_agent": {
+          "value": 18.0,
+          "date": "2026-06-18",
+          "ci": 1.0,
+          "votes": 39531
+        },
+        "elo_search": {
+          "value": 1165.0,
           "date": "2026-06-15",
-          "ci": 2.0,
-          "votes": 12304
+          "ci": 5.0,
+          "votes": 36089
         }
       }
     },
@@ -255,9 +277,9 @@
       "scores": {
         "elo_agent": {
           "value": 7.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 17151
+          "votes": 18447
         }
       }
     },
@@ -271,9 +293,9 @@
       "scores": {
         "elo_agent": {
           "value": 6.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 28730
+          "votes": 29978
         }
       }
     },
@@ -286,10 +308,10 @@
       "open_weights": true,
       "scores": {
         "elo_agent": {
-          "value": 7.0,
-          "date": "2026-06-15",
+          "value": 8.0,
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 34082
+          "votes": 35362
         }
       }
     },
@@ -302,10 +324,10 @@
       "open_weights": true,
       "scores": {
         "elo_agent": {
-          "value": 8.0,
-          "date": "2026-06-15",
+          "value": 7.0,
+          "date": "2026-06-18",
           "ci": 4.0,
-          "votes": 4338
+          "votes": 4649
         }
       }
     },
@@ -319,9 +341,9 @@
       "scores": {
         "elo_agent": {
           "value": 4.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 33425
+          "votes": 34690
         }
       }
     },
@@ -335,25 +357,9 @@
       "scores": {
         "elo_search": {
           "value": 1006.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 11.0,
           "votes": 3440
-        }
-      }
-    },
-    {
-      "id": "chatgpt-4o-latest-20250326",
-      "name": "chatgpt-4o-latest-20250326",
-      "display_name": "chatgpt-4o-latest-20250326",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1241.0,
-          "date": "2026-06-10",
-          "ci": 6.0,
-          "votes": 23422
         }
       }
     },
@@ -379,7 +385,7 @@
         },
         "elo_search": {
           "value": 1237.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 11.0,
           "votes": 5007
         },
@@ -440,7 +446,7 @@
       "scores": {
         "elo_search": {
           "value": 1148.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 77389
         }
@@ -501,7 +507,7 @@
       "scores": {
         "elo_search": {
           "value": 1179.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 61808
         }
@@ -551,7 +557,7 @@
       "scores": {
         "elo_search": {
           "value": 1252.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 82294
         }
@@ -614,7 +620,7 @@
         },
         "elo_search": {
           "value": 1232.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 38472
         },
@@ -689,7 +695,7 @@
         },
         "elo_search": {
           "value": 1203.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 18408
         },
@@ -752,7 +758,7 @@
       "scores": {
         "elo_search": {
           "value": 1126.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 31226
         }
@@ -807,7 +813,7 @@
       "scores": {
         "elo_search": {
           "value": 1157.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 75660
         }
@@ -857,7 +863,7 @@
       "scores": {
         "elo_search": {
           "value": 1218.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 81575
         }
@@ -872,10 +878,10 @@
       "open_weights": true,
       "scores": {
         "elo_agent": {
-          "value": 0.0,
-          "date": "2026-06-15",
+          "value": 1.0,
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 28378
+          "votes": 28682
         },
         "elo_text": {
           "value": 1456.0,
@@ -912,7 +918,7 @@
       "scores": {
         "elo_search": {
           "value": 1023.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 8.0,
           "votes": 6437
         }
@@ -931,12 +937,6 @@
           "date": "2026-06-16",
           "ci": 4.0,
           "votes": 50401
-        },
-        "elo_vision": {
-          "value": 1259.0,
-          "date": "2026-06-10",
-          "ci": 8.0,
-          "votes": 10362
         }
       }
     },
@@ -957,22 +957,6 @@
       }
     },
     {
-      "id": "ernie-5.0-preview-1220",
-      "name": "ernie-5.0-preview-1220",
-      "display_name": "ernie-5.0-preview-1220",
-      "creator": "baidu",
-      "creator_name": "Baidu",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1219.0,
-          "date": "2026-06-10",
-          "ci": 11.0,
-          "votes": 3192
-        }
-      }
-    },
-    {
       "id": "ernie-5.1",
       "name": "ernie-5.1",
       "display_name": "ernie-5.1",
@@ -982,7 +966,7 @@
       "scores": {
         "elo_search": {
           "value": 1226.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 10.0,
           "votes": 3824
         },
@@ -991,22 +975,6 @@
           "date": "2026-06-16",
           "ci": 5.0,
           "votes": 25064
-        }
-      }
-    },
-    {
-      "id": "gemini-2.5-flash-preview-09-2025",
-      "name": "gemini-2.5-flash-preview-09-2025",
-      "display_name": "gemini-2.5-flash-preview-09-2025",
-      "creator": "google",
-      "creator_name": "Google",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1226.0,
-          "date": "2026-06-10",
-          "ci": 10.0,
-          "votes": 4726
         }
       }
     },
@@ -1023,12 +991,6 @@
           "date": "2026-06-10",
           "ci": 6.0,
           "votes": 24980
-        },
-        "elo_vision": {
-          "value": 1246.0,
-          "date": "2026-06-10",
-          "ci": 5.0,
-          "votes": 89547
         }
       }
     },
@@ -1042,7 +1004,7 @@
       "scores": {
         "elo_search": {
           "value": 1142.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 4.0,
           "votes": 83776
         }
@@ -1058,9 +1020,9 @@
       "scores": {
         "elo_agent": {
           "value": 8.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 39075
+          "votes": 40383
         },
         "elo_document": {
           "value": 1413.0,
@@ -1096,12 +1058,6 @@
           "date": "2026-06-16",
           "ci": 3.0,
           "votes": 66402
-        },
-        "elo_vision": {
-          "value": 1256.0,
-          "date": "2026-06-10",
-          "ci": 6.0,
-          "votes": 26355
         }
       }
     },
@@ -1115,7 +1071,7 @@
       "scores": {
         "elo_search": {
           "value": 1201.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 93980
         }
@@ -1159,25 +1115,9 @@
       "scores": {
         "elo_search": {
           "value": 1207.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 37327
-        }
-      }
-    },
-    {
-      "id": "gemini-3.1-flash-lite-preview",
-      "name": "gemini-3.1-flash-lite-preview",
-      "display_name": "gemini-3.1-flash-lite-preview",
-      "creator": "google",
-      "creator_name": "Google",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1235.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 21080
         }
       }
     },
@@ -1191,7 +1131,7 @@
       "scores": {
         "elo_search": {
           "value": 1214.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 58094
         }
@@ -1207,9 +1147,9 @@
       "scores": {
         "elo_agent": {
           "value": 0.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 38914
+          "votes": 40200
         },
         "elo_document": {
           "value": 1441.0,
@@ -1241,9 +1181,9 @@
       "scores": {
         "elo_agent": {
           "value": 0.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 31889
+          "votes": 33156
         },
         "elo_code": {
           "value": 1506.0,
@@ -1260,22 +1200,6 @@
       }
     },
     {
-      "id": "gemma-4-26b-a4b",
-      "name": "gemma-4-26b-a4b",
-      "display_name": "gemma-4-26b-a4b",
-      "creator": "google",
-      "creator_name": "Google",
-      "open_weights": true,
-      "scores": {
-        "elo_vision": {
-          "value": 1238.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 16970
-        }
-      }
-    },
-    {
       "id": "gemma-4-31b",
       "name": "gemma-4-31b",
       "display_name": "gemma-4-31b",
@@ -1284,10 +1208,10 @@
       "open_weights": true,
       "scores": {
         "elo_agent": {
-          "value": 12.0,
-          "date": "2026-06-15",
+          "value": 13.0,
+          "date": "2026-06-18",
           "ci": 2.0,
-          "votes": 28065
+          "votes": 29345
         },
         "elo_document": {
           "value": 1424.0,
@@ -1300,12 +1224,6 @@
           "date": "2026-06-16",
           "ci": 8.0,
           "votes": 5884
-        },
-        "elo_vision": {
-          "value": 1252.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 27035
         }
       }
     },
@@ -1335,9 +1253,9 @@
       "scores": {
         "elo_agent": {
           "value": 2.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 33914
+          "votes": 35162
         },
         "elo_code": {
           "value": 1531.0,
@@ -1363,10 +1281,10 @@
       "open_weights": true,
       "scores": {
         "elo_agent": {
-          "value": 4.0,
-          "date": "2026-06-15",
+          "value": 5.0,
+          "date": "2026-06-18",
           "ci": 2.0,
-          "votes": 11901
+          "votes": 13187
         },
         "elo_code": {
           "value": 1595.0,
@@ -1395,44 +1313,6 @@
           "date": "2026-06-10",
           "ci": 15.0,
           "votes": 1389
-        },
-        "elo_vision": {
-          "value": 1232.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 16521
-        }
-      }
-    },
-    {
-      "id": "gpt-4.5-preview-2025-02-27",
-      "name": "gpt-4.5-preview-2025-02-27",
-      "display_name": "gpt-4.5-preview-2025-02-27",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1225.0,
-          "date": "2026-06-10",
-          "ci": 12.0,
-          "votes": 2925
-        }
-      }
-    },
-    {
-      "id": "gpt-5-chat",
-      "name": "gpt-5-chat",
-      "display_name": "gpt-5-chat",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1225.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 40804
         }
       }
     },
@@ -1446,7 +1326,7 @@
       "scores": {
         "elo_search": {
           "value": 1132.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 20928
         }
@@ -1465,12 +1345,6 @@
           "date": "2026-06-10",
           "ci": 9.0,
           "votes": 8253
-        },
-        "elo_vision": {
-          "value": 1238.0,
-          "date": "2026-06-10",
-          "ci": 8.0,
-          "votes": 10104
         }
       }
     },
@@ -1487,12 +1361,6 @@
           "date": "2026-06-16",
           "ci": 4.0,
           "votes": 40820
-        },
-        "elo_vision": {
-          "value": 1250.0,
-          "date": "2026-06-10",
-          "ci": 8.0,
-          "votes": 9228
         }
       }
     },
@@ -1506,7 +1374,7 @@
       "scores": {
         "elo_search": {
           "value": 1199.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 60190
         }
@@ -1525,12 +1393,6 @@
           "date": "2026-06-10",
           "ci": 6.0,
           "votes": 28188
-        },
-        "elo_vision": {
-          "value": 1230.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 19072
         }
       }
     },
@@ -1569,12 +1431,6 @@
           "date": "2026-06-10",
           "ci": 9.0,
           "votes": 7096
-        },
-        "elo_vision": {
-          "value": 1245.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 18085
         }
       }
     },
@@ -1588,7 +1444,7 @@
       "scores": {
         "elo_search": {
           "value": 1206.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 52868
         }
@@ -1605,7 +1461,7 @@
       "scores": {
         "elo_search": {
           "value": 1173.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 75946
         }
@@ -1690,12 +1546,6 @@
           "date": "2026-06-16",
           "ci": 4.0,
           "votes": 39525
-        },
-        "elo_vision": {
-          "value": 1256.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 15692
         }
       }
     },
@@ -1709,7 +1559,7 @@
       "scores": {
         "elo_search": {
           "value": 1195.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 56204
         }
@@ -1724,10 +1574,10 @@
       "open_weights": false,
       "scores": {
         "elo_agent": {
-          "value": 6.0,
-          "date": "2026-06-15",
+          "value": 7.0,
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 39170
+          "votes": 40373
         },
         "elo_document": {
           "value": 1483.0,
@@ -1832,7 +1682,7 @@
       "scores": {
         "elo_search": {
           "value": 1240.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 37025
         }
@@ -1865,7 +1715,7 @@
       "scores": {
         "elo_search": {
           "value": 1171.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 82113
         }
@@ -1881,7 +1731,7 @@
       "scores": {
         "elo_search": {
           "value": 1170.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 4.0,
           "votes": 43041
         }
@@ -1897,7 +1747,7 @@
       "scores": {
         "elo_search": {
           "value": 1141.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 19389
         }
@@ -1956,12 +1806,6 @@
           "date": "2026-06-16",
           "ci": 4.0,
           "votes": 42370
-        },
-        "elo_vision": {
-          "value": 1251.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 16615
         }
       }
     },
@@ -1975,7 +1819,7 @@
       "scores": {
         "elo_search": {
           "value": 1190.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 54040
         },
@@ -1997,7 +1841,7 @@
       "scores": {
         "elo_search": {
           "value": 1206.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 56367
         },
@@ -2006,56 +1850,6 @@
           "date": "2026-06-16",
           "ci": 4.0,
           "votes": 41384
-        },
-        "elo_vision": {
-          "value": 1249.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 15095
-        }
-      }
-    },
-    {
-      "id": "grok-4.3",
-      "name": "grok-4.3",
-      "display_name": "grok-4.3",
-      "creator": "xai",
-      "creator_name": "xAI",
-      "open_weights": false,
-      "scores": {
-        "elo_agent": {
-          "value": 15.0,
-          "date": "2026-06-15",
-          "ci": 1.0,
-          "votes": 38269
-        },
-        "elo_search": {
-          "value": 1165.0,
-          "date": "2026-06-18",
-          "ci": 5.0,
-          "votes": 36089
-        },
-        "elo_vision": {
-          "value": 1249.0,
-          "date": "2026-06-10",
-          "ci": 8.0,
-          "votes": 9992
-        }
-      }
-    },
-    {
-      "id": "kimi-k2.5-instant",
-      "name": "kimi-k2.5-instant",
-      "display_name": "kimi-k2.5-instant",
-      "creator": "moonshot",
-      "creator_name": "Moonshot",
-      "open_weights": true,
-      "scores": {
-        "elo_vision": {
-          "value": 1238.0,
-          "date": "2026-06-10",
-          "ci": 11.0,
-          "votes": 3892
         }
       }
     },
@@ -2079,12 +1873,6 @@
           "date": "2026-06-16",
           "ci": 4.0,
           "votes": 47780
-        },
-        "elo_vision": {
-          "value": 1247.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 19904
         }
       }
     },
@@ -2097,10 +1885,10 @@
       "open_weights": true,
       "scores": {
         "elo_agent": {
-          "value": 0.0,
-          "date": "2026-06-15",
+          "value": 1.0,
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 35410
+          "votes": 36699
         },
         "elo_code": {
           "value": 1513.0,
@@ -2137,32 +1925,16 @@
       "open_weights": true,
       "scores": {
         "elo_agent": {
-          "value": 2.0,
-          "date": "2026-06-15",
+          "value": 1.0,
+          "date": "2026-06-18",
           "ci": 2.0,
-          "votes": 14886
+          "votes": 16109
         },
         "elo_code": {
           "value": 1478.0,
           "date": "2026-06-16",
           "ci": 14.0,
           "votes": 1869
-        }
-      }
-    },
-    {
-      "id": "mimo-v2-omni",
-      "name": "mimo-v2-omni",
-      "display_name": "mimo-v2-omni",
-      "creator": "xiaomi",
-      "creator_name": "Xiaomi",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1218.0,
-          "date": "2026-06-10",
-          "ci": 8.0,
-          "votes": 10216
         }
       }
     },
@@ -2183,22 +1955,6 @@
       }
     },
     {
-      "id": "mimo-v2.5",
-      "name": "mimo-v2.5",
-      "display_name": "mimo-v2.5",
-      "creator": "xiaomi",
-      "creator_name": "Xiaomi",
-      "open_weights": true,
-      "scores": {
-        "elo_vision": {
-          "value": 1237.0,
-          "date": "2026-06-10",
-          "ci": 8.0,
-          "votes": 13813
-        }
-      }
-    },
-    {
       "id": "mimo-v2.5-pro",
       "name": "mimo-v2.5-pro",
       "display_name": "mimo-v2.5-pro",
@@ -2206,6 +1962,12 @@
       "creator_name": "Xiaomi",
       "open_weights": true,
       "scores": {
+        "elo_code": {
+          "value": 1470.0,
+          "date": "2026-06-16",
+          "ci": 8.0,
+          "votes": 6488
+        },
         "elo_text": {
           "value": 1466.0,
           "date": "2026-06-16",
@@ -2224,9 +1986,9 @@
       "scores": {
         "elo_agent": {
           "value": 2.0,
-          "date": "2026-06-15",
+          "date": "2026-06-18",
           "ci": 1.0,
-          "votes": 13066
+          "votes": 15639
         },
         "elo_code": {
           "value": 1511.0,
@@ -2245,12 +2007,6 @@
           "date": "2026-06-16",
           "ci": 7.0,
           "votes": 11264
-        },
-        "elo_vision": {
-          "value": 1246.0,
-          "date": "2026-06-10",
-          "ci": 11.0,
-          "votes": 3676
         }
       }
     },
@@ -2262,12 +2018,6 @@
       "creator_name": "Meta",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1507.0,
-          "date": "2026-06-16",
-          "ci": 16.0,
-          "votes": 1628
-        },
         "elo_document": {
           "value": 1442.0,
           "date": "2026-06-10",
@@ -2289,22 +2039,6 @@
       }
     },
     {
-      "id": "o3-2025-04-16",
-      "name": "o3-2025-04-16",
-      "display_name": "o3-2025-04-16",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1217.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 46653
-        }
-      }
-    },
-    {
       "id": "o3-search",
       "name": "o3-search",
       "display_name": "o3-search",
@@ -2314,7 +2048,7 @@
       "scores": {
         "elo_search": {
           "value": 1143.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 5.0,
           "votes": 20788
         }
@@ -2330,7 +2064,7 @@
       "scores": {
         "elo_search": {
           "value": 1129.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 28720
         }
@@ -2347,73 +2081,9 @@
       "scores": {
         "elo_search": {
           "value": 1137.0,
-          "date": "2026-06-18",
+          "date": "2026-06-15",
           "ci": 6.0,
           "votes": 29222
-        }
-      }
-    },
-    {
-      "id": "qwen3-vl-235b-a22b-instruct",
-      "name": "qwen3-vl-235b-a22b-instruct",
-      "display_name": "qwen3-vl-235b-a22b-instruct",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "open_weights": true,
-      "scores": {
-        "elo_vision": {
-          "value": 1215.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 12202
-        }
-      }
-    },
-    {
-      "id": "qwen3.5-122b-a10b",
-      "name": "qwen3.5-122b-a10b",
-      "display_name": "qwen3.5-122b-a10b",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "open_weights": true,
-      "scores": {
-        "elo_vision": {
-          "value": 1228.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 12571
-        }
-      }
-    },
-    {
-      "id": "qwen3.5-27b",
-      "name": "qwen3.5-27b",
-      "display_name": "qwen3.5-27b",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "open_weights": true,
-      "scores": {
-        "elo_vision": {
-          "value": 1221.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 14945
-        }
-      }
-    },
-    {
-      "id": "qwen3.5-397b-a17b",
-      "name": "qwen3.5-397b-a17b",
-      "display_name": "qwen3.5-397b-a17b",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "open_weights": true,
-      "scores": {
-        "elo_vision": {
-          "value": 1249.0,
-          "date": "2026-06-10",
-          "ci": 7.0,
-          "votes": 17536
         }
       }
     },
