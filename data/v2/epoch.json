@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-22T06:17:48.716242886+00:00",
+    "fetched_at": "2026-06-22T18:17:47.628271997+00:00",
     "verified": true
   },
   "metrics": [
@@ -81,7 +81,7 @@
       "label": "SWE-bench Verified",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-06-01",
+      "last_updated": "2026-06-18",
       "description": "Real-world software engineering: the model is given a repository and a GitHub issue from popular Python projects and must edit the codebase to fix it, graded by unit tests. Scored as % of issues resolved; higher is better.",
       "short_label": "SWE-bench"
     },
@@ -99,7 +99,7 @@
       "label": "WeirdML",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-06-09",
+      "last_updated": "2026-06-16",
       "description": "Unconventional machine-learning engineering tasks where the agent must write and run code to train a model on provided data, with several iterations allowed. Scored as accuracy on the held-out task; higher is better."
     },
     {
@@ -164,6 +164,20 @@
   ],
   "models": [
     {
+      "id": "glm-5.2",
+      "name": "glm-5.2",
+      "display_name": "glm-5.2",
+      "creator": "z-ai-zhipu-ai",
+      "creator_name": "Z.ai (Zhipu AI)",
+      "release_date": "2026-06-16",
+      "scores": {
+        "weirdml": {
+          "value": 0.7012,
+          "date": "2026-06-16"
+        }
+      }
+    },
+    {
       "id": "kimi-k2.7-code",
       "name": "kimi-k2.7-code",
       "display_name": "kimi-k2.7-code",
@@ -189,6 +203,10 @@
         },
         "simpleqa_verified": {
           "value": 0.392,
+          "date": "2026-06-12"
+        },
+        "weirdml": {
+          "value": 0.5412,
           "date": "2026-06-12"
         }
       }
@@ -438,6 +456,10 @@
         "simpleqa_verified": {
           "value": 0.5851703406813628,
           "date": "2026-06-13"
+        },
+        "swe_bench_verified": {
+          "value": 0.7727272727272727,
+          "date": "2026-06-18"
         }
       }
     },
@@ -538,6 +560,10 @@
         "simpleqa_verified": {
           "value": 0.57,
           "date": "2026-06-16"
+        },
+        "swe_bench_verified": {
+          "value": 0.7763975155279503,
+          "date": "2026-06-18"
         },
         "weirdml": {
           "value": 0.489,
@@ -1044,6 +1070,20 @@
       }
     },
     {
+      "id": "gemma-4-26b-a4b",
+      "name": "gemma-4-26b-a4b",
+      "display_name": "gemma-4-26b-a4b",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
+      "release_date": "2026-04-02",
+      "scores": {
+        "weirdml": {
+          "value": 0.3517,
+          "date": "2026-04-02"
+        }
+      }
+    },
+    {
       "id": "gemma-4-31b-it",
       "name": "gemma-4-31b-it",
       "display_name": "gemma-4-31b-it",
@@ -1432,6 +1472,34 @@
         "simpleqa_verified": {
           "value": 0.19759277833500502,
           "date": "2026-05-11"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-27B",
+      "name": "qwen3.5-27B",
+      "display_name": "qwen3.5-27B",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-02-24",
+      "scores": {
+        "weirdml": {
+          "value": 0.39530000000000004,
+          "date": "2026-02-24"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-9B",
+      "name": "qwen3.5-9B",
+      "display_name": "qwen3.5-9B",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-02-24",
+      "scores": {
+        "terminalbench": {
+          "value": 0.092,
+          "date": "2026-05-14"
         }
       }
     },
@@ -8187,6 +8255,18 @@
         },
         "weirdml": {
           "value": 0.3977
+        }
+      }
+    },
+    {
+      "id": "mercury-2",
+      "name": "mercury-2",
+      "display_name": "mercury-2",
+      "creator": "inception-labs",
+      "creator_name": "Inception Labs",
+      "scores": {
+        "weirdml": {
+          "value": 0.43200000000000005
         }
       }
     }
