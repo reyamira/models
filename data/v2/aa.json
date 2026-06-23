@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-06-23T19:47:41.517431108+00:00",
+    "fetched_at": "2026-06-23T20:17:47.312114998+00:00",
     "verified": true
   },
   "metrics": [
@@ -4446,6 +4446,51 @@
         },
         "ttft": {
           "value": 13.051
+        }
+      }
+    },
+    {
+      "id": "grok-build-0-1-06-16",
+      "name": "Grok Build 0.1 0616",
+      "display_name": "Grok Build 0.1 0616",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "scores": {
+        "coding_index": {
+          "value": 51.5
+        },
+        "gpqa": {
+          "value": 0.895
+        },
+        "hle": {
+          "value": 0.36
+        },
+        "intelligence_index": {
+          "value": 39.8
+        },
+        "lcr": {
+          "value": 0.646666666666667
+        },
+        "output_tps": {
+          "value": 69.408
+        },
+        "price_blended": {
+          "value": 1.25
+        },
+        "price_input": {
+          "value": 1.0
+        },
+        "price_output": {
+          "value": 2.0
+        },
+        "scicode": {
+          "value": 0.502
+        },
+        "ttfat": {
+          "value": 29.215
+        },
+        "ttft": {
+          "value": 0.4
         }
       }
     },
