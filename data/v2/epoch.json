@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-23T18:17:45.801447870+00:00",
+    "fetched_at": "2026-06-24T06:17:41.083856395+00:00",
     "verified": true
   },
   "metrics": [
@@ -117,13 +117,6 @@
       "last_updated": "2026-06-17",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
-    },
-    {
-      "id": "cl_bench_life",
-      "label": "Cl Bench Life",
-      "kind": "percentage",
-      "group": "Academic",
-      "last_updated": "2026-04-24"
     },
     {
       "id": "frontierswe",
@@ -610,10 +603,6 @@
           "value": 0.2,
           "date": "2026-06-16"
         },
-        "cl_bench_life": {
-          "value": 0.135,
-          "date": "2026-04-24"
-        },
         "epoch_capabilities_index": {
           "value": 149.737080071977,
           "date": "2026-04-24"
@@ -674,10 +663,6 @@
         },
         "arc_agi_2": {
           "value": 0.85,
-          "date": "2026-04-23"
-        },
-        "cl_bench_life": {
-          "value": 0.222,
           "date": "2026-04-23"
         },
         "epoch_capabilities_index": {
@@ -1466,10 +1451,6 @@
           "value": 0.44,
           "date": "2026-03-11"
         },
-        "cl_bench_life": {
-          "value": 0.217,
-          "date": "2026-03-05"
-        },
         "epoch_capabilities_index": {
           "value": 156.17870445901968,
           "date": "2026-03-05"
@@ -1720,10 +1701,6 @@
           "value": 0.55,
           "date": "2026-02-19"
         },
-        "cl_bench_life": {
-          "value": 0.169,
-          "date": "2026-02-19"
-        },
         "epoch_capabilities_index": {
           "value": 155.5153070343635,
           "date": "2026-02-19"
@@ -1902,10 +1879,6 @@
           "value": 0.6514,
           "date": "2026-02-17"
         },
-        "cl_bench_life": {
-          "value": 0.119,
-          "date": "2026-02-17"
-        },
         "epoch_capabilities_index": {
           "value": 154.0850320986534,
           "date": "2026-02-17"
@@ -1943,10 +1916,6 @@
         "chess_puzzles": {
           "value": 0.17,
           "date": "2026-05-14"
-        },
-        "cl_bench_life": {
-          "value": 0.12400000000000001,
-          "date": "2026-02-16"
         },
         "epoch_capabilities_index": {
           "value": 145.95982388763508,
@@ -2000,10 +1969,6 @@
         },
         "arc_agi_2": {
           "value": 0.0486,
-          "date": "2026-02-12"
-        },
-        "cl_bench_life": {
-          "value": 0.063,
           "date": "2026-02-12"
         },
         "epoch_capabilities_index": {
@@ -2143,10 +2108,6 @@
         "chess_puzzles": {
           "value": 0.17,
           "date": "2026-02-06"
-        },
-        "cl_bench_life": {
-          "value": 0.17,
-          "date": "2026-02-05"
         },
         "epoch_capabilities_index": {
           "value": 154.74482748461227,
@@ -2328,10 +2289,6 @@
           "value": 0.11810000000000001,
           "date": "2026-01-27"
         },
-        "cl_bench_life": {
-          "value": 0.132,
-          "date": "2026-01-27"
-        },
         "epoch_capabilities_index": {
           "value": 147.98919751525446,
           "date": "2026-01-27"
@@ -2470,10 +2427,6 @@
       "scores": {
         "apex_agents": {
           "value": 0.031000000000000003,
-          "date": "2025-12-22"
-        },
-        "cl_bench_life": {
-          "value": 0.109,
           "date": "2025-12-22"
         },
         "epoch_capabilities_index": {
@@ -2798,10 +2751,6 @@
           "value": 0.0403,
           "date": "2025-12-01"
         },
-        "cl_bench_life": {
-          "value": 0.074,
-          "date": "2025-12-01"
-        },
         "epoch_capabilities_index": {
           "value": 146.23169805304,
           "date": "2025-12-01"
@@ -3087,10 +3036,6 @@
         "chess_puzzles": {
           "value": 0.32,
           "date": "2025-12-08"
-        },
-        "cl_bench_life": {
-          "value": 0.173,
-          "date": "2025-11-13"
         },
         "epoch_capabilities_index": {
           "value": 149.44365728053114,
@@ -3453,10 +3398,6 @@
       "release_date": "2025-09-29",
       "reasoning_status": "Reasoning",
       "scores": {
-        "cl_bench_life": {
-          "value": 0.095,
-          "date": "2025-09-29"
-        },
         "epoch_capabilities_index": {
           "value": 144.94322870493687,
           "date": "2025-09-29"
@@ -8790,18 +8731,6 @@
       "scores": {
         "weirdml": {
           "value": 0.43200000000000005
-        }
-      }
-    },
-    {
-      "id": "mimo-v2-pro",
-      "name": "mimo-v2-pro",
-      "display_name": "mimo-v2-pro",
-      "creator": "xiaomi-corp",
-      "creator_name": "Xiaomi Corp",
-      "scores": {
-        "cl_bench_life": {
-          "value": 0.069
         }
       }
     }
