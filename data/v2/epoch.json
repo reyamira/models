@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-25T06:17:51.083876412+00:00",
+    "fetched_at": "2026-06-25T18:18:10.402561900+00:00",
     "verified": true
   },
   "metrics": [
@@ -130,7 +130,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-17",
+      "last_updated": "2026-06-24",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -146,7 +146,7 @@
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-17",
+      "last_updated": "2026-06-25",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -164,7 +164,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-16",
+      "last_updated": "2026-06-19",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -185,6 +185,18 @@
       "creator_name": "Z.ai (Zhipu AI)",
       "release_date": "2026-06-16",
       "scores": {
+        "gpqa_diamond": {
+          "value": 0.9185606060606061,
+          "date": "2026-06-24"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.8638888888888889,
+          "date": "2026-06-25"
+        },
+        "simpleqa_verified": {
+          "value": 0.381,
+          "date": "2026-06-19"
+        },
         "weirdml": {
           "value": 0.7012,
           "date": "2026-06-16"
