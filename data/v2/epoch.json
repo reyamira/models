@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-26T06:17:50.103818177+00:00",
+    "fetched_at": "2026-06-26T18:17:34.683424770+00:00",
     "verified": true
   },
   "metrics": [
@@ -81,7 +81,7 @@
       "label": "SWE-bench Verified",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-06-18",
+      "last_updated": "2026-06-25",
       "description": "Real-world software engineering: the model is given a repository and a GitHub issue from popular Python projects and must edit the codebase to fix it, graded by unit tests. Scored as % of issues resolved; higher is better.",
       "short_label": "SWE-bench"
     },
@@ -119,6 +119,20 @@
       "short_label": "Chess"
     },
     {
+      "id": "cursorbench",
+      "label": "Cursorbench",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-06-16"
+    },
+    {
+      "id": "frontiercode",
+      "label": "Frontiercode",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-05-28"
+    },
+    {
       "id": "frontierswe",
       "label": "Frontierswe",
       "kind": "percentage",
@@ -149,6 +163,13 @@
       "last_updated": "2026-06-25",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
+    },
+    {
+      "id": "scicode",
+      "label": "Scicode",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-06-16"
     },
     {
       "id": "simplebench",
@@ -185,6 +206,10 @@
       "creator_name": "Z.ai (Zhipu AI)",
       "release_date": "2026-06-16",
       "scores": {
+        "cursorbench": {
+          "value": 0.546,
+          "date": "2026-06-16"
+        },
         "gpqa_diamond": {
           "value": 0.9185606060606061,
           "date": "2026-06-24"
@@ -193,9 +218,17 @@
           "value": 0.8638888888888889,
           "date": "2026-06-25"
         },
+        "scicode": {
+          "value": 0.50462962962963,
+          "date": "2026-06-16"
+        },
         "simpleqa_verified": {
           "value": 0.381,
           "date": "2026-06-19"
+        },
+        "swe_bench_verified": {
+          "value": 0.787,
+          "date": "2026-06-25"
         },
         "weirdml": {
           "value": 0.7012,
@@ -227,6 +260,10 @@
           "value": 0.9638888888888889,
           "date": "2026-06-13"
         },
+        "scicode": {
+          "value": 0.474537037037037,
+          "date": "2026-06-12"
+        },
         "simpleqa_verified": {
           "value": 0.392,
           "date": "2026-06-12"
@@ -257,6 +294,10 @@
           "value": 0.41,
           "date": "2026-06-09"
         },
+        "cursorbench": {
+          "value": 0.7290000000000001,
+          "date": "2026-06-09"
+        },
         "epoch_capabilities_index": {
           "value": 160.7426508607069,
           "date": "2026-06-09"
@@ -272,6 +313,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.9972222222222222,
           "date": "2026-06-10"
+        },
+        "scicode": {
+          "value": 0.601851851851852,
+          "date": "2026-06-09"
         },
         "simplebench": {
           "value": 0.8190000000000001,
@@ -299,6 +344,10 @@
       "creator_name": "NVIDIA",
       "release_date": "2026-06-04",
       "scores": {
+        "scicode": {
+          "value": 0.399305555555556,
+          "date": "2026-06-04"
+        },
         "weirdml": {
           "value": 0.43450000000000005,
           "date": "2026-06-04"
@@ -319,6 +368,10 @@
         },
         "gbaeval": {
           "value": 0.009136320401503086,
+          "date": "2026-06-01"
+        },
+        "scicode": {
+          "value": 0.45370370370370405,
           "date": "2026-06-01"
         },
         "vending_bench_2": {
@@ -355,8 +408,16 @@
           "value": 0.34,
           "date": "2026-05-29"
         },
+        "cursorbench": {
+          "value": 0.638,
+          "date": "2026-05-28"
+        },
         "epoch_capabilities_index": {
           "value": 156.63126265167776,
+          "date": "2026-05-28"
+        },
+        "frontiercode": {
+          "value": 0.1342,
           "date": "2026-05-28"
         },
         "frontiermath": {
@@ -385,6 +446,10 @@
         },
         "posttrainbench": {
           "value": 0.37229999999999996,
+          "date": "2026-05-28"
+        },
+        "scicode": {
+          "value": 0.534722222222222,
           "date": "2026-05-28"
         },
         "simplebench": {
@@ -433,6 +498,10 @@
           "value": 0.5,
           "date": "2026-05-28"
         },
+        "cursorbench": {
+          "value": 0.498,
+          "date": "2026-05-19"
+        },
         "epoch_capabilities_index": {
           "value": 155.26050087050425,
           "date": "2026-05-19"
@@ -456,6 +525,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.9555555555555556,
           "date": "2026-05-25"
+        },
+        "scicode": {
+          "value": 0.53125,
+          "date": "2026-05-19"
         },
         "simplebench": {
           "value": 0.767,
@@ -510,6 +583,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.95,
           "date": "2026-06-13"
+        },
+        "scicode": {
+          "value": 0.488425925925926,
+          "date": "2026-05-19"
         },
         "simplebench": {
           "value": 0.7040000000000001,
@@ -593,6 +670,10 @@
           "value": 678.2,
           "date": "2026-04-24"
         },
+        "scicode": {
+          "value": 0.44907407407407407,
+          "date": "2026-04-24"
+        },
         "weirdml": {
           "value": 0.45630000000000004,
           "date": "2026-04-24"
@@ -630,6 +711,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.9666666666666667,
           "date": "2026-06-17"
+        },
+        "scicode": {
+          "value": 0.5,
+          "date": "2026-04-24"
         },
         "simplebench": {
           "value": 0.612,
@@ -677,8 +762,16 @@
           "value": 0.85,
           "date": "2026-04-23"
         },
+        "cursorbench": {
+          "value": 0.643,
+          "date": "2026-04-23"
+        },
         "epoch_capabilities_index": {
           "value": 158.5897048220599,
+          "date": "2026-04-23"
+        },
+        "frontiercode": {
+          "value": 0.0631,
           "date": "2026-04-23"
         },
         "frontierswe": {
@@ -699,6 +792,10 @@
         },
         "posttrainbench": {
           "value": 0.2502,
+          "date": "2026-04-23"
+        },
+        "scicode": {
+          "value": 0.561342592592593,
           "date": "2026-04-23"
         },
         "simplebench": {
@@ -842,8 +939,16 @@
           "value": 0.26,
           "date": "2026-05-07"
         },
+        "cursorbench": {
+          "value": 0.47600000000000003,
+          "date": "2026-04-20"
+        },
         "epoch_capabilities_index": {
           "value": 152.15930793500414,
+          "date": "2026-04-20"
+        },
+        "frontiercode": {
+          "value": 0.0377,
           "date": "2026-04-20"
         },
         "frontiermath": {
@@ -869,6 +974,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.9611111111111111,
           "date": "2026-05-02"
+        },
+        "scicode": {
+          "value": 0.534722222222222,
+          "date": "2026-04-20"
         },
         "simpleqa_verified": {
           "value": 0.387,
@@ -989,6 +1098,10 @@
           "value": 0.9333333333333333,
           "date": "2026-06-17"
         },
+        "scicode": {
+          "value": 0.47337962962963,
+          "date": "2026-04-17"
+        },
         "simpleqa_verified": {
           "value": 0.38,
           "date": "2026-06-16"
@@ -1023,8 +1136,16 @@
           "value": 0.3,
           "date": "2026-04-20"
         },
+        "cursorbench": {
+          "value": 0.648,
+          "date": "2026-04-16"
+        },
         "epoch_capabilities_index": {
           "value": 155.55885789993786,
+          "date": "2026-04-16"
+        },
+        "frontiercode": {
+          "value": 0.0521,
           "date": "2026-04-16"
         },
         "frontiermath": {
@@ -1057,6 +1178,10 @@
         },
         "posttrainbench": {
           "value": 0.2856,
+          "date": "2026-04-16"
+        },
+        "scicode": {
+          "value": 0.545138888888889,
           "date": "2026-04-16"
         },
         "simplebench": {
@@ -1093,6 +1218,10 @@
       "creator_name": "Alibaba",
       "release_date": "2026-04-14",
       "scores": {
+        "scicode": {
+          "value": 0.357638888888889,
+          "date": "2026-04-14"
+        },
         "terminalbench": {
           "value": 0.24600000000000002,
           "date": "2026-05-14"
@@ -1129,6 +1258,10 @@
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.889,
+          "date": "2026-04-08"
+        },
+        "scicode": {
+          "value": 0.515046296296296,
           "date": "2026-04-08"
         },
         "simpleqa_verified": {
@@ -1181,6 +1314,10 @@
           "value": 0.9222222222222223,
           "date": "2026-05-07"
         },
+        "scicode": {
+          "value": 0.4375,
+          "date": "2026-04-07"
+        },
         "simplebench": {
           "value": 0.5870000000000001,
           "date": "2026-04-07"
@@ -1211,6 +1348,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2026-04-02",
       "scores": {
+        "scicode": {
+          "value": 0.4004629629629631,
+          "date": "2026-04-02"
+        },
         "weirdml": {
           "value": 0.3517,
           "date": "2026-04-02"
@@ -1227,6 +1368,10 @@
       "scores": {
         "ale_bench": {
           "value": 925.5,
+          "date": "2026-04-02"
+        },
+        "scicode": {
+          "value": 0.434027777777778,
           "date": "2026-04-02"
         },
         "simpleqa_verified": {
@@ -1279,6 +1424,10 @@
           "value": 0.9055555555555556,
           "date": "2026-05-12"
         },
+        "scicode": {
+          "value": 0.407407407407407,
+          "date": "2026-03-31"
+        },
         "simpleqa_verified": {
           "value": 0.4909819639278557,
           "date": "2026-05-12"
@@ -1305,8 +1454,16 @@
           "value": 599.25,
           "date": "2026-03-18"
         },
+        "frontiercode": {
+          "value": 0.023800000000000005,
+          "date": "2026-03-18"
+        },
         "gbaeval": {
           "value": 0.0,
+          "date": "2026-03-18"
+        },
+        "scicode": {
+          "value": 0.469907407407407,
           "date": "2026-03-18"
         },
         "terminalbench": {
@@ -1351,6 +1508,10 @@
           "value": 148.98132450886757,
           "date": "2026-03-17"
         },
+        "frontiercode": {
+          "value": 0.0458,
+          "date": "2026-03-17"
+        },
         "frontiermath": {
           "value": 0.2828,
           "date": "2026-04-15"
@@ -1366,6 +1527,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.8722222222222222,
           "date": "2026-04-15"
+        },
+        "scicode": {
+          "value": 0.49884259259259306,
+          "date": "2026-03-17"
         },
         "simpleqa_verified": {
           "value": 0.286,
@@ -1424,6 +1589,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.8778,
           "date": "2026-04-14"
+        },
+        "scicode": {
+          "value": 0.46875,
+          "date": "2026-03-17"
         },
         "simpleqa_verified": {
           "value": 0.12,
@@ -1497,6 +1666,10 @@
         },
         "posttrainbench": {
           "value": 0.2023,
+          "date": "2026-03-05"
+        },
+        "scicode": {
+          "value": 0.565972222222222,
           "date": "2026-03-05"
         },
         "simpleqa_verified": {
@@ -1599,6 +1772,14 @@
         },
         "apex_agents": {
           "value": 0.128,
+          "date": "2026-03-03"
+        },
+        "frontiercode": {
+          "value": 0.006500000000000001,
+          "date": "2026-03-03"
+        },
+        "scicode": {
+          "value": 0.418981481481481,
           "date": "2026-03-03"
         },
         "weirdml": {
@@ -1717,6 +1898,10 @@
           "value": 155.5153070343635,
           "date": "2026-02-19"
         },
+        "frontiercode": {
+          "value": 0.0467,
+          "date": "2026-02-19"
+        },
         "frontiermath": {
           "value": 0.369,
           "date": "2026-02-19"
@@ -1747,6 +1932,10 @@
         },
         "posttrainbench": {
           "value": 0.2159,
+          "date": "2026-02-19"
+        },
+        "scicode": {
+          "value": 0.58912037037037,
           "date": "2026-02-19"
         },
         "simplebench": {
@@ -1821,8 +2010,16 @@
           "value": 0.13,
           "date": "2026-02-20"
         },
+        "cursorbench": {
+          "value": 0.49,
+          "date": "2026-02-17"
+        },
         "epoch_capabilities_index": {
           "value": 152.48472139258948,
+          "date": "2026-02-17"
+        },
+        "frontiercode": {
+          "value": 0.0351,
           "date": "2026-02-17"
         },
         "frontiermath": {
@@ -1847,6 +2044,10 @@
         },
         "posttrainbench": {
           "value": 0.1642,
+          "date": "2026-02-17"
+        },
+        "scicode": {
+          "value": 0.467592592592593,
           "date": "2026-02-17"
         },
         "simpleqa_verified": {
@@ -1985,6 +2186,10 @@
         },
         "epoch_capabilities_index": {
           "value": 147.2116663644519,
+          "date": "2026-02-12"
+        },
+        "frontiercode": {
+          "value": 0.0108,
           "date": "2026-02-12"
         },
         "posttrainbench": {
@@ -2301,8 +2506,16 @@
           "value": 0.11810000000000001,
           "date": "2026-01-27"
         },
+        "cursorbench": {
+          "value": 0.319,
+          "date": "2026-01-27"
+        },
         "epoch_capabilities_index": {
           "value": 147.98919751525446,
+          "date": "2026-01-27"
+        },
+        "frontiercode": {
+          "value": 0.01,
           "date": "2026-01-27"
         },
         "frontierswe": {
@@ -3283,6 +3496,10 @@
           "value": 0.6666666666666666,
           "date": "2025-10-22"
         },
+        "scicode": {
+          "value": 0.43287037037037,
+          "date": "2025-10-15"
+        },
         "simpleqa_verified": {
           "value": 0.059,
           "date": "2025-12-09"
@@ -4078,6 +4295,10 @@
           "value": 566.05,
           "date": "2025-08-05"
         },
+        "scicode": {
+          "value": 0.34375,
+          "date": "2025-08-05"
+        },
         "terminalbench": {
           "value": 0.034,
           "date": "2025-11-03"
@@ -4112,6 +4333,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.8888888888888888,
           "date": "2025-12-11"
+        },
+        "scicode": {
+          "value": 0.388888888888889,
+          "date": "2025-08-05"
         },
         "simpleqa_verified": {
           "value": 0.139,
@@ -5532,6 +5757,10 @@
           "value": 133.03467736383416,
           "date": "2025-04-05"
         },
+        "scicode": {
+          "value": 0.331018518518519,
+          "date": "2025-04-05"
+        },
         "simplebench": {
           "value": 0.277,
           "date": "2025-04-05"
@@ -5603,6 +5832,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.07777777777777778,
           "date": "2025-04-08"
+        },
+        "scicode": {
+          "value": 0.170138888888889,
+          "date": "2025-04-05"
         }
       }
     },
@@ -8743,6 +8976,18 @@
       "scores": {
         "weirdml": {
           "value": 0.43200000000000005
+        }
+      }
+    },
+    {
+      "id": "mimo-v2.5-pro",
+      "name": "mimo-v2.5-pro",
+      "display_name": "mimo-v2.5-pro",
+      "creator": "xiaomi-corp",
+      "creator_name": "Xiaomi Corp",
+      "scores": {
+        "scicode": {
+          "value": 0.502314814814815
         }
       }
     }
