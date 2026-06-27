@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-06-26T18:17:34.683424770+00:00",
+    "fetched_at": "2026-06-27T06:17:46.050186907+00:00",
     "verified": true
   },
   "metrics": [
@@ -58,14 +58,6 @@
       "last_updated": "2026-06-09",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
-    },
-    {
-      "id": "gso",
-      "label": "GSO",
-      "kind": "percentage",
-      "group": "Agentic",
-      "last_updated": "2026-04-27",
-      "description": "Software performance engineering: the model rewrites real GitHub code to speed it up. Scored OPT@K (% of trials reaching at least 95% of the human speed-up); higher is better."
     },
     {
       "id": "posttrainbench",
@@ -163,6 +155,13 @@
       "last_updated": "2026-06-25",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
+    },
+    {
+      "id": "osworld_2",
+      "label": "Osworld 2",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-06-01"
     },
     {
       "id": "scicode",
@@ -370,6 +369,10 @@
           "value": 0.009136320401503086,
           "date": "2026-06-01"
         },
+        "osworld_2": {
+          "value": 0.046,
+          "date": "2026-06-01"
+        },
         "scicode": {
           "value": 0.45370370370370405,
           "date": "2026-06-01"
@@ -439,6 +442,10 @@
         "gpqa_diamond": {
           "value": 0.9103535353535354,
           "date": "2026-06-07"
+        },
+        "osworld_2": {
+          "value": 0.20600000000000002,
+          "date": "2026-05-28"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9833333333333333,
@@ -786,9 +793,9 @@
           "value": 0.9065656565656566,
           "date": "2026-05-05"
         },
-        "gso": {
-          "value": 0.402,
-          "date": "2026-04-27"
+        "osworld_2": {
+          "value": 0.13,
+          "date": "2026-04-23"
         },
         "posttrainbench": {
           "value": 0.2502,
@@ -970,6 +977,10 @@
         "gpqa_diamond": {
           "value": 0.9078282828282829,
           "date": "2026-05-01"
+        },
+        "osworld_2": {
+          "value": 0.046,
+          "date": "2026-04-20"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9611111111111111,
@@ -1168,9 +1179,9 @@
           "value": 0.9015151515151515,
           "date": "2026-04-17"
         },
-        "gso": {
-          "value": 0.4412,
-          "date": "2026-04-27"
+        "osworld_2": {
+          "value": 0.182,
+          "date": "2026-04-16"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.978,
@@ -1656,10 +1667,6 @@
           "value": 0.933,
           "date": "2026-03-06"
         },
-        "gso": {
-          "value": 0.31370000000000003,
-          "date": "2026-03-10"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.953,
           "date": "2026-03-06"
@@ -1922,10 +1929,6 @@
           "value": 0.941,
           "date": "2026-02-20"
         },
-        "gso": {
-          "value": 0.2255,
-          "date": "2026-03-09"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.956,
           "date": "2026-02-20"
@@ -2037,6 +2040,10 @@
         "gpqa_diamond": {
           "value": 0.8737373737373737,
           "date": "2026-02-20"
+        },
+        "osworld_2": {
+          "value": 0.09300000000000001,
+          "date": "2026-02-17"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.857936507936508,
@@ -2349,10 +2356,6 @@
         "gpqa_diamond": {
           "value": 0.9053030303030303,
           "date": "2026-02-06"
-        },
-        "gso": {
-          "value": 0.412,
-          "date": "2026-04-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9444444444444444,
@@ -2734,10 +2737,6 @@
           "value": 0.8320707070707071,
           "date": "2025-12-17"
         },
-        "gso": {
-          "value": 0.098,
-          "date": "2025-12-17"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9277777777777778,
           "date": "2025-12-17"
@@ -2811,10 +2810,6 @@
         "gpqa_diamond": {
           "value": 0.914,
           "date": "2025-12-13"
-        },
-        "gso": {
-          "value": 0.274,
-          "date": "2025-12-11"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9611111111111111,
@@ -3052,10 +3047,6 @@
           "value": 0.860479797979798,
           "date": "2025-11-24"
         },
-        "gso": {
-          "value": 0.265,
-          "date": "2025-11-24"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.8611111111111112,
           "date": "2025-11-24"
@@ -3196,10 +3187,6 @@
           "value": 0.9261363636363636,
           "date": "2025-11-19"
         },
-        "gso": {
-          "value": 0.186,
-          "date": "2025-11-18"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9138888888888889,
           "date": "2025-11-19"
@@ -3277,10 +3264,6 @@
         "gpqa_diamond": {
           "value": 0.8762626262626263,
           "date": "2025-11-13"
-        },
-        "gso": {
-          "value": 0.1373,
-          "date": "2025-12-18"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8861111111111111,
@@ -3681,10 +3664,6 @@
           "value": 0.8232323232323232,
           "date": "2025-10-28"
         },
-        "gso": {
-          "value": 0.1471,
-          "date": "2025-10-10"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.7777777777777778,
           "date": "2025-10-28"
@@ -4011,10 +3990,6 @@
         "gpqa_diamond": {
           "value": 0.8617424242424242,
           "date": "2025-10-29"
-        },
-        "gso": {
-          "value": 0.069,
-          "date": "2025-08-07"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9138888888888889,
@@ -4378,10 +4353,6 @@
           "value": 461.45,
           "date": "2025-07-31"
         },
-        "gso": {
-          "value": 0.049,
-          "date": "2025-07-31"
-        },
         "terminalbench": {
           "value": 0.272,
           "date": "2025-12-28"
@@ -4511,20 +4482,6 @@
       }
     },
     {
-      "id": "GLM-4.5-Air",
-      "name": "GLM-4.5-Air",
-      "display_name": "GLM-4.5-Air",
-      "creator": "z-ai-zhipu-ai",
-      "creator_name": "Z.ai (Zhipu AI)",
-      "release_date": "2025-07-20",
-      "scores": {
-        "gso": {
-          "value": 0.0294,
-          "date": "2025-08-26"
-        }
-      }
-    },
-    {
       "id": "Kimi-K2-Instruct",
       "name": "Kimi-K2-Instruct",
       "display_name": "Kimi-K2-Instruct",
@@ -4534,10 +4491,6 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 140.38444151018098,
-          "date": "2025-07-12"
-        },
-        "gso": {
-          "value": 0.049,
           "date": "2025-07-12"
         },
         "simplebench": {
@@ -4789,10 +4742,6 @@
           "value": 0.8529040404040404,
           "date": "2025-11-16"
         },
-        "gso": {
-          "value": 0.039,
-          "date": "2025-06-17"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.8416666666666667,
           "date": "2025-11-16"
@@ -4925,10 +4874,6 @@
           "value": 0.8484848484848485,
           "date": "2025-06-05"
         },
-        "gso": {
-          "value": 0.0392,
-          "date": "2025-10-10"
-        },
         "simplebench": {
           "value": 0.624,
           "date": "2025-06-05"
@@ -5027,10 +4972,6 @@
           "value": 0.7626262626262627,
           "date": "2025-05-22"
         },
-        "gso": {
-          "value": 0.069,
-          "date": "2025-05-22"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.6444444444444445,
           "date": "2025-05-28"
@@ -5087,10 +5028,6 @@
         },
         "gpqa_diamond": {
           "value": 0.7828282828282829,
-          "date": "2025-05-22"
-        },
-        "gso": {
-          "value": 0.049,
           "date": "2025-05-22"
         },
         "otis_mock_aime_2024_2025": {
@@ -5375,10 +5312,6 @@
           "value": 0.8181818181818182,
           "date": "2025-04-16"
         },
-        "gso": {
-          "value": 0.088,
-          "date": "2025-04-16"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.8388888888888889,
           "date": "2025-04-16"
@@ -5439,10 +5372,6 @@
         },
         "gpqa_diamond": {
           "value": 0.7960858585858586,
-          "date": "2025-04-16"
-        },
-        "gso": {
-          "value": 0.036,
           "date": "2025-04-16"
         },
         "otis_mock_aime_2024_2025": {
@@ -6062,10 +5991,6 @@
           "value": 0.7850378787878788,
           "date": "2025-05-26"
         },
-        "gso": {
-          "value": 0.038,
-          "date": "2025-02-24"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.5777777777777777,
           "date": "2025-03-13"
@@ -6167,10 +6092,6 @@
         "gpqa_diamond": {
           "value": 0.7702020202020202,
           "date": "2025-02-13"
-        },
-        "gso": {
-          "value": 0.013000000000000001,
-          "date": "2025-05-30"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.7694444444444445,
@@ -6644,10 +6565,6 @@
           "value": 0.4788510101010101,
           "date": "2025-02-05"
         },
-        "gso": {
-          "value": 0.0,
-          "date": "2024-11-20"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.0625,
           "date": "2025-02-25"
@@ -6763,10 +6680,6 @@
         "gpqa_diamond": {
           "value": 0.553030303030303,
           "date": "2025-01-27"
-        },
-        "gso": {
-          "value": 0.046,
-          "date": "2024-10-22"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.08472222222222223,
