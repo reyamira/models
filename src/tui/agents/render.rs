@@ -788,16 +788,20 @@ pub(in crate::tui) fn draw_update_confirm_modal(f: &mut Frame, app: &App) {
         Style::default().fg(Color::DarkGray),
     )));
 
-    let title = if targets.len() == 1 {
-        " Update Agent "
+    let (title, bottom) = if targets.len() == 1 {
+        // Single agent → offer the interactive (suspend-and-run) path too.
+        (
+            " Update Agent ",
+            " Enter: background | i: interactive | Esc: cancel ",
+        )
     } else {
-        " Update Agents "
+        (" Update Agents ", " Enter: run | Esc: cancel ")
     };
     let block = Block::default()
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::Cyan))
         .title(title)
-        .title_bottom(Line::from(" Enter: run | Esc: cancel ").centered());
+        .title_bottom(Line::from(bottom).centered());
     f.render_widget(Paragraph::new(lines).block(block), area);
 }
 

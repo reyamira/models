@@ -801,6 +801,22 @@ impl AgentsApp {
         spawned
     }
 
+    /// Confirm a single queued update to run **interactively** (suspend-and-run).
+    /// Only valid for exactly one target (the `u` path); returns `(id, command)`
+    /// for the main loop, or `None` otherwise. Marks the agent `Running` and
+    /// resets its log so the detail panel reflects the in-flight update.
+    pub fn confirm_update_interactive(&mut self) -> Option<(String, Vec<String>)> {
+        if self.update_targets.len() != 1 {
+            return None;
+        }
+        let target = self.update_targets.remove(0);
+        self.update_states
+            .insert(target.id.clone(), AgentUpdateState::Running);
+        self.update_logs.insert(target.id.clone(), Vec::new());
+        self.show_update_confirm = false;
+        Some((target.id, target.command))
+    }
+
     /// Append a captured output line for an in-progress update (bounded buffer).
     pub fn push_update_output(&mut self, id: &str, line: String) {
         let log = self.update_logs.entry(id.to_string()).or_default();
@@ -1140,6 +1156,43 @@ mod tests {
             app.update_states.get("claude-code"),
             Some(&AgentUpdateState::Running)
         );
+    }
+
+    #[test]
+    fn confirm_update_interactive_returns_single_target_and_marks_running() {
+        let mut app = test_app(vec![updatable_entry(
+            "claude-code",
+            "Claude Code",
+            "1.0.0",
+            "2.0.0",
+            &["claude", "update"],
+        )]);
+        app.request_update_selected().unwrap();
+        let got = app.confirm_update_interactive();
+        assert_eq!(
+            got,
+            Some((
+                "claude-code".to_string(),
+                vec!["claude".to_string(), "update".to_string()]
+            ))
+        );
+        assert!(!app.show_update_confirm);
+        assert_eq!(
+            app.update_states.get("claude-code"),
+            Some(&AgentUpdateState::Running)
+        );
+    }
+
+    #[test]
+    fn confirm_update_interactive_noops_for_multi_target() {
+        let mut app = test_app(vec![
+            updatable_entry("a", "A", "1.0.0", "2.0.0", &["a", "update"]),
+            updatable_entry("b", "B", "1.0.0", "2.0.0", &["b", "update"]),
+        ]);
+        app.request_update_all().unwrap();
+        assert!(app.confirm_update_interactive().is_none());
+        // Modal stays open so the user can still confirm the background run.
+        assert!(app.show_update_confirm);
     }
 
     #[test]

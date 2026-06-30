@@ -922,8 +922,99 @@ fn run_app(
                     );
                 }
             }
+
+            // Interactive update (suspend-and-run): a confirmed single-agent
+            // update that hands the terminal to the updater so the user can
+            // answer prompts. Runs synchronously on this (the terminal-owning)
+            // thread; the TUI is restored before the next draw.
+            if let Some((id, command)) = app.pending_interactive_update.take() {
+                let agent = app
+                    .agents_app
+                    .as_ref()
+                    .and_then(|a| a.entries.iter().find(|e| e.id == id))
+                    .map(|e| e.agent.clone());
+                let (success, message) = run_interactive_update(terminal, &command);
+                if let Some(ref mut agents_app) = app.agents_app {
+                    if success {
+                        if let Some(agent) = agent {
+                            agents_app
+                                .apply_redetected(&id, crate::agents::detect_installed(&agent));
+                        }
+                    }
+                    let name = agents_app
+                        .entries
+                        .iter()
+                        .find(|e| e.id == id)
+                        .map(|e| e.agent.name.clone())
+                        .unwrap_or_else(|| id.clone());
+                    agents_app.finish_update(&id, success, message);
+                    app.set_status(if success {
+                        format!("{} updated", name)
+                    } else {
+                        format!("{} update failed — see detail panel", name)
+                    });
+                    last_status_time = Some(std::time::Instant::now());
+                }
+            }
         }
     }
+}
+
+/// Suspend the TUI, run an updater attached to the real terminal so the user can
+/// answer prompts interactively, then restore the TUI. Single-agent only.
+///
+/// Restore is **unconditional** — nothing between teardown and restore uses `?`,
+/// so a child error can't leave the terminal wedged (and `run()`'s end-cleanup +
+/// the idempotent panic hook are additional safety nets). On re-entry we mirror
+/// `run()`'s setup order and `clear()` so ratatui repaints against a fresh buffer.
+fn run_interactive_update(
+    terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+    command: &[String],
+) -> (bool, String) {
+    use std::io::Write;
+
+    if command.is_empty() {
+        return (false, "empty update command".to_string());
+    }
+
+    // Tear down the TUI so the child fully owns the terminal (cooked mode, normal
+    // screen, mouse capture off).
+    let _ = disable_raw_mode();
+    let _ = execute!(
+        terminal.backend_mut(),
+        LeaveAlternateScreen,
+        DisableMouseCapture
+    );
+
+    println!("\nRunning: {}\n", command.join(" "));
+    let _ = io::stdout().flush();
+
+    // Inherited stdio → fully interactive (prompts, sudo, selection menus).
+    let status = std::process::Command::new(&command[0])
+        .args(&command[1..])
+        .status();
+    let (success, message) = match status {
+        Ok(s) if s.success() => (true, "✓ update completed (ran interactively)".to_string()),
+        Ok(s) => (false, format!("✗ updater exited with {s}")),
+        Err(e) => (false, format!("✗ failed to start `{}`: {e}", command[0])),
+    };
+
+    // Keep the output visible until the user is ready to return.
+    print!("\n{message}\nPress Enter to return to models… ");
+    let _ = io::stdout().flush();
+    let mut buf = String::new();
+    let _ = io::stdin().read_line(&mut buf);
+
+    // Restore the TUI (unconditional).
+    let _ = enable_raw_mode();
+    let _ = execute!(
+        terminal.backend_mut(),
+        EnterAlternateScreen,
+        EnableMouseCapture
+    );
+    let _ = terminal.clear();
+
+    (success, message)
 }
 
 #[cfg(test)]

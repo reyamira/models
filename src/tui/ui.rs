@@ -620,7 +620,10 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
                 help_line("c", "Copy agent name"),
                 help_line("a", "Add/remove tracked agents"),
                 help_line("A", "Add a new agent (name + repo)"),
-                help_line("u", "Update selected agent (confirm first)"),
+                help_line(
+                    "u",
+                    "Update selected agent (confirm: Enter bg / i interactive)",
+                ),
                 help_line("U", "Update all agents with an available update"),
                 Line::from(""),
                 help_section("Search Navigation"),

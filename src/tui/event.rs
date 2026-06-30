@@ -611,6 +611,9 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
 fn handle_update_confirm_keys(code: KeyCode) -> Option<Message> {
     match code {
         KeyCode::Enter => Some(Message::ConfirmUpdate),
+        // Interactive (suspend-and-run) — only acts on a single target; the
+        // method no-ops for multi-target (update-all) confirmations.
+        KeyCode::Char('i') => Some(Message::ConfirmUpdateInteractive),
         KeyCode::Esc | KeyCode::Char('q') => Some(Message::CancelUpdate),
         _ => None,
     }

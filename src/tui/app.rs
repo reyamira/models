@@ -159,6 +159,7 @@ pub enum Message {
     RequestUpdateAgent,
     RequestUpdateAll,
     ConfirmUpdate,
+    ConfirmUpdateInteractive,
     CancelUpdate,
     // Detail panel scrolling
     ScrollDetailUp,
@@ -314,6 +315,9 @@ pub struct App {
     pub pending_fetches: Vec<(String, String)>,
     /// Confirmed agent updates to spawn as background subprocesses (agent_id, argv)
     pub pending_updates: Vec<(String, Vec<String>)>,
+    /// A single confirmed *interactive* update (agent_id, argv) for the main loop
+    /// to run with a terminal handover (suspend-and-run). At most one at a time.
+    pub pending_interactive_update: Option<(String, Vec<String>)>,
     /// Multi-source benchmark store: one load-state per compiled-in source.
     pub multi_store: MultiStore,
     pub benchmarks_app: BenchmarksApp,
@@ -356,6 +360,7 @@ impl App {
             config,
             pending_fetches: Vec::new(),
             pending_updates: Vec::new(),
+            pending_interactive_update: None,
             multi_store,
             benchmarks_app,
             status_app,
@@ -1239,6 +1244,14 @@ impl App {
                         } else {
                             format!("Updating {} agents…", n)
                         });
+                    }
+                }
+            }
+            Message::ConfirmUpdateInteractive => {
+                // Single-agent only: hand off to the main loop's suspend-and-run.
+                if let Some(ref mut agents_app) = self.agents_app {
+                    if let Some((id, command)) = agents_app.confirm_update_interactive() {
+                        self.pending_interactive_update = Some((id, command));
                     }
                 }
             }

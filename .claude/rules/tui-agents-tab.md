@@ -225,10 +225,12 @@ no TUI suspension, mirrors the GitHub-fetch async pattern.
   `update_available()` && a verified updater. Both open a **confirm modal** first
   (update mutates the user's system; refresh only reads).
 - **Confirm modal** (`draw_update_confirm_modal`): Cyan border,
-  `centered_rect_fixed(66, …)`, title ` Update Agent(s) `, bottom
-  ` Enter: run | Esc: cancel `. Lists each target's `name` + `$ {argv joined}`
-  in Yellow. `Enter`→`ConfirmUpdate`, `Esc`/`q`→`CancelUpdate`
-  (`handle_update_confirm_keys`, intercepts all keys). `request_update_selected`
+  `centered_rect_fixed(66, …)`, title ` Update Agent(s) `. Lists each target's
+  `name` + `$ {argv joined}` in Yellow. Bottom hint is target-count dependent:
+  single → ` Enter: background | i: interactive | Esc: cancel `; multi →
+  ` Enter: run | Esc: cancel `. `Enter`→`ConfirmUpdate` (background), `i`→
+  `ConfirmUpdateInteractive` (suspend-and-run, single only), `Esc`/`q`→
+  `CancelUpdate` (`handle_update_confirm_keys`, intercepts all keys). `request_update_selected`
   errors (status bar) when the agent has no updater or is already running;
   `request_update_all` errors when none qualify.
 - **Command resolution** (`AgentEntry::resolved_update_command`): when the
@@ -268,10 +270,21 @@ no TUI suspension, mirrors the GitHub-fetch async pattern.
   user can run it in their own shell — where they have full interactivity for any
   prompt. openclaw's updater restarts its daemon (heaviest side effects) —
   included, shown verbatim in the confirm modal.
-- **In-app interactivity is intentionally not supported.** The 9 verified
-  updaters run non-interactively; a prompt-needing updater hangs (no TTY) → 5-min
-  timeout → `Failed` + the manual-run command. Full in-TUI interactivity would
-  need either a suspend-and-run handover or a pty proxy; deliberately deferred.
+- **Interactive (suspend-and-run) path** — the `u` confirm modal offers `i`
+  (single-agent only; `U`/update-all stays background). `i` →
+  `Message::ConfirmUpdateInteractive` → `AgentsApp::confirm_update_interactive`
+  (marks the agent `Running`, returns `(id, argv)`) → `App.pending_interactive_update`
+  → drained in `run_app` by `run_interactive_update`: it **suspends the TUI**
+  (`disable_raw_mode` + `LeaveAlternateScreen` + `DisableMouseCapture`), runs the
+  updater with **inherited stdio** (`std::process::Command::status()` — fully
+  interactive: prompts, sudo, menus), waits for a keypress, then **unconditionally
+  restores** (`enable_raw_mode` + `EnterAlternateScreen` + `EnableMouseCapture` +
+  `terminal.clear()`) and re-detects the version. Runs synchronously on the
+  terminal-owning thread; restore uses no `?` so a child error can't wedge the
+  screen (the panic hook + `run()` end-cleanup are extra nets). Output goes to the
+  real terminal (not captured), so the detail log shows just the summary line.
+  `run_interactive_update` manipulates the real terminal → not unit-tested; the
+  decision branch (`confirm_update_interactive` single vs multi) is.
 - **Footer**: ` u ` update, ` U ` update all. Help: `u`/`U` entries.
 
 ---
