@@ -474,6 +474,13 @@ fn run_app(
     // update finishes.
     let mut cancel_signals: std::collections::HashMap<String, tokio::sync::oneshot::Sender<()>> =
         std::collections::HashMap::new();
+    // When to auto-clear a finished update's state/log so it doesn't sit in the
+    // detail panel forever (success expires fast — the dot already reflects the
+    // new version; failure lingers longer so the error + manual-run stay readable).
+    let mut update_clear_at: std::collections::HashMap<String, std::time::Instant> =
+        std::collections::HashMap::new();
+    let update_clear_delay =
+        |success: bool| std::time::Duration::from_secs(if success { 6 } else { 30 });
 
     loop {
         terminal.draw(|f| ui::draw(f, app))?;
@@ -483,6 +490,26 @@ fn run_app(
             if time.elapsed() > std::time::Duration::from_secs(2) {
                 app.clear_status();
                 last_status_time = None;
+            }
+        }
+
+        // Auto-expire finished update results (skip any that started running again).
+        if !update_clear_at.is_empty() {
+            let now = std::time::Instant::now();
+            let expired: Vec<String> = update_clear_at
+                .iter()
+                .filter(|(_, &t)| now >= t)
+                .map(|(k, _)| k.clone())
+                .collect();
+            for id in expired {
+                update_clear_at.remove(&id);
+                if let Some(ref mut a) = app.agents_app {
+                    if a.update_states.get(&id)
+                        != Some(&crate::tui::agents::AgentUpdateState::Running)
+                    {
+                        a.clear_update(&id);
+                    }
+                }
             }
         }
 
@@ -528,6 +555,8 @@ fn run_app(
                     .and_then(|a| a.entries.iter().find(|e| e.id == agent_id))
                     .map(|e| e.agent.clone());
                 if let Some(agent) = agent {
+                    // A fresh run supersedes any pending auto-clear for this agent.
+                    update_clear_at.remove(&agent_id);
                     let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
                     cancel_signals.insert(agent_id.clone(), cancel_tx);
                     spawn_agent_update(
@@ -563,8 +592,13 @@ fn run_app(
                         agents_app.apply_redetected(&id, installed)
                     }
                     UpdateEvent::Finished(id, success, message) => {
-                        // Update is over — drop its cancel handle.
+                        // Update is over — drop its cancel handle and schedule the
+                        // result to auto-clear.
                         cancel_signals.remove(&id);
+                        update_clear_at.insert(
+                            id.clone(),
+                            std::time::Instant::now() + update_clear_delay(success),
+                        );
                         let name = agents_app
                             .entries
                             .iter()
@@ -838,6 +872,17 @@ fn run_app(
                                 let _ = tx.send(());
                             }
                             app.set_status(format!("Cancelling {} update…", name));
+                        } else if app
+                            .agents_app
+                            .as_ref()
+                            .is_some_and(|a| a.has_finished_update(&id))
+                        {
+                            // Not running but has a finished result → dismiss it.
+                            update_clear_at.remove(&id);
+                            if let Some(ref mut a) = app.agents_app {
+                                a.clear_update(&id);
+                            }
+                            app.set_status(format!("Dismissed {} update", name));
                         } else {
                             app.set_status(format!("No update running for {}", name));
                         }
@@ -1009,6 +1054,10 @@ fn run_app(
                         .map(|e| e.agent.name.clone())
                         .unwrap_or_else(|| id.clone());
                     agents_app.finish_update(&id, success, message);
+                    update_clear_at.insert(
+                        id.clone(),
+                        std::time::Instant::now() + update_clear_delay(success),
+                    );
                     app.set_status(if success {
                         format!("{} updated", name)
                     } else {

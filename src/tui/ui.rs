@@ -627,7 +627,7 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
                     "Update selected agent (confirm: Enter bg / i interactive)",
                 ),
                 help_line("U", "Update all agents with an available update"),
-                help_line("x", "Cancel the selected agent's running update"),
+                help_line("x", "Cancel a running update, or dismiss a finished one"),
                 Line::from(""),
                 help_section("Search Navigation"),
                 help_line("n", "Next search match"),

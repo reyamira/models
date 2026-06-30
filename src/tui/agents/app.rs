@@ -307,8 +307,25 @@ impl AgentsApp {
             if entries.iter().any(|e| e.id == id) {
                 continue;
             }
-            let agent = custom.to_agent();
-            let installed = detect_installed(&agent);
+            let mut agent = custom.to_agent();
+            // If no binary was recorded (e.g. added before install-detection, or
+            // not installed at add time), best-effort infer+detect it now so a
+            // later install shows up without re-adding the agent.
+            let installed = if agent.cli_binary.is_none() {
+                match detect_custom_agent(&custom.name, &custom.repo) {
+                    Some((bin, info)) => {
+                        agent.cli_binary = Some(bin);
+                        agent.version_command = vec!["--version".to_string()];
+                        if agent.categories.is_empty() {
+                            agent.categories = vec!["cli".to_string()];
+                        }
+                        info
+                    }
+                    None => InstalledInfo::default(),
+                }
+            } else {
+                detect_installed(&agent)
+            };
             let tracked = config.is_tracked(&id);
             entries.push(AgentEntry {
                 id,
@@ -855,6 +872,23 @@ impl AgentsApp {
         self.push_update_output(id, message);
     }
 
+    /// True when the agent has a *finished* (non-Running) update result that can
+    /// be dismissed.
+    pub fn has_finished_update(&self, id: &str) -> bool {
+        matches!(
+            self.update_states.get(id),
+            Some(AgentUpdateState::Succeeded | AgentUpdateState::Failed)
+        )
+    }
+
+    /// Clear an agent's update state + captured log (the detail-panel Update
+    /// section then disappears). Used to auto-expire finished results and for the
+    /// `x` dismiss.
+    pub fn clear_update(&mut self, id: &str) {
+        self.update_states.remove(id);
+        self.update_logs.remove(id);
+    }
+
     /// Apply a freshly re-detected installed version after a successful update so
     /// the status dot flips (green/blue) without restarting the app.
     pub fn apply_redetected(&mut self, id: &str, installed: InstalledInfo) {
@@ -1256,6 +1290,20 @@ mod tests {
         app.finish_update("a", false, "boom".to_string());
         assert_eq!(app.update_states.get("a"), Some(&AgentUpdateState::Failed));
         assert_eq!(app.update_logs.get("a").unwrap().last().unwrap(), "boom");
+    }
+
+    #[test]
+    fn clear_update_removes_finished_state_and_log() {
+        let mut app = test_app(vec![]);
+        app.update_states
+            .insert("a".to_string(), AgentUpdateState::Running);
+        assert!(!app.has_finished_update("a")); // Running is not "finished"
+        app.finish_update("a", true, "done".to_string());
+        assert!(app.has_finished_update("a"));
+        app.clear_update("a");
+        assert!(!app.has_finished_update("a"));
+        assert!(app.update_states.get("a").is_none());
+        assert!(app.update_logs.get("a").is_none());
     }
 
     #[test]

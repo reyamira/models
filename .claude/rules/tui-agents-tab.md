@@ -206,6 +206,12 @@ two-field form; writes a `CustomAgent` to `config.agents.custom`.
   custom agents carry no `version_command`, so `detect_installed` short-circuits
   (no shell-out). Validation errors set `add_form.error` and return before any
   `config.save()` (filesystem-free).
+- **Load-time detection**: `AgentsApp::new` re-runs `detect_custom_agent` for any
+  config-loaded custom agent whose stored `binary` is `None` (added before
+  detection existed, or not installed at add time). So an agent installed *after*
+  it was added (or added pre-detection, like a bun-installed `eve`) shows up as
+  installed on the next launch without re-adding. Detection is best-effort and
+  not persisted back to config (cheap re-probe per launch).
 - **Footer**: ` A ` (Yellow) + `add`. Help: `A — Add a new agent (name + repo)`.
 
 ---
@@ -275,6 +281,14 @@ no TUI suspension, mirrors the GitHub-fetch async pattern.
   (state line + trailing ≤12 output lines, DarkGray) whenever the selected agent
   has update state/logs. Status bar: `{name} updated` / `{name} update failed —
   see detail panel`.
+- **Cleanup of finished results**: a finished update's state/log auto-expires so
+  it doesn't sit in the detail panel forever — success after **6s** (the dot
+  already reflects the new version), failure after **30s** (long enough to read
+  the error + the manual-run command). Tracked in the main loop's
+  `update_clear_at` (removed when a fresh run starts for that agent;
+  `AgentsApp::clear_update` does the removal, gated on the state not being
+  `Running`). `x` on a finished (non-running) agent **dismisses** it immediately
+  (`has_finished_update` → `clear_update`).
 - **Failure/no-TTY path**: npm-prefix updaters (gemini-cli, qwen-code) can fail
   without a writable global prefix; the captured stderr + non-zero exit surface
   in the detail log and the `Failed` state. On `Failed`, the detail Update
