@@ -735,15 +735,19 @@ fn run_app(
                 app::Message::OpenAgentDocs => {
                     if let Some(ref agents_app) = app.agents_app {
                         if let Some(entry) = agents_app.current_entry() {
-                            if let Some(ref url) = entry.agent.docs {
-                                let _ = open::that_in_background(url);
-                                app.set_status(format!("Opened: {}", url));
-                                last_status_time = Some(std::time::Instant::now());
-                            } else if let Some(ref url) = entry.agent.homepage {
-                                let _ = open::that_in_background(url);
-                                app.set_status(format!("Opened: {}", url));
-                                last_status_time = Some(std::time::Instant::now());
-                            }
+                            // docs → homepage → GitHub repo (so custom agents, which
+                            // have neither docs nor homepage, still open something).
+                            let url = entry
+                                .agent
+                                .docs
+                                .clone()
+                                .or_else(|| entry.agent.homepage.clone())
+                                .unwrap_or_else(|| {
+                                    format!("https://github.com/{}", entry.agent.repo)
+                                });
+                            let _ = open::that_in_background(&url);
+                            app.set_status(format!("Opened: {}", url));
+                            last_status_time = Some(std::time::Instant::now());
                         }
                     }
                 }
