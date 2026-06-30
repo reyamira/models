@@ -1033,6 +1033,7 @@ mod tests {
             cli_binary: cli_binary.map(str::to_string),
             alt_binaries: vec![],
             version_command: vec![],
+            update_command: vec![],
             version_regex: None,
             config_files: vec![],
             homepage: None,

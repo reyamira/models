@@ -4,7 +4,9 @@ use crossterm::event::{MouseButton, MouseEventKind};
 use ratatui::layout::Rect;
 use ratatui::widgets::ListState;
 
-use crate::agents::{detect_installed, AgentEntry, AgentsFile, FetchStatus, GitHubData};
+use crate::agents::{
+    detect_installed, AgentEntry, AgentsFile, FetchStatus, GitHubData, InstalledInfo,
+};
 use crate::config::Config;
 use crate::tui::mouse::{hit, row_at};
 
@@ -121,6 +123,27 @@ impl AddAgentForm {
     }
 }
 
+/// Lifecycle of an in-app agent self-update (subprocess run in the background).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AgentUpdateState {
+    Running,
+    Succeeded,
+    Failed,
+}
+
+/// One agent queued for update, shown in the confirm modal before anything runs.
+#[derive(Debug, Clone)]
+pub struct UpdateTarget {
+    pub id: String,
+    pub name: String,
+    /// Verified argv (no shell), e.g. `["claude", "update"]`.
+    pub command: Vec<String>,
+}
+
+/// Cap on retained per-agent update output lines (oldest dropped) so a chatty
+/// updater can't grow the buffer unbounded.
+const UPDATE_LOG_CAP: usize = 200;
+
 /// True when `repo` is a plausible `owner/name` GitHub slug: exactly one `/`,
 /// non-empty halves, and only characters GitHub allows in owner/repo names.
 fn is_valid_repo_slug(repo: &str) -> bool {
@@ -153,6 +176,14 @@ pub struct AgentsApp {
     // Add-agent form modal state
     pub show_add_form: bool,
     pub add_form: AddAgentForm,
+    // Update action state
+    pub show_update_confirm: bool,
+    /// Agents queued in the confirm modal (cleared when it closes).
+    pub update_targets: Vec<UpdateTarget>,
+    /// Per-agent update lifecycle (absent = idle / never updated this session).
+    pub update_states: HashMap<String, AgentUpdateState>,
+    /// Per-agent captured update output (bounded to `UPDATE_LOG_CAP` lines).
+    pub update_logs: HashMap<String, Vec<String>>,
     // Detail panel scroll
     pub detail_scroll: u16,
     // Search match navigation (line indices in detail content)
@@ -270,6 +301,10 @@ impl AgentsApp {
             picker_changes: HashMap::new(),
             show_add_form: false,
             add_form: AddAgentForm::default(),
+            show_update_confirm: false,
+            update_targets: Vec::new(),
+            update_states: HashMap::new(),
+            update_logs: HashMap::new(),
             detail_scroll: 0,
             search_match_lines: Vec::new(),
             search_match_visual_offsets: Vec::new(),
@@ -642,6 +677,106 @@ impl AgentsApp {
         Ok((id, repo))
     }
 
+    // Update-action methods
+
+    /// Build a confirm-modal target for the currently selected agent, if it has a
+    /// verified updater. Returns `Err` with a status message otherwise (no updater,
+    /// or an update already running for it).
+    pub fn request_update_selected(&mut self) -> Result<(), String> {
+        let entry = self
+            .current_entry()
+            .ok_or_else(|| "No agent selected".to_string())?;
+        let command = match entry.update_command() {
+            Some(c) => c.to_vec(),
+            None => return Err(format!("No in-app updater for {}", entry.agent.name)),
+        };
+        if self.update_states.get(&entry.id) == Some(&AgentUpdateState::Running) {
+            return Err(format!("{} is already updating", entry.agent.name));
+        }
+        self.update_targets = vec![UpdateTarget {
+            id: entry.id.clone(),
+            name: entry.agent.name.clone(),
+            command,
+        }];
+        self.show_update_confirm = true;
+        Ok(())
+    }
+
+    /// Build confirm-modal targets for every agent with an available update and a
+    /// verified updater (skipping any already updating). `Err` if none qualify.
+    pub fn request_update_all(&mut self) -> Result<usize, String> {
+        let targets: Vec<UpdateTarget> = self
+            .entries
+            .iter()
+            .filter(|e| e.tracked && e.update_available())
+            .filter(|e| self.update_states.get(&e.id) != Some(&AgentUpdateState::Running))
+            .filter_map(|e| {
+                e.update_command().map(|c| UpdateTarget {
+                    id: e.id.clone(),
+                    name: e.agent.name.clone(),
+                    command: c.to_vec(),
+                })
+            })
+            .collect();
+        if targets.is_empty() {
+            return Err("No agents with an available update and a known updater".to_string());
+        }
+        let count = targets.len();
+        self.update_targets = targets;
+        self.show_update_confirm = true;
+        Ok(count)
+    }
+
+    pub fn cancel_update(&mut self) {
+        self.show_update_confirm = false;
+        self.update_targets.clear();
+    }
+
+    /// Confirm the queued updates: mark each Running, reset its log, close the
+    /// modal, and return the `(id, command)` pairs the main loop will spawn.
+    pub fn confirm_update(&mut self) -> Vec<(String, Vec<String>)> {
+        let mut spawned = Vec::new();
+        for target in std::mem::take(&mut self.update_targets) {
+            self.update_states
+                .insert(target.id.clone(), AgentUpdateState::Running);
+            self.update_logs.insert(target.id.clone(), Vec::new());
+            spawned.push((target.id, target.command));
+        }
+        self.show_update_confirm = false;
+        spawned
+    }
+
+    /// Append a captured output line for an in-progress update (bounded buffer).
+    pub fn push_update_output(&mut self, id: &str, line: String) {
+        let log = self.update_logs.entry(id.to_string()).or_default();
+        log.push(line);
+        if log.len() > UPDATE_LOG_CAP {
+            let overflow = log.len() - UPDATE_LOG_CAP;
+            log.drain(0..overflow);
+        }
+    }
+
+    /// Record an update's terminal result and append a summary line to its log.
+    pub fn finish_update(&mut self, id: &str, success: bool, message: String) {
+        self.update_states.insert(
+            id.to_string(),
+            if success {
+                AgentUpdateState::Succeeded
+            } else {
+                AgentUpdateState::Failed
+            },
+        );
+        self.push_update_output(id, message);
+    }
+
+    /// Apply a freshly re-detected installed version after a successful update so
+    /// the status dot flips (green/blue) without restarting the app.
+    pub fn apply_redetected(&mut self, id: &str, installed: InstalledInfo) {
+        if let Some(entry) = self.entries.iter_mut().find(|e| e.id == id) {
+            entry.installed = installed;
+        }
+    }
+
     /// Update match line indices and visual offsets from rendered detail content.
     /// Only resets current_match when the match set actually changes.
     pub fn update_search_matches(&mut self, match_lines: Vec<u16>, visual_offsets: Vec<u16>) {
@@ -789,6 +924,7 @@ mod tests {
                 cli_binary: None,
                 alt_binaries: vec![],
                 version_command: vec![],
+                update_command: vec![],
                 version_regex: None,
                 config_files: vec![],
                 homepage: None,
@@ -850,6 +986,148 @@ mod tests {
         assert!(config.agents.custom.is_empty());
     }
 
+    /// Build an entry with an installed version, a (newer) latest release, and an
+    /// optional updater command — the shape the update actions key off.
+    fn updatable_entry(
+        id: &str,
+        name: &str,
+        installed: &str,
+        latest: &str,
+        cmd: &[&str],
+    ) -> AgentEntry {
+        let mut e = agent_entry(id, name, None);
+        e.agent.update_command = cmd.iter().map(|s| s.to_string()).collect();
+        e.installed.version = Some(installed.to_string());
+        e.github.releases[0].version = latest.to_string();
+        e
+    }
+
+    #[test]
+    fn request_update_selected_targets_agent_with_updater() {
+        let mut app = test_app(vec![updatable_entry(
+            "claude-code",
+            "Claude Code",
+            "1.0.0",
+            "2.0.0",
+            &["claude", "update"],
+        )]);
+        assert!(app.request_update_selected().is_ok());
+        assert!(app.show_update_confirm);
+        assert_eq!(app.update_targets.len(), 1);
+        assert_eq!(app.update_targets[0].command, vec!["claude", "update"]);
+    }
+
+    #[test]
+    fn request_update_selected_errors_without_updater() {
+        // No update_command → no in-app updater.
+        let mut app = test_app(vec![updatable_entry("zed", "Zed", "1.0.0", "2.0.0", &[])]);
+        assert!(app.request_update_selected().is_err());
+        assert!(!app.show_update_confirm);
+        assert!(app.update_targets.is_empty());
+    }
+
+    #[test]
+    fn request_update_all_collects_only_updatable_with_updater() {
+        let mut app = test_app(vec![
+            updatable_entry("a", "A", "1.0.0", "2.0.0", &["a", "update"]), // updatable + cmd → yes
+            updatable_entry("b", "B", "2.0.0", "2.0.0", &["b", "update"]), // up to date → no
+            updatable_entry("c", "C", "1.0.0", "2.0.0", &[]),              // no updater → no
+        ]);
+        let count = app.request_update_all().expect("at least one updatable");
+        assert_eq!(count, 1);
+        assert_eq!(app.update_targets.len(), 1);
+        assert_eq!(app.update_targets[0].id, "a");
+    }
+
+    #[test]
+    fn request_update_all_errors_when_none_qualify() {
+        let mut app = test_app(vec![updatable_entry(
+            "b",
+            "B",
+            "2.0.0",
+            "2.0.0",
+            &["b", "update"],
+        )]);
+        assert!(app.request_update_all().is_err());
+    }
+
+    #[test]
+    fn confirm_update_marks_running_and_returns_commands() {
+        let mut app = test_app(vec![updatable_entry(
+            "claude-code",
+            "Claude Code",
+            "1.0.0",
+            "2.0.0",
+            &["claude", "update"],
+        )]);
+        app.request_update_selected().unwrap();
+        let spawned = app.confirm_update();
+        assert_eq!(spawned.len(), 1);
+        assert_eq!(spawned[0].0, "claude-code");
+        assert_eq!(spawned[0].1, vec!["claude", "update"]);
+        assert!(!app.show_update_confirm);
+        assert_eq!(
+            app.update_states.get("claude-code"),
+            Some(&AgentUpdateState::Running)
+        );
+    }
+
+    #[test]
+    fn request_update_selected_blocks_while_already_running() {
+        let mut app = test_app(vec![updatable_entry(
+            "a",
+            "A",
+            "1.0.0",
+            "2.0.0",
+            &["a", "update"],
+        )]);
+        app.update_states
+            .insert("a".to_string(), AgentUpdateState::Running);
+        assert!(app.request_update_selected().is_err());
+    }
+
+    #[test]
+    fn update_output_is_capped() {
+        let mut app = test_app(vec![]);
+        for i in 0..(UPDATE_LOG_CAP + 50) {
+            app.push_update_output("a", format!("line {i}"));
+        }
+        let log = app.update_logs.get("a").unwrap();
+        assert_eq!(log.len(), UPDATE_LOG_CAP);
+        assert_eq!(
+            log.last().unwrap(),
+            &format!("line {}", UPDATE_LOG_CAP + 49)
+        );
+    }
+
+    #[test]
+    fn finish_update_records_state_and_message() {
+        let mut app = test_app(vec![]);
+        app.finish_update("a", false, "boom".to_string());
+        assert_eq!(app.update_states.get("a"), Some(&AgentUpdateState::Failed));
+        assert_eq!(app.update_logs.get("a").unwrap().last().unwrap(), "boom");
+    }
+
+    #[test]
+    fn apply_redetected_updates_installed_version() {
+        let mut app = test_app(vec![updatable_entry(
+            "a",
+            "A",
+            "1.0.0",
+            "2.0.0",
+            &["a", "update"],
+        )]);
+        app.apply_redetected(
+            "a",
+            InstalledInfo {
+                version: Some("2.0.0".to_string()),
+                path: None,
+            },
+        );
+        let entry = app.entries.iter().find(|e| e.id == "a").unwrap();
+        assert_eq!(entry.installed.version.as_deref(), Some("2.0.0"));
+    }
+
     #[test]
     fn add_agent_rejects_id_collision_with_existing_agent() {
         // "Claude Code" → id "claude-code"; collide with an existing entry.
@@ -881,6 +1159,10 @@ mod tests {
             picker_changes: HashMap::new(),
             show_add_form: false,
             add_form: AddAgentForm::default(),
+            show_update_confirm: false,
+            update_targets: Vec::new(),
+            update_states: HashMap::new(),
+            update_logs: HashMap::new(),
             detail_scroll: 0,
             search_match_lines: Vec::new(),
             search_match_visual_offsets: Vec::new(),

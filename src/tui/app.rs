@@ -155,6 +155,11 @@ pub enum Message {
     AddAgentBackspace,
     AddAgentToggleField,
     AddAgentSave,
+    // Update-action messages
+    RequestUpdateAgent,
+    RequestUpdateAll,
+    ConfirmUpdate,
+    CancelUpdate,
     // Detail panel scrolling
     ScrollDetailUp,
     ScrollDetailDown,
@@ -307,6 +312,8 @@ pub struct App {
     pub config: Config,
     /// Agents newly tracked that need GitHub fetches (agent_id, repo)
     pub pending_fetches: Vec<(String, String)>,
+    /// Confirmed agent updates to spawn as background subprocesses (agent_id, argv)
+    pub pending_updates: Vec<(String, Vec<String>)>,
     /// Multi-source benchmark store: one load-state per compiled-in source.
     pub multi_store: MultiStore,
     pub benchmarks_app: BenchmarksApp,
@@ -348,6 +355,7 @@ impl App {
             agents_app,
             config,
             pending_fetches: Vec::new(),
+            pending_updates: Vec::new(),
             multi_store,
             benchmarks_app,
             status_app,
@@ -1201,6 +1209,39 @@ impl App {
                     }
                 }
             }
+            Message::RequestUpdateAgent => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    if let Err(e) = agents_app.request_update_selected() {
+                        self.set_status(e);
+                    }
+                }
+            }
+            Message::RequestUpdateAll => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    if let Err(e) = agents_app.request_update_all() {
+                        self.set_status(e);
+                    }
+                }
+            }
+            Message::CancelUpdate => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    agents_app.cancel_update();
+                }
+            }
+            Message::ConfirmUpdate => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    let spawned = agents_app.confirm_update();
+                    if !spawned.is_empty() {
+                        let n = spawned.len();
+                        self.pending_updates.extend(spawned);
+                        self.set_status(if n == 1 {
+                            "Updating 1 agent…".to_string()
+                        } else {
+                            format!("Updating {} agents…", n)
+                        });
+                    }
+                }
+            }
             Message::ScrollDetailUp => {
                 if let Some(ref mut agents_app) = self.agents_app {
                     agents_app.detail_scroll = agents_app.detail_scroll.saturating_sub(1);
@@ -1692,6 +1733,7 @@ mod tests {
             cli_binary: None,
             alt_binaries: vec![],
             version_command: vec![],
+            update_command: vec![],
             version_regex: None,
             config_files: vec![],
             homepage: None,
@@ -2632,6 +2674,7 @@ mod tests {
                         cli_binary: None,
                         alt_binaries: vec![],
                         version_command: vec![],
+                        update_command: vec![],
                         version_regex: None,
                         config_files: vec![],
                         homepage: None,

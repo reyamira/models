@@ -35,7 +35,14 @@ clap_complete = "4"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls-native-roots", "blocking"] }
 
 # Async runtime
-tokio = { version = "1", features = ["rt-multi-thread", "sync", "macros", "time"] }
+tokio = { version = "1", features = [
+    "rt-multi-thread",
+    "sync",
+    "macros",
+    "time",
+    "process",
+    "io-util",
+] }
 
 # Serialization
 serde = { version = "1", features = ["derive"] }

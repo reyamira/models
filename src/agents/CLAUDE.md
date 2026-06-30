@@ -7,7 +7,7 @@ Tracks AI coding assistants (CLI tools, IDEs, plugins) with GitHub metadata, loc
 
 | Type | File | Purpose |
 |------|------|---------|
-| `Agent` | `data.rs` | Static metadata from `data/agents.json` (name, repo, categories, pricing, binaries, version detection) |
+| `Agent` | `data.rs` | Static metadata from `data/agents.json` (name, repo, categories, pricing, binaries, version detection, `update_command` self-updater argv) |
 | `GitHubData` | `data.rs` | Runtime: releases, stars, issues, license, commit date. Methods: `latest_version()`, `release_frequency()`, `latest_release_date()` |
 | `AgentEntry` | `data.rs` | Combined entry: Agent + GitHubData + InstalledInfo + tracked flag. Methods: `update_available()`, `new_releases()`, `latest_release_relative_time()` |
 | `ChangelogBlock` | `changelog_parser.rs` | Normalized IR: `Heading(String)` \| `Bullet(String)` \| `Paragraph(String)`. Used by both CLI (`agents.rs`) and TUI preview panes |
@@ -19,6 +19,7 @@ Tracks AI coding assistants (CLI tools, IDEs, plugins) with GitHub metadata, loc
 
 - **Load**: `loader.rs` — loads embedded `data/agents.json` via `include_str!`
 - **Detect**: `detect.rs` — runs version commands (e.g., `claude --version`) to find installed binaries + versions
+- **Update**: `update_command` argv (verified per-tool) is run as a background subprocess by `spawn_agent_update` (`tui/mod.rs`), streamed over an `mpsc<UpdateEvent>` channel, then `detect_installed` re-runs to refresh the version. TUI-only (the `u`/`U` keys); see `.claude/rules/tui-agents-tab.md` §7c
 - **Fetch**: `github.rs` — 2-API-call flow for TUI, 1-call for CLI (releases only). ETag conditional. Spawned in background, results via mpsc Message
 - **Cache**: `cache.rs` — disk cache with version sentinel (v1). Reads/writes via `load_cache()`/`save_cache()`. Path: `~/.local/share/modelsdev/github-cache.json` on Unix
 - **Parse**: `changelog_parser.rs` — comrak (CommonMark/GFM) → AST → normalized IR. Skips boilerplate headers ("What's Changed", "Changelog"). Flattens nested lists

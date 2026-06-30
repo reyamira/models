@@ -99,6 +99,7 @@ impl CustomAgent {
             cli_binary: self.binary.clone(),
             alt_binaries: vec![],
             version_command: self.version_command.clone().unwrap_or_default(),
+            update_command: vec![],
             installation_method: self.agent_type.clone(),
             pricing: None,
             supported_providers: vec![],

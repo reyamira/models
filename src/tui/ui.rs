@@ -254,6 +254,8 @@ pub fn draw(f: &mut Frame, app: &mut App) {
                 super::agents::render::draw_picker_modal(f, app);
             } else if agents_app.show_add_form {
                 super::agents::render::draw_add_agent_modal(f, app);
+            } else if agents_app.show_update_confirm {
+                super::agents::render::draw_update_confirm_modal(f, app);
             }
         }
     }
@@ -365,6 +367,10 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                     Span::raw("track  "),
                     Span::styled(" A ", Style::default().fg(Color::Yellow)),
                     Span::raw("add  "),
+                    Span::styled(" u ", Style::default().fg(Color::Yellow)),
+                    Span::raw("update  "),
+                    Span::styled(" U ", Style::default().fg(Color::Yellow)),
+                    Span::raw("update all  "),
                     Span::styled(" o ", Style::default().fg(Color::Yellow)),
                     Span::raw("docs  "),
                     Span::styled(" r ", Style::default().fg(Color::Yellow)),
@@ -614,6 +620,8 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
                 help_line("c", "Copy agent name"),
                 help_line("a", "Add/remove tracked agents"),
                 help_line("A", "Add a new agent (name + repo)"),
+                help_line("u", "Update selected agent (confirm first)"),
+                help_line("U", "Update all agents with an available update"),
                 Line::from(""),
                 help_section("Search Navigation"),
                 help_line("n", "Next search match"),

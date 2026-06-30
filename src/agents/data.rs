@@ -43,6 +43,11 @@ pub struct Agent {
     pub alt_binaries: Vec<String>,
     #[serde(default)]
     pub version_command: Vec<String>,
+    /// Non-interactive, argv-vec self-update command (no shell), e.g.
+    /// `["claude", "update"]`. Empty = no in-app update action for this agent.
+    /// Only ever populated with commands verified from the tool's official docs.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub update_command: Vec<String>,
     #[serde(default)]
     pub version_regex: Option<String>,
     #[serde(default)]
@@ -136,6 +141,16 @@ pub struct AgentEntry {
 }
 
 impl AgentEntry {
+    /// The agent's verified self-update argv, if it has one (the registry only
+    /// ships commands confirmed from official docs). `None` = no update action.
+    pub fn update_command(&self) -> Option<&[String]> {
+        if self.agent.update_command.is_empty() {
+            None
+        } else {
+            Some(&self.agent.update_command)
+        }
+    }
+
     pub fn update_available(&self) -> bool {
         match (&self.installed.version, self.github.latest_version()) {
             (Some(installed), Some(latest)) => {
@@ -222,6 +237,7 @@ mod tests {
                 cli_binary: None,
                 alt_binaries: vec![],
                 version_command: vec![],
+                update_command: vec![],
                 version_regex: None,
                 config_files: vec![],
                 homepage: None,

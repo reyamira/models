@@ -210,6 +210,56 @@ two-field form; writes a `CustomAgent` to `config.agents.custom`.
 
 ---
 
+## 7c. Update Action (in-app self-update)
+
+Runs an agent's **verified** self-update command as a background subprocess —
+no TUI suspension, mirrors the GitHub-fetch async pattern.
+
+- **Registry field**: `Agent.update_command: Vec<String>` (`data/agents.json`,
+  `#[serde(default, skip_serializing_if = "Vec::is_empty")]`) — an argv vector,
+  **no shell**. Only populated with commands verified from each tool's official
+  docs (the 9 CLI agents; IDEs/extensions have none). `AgentEntry::update_command()`
+  returns `Option<&[String]>` (None = no update action). Custom agents
+  (`CustomAgent::to_agent`) get no update command.
+- **Keys**: `u` = update the selected agent; `U` = update **all** agents with
+  `update_available()` && a verified updater. Both open a **confirm modal** first
+  (update mutates the user's system; refresh only reads).
+- **Confirm modal** (`draw_update_confirm_modal`): Cyan border,
+  `centered_rect_fixed(66, …)`, title ` Update Agent(s) `, bottom
+  ` Enter: run | Esc: cancel `. Lists each target's `name` + `$ {argv joined}`
+  in Yellow. `Enter`→`ConfirmUpdate`, `Esc`/`q`→`CancelUpdate`
+  (`handle_update_confirm_keys`, intercepts all keys). `request_update_selected`
+  errors (status bar) when the agent has no updater or is already running;
+  `request_update_all` errors when none qualify.
+- **Execution** (`spawn_agent_update` in `tui/mod.rs`): `tokio::process::Command`
+  (needs tokio features `process` + `io-util`), `stdin` null, stdout+stderr
+  piped and streamed **line-by-line** over an `mpsc<UpdateEvent>` channel
+  (`Output`/`Finished`/`Redetected`). Bounded by a **5-minute timeout**
+  (`tokio::time::timeout` → `start_kill`) since there's no TTY for prompts.
+  All output is flushed (reader handles awaited) before `Finished`. On success,
+  `detect_installed` re-runs via `spawn_blocking` → `Redetected` updates
+  `AgentEntry.installed` so the dot flips without a restart. The confirmed
+  `(id, argv)` pairs flow `App.pending_updates` → drained in the loop (mirrors
+  `pending_fetches`); the agent is looked up at drain time for the re-detect.
+- **State** (`AgentsApp`): `show_update_confirm`, `update_targets: Vec<UpdateTarget>`,
+  `update_states: HashMap<id, AgentUpdateState>` (`Running`/`Succeeded`/`Failed`),
+  `update_logs: HashMap<id, Vec<String>>` (capped at `UPDATE_LOG_CAP` = 200,
+  oldest dropped). `confirm_update` marks each target `Running`, resets its log,
+  and returns the spawn list. `push_update_output`/`finish_update`/`apply_redetected`
+  apply the channel events.
+- **Rendering**: list status dot shows `◐` **Magenta** while `Running` (distinct
+  from the Yellow GitHub-fetch spinner). Detail panel gains an `Update:` section
+  (state line + trailing ≤12 output lines, DarkGray) whenever the selected agent
+  has update state/logs. Status bar: `{name} updated` / `{name} update failed —
+  see detail panel`.
+- **Failure/no-TTY path**: npm-prefix updaters (gemini-cli, qwen-code) can fail
+  without a writable global prefix; the captured stderr + non-zero exit surface
+  in the detail log and the `Failed` state. openclaw's updater restarts its
+  daemon (heaviest side effects) — included, shown verbatim in the confirm modal.
+- **Footer**: ` u ` update, ` U ` update all. Help: `u`/`U` entries.
+
+---
+
 ## 8. Mouse
 
 `handle_agents_mouse` (in `agents/app.rs`); see style guide §12 for the shared pattern.
@@ -219,4 +269,4 @@ two-field form; writes a `CustomAgent` to `config.agents.custom`.
 - **Click:** agent row → focus List + `select_agent_at_index`; detail → focus Details only.
 - **Wheel (focus-then-scroll):** over the list → prev/next agent; over the detail → adjust `detail_scroll` (a `u16`, clamped at render).
 - The list renders into the **real** `agent_list_state` so `offset()` is valid while scrolled (fixed the `ListState` copy gotcha — see CLAUDE.md).
-- **Modal mouse:** `modal_popup_open` returns true for both `show_picker` and `show_add_form` so clicks/wheel can't leak to the panels behind. The Add Agent form has no selectable rows — clicks and wheel over it are swallowed (`handle_modal_popup_click`/`handle_modal_popup_mouse` return `None` when `show_add_form`).
+- **Modal mouse:** `modal_popup_open` returns true for `show_picker`, `show_add_form`, **and** `show_update_confirm` so clicks/wheel can't leak to the panels behind. The Add Agent form and the update-confirm modal have no selectable rows — clicks and wheel over them are swallowed (`handle_modal_popup_click`/`handle_modal_popup_mouse` return `None` when `show_add_form || show_update_confirm`).

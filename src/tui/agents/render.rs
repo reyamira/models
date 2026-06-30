@@ -6,7 +6,7 @@ use ratatui::{
     Frame,
 };
 
-use super::app::AddAgentField;
+use super::app::{AddAgentField, AgentUpdateState};
 use crate::agents::{format_stars, FetchStatus};
 use crate::formatting::truncate;
 use crate::formatting::EM_DASH;
@@ -149,8 +149,15 @@ fn draw_agent_list(f: &mut Frame, area: Rect, app: &mut App) {
                 EM_DASH
             };
 
-            // Status indicator: colored dot for installed agents, dash for others
-            let (status_indicator, status_style) = if entry.installed.version.is_some() {
+            // Status indicator: a Magenta spinner while an in-app update runs,
+            // else a colored dot for installed agents, dash for others.
+            let updating = matches!(
+                agents_app.update_states.get(&entry.id),
+                Some(AgentUpdateState::Running)
+            );
+            let (status_indicator, status_style) = if updating {
+                ("\u{25D0}", Style::default().fg(Color::Magenta)) // ◐ magenta = updating
+            } else if entry.installed.version.is_some() {
                 match &entry.fetch_status {
                     FetchStatus::NotStarted => ("\u{25CB}", Style::default().fg(Color::DarkGray)), // ○ gray
                     FetchStatus::Loading => ("\u{25D0}", Style::default().fg(Color::Yellow)), // ◐ yellow
@@ -354,6 +361,47 @@ fn draw_agent_detail(f: &mut Frame, area: Rect, app: &mut App) {
             }
             FetchStatus::Loaded => {
                 // No indicator needed when data is loaded
+            }
+        }
+
+        // In-app update progress / result (this session only).
+        if let Some(agents_app) = app.agents_app.as_ref() {
+            let state = agents_app.update_states.get(&entry.id);
+            let log = agents_app.update_logs.get(&entry.id);
+            let has_log = log.map(|l| !l.is_empty()).unwrap_or(false);
+            if state.is_some() || has_log {
+                detail_lines.push(Line::from(""));
+                detail_lines.push(Line::from(Span::styled(
+                    "Update:",
+                    Style::default().add_modifier(Modifier::BOLD),
+                )));
+                detail_lines.push(Line::from(Span::styled(
+                    "───────────────────────────────────",
+                    Style::default().fg(Color::Gray),
+                )));
+                let state_span = match state {
+                    Some(AgentUpdateState::Running) => {
+                        Span::styled("\u{25D0} Updating…", Style::default().fg(Color::Magenta))
+                    }
+                    Some(AgentUpdateState::Succeeded) => {
+                        Span::styled("\u{2713} Updated", Style::default().fg(Color::Green))
+                    }
+                    Some(AgentUpdateState::Failed) => {
+                        Span::styled("\u{2717} Update failed", Style::default().fg(Color::Red))
+                    }
+                    None => Span::raw(""),
+                };
+                detail_lines.push(Line::from(state_span));
+                if let Some(log) = log {
+                    // Show the trailing slice (the buffer itself is already capped).
+                    let start = log.len().saturating_sub(12);
+                    for line in &log[start..] {
+                        detail_lines.push(Line::from(Span::styled(
+                            line.clone(),
+                            Style::default().fg(Color::DarkGray),
+                        )));
+                    }
+                }
             }
         }
 
@@ -679,6 +727,66 @@ pub(in crate::tui) fn draw_add_agent_modal(f: &mut Frame, app: &App) {
     f.render_widget(Paragraph::new(lines).block(block), area);
 }
 
+/// Render the update-confirm modal — lists the exact verified command(s) that
+/// will run before anything executes. The user runs them with `Enter`.
+pub(in crate::tui) fn draw_update_confirm_modal(f: &mut Frame, app: &App) {
+    let agents_app = match &app.agents_app {
+        Some(a) => a,
+        None => return,
+    };
+    let targets = &agents_app.update_targets;
+    if targets.is_empty() {
+        return;
+    }
+
+    let popup_width = std::cmp::min(66, f.area().width.saturating_sub(4));
+    // header + blank + one row per target + blank + note, plus 2 borders.
+    let body = targets.len() + 4;
+    let popup_height = std::cmp::min((body + 2) as u16, f.area().height.saturating_sub(4));
+    let area = centered_rect_fixed(popup_width, popup_height, f.area());
+    f.render_widget(Clear, area);
+
+    let mut lines: Vec<Line> = Vec::new();
+    lines.push(Line::from(Span::styled(
+        if targets.len() == 1 {
+            "  Run this update command?".to_string()
+        } else {
+            format!("  Run these {} update commands?", targets.len())
+        },
+        Style::default().fg(Color::White),
+    )));
+    lines.push(Line::from(""));
+    for t in targets {
+        lines.push(Line::from(vec![
+            Span::styled(
+                format!("  {:<14}", truncate(&t.name, 14)),
+                Style::default().fg(Color::Gray),
+            ),
+            Span::styled(
+                format!("$ {}", t.command.join(" ")),
+                Style::default().fg(Color::Yellow),
+            ),
+        ]));
+    }
+    lines.push(Line::from(""));
+    lines.push(Line::from(Span::styled(
+        "  Runs in the background; output appears in the detail panel.",
+        Style::default().fg(Color::DarkGray),
+    )));
+
+    let title = if targets.len() == 1 {
+        " Update Agent "
+    } else {
+        " Update Agents "
+    };
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(Color::Cyan))
+        .title(title)
+        .title_bottom(Line::from(" Enter: run | Esc: cancel ").centered());
+    f.render_widget(Paragraph::new(lines).block(block), area);
+}
+
 #[cfg(test)]
 mod mouse_tests {
     //! End-to-end checks for Agents-tab mouse handling: build an `App` with a
@@ -696,7 +804,8 @@ mod mouse_tests {
     use crate::agents::{Agent, AgentEntry, FetchStatus, GitHubData, InstalledInfo, Release};
     use crate::data::ProvidersMap;
     use crate::tui::agents::app::{
-        handle_agents_mouse, AddAgentForm, AgentFilters, AgentFocus, AgentSortOrder, AgentsApp,
+        handle_agents_mouse, AddAgentForm, AgentFilters, AgentFocus, AgentSortOrder,
+        AgentUpdateState, AgentsApp, UpdateTarget,
     };
     use crate::tui::app::{App, Tab};
 
@@ -715,6 +824,7 @@ mod mouse_tests {
                 cli_binary: None,
                 alt_binaries: vec![],
                 version_command: vec![],
+                update_command: vec![],
                 version_regex: None,
                 config_files: vec![],
                 homepage: None,
@@ -757,6 +867,10 @@ mod mouse_tests {
             picker_changes: HashMap::new(),
             show_add_form: false,
             add_form: AddAgentForm::default(),
+            show_update_confirm: false,
+            update_targets: Vec::new(),
+            update_states: HashMap::new(),
+            update_logs: HashMap::new(),
             detail_scroll: 0,
             search_match_lines: Vec::new(),
             search_match_visual_offsets: Vec::new(),
@@ -830,6 +944,71 @@ mod mouse_tests {
         assert!(text.contains("Add Agent"), "modal title should render");
         assert!(text.contains("Amp"), "typed name should render");
         assert!(text.contains("sourcegraph/amp"), "typed repo should render");
+    }
+
+    #[test]
+    fn update_confirm_modal_renders_command() {
+        let mut app = test_app(4);
+        {
+            let a = app.agents_app.as_mut().unwrap();
+            a.show_update_confirm = true;
+            a.update_targets = vec![UpdateTarget {
+                id: "claude-code".to_string(),
+                name: "Claude Code".to_string(),
+                command: vec!["claude".to_string(), "update".to_string()],
+            }];
+        }
+        let backend = TestBackend::new(80, 30);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| crate::tui::ui::draw(f, &mut app))
+            .expect("draw");
+        let text: String = terminal
+            .backend()
+            .buffer()
+            .content()
+            .iter()
+            .map(|c| c.symbol())
+            .collect();
+        assert!(text.contains("Update Agent"), "modal title should render");
+        assert!(text.contains("claude update"), "command should render");
+    }
+
+    #[test]
+    fn detail_panel_renders_update_progress() {
+        let mut app = test_app(4);
+        let id = app
+            .agents_app
+            .as_ref()
+            .unwrap()
+            .current_entry()
+            .unwrap()
+            .id
+            .clone();
+        {
+            let a = app.agents_app.as_mut().unwrap();
+            a.update_states
+                .insert(id.clone(), AgentUpdateState::Running);
+            a.update_logs
+                .insert(id.clone(), vec!["downloading archive".to_string()]);
+        }
+        let backend = TestBackend::new(120, 40);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| crate::tui::ui::draw(f, &mut app))
+            .expect("draw");
+        let text: String = terminal
+            .backend()
+            .buffer()
+            .content()
+            .iter()
+            .map(|c| c.symbol())
+            .collect();
+        assert!(text.contains("Updating"), "update state should render");
+        assert!(
+            text.contains("downloading archive"),
+            "update output should render"
+        );
     }
 
     #[test]
