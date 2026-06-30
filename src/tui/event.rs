@@ -435,6 +435,7 @@ fn handle_agents_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
         KeyCode::Char('A') => Some(Message::OpenAddAgent),
         KeyCode::Char('u') => Some(Message::RequestUpdateAgent),
         KeyCode::Char('U') => Some(Message::RequestUpdateAll),
+        KeyCode::Char('x') => Some(Message::RequestCancelUpdate),
         KeyCode::Char('n') => Some(Message::NextSearchMatch),
         KeyCode::Char('N') => Some(Message::PrevSearchMatch),
         KeyCode::Char('s') => Some(Message::CycleAgentSort),

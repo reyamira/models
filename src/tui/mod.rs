@@ -321,14 +321,16 @@ fn spawn_agent_fetches(
 
 /// Run one agent's verified self-update as a background subprocess, streaming its
 /// stdout/stderr line-by-line over `tx` (no TTY — interactive prompts will hang
-/// and hit the 5-minute timeout). On clean exit, re-detect the installed version
-/// off the runtime so the status dot can flip without a restart. All output is
-/// flushed before `Finished` so the log reads in order.
+/// and hit the 5-minute timeout). The run ends on child exit, the timeout, or a
+/// signal on `cancel` (user pressed `x`) — the latter two kill the child. On
+/// clean exit, re-detect the installed version off the runtime so the status dot
+/// can flip without a restart. All output is flushed before `Finished`.
 fn spawn_agent_update(
     id: String,
     agent: crate::agents::Agent,
     command: Vec<String>,
     tx: mpsc::Sender<UpdateEvent>,
+    cancel: tokio::sync::oneshot::Receiver<()>,
 ) {
     use std::process::Stdio;
     use tokio::io::{AsyncBufReadExt, BufReader};
@@ -408,18 +410,36 @@ fn spawn_agent_update(
             }));
         }
 
-        // Bound the run so a hung or prompt-waiting updater can't run forever.
-        let wait = tokio::time::timeout(Duration::from_secs(300), child.wait()).await;
-        let (success, message) = match wait {
-            Ok(Ok(status)) if status.success() => (true, "✓ update completed".to_string()),
-            Ok(Ok(status)) => (false, format!("✗ updater exited with {status}")),
-            Ok(Err(e)) => (false, format!("✗ updater error: {e}")),
-            Err(_) => {
+        // End on child exit, the 5-minute bound (hung/prompt-waiting updater), or
+        // a user cancel. The latter two kill the child and reap it.
+        enum Outcome {
+            Exited(std::io::Result<std::process::ExitStatus>),
+            TimedOut,
+            Cancelled,
+        }
+        let outcome = tokio::select! {
+            r = child.wait() => Outcome::Exited(r),
+            _ = tokio::time::sleep(Duration::from_secs(300)) => Outcome::TimedOut,
+            _ = cancel => Outcome::Cancelled,
+        };
+        let (success, message) = match outcome {
+            Outcome::Exited(Ok(status)) if status.success() => {
+                (true, "✓ update completed".to_string())
+            }
+            Outcome::Exited(Ok(status)) => (false, format!("✗ updater exited with {status}")),
+            Outcome::Exited(Err(e)) => (false, format!("✗ updater error: {e}")),
+            Outcome::TimedOut => {
                 let _ = child.start_kill();
+                let _ = child.wait().await;
                 (
                     false,
                     "✗ update timed out after 5m (needs an interactive prompt?)".to_string(),
                 )
+            }
+            Outcome::Cancelled => {
+                let _ = child.start_kill();
+                let _ = child.wait().await;
+                (false, "✗ update cancelled".to_string())
             }
         };
 
@@ -449,6 +469,11 @@ fn run_app(
     mut runtime: RuntimeHandles,
 ) -> Result<()> {
     let mut last_status_time: Option<std::time::Instant> = None;
+    // Cancel handles for in-flight background updates, keyed by agent id. Sending
+    // (or dropping) the sender ends the update's subprocess. Removed when the
+    // update finishes.
+    let mut cancel_signals: std::collections::HashMap<String, tokio::sync::oneshot::Sender<()>> =
+        std::collections::HashMap::new();
 
     loop {
         terminal.draw(|f| ui::draw(f, app))?;
@@ -503,7 +528,15 @@ fn run_app(
                     .and_then(|a| a.entries.iter().find(|e| e.id == agent_id))
                     .map(|e| e.agent.clone());
                 if let Some(agent) = agent {
-                    spawn_agent_update(agent_id, agent, command, runtime.update_tx.clone());
+                    let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
+                    cancel_signals.insert(agent_id.clone(), cancel_tx);
+                    spawn_agent_update(
+                        agent_id,
+                        agent,
+                        command,
+                        runtime.update_tx.clone(),
+                        cancel_rx,
+                    );
                 }
             }
         }
@@ -530,6 +563,8 @@ fn run_app(
                         agents_app.apply_redetected(&id, installed)
                     }
                     UpdateEvent::Finished(id, success, message) => {
+                        // Update is over — drop its cancel handle.
+                        cancel_signals.remove(&id);
                         let name = agents_app
                             .entries
                             .iter()
@@ -782,6 +817,32 @@ fn run_app(
                     // so the message doesn't linger. Update completion sets a fresh
                     // status from the update_rx drain above.
                     last_status_time = Some(std::time::Instant::now());
+                }
+                app::Message::RequestCancelUpdate => {
+                    // Cancel the in-flight update for the selected agent (this loop
+                    // holds the kill handles). The task reports `Finished` with a
+                    // "cancelled" message, which flips state + frees the user to
+                    // re-run with `i` (interactive).
+                    let target = app
+                        .agents_app
+                        .as_ref()
+                        .and_then(|a| a.current_entry())
+                        .map(|e| (e.id.clone(), e.agent.name.clone()));
+                    if let Some((id, name)) = target {
+                        let running = app.agents_app.as_ref().is_some_and(|a| {
+                            a.update_states.get(&id)
+                                == Some(&crate::tui::agents::AgentUpdateState::Running)
+                        });
+                        if running {
+                            if let Some(tx) = cancel_signals.remove(&id) {
+                                let _ = tx.send(());
+                            }
+                            app.set_status(format!("Cancelling {} update…", name));
+                        } else {
+                            app.set_status(format!("No update running for {}", name));
+                        }
+                        last_status_time = Some(std::time::Instant::now());
+                    }
                 }
                 app::Message::ColumnPickerSave => {
                     // Column persistence sets its own status via app.update
@@ -1048,11 +1109,13 @@ mod update_exec_tests {
     #[tokio::test]
     async fn nonexistent_binary_reports_failure() {
         let (tx, mut rx) = mpsc::channel(16);
+        let (_cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
         spawn_agent_update(
             "x".to_string(),
             dummy_agent(),
             vec!["definitely-not-a-real-binary-zzz".to_string()],
             tx,
+            cancel_rx,
         );
         let mut finished = None;
         while let Some(ev) = rx.recv().await {
@@ -1073,11 +1136,13 @@ mod update_exec_tests {
     #[tokio::test]
     async fn echo_streams_output_then_succeeds() {
         let (tx, mut rx) = mpsc::channel(16);
+        let (_cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
         spawn_agent_update(
             "x".to_string(),
             dummy_agent(),
             vec!["echo".to_string(), "hello-update".to_string()],
             tx,
+            cancel_rx,
         );
         let mut outputs = Vec::new();
         let mut success = None;
@@ -1096,5 +1161,34 @@ mod update_exec_tests {
             outputs.iter().any(|l| l.contains("hello-update")),
             "expected streamed output, got: {outputs:?}"
         );
+    }
+
+    /// Firing the cancel signal kills a long-running update and reports it as a
+    /// failed/cancelled result (so the user can re-run interactively).
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn cancel_signal_stops_a_running_update() {
+        let (tx, mut rx) = mpsc::channel(16);
+        let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
+        spawn_agent_update(
+            "x".to_string(),
+            dummy_agent(),
+            vec!["sleep".to_string(), "30".to_string()],
+            tx,
+            cancel_rx,
+        );
+        // Let it start, then cancel.
+        tokio::time::sleep(Duration::from_millis(150)).await;
+        let _ = cancel_tx.send(());
+        let mut finished = None;
+        while let Some(ev) = rx.recv().await {
+            if let UpdateEvent::Finished(_, ok, msg) = ev {
+                finished = Some((ok, msg));
+                break;
+            }
+        }
+        let (ok, msg) = finished.expect("a Finished event");
+        assert!(!ok);
+        assert!(msg.contains("cancelled"), "got: {msg}");
     }
 }

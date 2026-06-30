@@ -161,6 +161,10 @@ pub enum Message {
     ConfirmUpdate,
     ConfirmUpdateInteractive,
     CancelUpdate,
+    /// Cancel the in-flight background update for the selected agent. The actual
+    /// child-kill is performed in the main loop (which holds the cancel handles);
+    /// `update()` is a no-op for this variant.
+    RequestCancelUpdate,
     // Detail panel scrolling
     ScrollDetailUp,
     ScrollDetailDown,
@@ -1233,6 +1237,8 @@ impl App {
                     agents_app.cancel_update();
                 }
             }
+            // Handled in the main loop (holds the cancel handles); no-op here.
+            Message::RequestCancelUpdate => {}
             Message::ConfirmUpdate => {
                 if let Some(ref mut agents_app) = self.agents_app {
                     let spawned = agents_app.confirm_update();

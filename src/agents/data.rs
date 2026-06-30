@@ -151,23 +151,49 @@ impl AgentEntry {
         }
     }
 
-    /// The update argv to actually run, using detected install info. When the
-    /// updater invokes the agent's **own** binary (a self-updater like
-    /// `["claude", "update"]`) and `detect_installed` resolved an absolute path,
-    /// substitute that path for argv[0] so we update the exact detected copy
-    /// rather than whatever PATH happens to resolve first. Package-manager
-    /// updaters (`["npm", …]`, `["uv", …]`) are returned unchanged — argv[0]
-    /// isn't the agent binary, so there's nothing to pin.
+    /// The install method inferred from the detected binary path, if recognizable.
+    pub fn install_method(&self) -> Option<InstallMethod> {
+        self.installed
+            .path
+            .as_deref()
+            .and_then(infer_install_method)
+    }
+
+    /// The update argv to actually run, made install-aware from detected info:
+    ///
+    /// 1. **Self-updater** (argv[0] is the agent's own binary, e.g. `claude update`):
+    ///    pin argv[0] to the detected absolute path so the exact detected copy is
+    ///    updated, not whatever PATH resolves first.
+    /// 2. **JS package-manager updater** (`npm install -g <pkg>`): if the binary was
+    ///    actually installed by a *different* JS package manager (bun / pnpm / yarn),
+    ///    swap to that manager keeping the same package spec — the package id is
+    ///    portable, so `bun add -g <pkg>` updates the copy you're running while
+    ///    `npm i -g` would miss it. An npm install, an unrecognized method, or a
+    ///    non-JS method (Homebrew/uv/…) keeps the registry command unchanged.
     pub fn resolved_update_command(&self) -> Option<Vec<String>> {
         let mut cmd = self.update_command()?.to_vec();
+
+        // (1) Self-updater → pin to the detected path.
         if let (Some(bin), Some(path)) = (
             self.agent.cli_binary.as_deref(),
             self.installed.path.as_deref(),
         ) {
             if cmd.first().is_some_and(|first| first == bin) {
                 cmd[0] = path.to_string();
+                return Some(cmd);
             }
         }
+
+        // (2) JS package-manager swap to the manager that owns the install.
+        if let Some(pkg) = npm_global_package(&cmd) {
+            if let Some(swapped) = self
+                .install_method()
+                .and_then(|m| js_pm_global_add(m, &pkg))
+            {
+                return Some(swapped);
+            }
+        }
+
         Some(cmd)
     }
 
@@ -209,6 +235,100 @@ impl AgentEntry {
 
     pub fn release_frequency(&self) -> String {
         self.github.release_frequency()
+    }
+}
+
+/// How an installed CLI was put on disk, inferred from its detected path. Used to
+/// make the update command target the copy the user is actually running.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum InstallMethod {
+    Homebrew,
+    Npm,
+    Pnpm,
+    Yarn,
+    Bun,
+    Uv,
+    Pipx,
+    Cargo,
+}
+
+impl InstallMethod {
+    pub fn label(&self) -> &'static str {
+        match self {
+            InstallMethod::Homebrew => "Homebrew",
+            InstallMethod::Npm => "npm",
+            InstallMethod::Pnpm => "pnpm",
+            InstallMethod::Yarn => "yarn",
+            InstallMethod::Bun => "bun",
+            InstallMethod::Uv => "uv",
+            InstallMethod::Pipx => "pipx",
+            InstallMethod::Cargo => "cargo",
+        }
+    }
+}
+
+/// Infer the install method from a binary's absolute path. Conservative — returns
+/// `None` for ambiguous locations (e.g. a bare `~/.local/bin` native-installer
+/// shim) so callers only adapt when confident. Substring checks are
+/// case-insensitive and ordered most-specific first.
+pub fn infer_install_method(path: &str) -> Option<InstallMethod> {
+    let p = path.to_lowercase();
+    // Homebrew (Intel /usr/local/Cellar, Apple-silicon /opt/homebrew, linuxbrew).
+    if p.contains("/cellar/") || p.contains("/homebrew/") || p.contains("linuxbrew") {
+        return Some(InstallMethod::Homebrew);
+    }
+    if p.contains("/.bun/") {
+        return Some(InstallMethod::Bun);
+    }
+    if p.contains("/pnpm/") || p.contains("/.pnpm") {
+        return Some(InstallMethod::Pnpm);
+    }
+    if p.contains("/.yarn/") || p.contains("yarn/global") {
+        return Some(InstallMethod::Yarn);
+    }
+    // npm global prefixes: system node_modules, nvm, fnm, volta, npm-global.
+    if p.contains("node_modules") || p.contains("/.nvm/") || p.contains("/.fnm/") {
+        return Some(InstallMethod::Npm);
+    }
+    if p.contains("/uv/tools") || p.contains("share/uv") {
+        return Some(InstallMethod::Uv);
+    }
+    if p.contains("/pipx/") {
+        return Some(InstallMethod::Pipx);
+    }
+    if p.contains("/.cargo/") {
+        return Some(InstallMethod::Cargo);
+    }
+    None
+}
+
+/// If `cmd` is an npm global install (`npm install|i -g|--global <pkg>`), return
+/// the package spec (the last argument, e.g. `@google/gemini-cli@latest`).
+fn npm_global_package(cmd: &[String]) -> Option<String> {
+    let first = cmd.first().map(String::as_str)?;
+    if first != "npm" {
+        return None;
+    }
+    let is_install = cmd.iter().any(|a| a == "install" || a == "i");
+    let is_global = cmd.iter().any(|a| a == "-g" || a == "--global");
+    if is_install && is_global {
+        cmd.last().filter(|s| !s.starts_with('-')).cloned()
+    } else {
+        None
+    }
+}
+
+/// Build the global-add command for a JS package manager that *isn't* npm,
+/// reusing the same package spec. Returns `None` for npm (no change needed) and
+/// for non-JS methods (where the package spec doesn't transfer).
+fn js_pm_global_add(method: InstallMethod, pkg: &str) -> Option<Vec<String>> {
+    let s = |a: &str| a.to_string();
+    match method {
+        InstallMethod::Pnpm => Some(vec![s("pnpm"), s("add"), s("-g"), s(pkg)]),
+        InstallMethod::Yarn => Some(vec![s("yarn"), s("global"), s("add"), s(pkg)]),
+        InstallMethod::Bun => Some(vec![s("bun"), s("add"), s("-g"), s(pkg)]),
+        // npm: command already correct. Non-JS methods: not transferable.
+        _ => None,
     }
 }
 
@@ -303,6 +423,67 @@ mod tests {
             e.resolved_update_command().unwrap(),
             vec!["claude", "update"]
         );
+    }
+
+    #[test]
+    fn infer_install_method_recognizes_common_locations() {
+        use InstallMethod::*;
+        assert_eq!(
+            infer_install_method("/opt/homebrew/bin/gemini"),
+            Some(Homebrew)
+        );
+        assert_eq!(
+            infer_install_method("/usr/local/Cellar/node/bin/gemini"),
+            Some(Homebrew)
+        );
+        assert_eq!(infer_install_method("/home/u/.bun/bin/gemini"), Some(Bun));
+        assert_eq!(
+            infer_install_method("/home/u/.local/share/pnpm/gemini"),
+            Some(Pnpm)
+        );
+        assert_eq!(
+            infer_install_method("/usr/lib/node_modules/.bin/gemini"),
+            Some(Npm)
+        );
+        assert_eq!(
+            infer_install_method("/home/u/.local/share/uv/tools/kimi-cli/bin/kimi"),
+            Some(Uv)
+        );
+        // Ambiguous native-installer shim → no confident method.
+        assert_eq!(infer_install_method("/home/u/.local/bin/claude"), None);
+    }
+
+    #[test]
+    fn resolved_update_command_swaps_npm_to_owning_js_pm() {
+        // gemini installed via bun → run `bun add -g <pkg>`, not npm.
+        let e = entry_with(
+            Some("gemini"),
+            &["npm", "install", "-g", "@google/gemini-cli@latest"],
+            Some("/home/u/.bun/bin/gemini"),
+        );
+        assert_eq!(
+            e.resolved_update_command().unwrap(),
+            vec!["bun", "add", "-g", "@google/gemini-cli@latest"]
+        );
+    }
+
+    #[test]
+    fn resolved_update_command_keeps_npm_for_npm_and_unknown_installs() {
+        // npm install → keep npm.
+        let npm = entry_with(
+            Some("gemini"),
+            &["npm", "install", "-g", "@google/gemini-cli@latest"],
+            Some("/usr/lib/node_modules/.bin/gemini"),
+        );
+        assert_eq!(npm.resolved_update_command().unwrap()[0], "npm");
+        // Homebrew install (can't transfer the npm package spec to a brew formula)
+        // → keep the registry npm command as the best available action.
+        let brew = entry_with(
+            Some("gemini"),
+            &["npm", "install", "-g", "@google/gemini-cli@latest"],
+            Some("/opt/homebrew/bin/gemini"),
+        );
+        assert_eq!(brew.resolved_update_command().unwrap()[0], "npm");
     }
 
     #[test]

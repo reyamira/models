@@ -222,8 +222,12 @@ no TUI suspension, mirrors the GitHub-fetch async pattern.
   returns `Option<&[String]>` (None = no update action). Custom agents
   (`CustomAgent::to_agent`) get no update command.
 - **Keys**: `u` = update the selected agent; `U` = update **all** agents with
-  `update_available()` && a verified updater. Both open a **confirm modal** first
-  (update mutates the user's system; refresh only reads).
+  `update_available()` && a verified updater; `x` = cancel the selected agent's
+  in-flight update. `u`/`U` open a **confirm modal** first (update mutates the
+  user's system; refresh only reads).
+- **`u` gates on installed**: `request_update_selected` refuses (status-bar
+  message) when the selected agent has no detected install (`installed.version`
+  is `None`) — nothing to update. `U` is already gated via `update_available()`.
 - **Confirm modal** (`draw_update_confirm_modal`): Cyan border,
   `centered_rect_fixed(66, …)`, title ` Update Agent(s) `. Lists each target's
   `name` + `$ {argv joined}` in Yellow. Bottom hint is target-count dependent:
@@ -233,11 +237,18 @@ no TUI suspension, mirrors the GitHub-fetch async pattern.
   `CancelUpdate` (`handle_update_confirm_keys`, intercepts all keys). `request_update_selected`
   errors (status bar) when the agent has no updater or is already running;
   `request_update_all` errors when none qualify.
-- **Command resolution** (`AgentEntry::resolved_update_command`): when the
-  updater invokes the agent's **own** binary (`["claude","update"]`) and
-  `detect_installed` resolved an absolute path, argv[0] is replaced with that
-  path so the exact detected copy is updated (not whatever PATH resolves first).
-  Package-manager updaters (`npm`/`uv` argv[0]) are unchanged.
+- **Command resolution** (`AgentEntry::resolved_update_command`, install-aware):
+  (1) **self-updater** (argv[0] is the agent's own binary, `["claude","update"]`)
+  + a detected path → argv[0] replaced with that absolute path so the exact
+  detected copy is updated, not whatever PATH resolves first. (2) **JS
+  package-manager swap**: an `npm install -g <pkg>` updater whose binary was
+  actually installed by a *different* JS PM (bun/pnpm/yarn — inferred from the
+  detected path via `infer_install_method`/`InstallMethod`) is rewritten to that
+  manager keeping the same package spec (`bun add -g <pkg>`), so it updates the
+  copy you run. npm installs, non-JS methods (Homebrew/uv — package id doesn't
+  transfer to a brew formula), and unknown paths keep the registry command. The
+  confirm modal shows the detected method per target as `(via <method>)`
+  (`UpdateTarget.method`).
 - **Execution** (`spawn_agent_update` in `tui/mod.rs`): `tokio::process::Command`
   (needs tokio features `process` + `io-util`), `stdin` null, stdout+stderr
   piped and streamed **line-by-line** over an `mpsc<UpdateEvent>` channel
@@ -285,7 +296,14 @@ no TUI suspension, mirrors the GitHub-fetch async pattern.
   real terminal (not captured), so the detail log shows just the summary line.
   `run_interactive_update` manipulates the real terminal → not unit-tested; the
   decision branch (`confirm_update_interactive` single vs multi) is.
-- **Footer**: ` u ` update, ` U ` update all. Help: `u`/`U` entries.
+- **Cancel a running update** (`x` → `Message::RequestCancelUpdate`): the main
+  loop holds a per-agent `oneshot::Sender<()>` (`cancel_signals`, created when the
+  update spawns, removed on `Finished`). `x` on a `Running` agent fires it →
+  `spawn_agent_update`'s `tokio::select!` (child exit / 5-min timeout / cancel)
+  takes the cancel branch → `start_kill` + reap → `Finished(false, "✗ update
+  cancelled")`. This frees the user to immediately re-run with `i` (interactive),
+  which is the recovery path when a background update turns out to need input.
+- **Footer**: ` u ` update, ` U ` update all, ` x ` cancel. Help: `u`/`U`/`x`.
 
 ---
 

@@ -771,7 +771,7 @@ pub(in crate::tui) fn draw_update_confirm_modal(f: &mut Frame, app: &App) {
     )));
     lines.push(Line::from(""));
     for t in targets {
-        lines.push(Line::from(vec![
+        let mut spans = vec![
             Span::styled(
                 format!("  {:<14}", truncate(&t.name, 14)),
                 Style::default().fg(Color::Gray),
@@ -780,7 +780,15 @@ pub(in crate::tui) fn draw_update_confirm_modal(f: &mut Frame, app: &App) {
                 format!("$ {}", t.command.join(" ")),
                 Style::default().fg(Color::Yellow),
             ),
-        ]));
+        ];
+        // Show the detected install method so the user can see what's targeted.
+        if let Some(method) = &t.method {
+            spans.push(Span::styled(
+                format!("  (via {})", method),
+                Style::default().fg(Color::DarkGray),
+            ));
+        }
+        lines.push(Line::from(spans));
     }
     lines.push(Line::from(""));
     lines.push(Line::from(Span::styled(
@@ -974,6 +982,7 @@ mod mouse_tests {
                 id: "claude-code".to_string(),
                 name: "Claude Code".to_string(),
                 command: vec!["claude".to_string(), "update".to_string()],
+                method: None,
             }];
         }
         let backend = TestBackend::new(80, 30);

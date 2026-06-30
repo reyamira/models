@@ -136,8 +136,12 @@ pub enum AgentUpdateState {
 pub struct UpdateTarget {
     pub id: String,
     pub name: String,
-    /// Verified argv (no shell), e.g. `["claude", "update"]`.
+    /// Verified argv (no shell), e.g. `["claude", "update"]` — already made
+    /// install-aware via `AgentEntry::resolved_update_command`.
     pub command: Vec<String>,
+    /// Detected install method label (e.g. "Homebrew"), shown in the confirm
+    /// modal so the user can see what the command targets. `None` if unknown.
+    pub method: Option<String>,
 }
 
 /// Cap on retained per-agent update output lines (oldest dropped) so a chatty
@@ -745,6 +749,15 @@ impl AgentsApp {
             Some(c) => c,
             None => return Err(format!("No in-app updater for {}", entry.agent.name)),
         };
+        // Nothing to update if it isn't installed — running the updater would just
+        // fail with "binary not found". (`U`/update-all already gates on
+        // update_available(), which requires a detected install.)
+        if entry.installed.version.is_none() {
+            return Err(format!(
+                "{} is not installed — nothing to update",
+                entry.agent.name
+            ));
+        }
         if self.update_states.get(&entry.id) == Some(&AgentUpdateState::Running) {
             return Err(format!("{} is already updating", entry.agent.name));
         }
@@ -752,6 +765,7 @@ impl AgentsApp {
             id: entry.id.clone(),
             name: entry.agent.name.clone(),
             command,
+            method: entry.install_method().map(|m| m.label().to_string()),
         }];
         self.show_update_confirm = true;
         Ok(())
@@ -770,6 +784,7 @@ impl AgentsApp {
                     id: e.id.clone(),
                     name: e.agent.name.clone(),
                     command,
+                    method: e.install_method().map(|m| m.label().to_string()),
                 })
             })
             .collect();
@@ -1101,6 +1116,18 @@ mod tests {
         assert!(app.show_update_confirm);
         assert_eq!(app.update_targets.len(), 1);
         assert_eq!(app.update_targets[0].command, vec!["claude", "update"]);
+    }
+
+    #[test]
+    fn request_update_selected_errors_when_not_installed() {
+        // Has an updater command but no detected install → nothing to update.
+        let mut e = agent_entry("claude-code", "Claude Code", None);
+        e.agent.update_command = vec!["claude".to_string(), "update".to_string()];
+        // installed.version stays None (agent_entry leaves it default).
+        let mut app = test_app(vec![e]);
+        let err = app.request_update_selected().unwrap_err();
+        assert!(err.contains("not installed"), "got: {err}");
+        assert!(!app.show_update_confirm);
     }
 
     #[test]
