@@ -83,6 +83,59 @@ pub struct AgentFilters {
     pub open_source_only: bool,
 }
 
+/// Which field of the "Add Agent" form currently has focus.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AddAgentField {
+    #[default]
+    Name,
+    Repo,
+}
+
+impl AddAgentField {
+    fn toggled(self) -> Self {
+        match self {
+            AddAgentField::Name => AddAgentField::Repo,
+            AddAgentField::Repo => AddAgentField::Name,
+        }
+    }
+}
+
+/// State for the in-app "Add Agent" modal — a minimal two-field form (name +
+/// `owner/repo`) that writes a `CustomAgent` to config without the user editing
+/// `config.toml` by hand.
+#[derive(Debug, Clone, Default)]
+pub struct AddAgentForm {
+    pub name: String,
+    pub repo: String,
+    pub field: AddAgentField,
+    /// Inline validation error shown beneath the fields (cleared on next input).
+    pub error: Option<String>,
+}
+
+impl AddAgentForm {
+    fn active_mut(&mut self) -> &mut String {
+        match self.field {
+            AddAgentField::Name => &mut self.name,
+            AddAgentField::Repo => &mut self.repo,
+        }
+    }
+}
+
+/// True when `repo` is a plausible `owner/name` GitHub slug: exactly one `/`,
+/// non-empty halves, and only characters GitHub allows in owner/repo names.
+fn is_valid_repo_slug(repo: &str) -> bool {
+    let mut parts = repo.split('/');
+    let (Some(owner), Some(name), None) = (parts.next(), parts.next(), parts.next()) else {
+        return false;
+    };
+    let valid_part = |s: &str| {
+        !s.is_empty()
+            && s.chars()
+                .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.'))
+    };
+    valid_part(owner) && valid_part(name)
+}
+
 pub struct AgentsApp {
     pub entries: Vec<AgentEntry>,
     pub filtered_entries: Vec<usize>, // indices into entries
@@ -97,6 +150,9 @@ pub struct AgentsApp {
     pub show_picker: bool,
     pub picker_selected: usize,
     pub picker_changes: HashMap<String, bool>, // agent_id -> new tracked state
+    // Add-agent form modal state
+    pub show_add_form: bool,
+    pub add_form: AddAgentForm,
     // Detail panel scroll
     pub detail_scroll: u16,
     // Search match navigation (line indices in detail content)
@@ -212,6 +268,8 @@ impl AgentsApp {
             show_picker: false,
             picker_selected: 0,
             picker_changes: HashMap::new(),
+            show_add_form: false,
+            add_form: AddAgentForm::default(),
             detail_scroll: 0,
             search_match_lines: Vec::new(),
             search_match_visual_offsets: Vec::new(),
@@ -490,6 +548,100 @@ impl AgentsApp {
         Ok(newly_tracked)
     }
 
+    // Add-agent form methods
+    pub fn open_add_form(&mut self) {
+        self.show_add_form = true;
+        self.add_form = AddAgentForm::default();
+    }
+
+    pub fn close_add_form(&mut self) {
+        self.show_add_form = false;
+        self.add_form = AddAgentForm::default();
+    }
+
+    pub fn add_form_input(&mut self, c: char) {
+        // Ignore control chars; the field accepts plain text only.
+        if c.is_control() {
+            return;
+        }
+        self.add_form.error = None;
+        self.add_form.active_mut().push(c);
+    }
+
+    pub fn add_form_backspace(&mut self) {
+        self.add_form.error = None;
+        self.add_form.active_mut().pop();
+    }
+
+    pub fn add_form_toggle_field(&mut self) {
+        self.add_form.field = self.add_form.field.toggled();
+    }
+
+    /// Validate the form, persist a `CustomAgent` to config, and create a tracked
+    /// `AgentEntry` in-memory. Returns `(id, repo)` for the GitHub fetch the main
+    /// loop will spawn, or an error message to show inline (the form stays open on
+    /// validation errors so the user can correct them; it closes on success).
+    pub fn add_agent_save(&mut self, config: &mut Config) -> Result<(String, String), String> {
+        let name = self.add_form.name.trim().to_string();
+        let repo = self.add_form.repo.trim().to_string();
+
+        if name.is_empty() {
+            self.add_form.error = Some("Name is required".to_string());
+            self.add_form.field = AddAgentField::Name;
+            return Err("Name is required".to_string());
+        }
+        if !is_valid_repo_slug(&repo) {
+            self.add_form.error = Some("Repo must be in owner/name form".to_string());
+            self.add_form.field = AddAgentField::Repo;
+            return Err("Repo must be in owner/name form".to_string());
+        }
+
+        // Id is derived from the name exactly as `AgentsApp::new` derives it for
+        // config-loaded custom agents, so a restart re-resolves to the same id.
+        let id = name.to_lowercase().replace(' ', "-");
+        if self.entries.iter().any(|e| e.id == id) {
+            let msg = format!("An agent named \"{}\" already exists", name);
+            self.add_form.error = Some(msg.clone());
+            return Err(msg);
+        }
+
+        let custom = crate::config::CustomAgent {
+            name: name.clone(),
+            repo: repo.clone(),
+            agent_type: None,
+            binary: None,
+            version_command: None,
+        };
+        let agent = custom.to_agent();
+        config.agents.custom.push(custom);
+        // Persist as tracked so it survives a restart (custom agents are only
+        // shown when their id is in config.agents.tracked).
+        config.set_tracked(&id, true);
+        if let Err(e) = config.save() {
+            // Roll back the in-memory config mutation so a retry doesn't duplicate.
+            config.agents.custom.retain(|c| c.name != name);
+            return Err(format!("Failed to save config: {}", e));
+        }
+
+        // No version_command on a minimal custom agent, so detect_installed
+        // short-circuits without shelling out.
+        let installed = detect_installed(&agent);
+        self.entries.push(AgentEntry {
+            id: id.clone(),
+            agent,
+            github: GitHubData::default(),
+            installed,
+            tracked: true,
+            fetch_status: FetchStatus::Loading,
+        });
+        // Keep the by-name sort invariant the constructor establishes.
+        self.entries.sort_by(|a, b| a.agent.name.cmp(&b.agent.name));
+
+        self.close_add_form();
+        self.update_filtered();
+        Ok((id, repo))
+    }
+
     /// Update match line indices and visual offsets from rendered detail content.
     /// Only resets current_match when the match set actually changes.
     pub fn update_search_matches(&mut self, match_lines: Vec<u16>, visual_offsets: Vec<u16>) {
@@ -656,6 +808,61 @@ mod tests {
         }
     }
 
+    #[test]
+    fn repo_slug_validation() {
+        assert!(is_valid_repo_slug("owner/repo"));
+        assert!(is_valid_repo_slug("My-Org/my.repo_2"));
+        assert!(!is_valid_repo_slug("noslash"));
+        assert!(!is_valid_repo_slug("owner/"));
+        assert!(!is_valid_repo_slug("/repo"));
+        assert!(!is_valid_repo_slug("a/b/c"));
+        assert!(!is_valid_repo_slug("own er/repo"));
+        assert!(!is_valid_repo_slug("https://github.com/owner/repo"));
+        assert!(!is_valid_repo_slug(""));
+    }
+
+    #[test]
+    fn add_agent_rejects_empty_name_without_saving() {
+        // Error paths return before config.save(), so no filesystem touch.
+        let mut app = test_app(vec![]);
+        let mut config = Config::default();
+        app.open_add_form();
+        app.add_form.name = "  ".to_string();
+        app.add_form.repo = "owner/repo".to_string();
+        assert!(app.add_agent_save(&mut config).is_err());
+        // Form stays open with an error so the user can correct it.
+        assert!(app.show_add_form);
+        assert_eq!(app.add_form.field, AddAgentField::Name);
+        assert!(app.add_form.error.is_some());
+        assert!(config.agents.custom.is_empty());
+    }
+
+    #[test]
+    fn add_agent_rejects_bad_repo_slug() {
+        let mut app = test_app(vec![]);
+        let mut config = Config::default();
+        app.open_add_form();
+        app.add_form.name = "My Agent".to_string();
+        app.add_form.repo = "not-a-slug".to_string();
+        assert!(app.add_agent_save(&mut config).is_err());
+        assert_eq!(app.add_form.field, AddAgentField::Repo);
+        assert!(app.show_add_form);
+        assert!(config.agents.custom.is_empty());
+    }
+
+    #[test]
+    fn add_agent_rejects_id_collision_with_existing_agent() {
+        // "Claude Code" → id "claude-code"; collide with an existing entry.
+        let mut app = test_app(vec![agent_entry("claude-code", "Claude Code", None)]);
+        let mut config = Config::default();
+        app.open_add_form();
+        app.add_form.name = "Claude Code".to_string();
+        app.add_form.repo = "someone/fork".to_string();
+        assert!(app.add_agent_save(&mut config).is_err());
+        assert!(app.add_form.error.is_some());
+        assert!(config.agents.custom.is_empty());
+    }
+
     fn test_app(entries: Vec<AgentEntry>) -> AgentsApp {
         let mut agent_list_state = ListState::default();
         agent_list_state.select(Some(0));
@@ -672,6 +879,8 @@ mod tests {
             show_picker: false,
             picker_selected: 0,
             picker_changes: HashMap::new(),
+            show_add_form: false,
+            add_form: AddAgentForm::default(),
             detail_scroll: 0,
             search_match_lines: Vec::new(),
             search_match_visual_offsets: Vec::new(),

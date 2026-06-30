@@ -176,6 +176,40 @@ Selected row: Yellow + BOLD (applied via `ListItem::style`, overrides per-span s
 
 ---
 
+## 7b. Add Agent Modal
+
+Popup for adding a **custom** agent without hand-editing `config.toml` (opened
+with `A` — capital, since lowercase `a` opens the tracker picker). Minimal
+two-field form; writes a `CustomAgent` to `config.agents.custom`.
+
+- **State** (`AgentsApp`): `show_add_form: bool`, `add_form: AddAgentForm`
+  (`{ name, repo, field: AddAgentField (Name|Repo), error: Option<String> }`).
+- **Size**: `centered_rect_fixed(min(54, screen_width - 4), min(11, screen_height - 4))`.
+- **Border**: `Color::Cyan`. **Title**: `" Add Agent "`.
+- **Bottom title**: `" Tab: next field | Enter: save | Esc: cancel "` (centered).
+- **Fields**: `Name:` and `Repo:` (each `  {label:<7}` gutter). Active field
+  label is `Cyan`+BOLD with a trailing `SLOW_BLINK` `_` cursor; inactive label
+  is `Gray`. An empty inactive Repo shows a `DarkGray` `owner/name` placeholder.
+- **Keys** (`handle_add_agent_keys`, intercepts all so `q`/`?` don't leak):
+  `Tab`/`Up`/`Down` toggle field, `Backspace`, `Char(c)` types into the active
+  field, `Enter` saves, `Esc` cancels.
+- **Save** (`add_agent_save`): trims; requires a non-empty name and a valid
+  `owner/name` slug (`is_valid_repo_slug`: exactly one `/`, non-empty halves,
+  `[A-Za-z0-9._-]` only). Id is derived as `name.to_lowercase().replace(' ', "-")`
+  — identical to how `AgentsApp::new` derives ids for config-loaded custom
+  agents, so a restart re-resolves the same id. **Collision** with an existing
+  entry id → inline error, form stays open. On success: push `CustomAgent`,
+  `config.set_tracked(id, true)` (so it persists as tracked), `config.save()`
+  (rolled back in-memory if the write fails), build a tracked `Loading`
+  `AgentEntry`, re-sort entries by name, and queue the GitHub fetch via
+  `App.pending_fetches` (same path the tracker's "newly tracked" uses). Minimal
+  custom agents carry no `version_command`, so `detect_installed` short-circuits
+  (no shell-out). Validation errors set `add_form.error` and return before any
+  `config.save()` (filesystem-free).
+- **Footer**: ` A ` (Yellow) + `add`. Help: `A — Add a new agent (name + repo)`.
+
+---
+
 ## 8. Mouse
 
 `handle_agents_mouse` (in `agents/app.rs`); see style guide §12 for the shared pattern.
@@ -185,3 +219,4 @@ Selected row: Yellow + BOLD (applied via `ListItem::style`, overrides per-span s
 - **Click:** agent row → focus List + `select_agent_at_index`; detail → focus Details only.
 - **Wheel (focus-then-scroll):** over the list → prev/next agent; over the detail → adjust `detail_scroll` (a `u16`, clamped at render).
 - The list renders into the **real** `agent_list_state` so `offset()` is valid while scrolled (fixed the `ListState` copy gotcha — see CLAUDE.md).
+- **Modal mouse:** `modal_popup_open` returns true for both `show_picker` and `show_add_form` so clicks/wheel can't leak to the panels behind. The Add Agent form has no selectable rows — clicks and wheel over it are swallowed (`handle_modal_popup_click`/`handle_modal_popup_mouse` return `None` when `show_add_form`).

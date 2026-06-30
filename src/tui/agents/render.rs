@@ -6,6 +6,7 @@ use ratatui::{
     Frame,
 };
 
+use super::app::AddAgentField;
 use crate::agents::{format_stars, FetchStatus};
 use crate::formatting::truncate;
 use crate::formatting::EM_DASH;
@@ -609,6 +610,75 @@ pub(in crate::tui) fn draw_picker_modal(f: &mut Frame, app: &App) {
     f.render_stateful_widget(list, area, &mut list_state);
 }
 
+/// Render the "Add Agent" modal — a minimal two-field form (name + `owner/repo`)
+/// that writes a `CustomAgent` to config. The active field is Cyan+BOLD with a
+/// blinking cursor; an inline validation error (if any) shows in Red.
+pub(in crate::tui) fn draw_add_agent_modal(f: &mut Frame, app: &App) {
+    let agents_app = match &app.agents_app {
+        Some(a) => a,
+        None => return,
+    };
+    let form = &agents_app.add_form;
+
+    let popup_width = std::cmp::min(54, f.area().width.saturating_sub(4));
+    let popup_height = std::cmp::min(11, f.area().height.saturating_sub(4));
+    let area = centered_rect_fixed(popup_width, popup_height, f.area());
+
+    f.render_widget(Clear, area);
+
+    let label_style = Style::default().fg(Color::Gray);
+    let active_label = Style::default()
+        .fg(Color::Cyan)
+        .add_modifier(Modifier::BOLD);
+    let cursor_style = Style::default()
+        .fg(Color::Cyan)
+        .add_modifier(Modifier::SLOW_BLINK);
+
+    let field_line = |label: &str, value: &str, active: bool, placeholder: &str| -> Line<'static> {
+        let mut spans = vec![Span::styled(
+            format!("  {:<7}", label),
+            if active { active_label } else { label_style },
+        )];
+        spans.push(Span::raw(value.to_string()));
+        if active {
+            spans.push(Span::styled("_", cursor_style));
+        } else if value.is_empty() && !placeholder.is_empty() {
+            spans.push(Span::styled(
+                placeholder.to_string(),
+                Style::default().fg(Color::DarkGray),
+            ));
+        }
+        Line::from(spans)
+    };
+
+    let mut lines = vec![
+        Line::from(""),
+        field_line("Name:", &form.name, form.field == AddAgentField::Name, ""),
+        Line::from(""),
+        field_line(
+            "Repo:",
+            &form.repo,
+            form.field == AddAgentField::Repo,
+            "owner/name",
+        ),
+        Line::from(""),
+    ];
+    if let Some(err) = &form.error {
+        lines.push(Line::from(Span::styled(
+            format!("  {}", err),
+            Style::default().fg(Color::Red),
+        )));
+    }
+
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(Color::Cyan))
+        .title(" Add Agent ")
+        .title_bottom(Line::from(" Tab: next field | Enter: save | Esc: cancel ").centered());
+
+    f.render_widget(Paragraph::new(lines).block(block), area);
+}
+
 #[cfg(test)]
 mod mouse_tests {
     //! End-to-end checks for Agents-tab mouse handling: build an `App` with a
@@ -626,7 +696,7 @@ mod mouse_tests {
     use crate::agents::{Agent, AgentEntry, FetchStatus, GitHubData, InstalledInfo, Release};
     use crate::data::ProvidersMap;
     use crate::tui::agents::app::{
-        handle_agents_mouse, AgentFilters, AgentFocus, AgentSortOrder, AgentsApp,
+        handle_agents_mouse, AddAgentForm, AgentFilters, AgentFocus, AgentSortOrder, AgentsApp,
     };
     use crate::tui::app::{App, Tab};
 
@@ -685,6 +755,8 @@ mod mouse_tests {
             show_picker: false,
             picker_selected: 0,
             picker_changes: HashMap::new(),
+            show_add_form: false,
+            add_form: AddAgentForm::default(),
             detail_scroll: 0,
             search_match_lines: Vec::new(),
             search_match_visual_offsets: Vec::new(),
@@ -734,6 +806,30 @@ mod mouse_tests {
             row,
             modifiers: KeyModifiers::NONE,
         }
+    }
+
+    #[test]
+    fn add_agent_modal_renders_form_with_typed_input() {
+        let mut app = test_app(4);
+        app.update(crate::tui::app::Message::OpenAddAgent);
+        for c in "Amp".chars() {
+            app.update(crate::tui::app::Message::AddAgentInput(c));
+        }
+        app.update(crate::tui::app::Message::AddAgentToggleField);
+        for c in "sourcegraph/amp".chars() {
+            app.update(crate::tui::app::Message::AddAgentInput(c));
+        }
+        // Render the full UI with the modal open; assert it draws expected text.
+        let backend = TestBackend::new(80, 30);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| crate::tui::ui::draw(f, &mut app))
+            .expect("draw");
+        let buf = terminal.backend().buffer().clone();
+        let text: String = buf.content().iter().map(|c| c.symbol()).collect();
+        assert!(text.contains("Add Agent"), "modal title should render");
+        assert!(text.contains("Amp"), "typed name should render");
+        assert!(text.contains("sourcegraph/amp"), "typed repo should render");
     }
 
     #[test]

@@ -578,6 +578,12 @@ fn run_app(
                     // Picker save sets its own status message via app.update
                     last_status_time = Some(std::time::Instant::now());
                 }
+                app::Message::AddAgentSave => {
+                    // Add-agent save sets its own status message via app.update;
+                    // the new agent's GitHub fetch is dispatched from the
+                    // pending_fetches drain at the top of the loop.
+                    last_status_time = Some(std::time::Instant::now());
+                }
                 app::Message::ColumnPickerSave => {
                     // Column persistence sets its own status via app.update
                     last_status_time = Some(std::time::Instant::now());
