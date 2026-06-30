@@ -767,6 +767,16 @@ fn run_app(
                     // pending_fetches drain at the top of the loop.
                     last_status_time = Some(std::time::Instant::now());
                 }
+                app::Message::RequestUpdateAgent
+                | app::Message::RequestUpdateAll
+                | app::Message::ConfirmUpdate
+                | app::Message::CancelUpdate => {
+                    // These set their own transient status via app.update (errors
+                    // like "No updater for X", or "Updating N…"); arm the auto-clear
+                    // so the message doesn't linger. Update completion sets a fresh
+                    // status from the update_rx drain above.
+                    last_status_time = Some(std::time::Instant::now());
+                }
                 app::Message::ColumnPickerSave => {
                     // Column persistence sets its own status via app.update
                     last_status_time = Some(std::time::Instant::now());
