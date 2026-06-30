@@ -245,10 +245,11 @@ no TUI suspension, mirrors the GitHub-fetch async pattern.
   actually installed by a *different* JS PM (bun/pnpm/yarn — inferred from the
   detected path via `infer_install_method`/`InstallMethod`) is rewritten to that
   manager keeping the same package spec (`bun add -g <pkg>`), so it updates the
-  copy you run. npm installs, non-JS methods (Homebrew/uv — package id doesn't
-  transfer to a brew formula), and unknown paths keep the registry command. The
-  confirm modal shows the detected method per target as `(via <method>)`
-  (`UpdateTarget.method`).
+  copy you run. (3) **Homebrew install** of a package-manager-updated tool →
+  `brew upgrade <formula>`, where `<formula>` is parsed from the resolved Cellar
+  path (`canonicalize` the bin symlink → `…/Cellar/<formula>/…`). npm installs,
+  uv, and unknown/unresolvable paths keep the registry command. The confirm modal
+  shows the detected method per target as `(via <method>)` (`UpdateTarget.method`).
 - **Execution** (`spawn_agent_update` in `tui/mod.rs`): `tokio::process::Command`
   (needs tokio features `process` + `io-util`), `stdin` null, stdout+stderr
   piped and streamed **line-by-line** over an `mpsc<UpdateEvent>` channel

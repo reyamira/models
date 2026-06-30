@@ -173,7 +173,8 @@ impl AgentEntry {
     pub fn resolved_update_command(&self) -> Option<Vec<String>> {
         let mut cmd = self.update_command()?.to_vec();
 
-        // (1) Self-updater → pin to the detected path.
+        // (1) Self-updater → pin to the detected path. Self-updaters self-manage
+        // their install method, so this short-circuits the rewrites below.
         if let (Some(bin), Some(path)) = (
             self.agent.cli_binary.as_deref(),
             self.installed.path.as_deref(),
@@ -184,12 +185,26 @@ impl AgentEntry {
             }
         }
 
-        // (2) JS package-manager swap to the manager that owns the install.
-        if let Some(pkg) = npm_global_package(&cmd) {
-            if let Some(swapped) = self
-                .install_method()
-                .and_then(|m| js_pm_global_add(m, &pkg))
+        let method = self.install_method();
+
+        // (2) Homebrew install of a package-manager-updated tool → `brew upgrade
+        // <formula>` (derived from the Cellar path), since the registry's npm/uv
+        // command would touch a different copy than the brew-managed one.
+        if method == Some(InstallMethod::Homebrew) {
+            if let Some(brew) = self
+                .installed
+                .path
+                .as_deref()
+                .and_then(homebrew_upgrade_command)
             {
+                return Some(brew);
+            }
+        }
+
+        // (3) npm install but a different JS package manager owns it → swap to it,
+        // keeping the portable package spec.
+        if let Some(pkg) = npm_global_package(&cmd) {
+            if let Some(swapped) = method.and_then(|m| js_pm_global_add(m, &pkg)) {
                 return Some(swapped);
             }
         }
@@ -316,6 +331,24 @@ fn npm_global_package(cmd: &[String]) -> Option<String> {
     } else {
         None
     }
+}
+
+/// Extract the Homebrew formula name from a resolved Cellar path
+/// (`…/Cellar/<formula>/<version>/…` → `<formula>`). Pure string parsing.
+fn formula_from_cellar_path(resolved: &str) -> Option<String> {
+    let idx = resolved.find("/Cellar/")?;
+    let after = &resolved[idx + "/Cellar/".len()..];
+    let formula = after.split('/').next()?;
+    (!formula.is_empty()).then(|| formula.to_string())
+}
+
+/// `brew upgrade <formula>` for a Homebrew-installed binary, resolving the bin
+/// symlink to its Cellar target to read the formula name. `None` if the path
+/// can't be resolved (e.g. doesn't exist) or isn't under a Cellar.
+fn homebrew_upgrade_command(path: &str) -> Option<Vec<String>> {
+    let resolved = std::fs::canonicalize(path).ok()?;
+    let formula = formula_from_cellar_path(resolved.to_str()?)?;
+    Some(vec!["brew".to_string(), "upgrade".to_string(), formula])
 }
 
 /// Build the global-add command for a JS package manager that *isn't* npm,
@@ -476,14 +509,31 @@ mod tests {
             Some("/usr/lib/node_modules/.bin/gemini"),
         );
         assert_eq!(npm.resolved_update_command().unwrap()[0], "npm");
-        // Homebrew install (can't transfer the npm package spec to a brew formula)
-        // → keep the registry npm command as the best available action.
+        // Homebrew install where the path can't be resolved to a Cellar formula
+        // (fake path → canonicalize fails) → fall back to the registry npm command.
         let brew = entry_with(
             Some("gemini"),
             &["npm", "install", "-g", "@google/gemini-cli@latest"],
             Some("/opt/homebrew/bin/gemini"),
         );
         assert_eq!(brew.resolved_update_command().unwrap()[0], "npm");
+    }
+
+    #[test]
+    fn formula_from_cellar_path_extracts_formula() {
+        assert_eq!(
+            formula_from_cellar_path(
+                "/home/linuxbrew/.linuxbrew/Cellar/gemini-cli/0.46.0/libexec/bin/gemini"
+            )
+            .as_deref(),
+            Some("gemini-cli")
+        );
+        assert_eq!(
+            formula_from_cellar_path("/opt/homebrew/Cellar/node/22.1.0/bin/node").as_deref(),
+            Some("node")
+        );
+        // No Cellar segment → no formula.
+        assert_eq!(formula_from_cellar_path("/usr/local/bin/gemini"), None);
     }
 
     #[test]
