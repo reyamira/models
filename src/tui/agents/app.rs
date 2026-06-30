@@ -159,6 +159,48 @@ fn is_valid_repo_slug(repo: &str) -> bool {
     valid_part(owner) && valid_part(name)
 }
 
+/// Candidate CLI binary names to probe when adding a custom agent, in priority
+/// order: the repo's last path segment, then the display name (kebab and
+/// joined). Lowercased, de-duplicated, empties dropped. The repo segment comes
+/// first because it's usually the actual binary name (e.g. `sourcegraph/amp` →
+/// `amp`).
+fn binary_candidates(name: &str, repo: &str) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    let mut push = |s: String| {
+        if !s.is_empty() && !out.contains(&s) {
+            out.push(s);
+        }
+    };
+    if let Some(seg) = repo.rsplit('/').next() {
+        push(seg.to_lowercase());
+    }
+    push(name.to_lowercase().replace(' ', "-"));
+    push(name.to_lowercase().replace(' ', ""));
+    out
+}
+
+/// Probe inferred binaries for a custom agent. Returns the first candidate whose
+/// `<bin> --version` yields a version, with its detected install info (version +
+/// path). `None` if nothing resolves — the agent stays detection-less.
+fn detect_custom_agent(name: &str, repo: &str) -> Option<(String, InstalledInfo)> {
+    for cand in binary_candidates(name, repo) {
+        // Reuse CustomAgent::to_agent so the probe Agent matches the real shape.
+        let probe = crate::config::CustomAgent {
+            name: name.to_string(),
+            repo: repo.to_string(),
+            agent_type: Some("cli".to_string()),
+            binary: Some(cand.clone()),
+            version_command: Some(vec!["--version".to_string()]),
+        }
+        .to_agent();
+        let info = detect_installed(&probe);
+        if info.version.is_some() {
+            return Some((cand, info));
+        }
+    }
+    None
+}
+
 pub struct AgentsApp {
     pub entries: Vec<AgentEntry>,
     pub filtered_entries: Vec<usize>, // indices into entries
@@ -640,12 +682,28 @@ impl AgentsApp {
             return Err(msg);
         }
 
+        // Best-effort install detection: infer a binary from the repo/name and
+        // probe `<bin> --version`. If it resolves, record the binary + CLI type so
+        // the entry shows installed/path (and the saved CustomAgent re-detects on
+        // restart). The form stays name+repo only — this just uses what we can
+        // derive. `None` keeps the agent detection-less, exactly as before.
+        let detected = detect_custom_agent(&name, &repo);
+        let (binary, version_command, agent_type, installed) = match detected {
+            Some((bin, info)) => (
+                Some(bin),
+                Some(vec!["--version".to_string()]),
+                Some("cli".to_string()),
+                info,
+            ),
+            None => (None, None, None, InstalledInfo::default()),
+        };
+
         let custom = crate::config::CustomAgent {
             name: name.clone(),
             repo: repo.clone(),
-            agent_type: None,
-            binary: None,
-            version_command: None,
+            agent_type,
+            binary,
+            version_command,
         };
         let agent = custom.to_agent();
         config.agents.custom.push(custom);
@@ -658,9 +716,6 @@ impl AgentsApp {
             return Err(format!("Failed to save config: {}", e));
         }
 
-        // No version_command on a minimal custom agent, so detect_installed
-        // short-circuits without shelling out.
-        let installed = detect_installed(&agent);
         self.entries.push(AgentEntry {
             id: id.clone(),
             agent,
@@ -686,8 +741,8 @@ impl AgentsApp {
         let entry = self
             .current_entry()
             .ok_or_else(|| "No agent selected".to_string())?;
-        let command = match entry.update_command() {
-            Some(c) => c.to_vec(),
+        let command = match entry.resolved_update_command() {
+            Some(c) => c,
             None => return Err(format!("No in-app updater for {}", entry.agent.name)),
         };
         if self.update_states.get(&entry.id) == Some(&AgentUpdateState::Running) {
@@ -711,10 +766,10 @@ impl AgentsApp {
             .filter(|e| e.tracked && e.update_available())
             .filter(|e| self.update_states.get(&e.id) != Some(&AgentUpdateState::Running))
             .filter_map(|e| {
-                e.update_command().map(|c| UpdateTarget {
+                e.resolved_update_command().map(|command| UpdateTarget {
                     id: e.id.clone(),
                     name: e.agent.name.clone(),
-                    command: c.to_vec(),
+                    command,
                 })
             })
             .collect();
@@ -942,6 +997,21 @@ mod tests {
             tracked: true,
             fetch_status: FetchStatus::Loaded,
         }
+    }
+
+    #[test]
+    fn binary_candidates_prioritizes_repo_segment() {
+        assert_eq!(binary_candidates("Amp", "sourcegraph/amp"), vec!["amp"]);
+        assert_eq!(
+            binary_candidates("My Agent", "owner/my-agent"),
+            vec!["my-agent", "myagent"]
+        );
+        // Repo segment first, then distinct name forms (kebab dups the segment
+        // here, so only the space-joined form is added).
+        assert_eq!(
+            binary_candidates("Gemini CLI", "google-gemini/gemini-cli"),
+            vec!["gemini-cli", "geminicli"]
+        );
     }
 
     #[test]

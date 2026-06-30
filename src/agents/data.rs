@@ -151,6 +151,26 @@ impl AgentEntry {
         }
     }
 
+    /// The update argv to actually run, using detected install info. When the
+    /// updater invokes the agent's **own** binary (a self-updater like
+    /// `["claude", "update"]`) and `detect_installed` resolved an absolute path,
+    /// substitute that path for argv[0] so we update the exact detected copy
+    /// rather than whatever PATH happens to resolve first. Package-manager
+    /// updaters (`["npm", …]`, `["uv", …]`) are returned unchanged — argv[0]
+    /// isn't the agent binary, so there's nothing to pin.
+    pub fn resolved_update_command(&self) -> Option<Vec<String>> {
+        let mut cmd = self.update_command()?.to_vec();
+        if let (Some(bin), Some(path)) = (
+            self.agent.cli_binary.as_deref(),
+            self.installed.path.as_deref(),
+        ) {
+            if cmd.first().is_some_and(|first| first == bin) {
+                cmd[0] = path.to_string();
+            }
+        }
+        Some(cmd)
+    }
+
     pub fn update_available(&self) -> bool {
         match (&self.installed.version, self.github.latest_version()) {
             (Some(installed), Some(latest)) => {
@@ -210,6 +230,79 @@ mod tests {
                 .collect(),
             ..GitHubData::default()
         }
+    }
+
+    fn entry_with(
+        cli_binary: Option<&str>,
+        update_command: &[&str],
+        installed_path: Option<&str>,
+    ) -> AgentEntry {
+        AgentEntry {
+            id: "x".to_string(),
+            agent: Agent {
+                name: "X".to_string(),
+                repo: "o/x".to_string(),
+                categories: vec![],
+                installation_method: None,
+                pricing: None,
+                supported_providers: vec![],
+                platform_support: vec![],
+                open_source: false,
+                cli_binary: cli_binary.map(str::to_string),
+                alt_binaries: vec![],
+                version_command: vec![],
+                update_command: update_command.iter().map(|s| s.to_string()).collect(),
+                version_regex: None,
+                config_files: vec![],
+                homepage: None,
+                docs: None,
+            },
+            github: GitHubData::default(),
+            installed: InstalledInfo {
+                version: installed_path.map(|_| "1.0.0".to_string()),
+                path: installed_path.map(str::to_string),
+            },
+            tracked: true,
+            fetch_status: FetchStatus::Loaded,
+        }
+    }
+
+    #[test]
+    fn resolved_update_command_pins_self_updater_to_detected_path() {
+        // Self-updater whose argv[0] is the agent binary + a detected path → pin.
+        let e = entry_with(
+            Some("claude"),
+            &["claude", "update"],
+            Some("/home/u/.local/bin/claude"),
+        );
+        assert_eq!(
+            e.resolved_update_command().unwrap(),
+            vec!["/home/u/.local/bin/claude", "update"]
+        );
+    }
+
+    #[test]
+    fn resolved_update_command_leaves_package_manager_argv_unchanged() {
+        // npm updater: argv[0] is npm, not the agent binary → unchanged even with a path.
+        let e = entry_with(
+            Some("gemini"),
+            &["npm", "install", "-g", "@google/gemini-cli@latest"],
+            Some("/opt/homebrew/bin/gemini"),
+        );
+        assert_eq!(
+            e.resolved_update_command().unwrap(),
+            vec!["npm", "install", "-g", "@google/gemini-cli@latest"]
+        );
+    }
+
+    #[test]
+    fn resolved_update_command_falls_back_to_bare_binary_without_path() {
+        // Self-updater but no detected path → keep the bare binary (PATH lookup).
+        let e = entry_with(Some("claude"), &["claude", "update"], None);
+        assert_eq!(
+            e.resolved_update_command().unwrap(),
+            vec!["claude", "update"]
+        );
     }
 
     #[test]
