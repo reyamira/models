@@ -231,11 +231,20 @@ no TUI suspension, mirrors the GitHub-fetch async pattern.
   (`handle_update_confirm_keys`, intercepts all keys). `request_update_selected`
   errors (status bar) when the agent has no updater or is already running;
   `request_update_all` errors when none qualify.
+- **Command resolution** (`AgentEntry::resolved_update_command`): when the
+  updater invokes the agent's **own** binary (`["claude","update"]`) and
+  `detect_installed` resolved an absolute path, argv[0] is replaced with that
+  path so the exact detected copy is updated (not whatever PATH resolves first).
+  Package-manager updaters (`npm`/`uv` argv[0]) are unchanged.
 - **Execution** (`spawn_agent_update` in `tui/mod.rs`): `tokio::process::Command`
   (needs tokio features `process` + `io-util`), `stdin` null, stdout+stderr
   piped and streamed **line-by-line** over an `mpsc<UpdateEvent>` channel
-  (`Output`/`Finished`/`Redetected`). Bounded by a **5-minute timeout**
-  (`tokio::time::timeout` → `start_kill`) since there's no TTY for prompts.
+  (`Output`/`Finished`/`Redetected`). The child is put in its **own process
+  group** (`process_group(0)`, Unix) so a tool that opens `/dev/tty` for a prompt
+  (sudo) is a background-group reader → SIGTTIN-stopped (caught by the timeout)
+  rather than stealing the TUI's keystrokes / corrupting the screen. Bounded by a
+  **5-minute timeout** (`tokio::time::timeout` → `start_kill`) since there's no
+  TTY for prompts.
   All output is flushed (reader handles awaited) before `Finished`. On success,
   `detect_installed` re-runs via `spawn_blocking` → `Redetected` updates
   `AgentEntry.installed` so the dot flips without a restart. The confirmed
@@ -254,8 +263,15 @@ no TUI suspension, mirrors the GitHub-fetch async pattern.
   see detail panel`.
 - **Failure/no-TTY path**: npm-prefix updaters (gemini-cli, qwen-code) can fail
   without a writable global prefix; the captured stderr + non-zero exit surface
-  in the detail log and the `Failed` state. openclaw's updater restarts its
-  daemon (heaviest side effects) — included, shown verbatim in the confirm modal.
+  in the detail log and the `Failed` state. On `Failed`, the detail Update
+  section adds a `Run manually: $ <cmd>` line (the bare registry command) so the
+  user can run it in their own shell — where they have full interactivity for any
+  prompt. openclaw's updater restarts its daemon (heaviest side effects) —
+  included, shown verbatim in the confirm modal.
+- **In-app interactivity is intentionally not supported.** The 9 verified
+  updaters run non-interactively; a prompt-needing updater hangs (no TTY) → 5-min
+  timeout → `Failed` + the manual-run command. Full in-TUI interactivity would
+  need either a suspend-and-run handover or a pty proxy; deliberately deferred.
 - **Footer**: ` u ` update, ` U ` update all. Help: `u`/`U` entries.
 
 ---

@@ -351,6 +351,12 @@ fn spawn_agent_update(
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
+        // Put the child in its own process group so it can't read the TUI's
+        // controlling terminal. A tool that opens /dev/tty for a prompt (sudo)
+        // is then a background-group reader → SIGTTIN-stopped (caught by the
+        // timeout) rather than stealing keystrokes or corrupting the screen.
+        #[cfg(unix)]
+        cmd.process_group(0);
 
         let mut child = match cmd.spawn() {
             Ok(c) => c,

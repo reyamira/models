@@ -392,6 +392,20 @@ fn draw_agent_detail(f: &mut Frame, area: Rect, app: &mut App) {
                     None => Span::raw(""),
                 };
                 detail_lines.push(Line::from(state_span));
+                // On failure (incl. timeout / no-TTY prompt), surface the command
+                // so the user can run it in their own shell where they can answer
+                // any prompts.
+                if state == Some(&AgentUpdateState::Failed) {
+                    if let Some(cmd) = entry.update_command() {
+                        detail_lines.push(Line::from(vec![
+                            Span::styled("Run manually: ", Style::default().fg(Color::Gray)),
+                            Span::styled(
+                                format!("$ {}", cmd.join(" ")),
+                                Style::default().fg(Color::Yellow),
+                            ),
+                        ]));
+                    }
+                }
                 if let Some(log) = log {
                     // Show the trailing slice (the buffer itself is already capped).
                     let start = log.len().saturating_sub(12);
@@ -1009,6 +1023,45 @@ mod mouse_tests {
             text.contains("downloading archive"),
             "update output should render"
         );
+    }
+
+    #[test]
+    fn detail_panel_shows_run_manually_on_failed_update() {
+        let mut app = test_app(4);
+        let id = app
+            .agents_app
+            .as_ref()
+            .unwrap()
+            .current_entry()
+            .unwrap()
+            .id
+            .clone();
+        {
+            let a = app.agents_app.as_mut().unwrap();
+            for e in &mut a.entries {
+                e.agent.update_command = vec!["mytool".to_string(), "update".to_string()];
+            }
+            a.update_states.insert(id.clone(), AgentUpdateState::Failed);
+            a.update_logs
+                .insert(id.clone(), vec!["error: boom".to_string()]);
+        }
+        let backend = TestBackend::new(120, 40);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| crate::tui::ui::draw(f, &mut app))
+            .expect("draw");
+        let text: String = terminal
+            .backend()
+            .buffer()
+            .content()
+            .iter()
+            .map(|c| c.symbol())
+            .collect();
+        assert!(
+            text.contains("Run manually"),
+            "manual-run hint should render"
+        );
+        assert!(text.contains("mytool update"), "command should render");
     }
 
     #[test]
