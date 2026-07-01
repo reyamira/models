@@ -142,6 +142,20 @@ pub struct UpdateTarget {
     /// Detected install method label (e.g. "Homebrew"), shown in the confirm
     /// modal so the user can see what the command targets. `None` if unknown.
     pub method: Option<String>,
+    /// The command needs an interactive terminal (sudo / AUR-helper prompts).
+    /// Background execution can't answer a password prompt, so these are excluded
+    /// from `U` (update-all) and route `u` to the interactive (suspend-and-run) path.
+    pub needs_terminal: bool,
+}
+
+/// Whether an update command requires an interactive terminal — a system package
+/// manager or `sudo`, which prompt for a password / AUR review that a backgrounded
+/// child (detached from the TTY) can't answer.
+pub fn command_needs_terminal(command: &[String]) -> bool {
+    matches!(
+        command.first().map(String::as_str),
+        Some("sudo" | "paru" | "yay" | "pacman" | "apt" | "dnf")
+    )
 }
 
 /// Cap on retained per-agent update output lines (oldest dropped) so a chatty
@@ -778,34 +792,52 @@ impl AgentsApp {
         if self.update_states.get(&entry.id) == Some(&AgentUpdateState::Running) {
             return Err(format!("{} is already updating", entry.agent.name));
         }
+        let needs_terminal = command_needs_terminal(&command);
         self.update_targets = vec![UpdateTarget {
             id: entry.id.clone(),
             name: entry.agent.name.clone(),
             command,
             method: entry.install_method().map(|m| m.label().to_string()),
+            needs_terminal,
         }];
         self.show_update_confirm = true;
         Ok(())
     }
 
     /// Build confirm-modal targets for every agent with an available update and a
-    /// verified updater (skipping any already updating). `Err` if none qualify.
+    /// verified updater (skipping any already updating). Targets that need an
+    /// interactive terminal (sudo / AUR) are excluded — `U` runs in the background,
+    /// which can't answer a prompt — so the user runs those individually with `u`
+    /// then `i`. `Err` if none qualify (a specific message when the only candidates
+    /// were interactive-only).
     pub fn request_update_all(&mut self) -> Result<usize, String> {
+        let mut interactive_only = 0usize;
         let targets: Vec<UpdateTarget> = self
             .entries
             .iter()
             .filter(|e| e.tracked && e.update_available())
             .filter(|e| self.update_states.get(&e.id) != Some(&AgentUpdateState::Running))
             .filter_map(|e| {
-                e.resolved_update_command().map(|command| UpdateTarget {
+                let command = e.resolved_update_command()?;
+                if command_needs_terminal(&command) {
+                    interactive_only += 1;
+                    return None;
+                }
+                Some(UpdateTarget {
                     id: e.id.clone(),
                     name: e.agent.name.clone(),
                     command,
                     method: e.install_method().map(|m| m.label().to_string()),
+                    needs_terminal: false,
                 })
             })
             .collect();
         if targets.is_empty() {
+            if interactive_only > 0 {
+                return Err(format!(
+                    "{interactive_only} agent(s) need an interactive update — use u then i"
+                ));
+            }
             return Err("No agents with an available update and a known updater".to_string());
         }
         let count = targets.len();
@@ -1320,6 +1352,7 @@ mod tests {
             InstalledInfo {
                 version: Some("2.0.0".to_string()),
                 path: None,
+                ..Default::default()
             },
         );
         let entry = app.entries.iter().find(|e| e.id == "a").unwrap();

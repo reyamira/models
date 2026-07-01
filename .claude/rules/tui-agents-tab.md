@@ -236,26 +236,44 @@ no TUI suspension, mirrors the GitHub-fetch async pattern.
   is `None`) — nothing to update. `U` is already gated via `update_available()`.
 - **Confirm modal** (`draw_update_confirm_modal`): Cyan border,
   `centered_rect_fixed(66, …)`, title ` Update Agent(s) `. Lists each target's
-  `name` + `$ {argv joined}` in Yellow. Bottom hint is target-count dependent:
-  single → ` Enter: background | i: interactive | Esc: cancel `; multi →
-  ` Enter: run | Esc: cancel `. `Enter`→`ConfirmUpdate` (background), `i`→
-  `ConfirmUpdateInteractive` (suspend-and-run, single only), `Esc`/`q`→
-  `CancelUpdate` (`handle_update_confirm_keys`, intercepts all keys). `request_update_selected`
-  errors (status bar) when the agent has no updater or is already running;
-  `request_update_all` errors when none qualify.
-- **Command resolution** (`AgentEntry::resolved_update_command`, install-aware):
-  (1) **self-updater** (argv[0] is the agent's own binary, `["claude","update"]`)
-  + a detected path → argv[0] replaced with that absolute path so the exact
-  detected copy is updated, not whatever PATH resolves first. (2) **JS
-  package-manager swap**: an `npm install -g <pkg>` updater whose binary was
-  actually installed by a *different* JS PM (bun/pnpm/yarn — inferred from the
-  detected path via `infer_install_method`/`InstallMethod`) is rewritten to that
-  manager keeping the same package spec (`bun add -g <pkg>`), so it updates the
-  copy you run. (3) **Homebrew install** of a package-manager-updated tool →
-  `brew upgrade <formula>`, where `<formula>` is parsed from the resolved Cellar
-  path (`canonicalize` the bin symlink → `…/Cellar/<formula>/…`). npm installs,
-  uv, and unknown/unresolvable paths keep the registry command. The confirm modal
-  shows the detected method per target as `(via <method>)` (`UpdateTarget.method`).
+  `name` + `$ {argv joined}` in Yellow + `(via <method>)` (`UpdateTarget.method`).
+  Bottom hint is target-count/`needs_terminal`-dependent: single **needs_terminal**
+  (sudo/AUR) → ` Enter: interactive | Esc: cancel ` (background can't answer a sudo
+  prompt, so `Enter` routes to interactive); single background-safe → ` Enter:
+  background | i: interactive | Esc: cancel `; multi → ` Enter: run | Esc: cancel `.
+  `Enter`→`ConfirmUpdate` (background) or `ConfirmUpdateInteractive` when the single
+  target `needs_terminal` (decided in `handle_update_confirm_keys(code, single_interactive)`),
+  `i`→`ConfirmUpdateInteractive` (suspend-and-run, single only), `Esc`/`q`→
+  `CancelUpdate`. `request_update_selected` errors when the agent has no updater or
+  is already running; `request_update_all` errors when none qualify (with a specific
+  `"N need interactive — use u then i"` message when the only candidates were
+  `needs_terminal`, which `U` excludes since it runs in the background).
+- **Command resolution** is **detection-first**: how the binary was installed is the
+  source of truth; the registry `update_command` is the fallback. All I/O
+  (`canonicalize`, ownership query, AUR-helper lookup) runs once at **detect time**
+  (`detect.rs::resolve_install_facts`) and is stored on `InstalledInfo`
+  (`method`/`package`/`aur_helper`), so `AgentEntry::resolved_update_command` is
+  **pure**. Detection is two-tier: a path heuristic on the *canonicalized* path
+  (`infer_install_method` → bun/npm/pnpm/yarn/homebrew/uv/pipx/cargo, with the
+  package/formula/tool parsed from the path via `package_from_canonical_path` /
+  `formula_from_cellar_path`), then — only for an unrecognized binary in a system dir
+  (`/usr/bin` etc.) — a **system-package ownership query** (`system_package_owner`)
+  gated on `/etc/os-release` family (`classify_distro`; never "which pacman is on
+  PATH" — on Debian that's the arcade game): `pacman -Qo` / `dpkg -S` / `rpm -qf` →
+  `Pacman`/`Apt`/`Dnf` + owner. For pacman, `pacman -Qm` distinguishes foreign(AUR)
+  vs official and `detect_aur_helper` picks `paru`>`yay`; a foreign package with no
+  helper is left package-less (surfaced as `(via pacman)` but non-updatable).
+  `resolved_update_command` priority: **(1)** system-PM (`Pacman`/`Apt`/`Dnf`) →
+  `derive_pm_command` — *precedes the self-updater* (a self-updater would desync the
+  package DB), and never falls through to it (missing package → no update). **(2)**
+  self-updater (registry argv[0] == cli_binary) + path → pin argv[0] to the detected
+  path. **(3)** registry PM command → Homebrew `brew upgrade <formula>` (stored
+  formula) or a JS-PM swap (`bun add -g <pkg>`) from the stored method. **(4)** no
+  registry command + a detected language PM + derived package → `derive_pm_command`
+  (custom agents added in-app; bun/pnpm/yarn are best-effort — work when the global
+  bin symlinks into `node_modules`, `None` for a wrapper script). **(5)** else `None`.
+  The **CLI** (`models agents`) uses `detect_installed_cli` (skips the ownership
+  subprocess — it never runs updates).
 - **Execution** (`spawn_agent_update` in `tui/mod.rs`): `tokio::process::Command`
   (needs tokio features `process` + `io-util`), `stdin` null, stdout+stderr
   piped and streamed **line-by-line** over an `mpsc<UpdateEvent>` channel

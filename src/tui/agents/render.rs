@@ -752,6 +752,9 @@ pub(in crate::tui) fn draw_update_confirm_modal(f: &mut Frame, app: &App) {
     if targets.is_empty() {
         return;
     }
+    // A single sudo/AUR target must run interactively (background can't answer the
+    // password prompt), so `Enter` hands over the terminal rather than backgrounding.
+    let single_interactive = targets.len() == 1 && targets[0].needs_terminal;
 
     let popup_width = std::cmp::min(66, f.area().width.saturating_sub(4));
     // header + blank + one row per target + blank + note, plus 2 borders.
@@ -792,11 +795,18 @@ pub(in crate::tui) fn draw_update_confirm_modal(f: &mut Frame, app: &App) {
     }
     lines.push(Line::from(""));
     lines.push(Line::from(Span::styled(
-        "  Runs in the background; output appears in the detail panel.",
+        if single_interactive {
+            "  Needs sudo — runs in the foreground; the TUI hands over the terminal."
+        } else {
+            "  Runs in the background; output appears in the detail panel."
+        },
         Style::default().fg(Color::DarkGray),
     )));
 
-    let (title, bottom) = if targets.len() == 1 {
+    let (title, bottom) = if single_interactive {
+        // sudo/AUR → interactive only; background would stall on the prompt.
+        (" Update Agent ", " Enter: interactive | Esc: cancel ")
+    } else if targets.len() == 1 {
         // Single agent → offer the interactive (suspend-and-run) path too.
         (
             " Update Agent ",
@@ -983,6 +993,7 @@ mod mouse_tests {
                 name: "Claude Code".to_string(),
                 command: vec!["claude".to_string(), "update".to_string()],
                 method: None,
+                needs_terminal: false,
             }];
         }
         let backend = TestBackend::new(80, 30);

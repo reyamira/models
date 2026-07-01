@@ -251,7 +251,9 @@ fn handle_normal_mode(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
                 return handle_add_agent_keys(code);
             }
             if agents_app.show_update_confirm {
-                return handle_update_confirm_keys(code);
+                let single_interactive = agents_app.update_targets.len() == 1
+                    && agents_app.update_targets[0].needs_terminal;
+                return handle_update_confirm_keys(code, single_interactive);
             }
         }
     }
@@ -609,8 +611,11 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
 
 /// Update-confirm modal keys. `Enter` confirms (runs the queued updates),
 /// `Esc`/`q` cancel; everything else is swallowed so the modal is exclusive.
-fn handle_update_confirm_keys(code: KeyCode) -> Option<Message> {
+/// When the single target needs a terminal (sudo/AUR), `Enter` routes to the
+/// interactive path — backgrounding it would just stall on the password prompt.
+fn handle_update_confirm_keys(code: KeyCode, single_interactive: bool) -> Option<Message> {
     match code {
+        KeyCode::Enter if single_interactive => Some(Message::ConfirmUpdateInteractive),
         KeyCode::Enter => Some(Message::ConfirmUpdate),
         // Interactive (suspend-and-run) — only acts on a single target; the
         // method no-ops for multi-target (update-all) confirmations.

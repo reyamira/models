@@ -120,12 +120,26 @@ impl GitHubData {
     }
 }
 
-/// Installed CLI info - path field for future use
+/// Installed CLI info: version + resolved binary path, plus install-method facts
+/// derived at detection time. Storing the method/package/helper here (rather than
+/// recomputing on demand) keeps `resolved_update_command` pure — all the I/O
+/// (canonicalize, ownership query, helper lookup) happens once in `detect_installed`.
 #[derive(Debug, Clone, Default)]
 #[allow(dead_code)]
 pub struct InstalledInfo {
     pub version: Option<String>,
     pub path: Option<String>,
+    /// How the binary was installed, resolved at detect time — a path heuristic for
+    /// language package managers, or a system-package ownership query for
+    /// `/usr/bin`-style installs. `None` when unrecognized.
+    pub method: Option<InstallMethod>,
+    /// The package/formula/tool/owner name the update command targets (npm package,
+    /// Homebrew formula, uv/pipx tool, or system-package owner). `None` when the
+    /// path doesn't encode it (e.g. a bun wrapper script) or an AUR package has no
+    /// helper to update it.
+    pub package: Option<String>,
+    /// Preferred AUR helper (`paru`/`yay`) when `method` is `Pacman`; else `None`.
+    pub aur_helper: Option<String>,
 }
 
 /// Agent entry combining static and runtime data
@@ -151,65 +165,94 @@ impl AgentEntry {
         }
     }
 
-    /// The install method inferred from the detected binary path, if recognizable.
+    /// The install method resolved at detect time. Falls back to a pure path
+    /// heuristic when no method was stored (e.g. unit tests that build
+    /// `InstalledInfo` directly), so callers get a best effort either way.
     pub fn install_method(&self) -> Option<InstallMethod> {
-        self.installed
-            .path
-            .as_deref()
-            .and_then(infer_install_method)
-    }
-
-    /// The update argv to actually run, made install-aware from detected info:
-    ///
-    /// 1. **Self-updater** (argv[0] is the agent's own binary, e.g. `claude update`):
-    ///    pin argv[0] to the detected absolute path so the exact detected copy is
-    ///    updated, not whatever PATH resolves first.
-    /// 2. **JS package-manager updater** (`npm install -g <pkg>`): if the binary was
-    ///    actually installed by a *different* JS package manager (bun / pnpm / yarn),
-    ///    swap to that manager keeping the same package spec — the package id is
-    ///    portable, so `bun add -g <pkg>` updates the copy you're running while
-    ///    `npm i -g` would miss it. An npm install, an unrecognized method, or a
-    ///    non-JS method (Homebrew/uv/…) keeps the registry command unchanged.
-    pub fn resolved_update_command(&self) -> Option<Vec<String>> {
-        let mut cmd = self.update_command()?.to_vec();
-
-        // (1) Self-updater → pin to the detected path. Self-updaters self-manage
-        // their install method, so this short-circuits the rewrites below.
-        if let (Some(bin), Some(path)) = (
-            self.agent.cli_binary.as_deref(),
-            self.installed.path.as_deref(),
-        ) {
-            if cmd.first().is_some_and(|first| first == bin) {
-                cmd[0] = path.to_string();
-                return Some(cmd);
-            }
-        }
-
-        let method = self.install_method();
-
-        // (2) Homebrew install of a package-manager-updated tool → `brew upgrade
-        // <formula>` (derived from the Cellar path), since the registry's npm/uv
-        // command would touch a different copy than the brew-managed one.
-        if method == Some(InstallMethod::Homebrew) {
-            if let Some(brew) = self
-                .installed
+        self.installed.method.or_else(|| {
+            self.installed
                 .path
                 .as_deref()
-                .and_then(homebrew_upgrade_command)
-            {
-                return Some(brew);
-            }
+                .and_then(infer_install_method)
+        })
+    }
+
+    /// The update argv to actually run, derived from how the binary was installed.
+    /// Detection is the source of truth; the registry `update_command` is the
+    /// fallback. Pure — all I/O (canonicalize, ownership query, helper lookup)
+    /// happened at detect time and is read from `installed.method/.package/.aur_helper`.
+    ///
+    /// Priority:
+    /// 1. **System-package-managed** (Pacman/Apt/Dnf) → the distro command. This
+    ///    precedes a self-updater: a self-updater run against a package-manager-owned
+    ///    binary either fails on root-owned files or silently desyncs the package DB,
+    ///    so we never fall back to it here (a missing package → no update, not the
+    ///    self-updater).
+    /// 2. **Self-updater** (registry argv[0] is the agent's own binary, e.g.
+    ///    `claude update`) → pin argv[0] to the detected absolute path.
+    /// 3. **Registry package-manager command** → adapt to the detected method:
+    ///    Homebrew → `brew upgrade <formula>`; an `npm install -g` whose binary was
+    ///    actually installed by bun/pnpm/yarn → swap to that manager (portable spec).
+    /// 4. **No registry command** but a detected language package manager + a derived
+    ///    package → build the command (custom agents added in-app).
+    /// 5. Otherwise → `None`.
+    pub fn resolved_update_command(&self) -> Option<Vec<String>> {
+        let method = self.install_method();
+        let package = self.installed.package.as_deref();
+        let helper = self.installed.aur_helper.as_deref();
+
+        // (1) A system package manager owns the binary → only its command is safe.
+        // Never fall through to a self-updater that would fight the package DB.
+        if let Some(m @ (InstallMethod::Pacman | InstallMethod::Apt | InstallMethod::Dnf)) = method
+        {
+            return package.and_then(|pkg| derive_pm_command(m, pkg, helper));
         }
 
-        // (3) npm install but a different JS package manager owns it → swap to it,
-        // keeping the portable package spec.
-        if let Some(pkg) = npm_global_package(&cmd) {
-            if let Some(swapped) = method.and_then(|m| js_pm_global_add(m, &pkg)) {
-                return Some(swapped);
+        if let Some(cmd) = self.update_command() {
+            let mut cmd = cmd.to_vec();
+
+            // (2) Self-updater → pin argv[0] to the detected path.
+            if let (Some(bin), Some(path)) = (
+                self.agent.cli_binary.as_deref(),
+                self.installed.path.as_deref(),
+            ) {
+                if cmd.first().is_some_and(|first| first == bin) {
+                    cmd[0] = path.to_string();
+                    return Some(cmd);
+                }
             }
+
+            // (3a) Homebrew → `brew upgrade <formula>` (formula derived at detect
+            // time), since the registry's npm/uv command would touch a different copy.
+            if method == Some(InstallMethod::Homebrew) {
+                if let Some(formula) = package {
+                    return Some(vec![
+                        "brew".to_string(),
+                        "upgrade".to_string(),
+                        formula.to_string(),
+                    ]);
+                }
+            }
+
+            // (3b) npm install but a different JS package manager owns it → swap to
+            // it, keeping the portable package spec.
+            if let Some(pkg) = npm_global_package(&cmd) {
+                if let Some(swapped) = method.and_then(|m| js_pm_global_add(m, &pkg)) {
+                    return Some(swapped);
+                }
+            }
+
+            return Some(cmd);
         }
 
-        Some(cmd)
+        // (4) No registry command but a detected language package manager + a derived
+        // package → build the command (custom agents get no registry updater).
+        if let (Some(m), Some(pkg)) = (method, package) {
+            return derive_pm_command(m, pkg, helper);
+        }
+
+        // (5) Nothing to run.
+        None
     }
 
     pub fn update_available(&self) -> bool {
@@ -253,8 +296,10 @@ impl AgentEntry {
     }
 }
 
-/// How an installed CLI was put on disk, inferred from its detected path. Used to
-/// make the update command target the copy the user is actually running.
+/// How an installed CLI was put on disk. Language package managers are inferred
+/// from the detected path; the system variants (Pacman/Apt/Dnf) come from a
+/// distro ownership query. Used to make the update command target the copy the
+/// user is actually running.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InstallMethod {
     Homebrew,
@@ -265,6 +310,9 @@ pub enum InstallMethod {
     Uv,
     Pipx,
     Cargo,
+    Pacman,
+    Apt,
+    Dnf,
 }
 
 impl InstallMethod {
@@ -278,6 +326,9 @@ impl InstallMethod {
             InstallMethod::Uv => "uv",
             InstallMethod::Pipx => "pipx",
             InstallMethod::Cargo => "cargo",
+            InstallMethod::Pacman => "pacman",
+            InstallMethod::Apt => "apt",
+            InstallMethod::Dnf => "dnf",
         }
     }
 }
@@ -342,13 +393,81 @@ fn formula_from_cellar_path(resolved: &str) -> Option<String> {
     (!formula.is_empty()).then(|| formula.to_string())
 }
 
-/// `brew upgrade <formula>` for a Homebrew-installed binary, resolving the bin
-/// symlink to its Cellar target to read the formula name. `None` if the path
-/// can't be resolved (e.g. doesn't exist) or isn't under a Cellar.
-fn homebrew_upgrade_command(path: &str) -> Option<Vec<String>> {
-    let resolved = std::fs::canonicalize(path).ok()?;
-    let formula = formula_from_cellar_path(resolved.to_str()?)?;
-    Some(vec!["brew".to_string(), "upgrade".to_string(), formula])
+/// The package name an update targets, parsed from a *canonicalized* binary path
+/// (symlinks already resolved). Reads the directory segment — so package-name ≠
+/// binary-name is handled for free (`Cellar/gemini-cli/` → `gemini-cli` even though
+/// the binary is `gemini`). Uses the LAST `node_modules/` occurrence to skip pnpm's
+/// `<pkg>@<ver>` store prefix, and joins a scoped `@scope/name`. Returns `None` when
+/// the path doesn't encode a package (a bun/pnpm wrapper script, or a cargo bin
+/// whose crate name isn't in the path) — that agent then has no derived updater.
+pub fn package_from_canonical_path(path: &str, method: InstallMethod) -> Option<String> {
+    match method {
+        InstallMethod::Npm | InstallMethod::Pnpm | InstallMethod::Yarn | InstallMethod::Bun => {
+            let idx = path.rfind("/node_modules/")?;
+            let after = &path[idx + "/node_modules/".len()..];
+            let mut segs = after.split('/').filter(|s| !s.is_empty());
+            let first = segs.next()?;
+            if first.starts_with('@') {
+                // Scoped package: `@scope/name`.
+                let name = segs.next()?;
+                Some(format!("{first}/{name}"))
+            } else {
+                Some(first.to_string())
+            }
+        }
+        InstallMethod::Uv => segment_after(path, "/uv/tools/"),
+        InstallMethod::Pipx => segment_after(path, "/pipx/venvs/"),
+        InstallMethod::Homebrew => formula_from_cellar_path(path),
+        // `~/.cargo/bin/<bin>` doesn't encode the crate name; system PMs get their
+        // package from the ownership query, not the path.
+        InstallMethod::Cargo | InstallMethod::Pacman | InstallMethod::Apt | InstallMethod::Dnf => {
+            None
+        }
+    }
+}
+
+/// The path segment immediately after `marker` (up to the next `/`), non-empty.
+fn segment_after(path: &str, marker: &str) -> Option<String> {
+    let idx = path.find(marker)?;
+    path[idx + marker.len()..]
+        .split('/')
+        .next()
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+}
+
+/// Build the upgrade argv for a resolved install method + package. Pure: the AUR
+/// helper is injected (resolved at detect time). Returns `None` when no safe
+/// command exists — the caller (`detect`) only sets `Pacman` with a package when a
+/// working command is possible (a foreign/AUR package with no helper is left
+/// package-less, so we never emit a `sudo pacman -S <aur-pkg>` that fails with
+/// "target not found").
+pub fn derive_pm_command(
+    method: InstallMethod,
+    package: &str,
+    aur_helper: Option<&str>,
+) -> Option<Vec<String>> {
+    let v = |parts: &[&str]| parts.iter().map(|s| s.to_string()).collect::<Vec<String>>();
+    let spec = format!("{package}@latest");
+    Some(match method {
+        InstallMethod::Npm => v(&["npm", "install", "-g", spec.as_str()]),
+        InstallMethod::Pnpm => v(&["pnpm", "add", "-g", spec.as_str()]),
+        InstallMethod::Yarn => v(&["yarn", "global", "add", spec.as_str()]),
+        InstallMethod::Bun => v(&["bun", "add", "-g", spec.as_str()]),
+        InstallMethod::Homebrew => v(&["brew", "upgrade", package]),
+        InstallMethod::Uv => v(&["uv", "tool", "upgrade", package]),
+        InstallMethod::Pipx => v(&["pipx", "upgrade", package]),
+        InstallMethod::Cargo => v(&["cargo", "install", package]),
+        InstallMethod::Pacman => match aur_helper {
+            Some(h) => v(&[h, "-S", package]),
+            // No AUR helper → only reached for an official-repo package (detect leaves
+            // foreign packages package-less). Single-package `-S` is the Arch
+            // partial-upgrade antipattern but pragmatic for a one-tool update.
+            None => v(&["sudo", "pacman", "-S", package]),
+        },
+        InstallMethod::Apt => v(&["sudo", "apt", "install", "--only-upgrade", package]),
+        InstallMethod::Dnf => v(&["sudo", "dnf", "upgrade", package]),
+    })
 }
 
 /// Build the global-add command for a JS package manager that *isn't* npm,
@@ -385,10 +504,10 @@ mod tests {
         }
     }
 
-    fn entry_with(
+    fn entry_with_installed(
         cli_binary: Option<&str>,
         update_command: &[&str],
-        installed_path: Option<&str>,
+        installed: InstalledInfo,
     ) -> AgentEntry {
         AgentEntry {
             id: "x".to_string(),
@@ -411,13 +530,29 @@ mod tests {
                 docs: None,
             },
             github: GitHubData::default(),
-            installed: InstalledInfo {
-                version: installed_path.map(|_| "1.0.0".to_string()),
-                path: installed_path.map(str::to_string),
-            },
+            installed,
             tracked: true,
             fetch_status: FetchStatus::Loaded,
         }
+    }
+
+    /// Convenience: an entry whose install method is *inferred from the path* (no
+    /// stored method), matching how the pre-detection unit tests exercised the
+    /// path-heuristic fallback in `resolved_update_command`.
+    fn entry_with(
+        cli_binary: Option<&str>,
+        update_command: &[&str],
+        installed_path: Option<&str>,
+    ) -> AgentEntry {
+        entry_with_installed(
+            cli_binary,
+            update_command,
+            InstalledInfo {
+                version: installed_path.map(|_| "1.0.0".to_string()),
+                path: installed_path.map(str::to_string),
+                ..Default::default()
+            },
+        )
     }
 
     #[test]
@@ -509,14 +644,186 @@ mod tests {
             Some("/usr/lib/node_modules/.bin/gemini"),
         );
         assert_eq!(npm.resolved_update_command().unwrap()[0], "npm");
-        // Homebrew install where the path can't be resolved to a Cellar formula
-        // (fake path → canonicalize fails) → fall back to the registry npm command.
+        // Homebrew path but no stored formula (detection didn't run in this test) →
+        // the brew branch has nothing to build, so fall back to the registry npm cmd.
         let brew = entry_with(
             Some("gemini"),
             &["npm", "install", "-g", "@google/gemini-cli@latest"],
             Some("/opt/homebrew/bin/gemini"),
         );
         assert_eq!(brew.resolved_update_command().unwrap()[0], "npm");
+    }
+
+    #[test]
+    fn resolved_update_command_system_pm_preempts_self_updater() {
+        // opencode ships a self-updater (`opencode upgrade`), but an AUR-managed
+        // install must go through the helper — the self-updater would fight pacman.
+        let e = entry_with_installed(
+            Some("opencode"),
+            &["opencode", "upgrade"],
+            InstalledInfo {
+                version: Some("1.17.11".to_string()),
+                path: Some("/usr/bin/opencode".to_string()),
+                method: Some(InstallMethod::Pacman),
+                package: Some("opencode-bin".to_string()),
+                aur_helper: Some("paru".to_string()),
+            },
+        );
+        assert_eq!(
+            e.resolved_update_command().unwrap(),
+            vec!["paru", "-S", "opencode-bin"]
+        );
+    }
+
+    #[test]
+    fn resolved_update_command_system_pm_without_package_has_no_updater() {
+        // Foreign/AUR package with no helper: detect leaves `package` unset. We must
+        // NOT fall back to the self-updater (it would desync the package DB).
+        let e = entry_with_installed(
+            Some("opencode"),
+            &["opencode", "upgrade"],
+            InstalledInfo {
+                version: Some("1.17.11".to_string()),
+                path: Some("/usr/bin/opencode".to_string()),
+                method: Some(InstallMethod::Pacman),
+                package: None,
+                aur_helper: None,
+            },
+        );
+        assert_eq!(e.resolved_update_command(), None);
+    }
+
+    #[test]
+    fn resolved_update_command_derives_for_custom_agent_without_registry_cmd() {
+        // Custom agent (empty registry update_command) installed via uv → derive it.
+        let e = entry_with_installed(
+            None,
+            &[],
+            InstalledInfo {
+                version: Some("0.1.0".to_string()),
+                path: Some("/home/u/.local/share/uv/tools/foo-cli/bin/foo".to_string()),
+                method: Some(InstallMethod::Uv),
+                package: Some("foo-cli".to_string()),
+                aur_helper: None,
+            },
+        );
+        assert_eq!(
+            e.resolved_update_command().unwrap(),
+            vec!["uv", "tool", "upgrade", "foo-cli"]
+        );
+    }
+
+    #[test]
+    fn resolved_update_command_none_when_custom_agent_has_no_derived_package() {
+        // Custom agent, language PM detected but no package parsed (e.g. a bun
+        // wrapper) → no updater rather than a wrong one.
+        let e = entry_with_installed(
+            None,
+            &[],
+            InstalledInfo {
+                version: Some("0.1.0".to_string()),
+                path: Some("/home/u/.bun/bin/foo".to_string()),
+                method: Some(InstallMethod::Bun),
+                package: None,
+                aur_helper: None,
+            },
+        );
+        assert_eq!(e.resolved_update_command(), None);
+    }
+
+    #[test]
+    fn package_from_canonical_path_parses_pm_layouts() {
+        use InstallMethod::*;
+        assert_eq!(
+            package_from_canonical_path(
+                "/usr/lib/node_modules/@google/gemini-cli/dist/index.js",
+                Npm
+            )
+            .as_deref(),
+            Some("@google/gemini-cli")
+        );
+        assert_eq!(
+            package_from_canonical_path(
+                "/home/u/.bun/install/global/node_modules/eve/bin/eve.js",
+                Bun
+            )
+            .as_deref(),
+            Some("eve")
+        );
+        // pnpm store nests `<pkg>@<ver>/node_modules/<pkg>` — take the LAST occurrence.
+        assert_eq!(
+            package_from_canonical_path(
+                "/home/u/.local/share/pnpm/.pnpm/opencode@1.2.3/node_modules/opencode/bin/x",
+                Pnpm
+            )
+            .as_deref(),
+            Some("opencode")
+        );
+        assert_eq!(
+            package_from_canonical_path("/home/u/.local/share/uv/tools/kimi-cli/bin/kimi", Uv)
+                .as_deref(),
+            Some("kimi-cli")
+        );
+        assert_eq!(
+            package_from_canonical_path("/home/u/.local/pipx/venvs/foo/bin/foo", Pipx).as_deref(),
+            Some("foo")
+        );
+        assert_eq!(
+            package_from_canonical_path(
+                "/opt/homebrew/Cellar/gemini-cli/0.46.0/bin/gemini",
+                Homebrew
+            )
+            .as_deref(),
+            Some("gemini-cli")
+        );
+        // A bun wrapper script (no node_modules in the path) → no package.
+        assert_eq!(
+            package_from_canonical_path("/home/u/.bun/bin/foo", Bun),
+            None
+        );
+        // cargo bins don't encode the crate name.
+        assert_eq!(
+            package_from_canonical_path("/home/u/.cargo/bin/foo", Cargo),
+            None
+        );
+    }
+
+    #[test]
+    fn derive_pm_command_builds_expected_argv() {
+        use InstallMethod::*;
+        assert_eq!(
+            derive_pm_command(Bun, "eve", None).unwrap(),
+            vec!["bun", "add", "-g", "eve@latest"]
+        );
+        assert_eq!(
+            derive_pm_command(Npm, "@google/gemini-cli", None).unwrap(),
+            vec!["npm", "install", "-g", "@google/gemini-cli@latest"]
+        );
+        assert_eq!(
+            derive_pm_command(Uv, "kimi-cli", None).unwrap(),
+            vec!["uv", "tool", "upgrade", "kimi-cli"]
+        );
+        assert_eq!(
+            derive_pm_command(Homebrew, "gemini-cli", None).unwrap(),
+            vec!["brew", "upgrade", "gemini-cli"]
+        );
+        // Pacman with a helper → helper -S; without one → sudo pacman -S (official).
+        assert_eq!(
+            derive_pm_command(Pacman, "opencode-bin", Some("paru")).unwrap(),
+            vec!["paru", "-S", "opencode-bin"]
+        );
+        assert_eq!(
+            derive_pm_command(Pacman, "ripgrep", None).unwrap(),
+            vec!["sudo", "pacman", "-S", "ripgrep"]
+        );
+        assert_eq!(
+            derive_pm_command(Apt, "foo", None).unwrap(),
+            vec!["sudo", "apt", "install", "--only-upgrade", "foo"]
+        );
+        assert_eq!(
+            derive_pm_command(Dnf, "foo", None).unwrap(),
+            vec!["sudo", "dnf", "upgrade", "foo"]
+        );
     }
 
     #[test]
