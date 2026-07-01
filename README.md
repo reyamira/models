@@ -20,6 +20,11 @@ TUI and CLI for browsing AI models, benchmarks, coding agents, and provider stat
 - **12+ coding agents** tracked with version detection, changelogs, and GitHub integration
 - **22 provider statuses** monitored live across 7 status page platforms
 
+## What's New in v0.13.0
+
+- **Add agents in-app** — press `A` to add a custom coding agent by name + `owner/repo`; it's tracked and fetched immediately, no config editing.
+- **In-app self-updates** — update a tracked agent (`u`), all agents with updates available (`U`), or cancel an in-flight update (`x`), all from the Agents tab. The update command is derived from how each agent was actually installed (bun/npm/brew/cargo/AUR/apt/dnf, etc.), with an interactive suspend-and-run mode (`i`) for updaters that need a prompt or sudo.
+
 ## What's New in v0.12.1
 
 - **Mouse support** — click a row to select it, click a panel to focus it, click a header tab to switch tabs, and scroll with the wheel. Popups (sort, columns, glossary, trackers, help) scroll and accept row clicks too.
