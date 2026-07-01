@@ -87,7 +87,7 @@ Three-column layout with providers, model list, and rich detail panel. RTFO capa
 
 ![Agents tab](public/assets/agents-screenshot.png)
 
-Curated catalog of 12+ agents with automatic version detection, GitHub release tracking, styled changelogs with search and match navigation, and live service health from provider status pages.
+Curated catalog of 12+ agents with automatic version detection, GitHub release tracking, styled changelogs with search and match navigation, and live service health from provider status pages. Add your own agents without leaving the TUI (`A`), and update installed ones in-app (`u` one / `U` all) — the update command is derived from how each tool was actually installed (npm, bun, Homebrew, uv, pipx, or a system package manager like pacman/AUR, apt, dnf).
 
 [Agents wiki page](https://github.com/reyamira/models/wiki/Agents) &#8226; CLI: `agents status`, `agents <tool>`, `agents latest`, `agents list-sources`
 
