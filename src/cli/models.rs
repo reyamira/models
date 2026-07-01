@@ -16,7 +16,10 @@ use ratatui::{
 use serde::Serialize;
 
 use crate::formatting::{cmp_opt_f64, parse_date_to_numeric, truncate};
-use crate::{api, data::Model as ApiModel};
+use crate::{
+    api,
+    data::{CostTier, Model as ApiModel},
+};
 
 use super::picker::{self, PickerTerminal};
 const PICKER_SORTS: [ModelSort; 6] = [
@@ -55,6 +58,8 @@ pub struct ModelRow {
     pub reasoning_cost: Option<f64>,
     pub input_audio_cost: Option<f64>,
     pub output_audio_cost: Option<f64>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub tiers: Vec<CostTier>,
     pub reasoning: bool,
     pub tool_call: bool,
     pub attachment: bool,
@@ -83,6 +88,8 @@ pub struct ModelDetail {
     pub reasoning_cost: Option<f64>,
     pub input_audio_cost: Option<f64>,
     pub output_audio_cost: Option<f64>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub tiers: Vec<CostTier>,
     pub reasoning: bool,
     pub tool_call: bool,
     pub attachment: bool,
@@ -543,6 +550,11 @@ fn flatten_model_row(provider_id: &str, provider_name: &str, model: &ApiModel) -
         reasoning_cost: model.cost.as_ref().and_then(|c| c.reasoning),
         input_audio_cost: model.cost.as_ref().and_then(|c| c.input_audio),
         output_audio_cost: model.cost.as_ref().and_then(|c| c.output_audio),
+        tiers: model
+            .cost
+            .as_ref()
+            .map(|c| c.tiers.clone())
+            .unwrap_or_default(),
         reasoning: model.reasoning,
         tool_call: model.tool_call,
         attachment: model.attachment,
@@ -787,6 +799,7 @@ pub fn print_model_detail(row: &ModelRow, json: bool) -> Result<()> {
         reasoning_cost: row.reasoning_cost,
         input_audio_cost: row.input_audio_cost,
         output_audio_cost: row.output_audio_cost,
+        tiers: row.tiers.clone(),
         reasoning: row.reasoning,
         tool_call: row.tool_call,
         attachment: row.attachment,
@@ -843,13 +856,31 @@ fn print_detail(d: &ModelDetail) {
         println!("Cache Write: ${:.2}", cache_write);
     }
     if let Some(reasoning) = d.reasoning_cost {
-        println!("Reasoning:   ${:.2}", reasoning);
+        println!("Thinking:    ${:.2}", reasoning);
     }
     if let Some(audio_in) = d.input_audio_cost {
         println!("Audio In:    ${:.2}", audio_in);
     }
     if let Some(audio_out) = d.output_audio_cost {
         println!("Audio Out:   ${:.2}", audio_out);
+    }
+    for t in &d.tiers {
+        let threshold = t
+            .tier
+            .as_ref()
+            .and_then(|ts| ts.size)
+            .map(|s| format!("Over {}", crate::formatting::format_tokens(s)))
+            .unwrap_or_else(|| "Tier".to_string());
+        let fmt = |v: Option<f64>| {
+            v.map(|x| format!("${:.2}", x))
+                .unwrap_or_else(|| "—".into())
+        };
+        println!(
+            "{:<12} {} / {}",
+            format!("{}:", threshold),
+            fmt(t.input),
+            fmt(t.output)
+        );
     }
     println!();
 
@@ -978,6 +1009,7 @@ mod tests {
             reasoning_cost: None,
             input_audio_cost: None,
             output_audio_cost: None,
+            tiers: Vec::new(),
             reasoning: true,
             tool_call: true,
             attachment: false,

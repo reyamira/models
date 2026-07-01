@@ -1,6 +1,6 @@
 use crate::formatting;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Deserialize)]
@@ -95,27 +95,25 @@ pub struct ReasoningOption {
 
 /// A pricing tier (models.dev `cost.tiers[]`) — e.g. higher rates above a
 /// context-size threshold. All fields optional for forward-compat.
-#[derive(Debug, Clone, Deserialize)]
+/// `Serialize` so the CLI can emit tiers in `--json`.
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct CostTier {
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub input: Option<f64>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub output: Option<f64>,
-    /// Parsed for forward-compat / JSON completeness; not surfaced in the UI.
-    #[serde(default)]
-    #[allow(dead_code)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cache_read: Option<f64>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tier: Option<TierSpec>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct TierSpec {
     /// Always `"context"` today; kept as a raw string for forward-compat.
-    #[serde(default)]
-    #[allow(dead_code)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub r#type: Option<String>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub size: Option<u64>,
 }
 

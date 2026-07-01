@@ -698,7 +698,7 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
         let (rc_str, rc_color) = fmt_cost(reasoning_cost);
         lines.push(two_pair_line(
             LabelValue {
-                label: "Reasoning: ",
+                label: "Thinking: ",
                 value: &rc_str,
                 color: rc_color,
             },
