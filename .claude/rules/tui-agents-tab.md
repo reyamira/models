@@ -288,6 +288,17 @@ no TUI suspension, mirrors the GitHub-fetch async pattern.
   `AgentEntry.installed` so the dot flips without a restart. The confirmed
   `(id, argv)` pairs flow `App.pending_updates` → drained in the loop (mirrors
   `pending_fetches`); the agent is looked up at drain time for the re-detect.
+- **Per-backend serialization** (`U`/update-all runs concurrently): the drain loop
+  keys a `HashMap<String, Arc<tokio::sync::Mutex<()>>>` (`update_gates`) by the
+  update command's **program basename** (`argv[0]` → `npm`/`bun`/`brew`/…) and hands
+  each spawn its gate. `spawn_agent_update` acquires the gate (`lock_owned`) before
+  running the child and holds it for the whole run, so updates that share a package
+  manager (same global prefix / Homebrew's global lock) **queue instead of racing**,
+  while distinct backends — and distinct self-updaters, which get unique keys — stay
+  **parallel**. The gate is acquired inside the same `tokio::select!` as cancel, so
+  an update cancelled (`x`) while queued behind another never starts its command.
+  Gates live for the session (a handful of keys). A solo `u` also gates, so it
+  serializes against an in-flight batch of the same backend.
 - **State** (`AgentsApp`): `show_update_confirm`, `update_targets: Vec<UpdateTarget>`,
   `update_states: HashMap<id, AgentUpdateState>` (`Running`/`Succeeded`/`Failed`),
   `update_logs: HashMap<id, Vec<String>>` (capped at `UPDATE_LOG_CAP` = 200,

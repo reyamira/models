@@ -330,7 +330,8 @@ fn spawn_agent_update(
     agent: crate::agents::Agent,
     command: Vec<String>,
     tx: mpsc::Sender<UpdateEvent>,
-    cancel: tokio::sync::oneshot::Receiver<()>,
+    mut cancel: tokio::sync::oneshot::Receiver<()>,
+    gate: Option<std::sync::Arc<tokio::sync::Mutex<()>>>,
 ) {
     use std::process::Stdio;
     use tokio::io::{AsyncBufReadExt, BufReader};
@@ -347,6 +348,28 @@ fn spawn_agent_update(
                 .await;
             return;
         }
+
+        // Serialize updates that share a package-manager backend (same global
+        // prefix / lock — e.g. two `npm install -g`, or Homebrew's global lock)
+        // while different backends run in parallel. Held for the whole run; still
+        // cancellable while queued behind another update.
+        let _gate_guard = if let Some(gate) = gate {
+            tokio::select! {
+                guard = gate.lock_owned() => Some(guard),
+                _ = &mut cancel => {
+                    let _ = tx
+                        .send(UpdateEvent::Finished(
+                            id,
+                            false,
+                            "✗ update cancelled".to_string(),
+                        ))
+                        .await;
+                    return;
+                }
+            }
+        } else {
+            None
+        };
 
         let mut cmd = Command::new(&command[0]);
         cmd.args(&command[1..])
@@ -474,6 +497,13 @@ fn run_app(
     // update finishes.
     let mut cancel_signals: std::collections::HashMap<String, tokio::sync::oneshot::Sender<()>> =
         std::collections::HashMap::new();
+    // Per-backend serialization gates, keyed by the update command's program
+    // (npm/bun/brew/…). Same-backend updates queue on one mutex; different backends
+    // run in parallel. Entries persist for the session (cheap, a handful of keys).
+    let mut update_gates: std::collections::HashMap<
+        String,
+        std::sync::Arc<tokio::sync::Mutex<()>>,
+    > = std::collections::HashMap::new();
     // When to auto-clear a finished update's state/log so it doesn't sit in the
     // detail panel forever (success expires fast — the dot already reflects the
     // new version; failure lingers longer so the error + manual-run stay readable).
@@ -557,6 +587,20 @@ fn run_app(
                 if let Some(agent) = agent {
                     // A fresh run supersedes any pending auto-clear for this agent.
                     update_clear_at.remove(&agent_id);
+                    // Gate on the command's program (npm/bun/brew/…) so same-backend
+                    // updates queue instead of racing a shared prefix/lock; distinct
+                    // tools (self-updaters) get unique keys and stay parallel.
+                    let gate = command.first().map(|prog| {
+                        let key = std::path::Path::new(prog)
+                            .file_name()
+                            .and_then(|s| s.to_str())
+                            .unwrap_or(prog)
+                            .to_string();
+                        update_gates
+                            .entry(key)
+                            .or_insert_with(|| std::sync::Arc::new(tokio::sync::Mutex::new(())))
+                            .clone()
+                    });
                     let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
                     cancel_signals.insert(agent_id.clone(), cancel_tx);
                     spawn_agent_update(
@@ -565,6 +609,7 @@ fn run_app(
                         command,
                         runtime.update_tx.clone(),
                         cancel_rx,
+                        gate,
                     );
                 }
             }
@@ -1169,6 +1214,7 @@ mod update_exec_tests {
             vec!["definitely-not-a-real-binary-zzz".to_string()],
             tx,
             cancel_rx,
+            None,
         );
         let mut finished = None;
         while let Some(ev) = rx.recv().await {
@@ -1196,6 +1242,7 @@ mod update_exec_tests {
             vec!["echo".to_string(), "hello-update".to_string()],
             tx,
             cancel_rx,
+            None,
         );
         let mut outputs = Vec::new();
         let mut success = None;
@@ -1229,6 +1276,7 @@ mod update_exec_tests {
             vec!["sleep".to_string(), "30".to_string()],
             tx,
             cancel_rx,
+            None,
         );
         // Let it start, then cancel.
         tokio::time::sleep(Duration::from_millis(150)).await;
@@ -1238,6 +1286,81 @@ mod update_exec_tests {
             if let UpdateEvent::Finished(_, ok, msg) = ev {
                 finished = Some((ok, msg));
                 break;
+            }
+        }
+        let (ok, msg) = finished.expect("a Finished event");
+        assert!(!ok);
+        assert!(msg.contains("cancelled"), "got: {msg}");
+    }
+
+    /// A shared gate serializes same-backend updates: while the gate is held, the
+    /// update can't start (no output, no Finished); it runs only once released.
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn gate_blocks_until_released() {
+        let (tx, mut rx) = mpsc::channel(16);
+        let (_cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
+        let gate = std::sync::Arc::new(tokio::sync::Mutex::new(()));
+        // Simulate another same-backend update already running by holding the gate.
+        let held = gate.clone().lock_owned().await;
+        spawn_agent_update(
+            "x".to_string(),
+            dummy_agent(),
+            vec!["echo".to_string(), "gated".to_string()],
+            tx,
+            cancel_rx,
+            Some(gate),
+        );
+        // Blocked on the gate → nothing emitted yet.
+        assert!(
+            tokio::time::timeout(Duration::from_millis(200), rx.recv())
+                .await
+                .is_err(),
+            "update ran while the gate was held"
+        );
+        // Release → it proceeds and finishes.
+        drop(held);
+        let mut success = None;
+        while let Some(ev) = rx.recv().await {
+            if let UpdateEvent::Finished(_, ok, _) = ev {
+                success = Some(ok);
+                break;
+            }
+        }
+        assert_eq!(success, Some(true));
+    }
+
+    /// A cancel fired while the update is queued behind a held gate ends it without
+    /// ever running the command.
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn cancel_while_queued_on_gate() {
+        let (tx, mut rx) = mpsc::channel(16);
+        let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
+        let gate = std::sync::Arc::new(tokio::sync::Mutex::new(()));
+        let _held = gate.clone().lock_owned().await;
+        spawn_agent_update(
+            "x".to_string(),
+            dummy_agent(),
+            vec!["echo".to_string(), "never".to_string()],
+            tx,
+            cancel_rx,
+            Some(gate),
+        );
+        // Cancel while it's still waiting for the gate.
+        tokio::time::sleep(Duration::from_millis(100)).await;
+        let _ = cancel_tx.send(());
+        let mut finished = None;
+        while let Some(ev) = rx.recv().await {
+            match ev {
+                UpdateEvent::Output(..) => {
+                    panic!("command ran despite being cancelled while queued")
+                }
+                UpdateEvent::Finished(_, ok, msg) => {
+                    finished = Some((ok, msg));
+                    break;
+                }
+                UpdateEvent::Redetected(..) => {}
             }
         }
         let (ok, msg) = finished.expect("a Finished event");
