@@ -77,6 +77,17 @@ pub enum FetchResult {
     Failure(String, String),
 }
 
+/// Progress/result of a background agent self-update subprocess.
+#[derive(Debug)]
+pub enum UpdateEvent {
+    /// A captured stdout/stderr line: (agent_id, line).
+    Output(String, String),
+    /// Terminal result: (agent_id, success, summary_message).
+    Finished(String, bool, String),
+    /// Version re-detected after a successful update: (agent_id, installed).
+    Redetected(String, crate::agents::InstalledInfo),
+}
+
 struct StatusRuntime {
     rx: mpsc::Receiver<(u64, StatusFetchResult)>,
     tx: mpsc::Sender<(u64, StatusFetchResult)>,
@@ -88,6 +99,9 @@ struct StatusRuntime {
 struct RuntimeHandles {
     github_rx: mpsc::Receiver<FetchResult>,
     github_tx: mpsc::Sender<FetchResult>,
+    /// Background agent-update progress/results.
+    update_rx: mpsc::Receiver<UpdateEvent>,
+    update_tx: mpsc::Sender<UpdateEvent>,
     client: AsyncGitHubClient,
     disk_cache: Arc<RwLock<GitHubCache>>,
     /// One message per source fetch: `(source_idx, Option<SourceFile>)`.
@@ -214,9 +228,12 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
     let (url_tx, url_rx) = mpsc::channel(8);
     let (refresh_tx, refresh_rx) = mpsc::channel(SOURCES.len().max(1));
     let (models_refresh_tx, models_refresh_rx) = mpsc::channel(2);
+    let (update_tx, update_rx) = mpsc::channel(256);
     let runtime_handles = RuntimeHandles {
         github_rx: rx,
         github_tx: tx,
+        update_rx,
+        update_tx,
         client,
         disk_cache: disk_cache.clone(),
         bench_rx,
@@ -302,12 +319,198 @@ fn spawn_agent_fetches(
     handles
 }
 
+/// Run one agent's verified self-update as a background subprocess, streaming its
+/// stdout/stderr line-by-line over `tx` (no TTY — interactive prompts will hang
+/// and hit the 5-minute timeout). The run ends on child exit, the timeout, or a
+/// signal on `cancel` (user pressed `x`) — the latter two kill the child. On
+/// clean exit, re-detect the installed version off the runtime so the status dot
+/// can flip without a restart. All output is flushed before `Finished`.
+fn spawn_agent_update(
+    id: String,
+    agent: crate::agents::Agent,
+    command: Vec<String>,
+    tx: mpsc::Sender<UpdateEvent>,
+    mut cancel: tokio::sync::oneshot::Receiver<()>,
+    gate: Option<std::sync::Arc<tokio::sync::Mutex<()>>>,
+) {
+    use std::process::Stdio;
+    use tokio::io::{AsyncBufReadExt, BufReader};
+    use tokio::process::Command;
+
+    tokio::spawn(async move {
+        if command.is_empty() {
+            let _ = tx
+                .send(UpdateEvent::Finished(
+                    id,
+                    false,
+                    "empty update command".to_string(),
+                ))
+                .await;
+            return;
+        }
+
+        // Serialize updates that share a package-manager backend (same global
+        // prefix / lock — e.g. two `npm install -g`, or Homebrew's global lock)
+        // while different backends run in parallel. Held for the whole run; still
+        // cancellable while queued behind another update.
+        let _gate_guard = if let Some(gate) = gate {
+            tokio::select! {
+                guard = gate.lock_owned() => Some(guard),
+                _ = &mut cancel => {
+                    let _ = tx
+                        .send(UpdateEvent::Finished(
+                            id,
+                            false,
+                            "✗ update cancelled".to_string(),
+                        ))
+                        .await;
+                    return;
+                }
+            }
+        } else {
+            None
+        };
+
+        let mut cmd = Command::new(&command[0]);
+        cmd.args(&command[1..])
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        // Put the child in its own process group so it can't read the TUI's
+        // controlling terminal. A tool that opens /dev/tty for a prompt (sudo)
+        // is then a background-group reader → SIGTTIN-stopped (caught by the
+        // timeout) rather than stealing keystrokes or corrupting the screen.
+        #[cfg(unix)]
+        cmd.process_group(0);
+
+        let mut child = match cmd.spawn() {
+            Ok(c) => c,
+            Err(e) => {
+                let _ = tx
+                    .send(UpdateEvent::Finished(
+                        id,
+                        false,
+                        format!("✗ failed to start `{}`: {e}", command[0]),
+                    ))
+                    .await;
+                return;
+            }
+        };
+
+        // Forward each stream's lines concurrently; keep the handles so we can
+        // drain both before reporting the result.
+        let mut readers = Vec::new();
+        if let Some(out) = child.stdout.take() {
+            let tx = tx.clone();
+            let id = id.clone();
+            readers.push(tokio::spawn(async move {
+                let mut lines = BufReader::new(out).lines();
+                while let Ok(Some(line)) = lines.next_line().await {
+                    if tx
+                        .send(UpdateEvent::Output(id.clone(), line))
+                        .await
+                        .is_err()
+                    {
+                        break;
+                    }
+                }
+            }));
+        }
+        if let Some(err) = child.stderr.take() {
+            let tx = tx.clone();
+            let id = id.clone();
+            readers.push(tokio::spawn(async move {
+                let mut lines = BufReader::new(err).lines();
+                while let Ok(Some(line)) = lines.next_line().await {
+                    if tx
+                        .send(UpdateEvent::Output(id.clone(), line))
+                        .await
+                        .is_err()
+                    {
+                        break;
+                    }
+                }
+            }));
+        }
+
+        // End on child exit, the 5-minute bound (hung/prompt-waiting updater), or
+        // a user cancel. The latter two kill the child and reap it.
+        enum Outcome {
+            Exited(std::io::Result<std::process::ExitStatus>),
+            TimedOut,
+            Cancelled,
+        }
+        let outcome = tokio::select! {
+            r = child.wait() => Outcome::Exited(r),
+            _ = tokio::time::sleep(Duration::from_secs(300)) => Outcome::TimedOut,
+            _ = cancel => Outcome::Cancelled,
+        };
+        let (success, message) = match outcome {
+            Outcome::Exited(Ok(status)) if status.success() => {
+                (true, "✓ update completed".to_string())
+            }
+            Outcome::Exited(Ok(status)) => (false, format!("✗ updater exited with {status}")),
+            Outcome::Exited(Err(e)) => (false, format!("✗ updater error: {e}")),
+            Outcome::TimedOut => {
+                let _ = child.start_kill();
+                let _ = child.wait().await;
+                (
+                    false,
+                    "✗ update timed out after 5m (needs an interactive prompt?)".to_string(),
+                )
+            }
+            Outcome::Cancelled => {
+                let _ = child.start_kill();
+                let _ = child.wait().await;
+                (false, "✗ update cancelled".to_string())
+            }
+        };
+
+        // Flush all captured output before the terminal message.
+        for r in readers {
+            let _ = r.await;
+        }
+
+        if success {
+            let agent = agent.clone();
+            if let Ok(installed) =
+                tokio::task::spawn_blocking(move || crate::agents::detect_installed(&agent)).await
+            {
+                let _ = tx
+                    .send(UpdateEvent::Redetected(id.clone(), installed))
+                    .await;
+            }
+        }
+
+        let _ = tx.send(UpdateEvent::Finished(id, success, message)).await;
+    });
+}
+
 fn run_app(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     app: &mut app::App,
     mut runtime: RuntimeHandles,
 ) -> Result<()> {
     let mut last_status_time: Option<std::time::Instant> = None;
+    // Cancel handles for in-flight background updates, keyed by agent id. Sending
+    // (or dropping) the sender ends the update's subprocess. Removed when the
+    // update finishes.
+    let mut cancel_signals: std::collections::HashMap<String, tokio::sync::oneshot::Sender<()>> =
+        std::collections::HashMap::new();
+    // Per-backend serialization gates, keyed by the update command's program
+    // (npm/bun/brew/…). Same-backend updates queue on one mutex; different backends
+    // run in parallel. Entries persist for the session (cheap, a handful of keys).
+    let mut update_gates: std::collections::HashMap<
+        String,
+        std::sync::Arc<tokio::sync::Mutex<()>>,
+    > = std::collections::HashMap::new();
+    // When to auto-clear a finished update's state/log so it doesn't sit in the
+    // detail panel forever (success expires fast — the dot already reflects the
+    // new version; failure lingers longer so the error + manual-run stay readable).
+    let mut update_clear_at: std::collections::HashMap<String, std::time::Instant> =
+        std::collections::HashMap::new();
+    let update_clear_delay =
+        |success: bool| std::time::Duration::from_secs(if success { 6 } else { 30 });
 
     loop {
         terminal.draw(|f| ui::draw(f, app))?;
@@ -317,6 +520,26 @@ fn run_app(
             if time.elapsed() > std::time::Duration::from_secs(2) {
                 app.clear_status();
                 last_status_time = None;
+            }
+        }
+
+        // Auto-expire finished update results (skip any that started running again).
+        if !update_clear_at.is_empty() {
+            let now = std::time::Instant::now();
+            let expired: Vec<String> = update_clear_at
+                .iter()
+                .filter(|(_, &t)| now >= t)
+                .map(|(k, _)| k.clone())
+                .collect();
+            for id in expired {
+                update_clear_at.remove(&id);
+                if let Some(ref mut a) = app.agents_app {
+                    if a.update_states.get(&id)
+                        != Some(&crate::tui::agents::AgentUpdateState::Running)
+                    {
+                        a.clear_update(&id);
+                    }
+                }
             }
         }
 
@@ -351,6 +574,47 @@ fn run_app(
             }
         }
 
+        // Spawn confirmed agent self-updates as background subprocesses. Look up
+        // each agent (for the post-update version re-detect) at drain time.
+        if !app.pending_updates.is_empty() {
+            let updates = std::mem::take(&mut app.pending_updates);
+            for (agent_id, command) in updates {
+                let agent = app
+                    .agents_app
+                    .as_ref()
+                    .and_then(|a| a.entries.iter().find(|e| e.id == agent_id))
+                    .map(|e| e.agent.clone());
+                if let Some(agent) = agent {
+                    // A fresh run supersedes any pending auto-clear for this agent.
+                    update_clear_at.remove(&agent_id);
+                    // Gate on the command's program (npm/bun/brew/…) so same-backend
+                    // updates queue instead of racing a shared prefix/lock; distinct
+                    // tools (self-updaters) get unique keys and stay parallel.
+                    let gate = command.first().map(|prog| {
+                        let key = std::path::Path::new(prog)
+                            .file_name()
+                            .and_then(|s| s.to_str())
+                            .unwrap_or(prog)
+                            .to_string();
+                        update_gates
+                            .entry(key)
+                            .or_insert_with(|| std::sync::Arc::new(tokio::sync::Mutex::new(())))
+                            .clone()
+                    });
+                    let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
+                    cancel_signals.insert(agent_id.clone(), cancel_tx);
+                    spawn_agent_update(
+                        agent_id,
+                        agent,
+                        command,
+                        runtime.update_tx.clone(),
+                        cancel_rx,
+                        gate,
+                    );
+                }
+            }
+        }
+
         // Check for GitHub updates (non-blocking)
         while let Ok(result) = runtime.github_rx.try_recv() {
             match result {
@@ -360,6 +624,45 @@ fn run_app(
                 FetchResult::Failure(id, error) => {
                     app.update(app::Message::GitHubFetchFailed(id, error));
                 }
+            }
+        }
+
+        // Drain agent-update progress/results (non-blocking).
+        while let Ok(event) = runtime.update_rx.try_recv() {
+            let mut finished_status: Option<String> = None;
+            if let Some(ref mut agents_app) = app.agents_app {
+                match event {
+                    UpdateEvent::Output(id, line) => agents_app.push_update_output(&id, line),
+                    UpdateEvent::Redetected(id, installed) => {
+                        agents_app.apply_redetected(&id, installed)
+                    }
+                    UpdateEvent::Finished(id, success, message) => {
+                        // Update is over — drop its cancel handle and schedule the
+                        // result to auto-clear.
+                        cancel_signals.remove(&id);
+                        update_clear_at.insert(
+                            id.clone(),
+                            std::time::Instant::now() + update_clear_delay(success),
+                        );
+                        let name = agents_app
+                            .entries
+                            .iter()
+                            .find(|e| e.id == id)
+                            .map(|e| e.agent.name.clone())
+                            .unwrap_or_else(|| id.clone());
+                        agents_app.finish_update(&id, success, message);
+                        finished_status = Some(if success {
+                            format!("{} updated", name)
+                        } else {
+                            format!("{} update failed — see detail panel", name)
+                        });
+                    }
+                }
+            }
+            // Set status after the agents_app borrow ends to avoid aliasing app.
+            if let Some(s) = finished_status {
+                app.set_status(s);
+                last_status_time = Some(std::time::Instant::now());
             }
         }
 
@@ -477,15 +780,19 @@ fn run_app(
                 app::Message::OpenAgentDocs => {
                     if let Some(ref agents_app) = app.agents_app {
                         if let Some(entry) = agents_app.current_entry() {
-                            if let Some(ref url) = entry.agent.docs {
-                                let _ = open::that_in_background(url);
-                                app.set_status(format!("Opened: {}", url));
-                                last_status_time = Some(std::time::Instant::now());
-                            } else if let Some(ref url) = entry.agent.homepage {
-                                let _ = open::that_in_background(url);
-                                app.set_status(format!("Opened: {}", url));
-                                last_status_time = Some(std::time::Instant::now());
-                            }
+                            // docs → homepage → GitHub repo (so custom agents, which
+                            // have neither docs nor homepage, still open something).
+                            let url = entry
+                                .agent
+                                .docs
+                                .clone()
+                                .or_else(|| entry.agent.homepage.clone())
+                                .unwrap_or_else(|| {
+                                    format!("https://github.com/{}", entry.agent.repo)
+                                });
+                            let _ = open::that_in_background(&url);
+                            app.set_status(format!("Opened: {}", url));
+                            last_status_time = Some(std::time::Instant::now());
                         }
                     }
                 }
@@ -577,6 +884,59 @@ fn run_app(
                 app::Message::PickerSave => {
                     // Picker save sets its own status message via app.update
                     last_status_time = Some(std::time::Instant::now());
+                }
+                app::Message::AddAgentSave => {
+                    // Add-agent save sets its own status message via app.update;
+                    // the new agent's GitHub fetch is dispatched from the
+                    // pending_fetches drain at the top of the loop.
+                    last_status_time = Some(std::time::Instant::now());
+                }
+                app::Message::RequestUpdateAgent
+                | app::Message::RequestUpdateAll
+                | app::Message::ConfirmUpdate
+                | app::Message::CancelUpdate => {
+                    // These set their own transient status via app.update (errors
+                    // like "No updater for X", or "Updating N…"); arm the auto-clear
+                    // so the message doesn't linger. Update completion sets a fresh
+                    // status from the update_rx drain above.
+                    last_status_time = Some(std::time::Instant::now());
+                }
+                app::Message::RequestCancelUpdate => {
+                    // Cancel the in-flight update for the selected agent (this loop
+                    // holds the kill handles). The task reports `Finished` with a
+                    // "cancelled" message, which flips state + frees the user to
+                    // re-run with `i` (interactive).
+                    let target = app
+                        .agents_app
+                        .as_ref()
+                        .and_then(|a| a.current_entry())
+                        .map(|e| (e.id.clone(), e.agent.name.clone()));
+                    if let Some((id, name)) = target {
+                        let running = app.agents_app.as_ref().is_some_and(|a| {
+                            a.update_states.get(&id)
+                                == Some(&crate::tui::agents::AgentUpdateState::Running)
+                        });
+                        if running {
+                            if let Some(tx) = cancel_signals.remove(&id) {
+                                let _ = tx.send(());
+                            }
+                            app.set_status(format!("Cancelling {} update…", name));
+                        } else if app
+                            .agents_app
+                            .as_ref()
+                            .is_some_and(|a| a.has_finished_update(&id))
+                        {
+                            // Not running but has a finished result → dismiss it.
+                            update_clear_at.remove(&id);
+                            if let Some(ref mut a) = app.agents_app {
+                                a.clear_update(&id);
+                            }
+                            app.set_status(format!("Dismissed {} update", name));
+                        } else {
+                            app.set_status(format!("No update running for {}", name));
+                        }
+                        last_status_time = Some(std::time::Instant::now());
+                    }
                 }
                 app::Message::ColumnPickerSave => {
                     // Column persistence sets its own status via app.update
@@ -717,6 +1077,294 @@ fn run_app(
                     );
                 }
             }
+
+            // Interactive update (suspend-and-run): a confirmed single-agent
+            // update that hands the terminal to the updater so the user can
+            // answer prompts. Runs synchronously on this (the terminal-owning)
+            // thread; the TUI is restored before the next draw.
+            if let Some((id, command)) = app.pending_interactive_update.take() {
+                let agent = app
+                    .agents_app
+                    .as_ref()
+                    .and_then(|a| a.entries.iter().find(|e| e.id == id))
+                    .map(|e| e.agent.clone());
+                let (success, message) = run_interactive_update(terminal, &command);
+                if let Some(ref mut agents_app) = app.agents_app {
+                    if success {
+                        if let Some(agent) = agent {
+                            agents_app
+                                .apply_redetected(&id, crate::agents::detect_installed(&agent));
+                        }
+                    }
+                    let name = agents_app
+                        .entries
+                        .iter()
+                        .find(|e| e.id == id)
+                        .map(|e| e.agent.name.clone())
+                        .unwrap_or_else(|| id.clone());
+                    agents_app.finish_update(&id, success, message);
+                    update_clear_at.insert(
+                        id.clone(),
+                        std::time::Instant::now() + update_clear_delay(success),
+                    );
+                    app.set_status(if success {
+                        format!("{} updated", name)
+                    } else {
+                        format!("{} update failed — see detail panel", name)
+                    });
+                    last_status_time = Some(std::time::Instant::now());
+                }
+            }
         }
+    }
+}
+
+/// Suspend the TUI, run an updater attached to the real terminal so the user can
+/// answer prompts interactively, then restore the TUI. Single-agent only.
+///
+/// Restore is **unconditional** — nothing between teardown and restore uses `?`,
+/// so a child error can't leave the terminal wedged (and `run()`'s end-cleanup +
+/// the idempotent panic hook are additional safety nets). On re-entry we mirror
+/// `run()`'s setup order and `clear()` so ratatui repaints against a fresh buffer.
+fn run_interactive_update(
+    terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+    command: &[String],
+) -> (bool, String) {
+    use std::io::Write;
+
+    if command.is_empty() {
+        return (false, "empty update command".to_string());
+    }
+
+    // Tear down the TUI so the child fully owns the terminal (cooked mode, normal
+    // screen, mouse capture off).
+    let _ = disable_raw_mode();
+    let _ = execute!(
+        terminal.backend_mut(),
+        LeaveAlternateScreen,
+        DisableMouseCapture
+    );
+
+    println!("\nRunning: {}\n", command.join(" "));
+    let _ = io::stdout().flush();
+
+    // Inherited stdio → fully interactive (prompts, sudo, selection menus).
+    let status = std::process::Command::new(&command[0])
+        .args(&command[1..])
+        .status();
+    let (success, message) = match status {
+        Ok(s) if s.success() => (true, "✓ update completed (ran interactively)".to_string()),
+        Ok(s) => (false, format!("✗ updater exited with {s}")),
+        Err(e) => (false, format!("✗ failed to start `{}`: {e}", command[0])),
+    };
+
+    // Keep the output visible until the user is ready to return.
+    print!("\n{message}\nPress Enter to return to models… ");
+    let _ = io::stdout().flush();
+    let mut buf = String::new();
+    let _ = io::stdin().read_line(&mut buf);
+
+    // Restore the TUI (unconditional).
+    let _ = enable_raw_mode();
+    let _ = execute!(
+        terminal.backend_mut(),
+        EnterAlternateScreen,
+        EnableMouseCapture
+    );
+    let _ = terminal.clear();
+
+    (success, message)
+}
+
+#[cfg(test)]
+mod update_exec_tests {
+    use super::*;
+    use crate::agents::Agent;
+
+    fn dummy_agent() -> Agent {
+        Agent {
+            name: "X".to_string(),
+            repo: "o/x".to_string(),
+            categories: vec![],
+            installation_method: None,
+            pricing: None,
+            supported_providers: vec![],
+            platform_support: vec![],
+            open_source: false,
+            cli_binary: None,
+            alt_binaries: vec![],
+            version_command: vec![],
+            update_command: vec![],
+            version_regex: None,
+            config_files: vec![],
+            homepage: None,
+            docs: None,
+        }
+    }
+
+    /// A missing updater binary must degrade gracefully to a failed result with a
+    /// helpful message — never panic or hang. Portable (no real binary involved).
+    #[tokio::test]
+    async fn nonexistent_binary_reports_failure() {
+        let (tx, mut rx) = mpsc::channel(16);
+        let (_cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
+        spawn_agent_update(
+            "x".to_string(),
+            dummy_agent(),
+            vec!["definitely-not-a-real-binary-zzz".to_string()],
+            tx,
+            cancel_rx,
+            None,
+        );
+        let mut finished = None;
+        while let Some(ev) = rx.recv().await {
+            if let UpdateEvent::Finished(id, ok, msg) = ev {
+                finished = Some((id, ok, msg));
+                break;
+            }
+        }
+        let (id, ok, msg) = finished.expect("a Finished event");
+        assert_eq!(id, "x");
+        assert!(!ok);
+        assert!(msg.contains("failed to start"), "got: {msg}");
+    }
+
+    /// A real, quick command streams its output and reports success, with all
+    /// output flushed before the terminal event.
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn echo_streams_output_then_succeeds() {
+        let (tx, mut rx) = mpsc::channel(16);
+        let (_cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
+        spawn_agent_update(
+            "x".to_string(),
+            dummy_agent(),
+            vec!["echo".to_string(), "hello-update".to_string()],
+            tx,
+            cancel_rx,
+            None,
+        );
+        let mut outputs = Vec::new();
+        let mut success = None;
+        while let Some(ev) = rx.recv().await {
+            match ev {
+                UpdateEvent::Output(_, line) => outputs.push(line),
+                UpdateEvent::Finished(_, ok, _) => {
+                    success = Some(ok);
+                    break;
+                }
+                UpdateEvent::Redetected(..) => {}
+            }
+        }
+        assert_eq!(success, Some(true));
+        assert!(
+            outputs.iter().any(|l| l.contains("hello-update")),
+            "expected streamed output, got: {outputs:?}"
+        );
+    }
+
+    /// Firing the cancel signal kills a long-running update and reports it as a
+    /// failed/cancelled result (so the user can re-run interactively).
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn cancel_signal_stops_a_running_update() {
+        let (tx, mut rx) = mpsc::channel(16);
+        let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
+        spawn_agent_update(
+            "x".to_string(),
+            dummy_agent(),
+            vec!["sleep".to_string(), "30".to_string()],
+            tx,
+            cancel_rx,
+            None,
+        );
+        // Let it start, then cancel.
+        tokio::time::sleep(Duration::from_millis(150)).await;
+        let _ = cancel_tx.send(());
+        let mut finished = None;
+        while let Some(ev) = rx.recv().await {
+            if let UpdateEvent::Finished(_, ok, msg) = ev {
+                finished = Some((ok, msg));
+                break;
+            }
+        }
+        let (ok, msg) = finished.expect("a Finished event");
+        assert!(!ok);
+        assert!(msg.contains("cancelled"), "got: {msg}");
+    }
+
+    /// A shared gate serializes same-backend updates: while the gate is held, the
+    /// update can't start (no output, no Finished); it runs only once released.
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn gate_blocks_until_released() {
+        let (tx, mut rx) = mpsc::channel(16);
+        let (_cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
+        let gate = std::sync::Arc::new(tokio::sync::Mutex::new(()));
+        // Simulate another same-backend update already running by holding the gate.
+        let held = gate.clone().lock_owned().await;
+        spawn_agent_update(
+            "x".to_string(),
+            dummy_agent(),
+            vec!["echo".to_string(), "gated".to_string()],
+            tx,
+            cancel_rx,
+            Some(gate),
+        );
+        // Blocked on the gate → nothing emitted yet.
+        assert!(
+            tokio::time::timeout(Duration::from_millis(200), rx.recv())
+                .await
+                .is_err(),
+            "update ran while the gate was held"
+        );
+        // Release → it proceeds and finishes.
+        drop(held);
+        let mut success = None;
+        while let Some(ev) = rx.recv().await {
+            if let UpdateEvent::Finished(_, ok, _) = ev {
+                success = Some(ok);
+                break;
+            }
+        }
+        assert_eq!(success, Some(true));
+    }
+
+    /// A cancel fired while the update is queued behind a held gate ends it without
+    /// ever running the command.
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn cancel_while_queued_on_gate() {
+        let (tx, mut rx) = mpsc::channel(16);
+        let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
+        let gate = std::sync::Arc::new(tokio::sync::Mutex::new(()));
+        let _held = gate.clone().lock_owned().await;
+        spawn_agent_update(
+            "x".to_string(),
+            dummy_agent(),
+            vec!["echo".to_string(), "never".to_string()],
+            tx,
+            cancel_rx,
+            Some(gate),
+        );
+        // Cancel while it's still waiting for the gate.
+        tokio::time::sleep(Duration::from_millis(100)).await;
+        let _ = cancel_tx.send(());
+        let mut finished = None;
+        while let Some(ev) = rx.recv().await {
+            match ev {
+                UpdateEvent::Output(..) => {
+                    panic!("command ran despite being cancelled while queued")
+                }
+                UpdateEvent::Finished(_, ok, msg) => {
+                    finished = Some((ok, msg));
+                    break;
+                }
+                UpdateEvent::Redetected(..) => {}
+            }
+        }
+        let (ok, msg) = finished.expect("a Finished event");
+        assert!(!ok);
+        assert!(msg.contains("cancelled"), "got: {msg}");
     }
 }

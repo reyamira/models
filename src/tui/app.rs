@@ -148,6 +148,23 @@ pub enum Message {
     PickerPrev,
     PickerToggle,
     PickerSave,
+    // Add-agent form modal messages
+    OpenAddAgent,
+    CloseAddAgent,
+    AddAgentInput(char),
+    AddAgentBackspace,
+    AddAgentToggleField,
+    AddAgentSave,
+    // Update-action messages
+    RequestUpdateAgent,
+    RequestUpdateAll,
+    ConfirmUpdate,
+    ConfirmUpdateInteractive,
+    CancelUpdate,
+    /// Cancel the in-flight background update for the selected agent. The actual
+    /// child-kill is performed in the main loop (which holds the cancel handles);
+    /// `update()` is a no-op for this variant.
+    RequestCancelUpdate,
     // Detail panel scrolling
     ScrollDetailUp,
     ScrollDetailDown,
@@ -300,6 +317,11 @@ pub struct App {
     pub config: Config,
     /// Agents newly tracked that need GitHub fetches (agent_id, repo)
     pub pending_fetches: Vec<(String, String)>,
+    /// Confirmed agent updates to spawn as background subprocesses (agent_id, argv)
+    pub pending_updates: Vec<(String, Vec<String>)>,
+    /// A single confirmed *interactive* update (agent_id, argv) for the main loop
+    /// to run with a terminal handover (suspend-and-run). At most one at a time.
+    pub pending_interactive_update: Option<(String, Vec<String>)>,
     /// Multi-source benchmark store: one load-state per compiled-in source.
     pub multi_store: MultiStore,
     pub benchmarks_app: BenchmarksApp,
@@ -341,6 +363,8 @@ impl App {
             agents_app,
             config,
             pending_fetches: Vec::new(),
+            pending_updates: Vec::new(),
+            pending_interactive_update: None,
             multi_store,
             benchmarks_app,
             status_app,
@@ -1153,6 +1177,90 @@ impl App {
                     }
                 }
             }
+            Message::OpenAddAgent => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    agents_app.open_add_form();
+                }
+            }
+            Message::CloseAddAgent => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    agents_app.close_add_form();
+                }
+            }
+            Message::AddAgentInput(c) => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    agents_app.add_form_input(c);
+                }
+            }
+            Message::AddAgentBackspace => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    agents_app.add_form_backspace();
+                }
+            }
+            Message::AddAgentToggleField => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    agents_app.add_form_toggle_field();
+                }
+            }
+            Message::AddAgentSave => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    match agents_app.add_agent_save(&mut self.config) {
+                        Ok((id, repo)) => {
+                            agents_app.pending_github_fetches =
+                                agents_app.pending_github_fetches.saturating_add(1);
+                            agents_app.loading_github = true;
+                            self.set_status(format!("Added {}, fetching releases…", id));
+                            self.pending_fetches.push((id, repo));
+                        }
+                        Err(e) => {
+                            self.set_status(e);
+                        }
+                    }
+                }
+            }
+            Message::RequestUpdateAgent => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    if let Err(e) = agents_app.request_update_selected() {
+                        self.set_status(e);
+                    }
+                }
+            }
+            Message::RequestUpdateAll => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    if let Err(e) = agents_app.request_update_all() {
+                        self.set_status(e);
+                    }
+                }
+            }
+            Message::CancelUpdate => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    agents_app.cancel_update();
+                }
+            }
+            // Handled in the main loop (holds the cancel handles); no-op here.
+            Message::RequestCancelUpdate => {}
+            Message::ConfirmUpdate => {
+                if let Some(ref mut agents_app) = self.agents_app {
+                    let spawned = agents_app.confirm_update();
+                    if !spawned.is_empty() {
+                        let n = spawned.len();
+                        self.pending_updates.extend(spawned);
+                        self.set_status(if n == 1 {
+                            "Updating 1 agent…".to_string()
+                        } else {
+                            format!("Updating {} agents…", n)
+                        });
+                    }
+                }
+            }
+            Message::ConfirmUpdateInteractive => {
+                // Single-agent only: hand off to the main loop's suspend-and-run.
+                if let Some(ref mut agents_app) = self.agents_app {
+                    if let Some((id, command)) = agents_app.confirm_update_interactive() {
+                        self.pending_interactive_update = Some((id, command));
+                    }
+                }
+            }
             Message::ScrollDetailUp => {
                 if let Some(ref mut agents_app) = self.agents_app {
                     agents_app.detail_scroll = agents_app.detail_scroll.saturating_sub(1);
@@ -1606,7 +1714,14 @@ mod tests {
     use std::collections::{HashMap, HashSet};
     use std::ffi::OsString;
     use std::path::PathBuf;
+    use std::sync::Mutex;
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    /// Serializes tests that install `ConfigHomeGuard` (which mutates the process
+    /// HOME / XDG_CONFIG_HOME env vars) so they can't race each other under the
+    /// default parallel test runner. Recover from poisoning so one failing test
+    /// doesn't cascade.
+    static CONFIG_ENV_LOCK: Mutex<()> = Mutex::new(());
 
     #[test]
     fn tab_from_config_parses_known_values_case_insensitively() {
@@ -1637,6 +1752,7 @@ mod tests {
             cli_binary: None,
             alt_binaries: vec![],
             version_command: vec![],
+            update_command: vec![],
             version_regex: None,
             config_files: vec![],
             homepage: None,
@@ -1705,6 +1821,7 @@ mod tests {
 
     #[test]
     fn picker_save_updates_agents_fetch_counters_for_newly_tracked_agents() {
+        let _env = CONFIG_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let config_home = temp_config_home();
         let _config_home_guard = ConfigHomeGuard::install(config_home);
 
@@ -1747,6 +1864,61 @@ mod tests {
         let agents_app = app.agents_app.as_ref().expect("agents app should exist");
         assert_eq!(agents_app.pending_github_fetches, 0);
         assert!(!agents_app.loading_github);
+    }
+
+    #[test]
+    fn add_agent_save_persists_custom_agent_and_queues_fetch() {
+        let _env = CONFIG_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let config_home = temp_config_home();
+        let _config_home_guard = ConfigHomeGuard::install(config_home);
+
+        let mut config = Config::default();
+        config.agents.custom.clear();
+
+        let agents_file = test_agents_file();
+        let mut app = App::new(HashMap::new(), Some(&agents_file), Some(config));
+        {
+            let agents_app = app.agents_app.as_mut().expect("agents app should exist");
+            agents_app.loading_github = false;
+            agents_app.pending_github_fetches = 0;
+            agents_app.open_add_form();
+            agents_app.add_form.name = "My Agent".to_string();
+            agents_app.add_form.repo = "owner/my-agent".to_string();
+        }
+
+        app.update(Message::AddAgentSave);
+
+        // A GitHub fetch was queued for the new agent.
+        assert_eq!(
+            app.pending_fetches,
+            vec![("my-agent".to_string(), "owner/my-agent".to_string())]
+        );
+
+        let agents_app = app.agents_app.as_ref().expect("agents app should exist");
+        // Form closed, counters bumped.
+        assert!(!agents_app.show_add_form);
+        assert_eq!(agents_app.pending_github_fetches, 1);
+        assert!(agents_app.loading_github);
+        // The new entry exists, is tracked, and is loading.
+        let entry = agents_app
+            .entries
+            .iter()
+            .find(|e| e.id == "my-agent")
+            .expect("new agent entry should exist");
+        assert_eq!(entry.agent.repo, "owner/my-agent");
+        assert!(entry.tracked);
+        assert!(matches!(
+            entry.fetch_status,
+            crate::agents::FetchStatus::Loading
+        ));
+        // Persisted to config (tracked + custom list).
+        assert!(app.config.is_tracked("my-agent"));
+        assert!(app
+            .config
+            .agents
+            .custom
+            .iter()
+            .any(|c| c.name == "My Agent"));
     }
 
     fn make_test_app() -> App {
@@ -2521,6 +2693,7 @@ mod tests {
                         cli_binary: None,
                         alt_binaries: vec![],
                         version_command: vec![],
+                        update_command: vec![],
                         version_regex: None,
                         config_files: vec![],
                         homepage: None,

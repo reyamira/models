@@ -2,7 +2,7 @@
 
 ## Files
 - `app.rs` — `AgentsApp` state, `AgentFocus` (List/Details), `AgentSortOrder`, `AgentCategory`, `AgentFilters`
-- `render.rs` — `draw_agents_main()` (list + detail), `draw_picker_modal()` (source tracking popup)
+- `render.rs` — `draw_agents_main()` (list + detail), `draw_picker_modal()` (source tracking popup), `draw_add_agent_modal()` (`A` — add a custom agent by name + `owner/repo`, writes `config.agents.custom`), `draw_update_confirm_modal()` (`u`/`U` — confirm + run an agent's verified self-updater in the background; see rules §7c)
 
 ## Key Patterns
 - `AgentsApp` is `Option<AgentsApp>` on `App` — constructed after agents file loads, not at startup

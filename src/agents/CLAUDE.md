@@ -7,7 +7,7 @@ Tracks AI coding assistants (CLI tools, IDEs, plugins) with GitHub metadata, loc
 
 | Type | File | Purpose |
 |------|------|---------|
-| `Agent` | `data.rs` | Static metadata from `data/agents.json` (name, repo, categories, pricing, binaries, version detection) |
+| `Agent` | `data.rs` | Static metadata from `data/agents.json` (name, repo, categories, pricing, binaries, version detection, `update_command` self-updater argv) |
 | `GitHubData` | `data.rs` | Runtime: releases, stars, issues, license, commit date. Methods: `latest_version()`, `release_frequency()`, `latest_release_date()` |
 | `AgentEntry` | `data.rs` | Combined entry: Agent + GitHubData + InstalledInfo + tracked flag. Methods: `update_available()`, `new_releases()`, `latest_release_relative_time()` |
 | `ChangelogBlock` | `changelog_parser.rs` | Normalized IR: `Heading(String)` \| `Bullet(String)` \| `Paragraph(String)`. Used by both CLI (`agents.rs`) and TUI preview panes |
@@ -19,6 +19,8 @@ Tracks AI coding assistants (CLI tools, IDEs, plugins) with GitHub metadata, loc
 
 - **Load**: `loader.rs` — loads embedded `data/agents.json` via `include_str!`
 - **Detect**: `detect.rs` — runs version commands (e.g., `claude --version`) to find installed binaries + versions
+- **Update**: **detection-first** — `AgentEntry::resolved_update_command` (pure) derives the argv from how the binary was installed, stored at detect time on `InstalledInfo` (`method`/`package`/`aur_helper`); the registry `update_command` is the fallback. System-package-managed installs (`Pacman`/`Apt`/`Dnf`, from the `detect.rs` ownership query) take precedence over a self-updater; custom agents with no registry command get a command derived from the path (`derive_pm_command`). The resolved argv is run as a background subprocess by `spawn_agent_update` (`tui/mod.rs`) — or, for sudo/AUR (`command_needs_terminal`), the interactive suspend-and-run path — streamed over an `mpsc<UpdateEvent>` channel, then `detect_installed` re-runs to refresh the version. TUI-only (the `u`/`U` keys); see `.claude/rules/tui-agents-tab.md` §7c
+- **Detect**: `detect.rs::detect_installed` runs the version command + `which` for the path, then `resolve_install_facts` canonicalizes it, infers the language-PM method (`infer_install_method`) + package (`package_from_canonical_path`), and — only for an unrecognized binary in a system dir — runs a `/etc/os-release`-gated ownership query (`pacman -Qo`/`dpkg -S`/`rpm -qf`, 2s timeout). `detect_installed_cli` skips that subprocess (the CLI never updates)
 - **Fetch**: `github.rs` — 2-API-call flow for TUI, 1-call for CLI (releases only). ETag conditional. Spawned in background, results via mpsc Message
 - **Cache**: `cache.rs` — disk cache with version sentinel (v1). Reads/writes via `load_cache()`/`save_cache()`. Path: `~/.local/share/modelsdev/github-cache.json` on Unix
 - **Parse**: `changelog_parser.rs` — comrak (CommonMark/GFM) → AST → normalized IR. Skips boilerplate headers ("What's Changed", "Changelog"). Flattens nested lists

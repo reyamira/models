@@ -176,6 +176,181 @@ Selected row: Yellow + BOLD (applied via `ListItem::style`, overrides per-span s
 
 ---
 
+## 7b. Add Agent Modal
+
+Popup for adding a **custom** agent without hand-editing `config.toml` (opened
+with `A` — capital, since lowercase `a` opens the tracker picker). Minimal
+two-field form; writes a `CustomAgent` to `config.agents.custom`.
+
+- **State** (`AgentsApp`): `show_add_form: bool`, `add_form: AddAgentForm`
+  (`{ name, repo, field: AddAgentField (Name|Repo), error: Option<String> }`).
+- **Size**: `centered_rect_fixed(min(54, screen_width - 4), min(11, screen_height - 4))`.
+- **Border**: `Color::Cyan`. **Title**: `" Add Agent "`.
+- **Bottom title**: `" Tab: next field | Enter: save | Esc: cancel "` (centered).
+- **Fields**: `Name:` and `Repo:` (each `  {label:<7}` gutter). Active field
+  label is `Cyan`+BOLD with a trailing `SLOW_BLINK` `_` cursor; inactive label
+  is `Gray`. An empty inactive Repo shows a `DarkGray` `owner/name` placeholder.
+- **Keys** (`handle_add_agent_keys`, intercepts all so `q`/`?` don't leak):
+  `Tab`/`Up`/`Down` toggle field, `Backspace`, `Char(c)` types into the active
+  field, `Enter` saves, `Esc` cancels.
+- **Save** (`add_agent_save`): trims; requires a non-empty name and a valid
+  `owner/name` slug (`is_valid_repo_slug`: exactly one `/`, non-empty halves,
+  `[A-Za-z0-9._-]` only). Id is derived as `name.to_lowercase().replace(' ', "-")`
+  — identical to how `AgentsApp::new` derives ids for config-loaded custom
+  agents, so a restart re-resolves the same id. **Collision** with an existing
+  entry id → inline error, form stays open. On success: push `CustomAgent`,
+  `config.set_tracked(id, true)` (so it persists as tracked), `config.save()`
+  (rolled back in-memory if the write fails), build a tracked `Loading`
+  `AgentEntry`, re-sort entries by name, and queue the GitHub fetch via
+  `App.pending_fetches` (same path the tracker's "newly tracked" uses). Minimal
+  custom agents carry no `version_command`, so `detect_installed` short-circuits
+  (no shell-out). Validation errors set `add_form.error` and return before any
+  `config.save()` (filesystem-free).
+- **Load-time detection**: `AgentsApp::new` re-runs `detect_custom_agent` for any
+  config-loaded custom agent whose stored `binary` is `None` (added before
+  detection existed, or not installed at add time). So an agent installed *after*
+  it was added (or added pre-detection, like a bun-installed `eve`) shows up as
+  installed on the next launch without re-adding. Detection is best-effort and
+  not persisted back to config (cheap re-probe per launch).
+- **Footer**: ` A ` (Yellow) + `add`. Help: `A — Add a new agent (name + repo)`.
+
+---
+
+## 7c. Update Action (in-app self-update)
+
+Runs an agent's **verified** self-update command as a background subprocess —
+no TUI suspension, mirrors the GitHub-fetch async pattern.
+
+- **Registry field**: `Agent.update_command: Vec<String>` (`data/agents.json`,
+  `#[serde(default, skip_serializing_if = "Vec::is_empty")]`) — an argv vector,
+  **no shell**. Only populated with commands verified from each tool's official
+  docs (the 9 CLI agents; IDEs/extensions have none). `AgentEntry::update_command()`
+  returns `Option<&[String]>` (None = no update action). Custom agents
+  (`CustomAgent::to_agent`) get no update command.
+- **Keys**: `u` = update the selected agent; `U` = update **all** agents with
+  `update_available()` && a verified updater; `x` = cancel the selected agent's
+  in-flight update. `u`/`U` open a **confirm modal** first (update mutates the
+  user's system; refresh only reads).
+- **`u` gates on installed**: `request_update_selected` refuses (status-bar
+  message) when the selected agent has no detected install (`installed.version`
+  is `None`) — nothing to update. `U` is already gated via `update_available()`.
+- **Confirm modal** (`draw_update_confirm_modal`): Cyan border,
+  `centered_rect_fixed(66, …)`, title ` Update Agent(s) `. Lists each target's
+  `name` + `$ {argv joined}` in Yellow + `(via <method>)` (`UpdateTarget.method`).
+  Bottom hint is target-count/`needs_terminal`-dependent: single **needs_terminal**
+  (sudo/AUR) → ` Enter: interactive | Esc: cancel ` (background can't answer a sudo
+  prompt, so `Enter` routes to interactive); single background-safe → ` Enter:
+  background | i: interactive | Esc: cancel `; multi → ` Enter: run | Esc: cancel `.
+  `Enter`→`ConfirmUpdate` (background) or `ConfirmUpdateInteractive` when the single
+  target `needs_terminal` (decided in `handle_update_confirm_keys(code, single_interactive)`),
+  `i`→`ConfirmUpdateInteractive` (suspend-and-run, single only), `Esc`/`q`→
+  `CancelUpdate`. `request_update_selected` errors when the agent has no updater or
+  is already running; `request_update_all` errors when none qualify (with a specific
+  `"N need interactive — use u then i"` message when the only candidates were
+  `needs_terminal`, which `U` excludes since it runs in the background).
+- **Command resolution** is **detection-first**: how the binary was installed is the
+  source of truth; the registry `update_command` is the fallback. All I/O
+  (`canonicalize`, ownership query, AUR-helper lookup) runs once at **detect time**
+  (`detect.rs::resolve_install_facts`) and is stored on `InstalledInfo`
+  (`method`/`package`/`aur_helper`), so `AgentEntry::resolved_update_command` is
+  **pure**. Detection is two-tier: a path heuristic on the *canonicalized* path
+  (`infer_install_method` → bun/npm/pnpm/yarn/homebrew/uv/pipx/cargo, with the
+  package/formula/tool parsed from the path via `package_from_canonical_path` /
+  `formula_from_cellar_path`), then — only for an unrecognized binary in a system dir
+  (`/usr/bin` etc.) — a **system-package ownership query** (`system_package_owner`)
+  gated on `/etc/os-release` family (`classify_distro`; never "which pacman is on
+  PATH" — on Debian that's the arcade game): `pacman -Qo` / `dpkg -S` / `rpm -qf` →
+  `Pacman`/`Apt`/`Dnf` + owner. For pacman, `pacman -Qm` distinguishes foreign(AUR)
+  vs official and `detect_aur_helper` picks `paru`>`yay`; a foreign package with no
+  helper is left package-less (surfaced as `(via pacman)` but non-updatable).
+  `resolved_update_command` priority: **(1)** system-PM (`Pacman`/`Apt`/`Dnf`) →
+  `derive_pm_command` — *precedes the self-updater* (a self-updater would desync the
+  package DB), and never falls through to it (missing package → no update). **(2)**
+  self-updater (registry argv[0] == cli_binary) + path → pin argv[0] to the detected
+  path. **(3)** registry PM command → Homebrew `brew upgrade <formula>` (stored
+  formula) or a JS-PM swap (`bun add -g <pkg>`) from the stored method. **(4)** no
+  registry command + a detected language PM + derived package → `derive_pm_command`
+  (custom agents added in-app; bun/pnpm/yarn are best-effort — work when the global
+  bin symlinks into `node_modules`, `None` for a wrapper script). **(5)** else `None`.
+  The **CLI** (`models agents`) uses `detect_installed_cli` (skips the ownership
+  subprocess — it never runs updates).
+- **Execution** (`spawn_agent_update` in `tui/mod.rs`): `tokio::process::Command`
+  (needs tokio features `process` + `io-util`), `stdin` null, stdout+stderr
+  piped and streamed **line-by-line** over an `mpsc<UpdateEvent>` channel
+  (`Output`/`Finished`/`Redetected`). The child is put in its **own process
+  group** (`process_group(0)`, Unix) so a tool that opens `/dev/tty` for a prompt
+  (sudo) is a background-group reader → SIGTTIN-stopped (caught by the timeout)
+  rather than stealing the TUI's keystrokes / corrupting the screen. Bounded by a
+  **5-minute timeout** (`tokio::time::timeout` → `start_kill`) since there's no
+  TTY for prompts.
+  All output is flushed (reader handles awaited) before `Finished`. On success,
+  `detect_installed` re-runs via `spawn_blocking` → `Redetected` updates
+  `AgentEntry.installed` so the dot flips without a restart. The confirmed
+  `(id, argv)` pairs flow `App.pending_updates` → drained in the loop (mirrors
+  `pending_fetches`); the agent is looked up at drain time for the re-detect.
+- **Per-backend serialization** (`U`/update-all runs concurrently): the drain loop
+  keys a `HashMap<String, Arc<tokio::sync::Mutex<()>>>` (`update_gates`) by the
+  update command's **program basename** (`argv[0]` → `npm`/`bun`/`brew`/…) and hands
+  each spawn its gate. `spawn_agent_update` acquires the gate (`lock_owned`) before
+  running the child and holds it for the whole run, so updates that share a package
+  manager (same global prefix / Homebrew's global lock) **queue instead of racing**,
+  while distinct backends — and distinct self-updaters, which get unique keys — stay
+  **parallel**. The gate is acquired inside the same `tokio::select!` as cancel, so
+  an update cancelled (`x`) while queued behind another never starts its command.
+  Gates live for the session (a handful of keys). A solo `u` also gates, so it
+  serializes against an in-flight batch of the same backend.
+- **State** (`AgentsApp`): `show_update_confirm`, `update_targets: Vec<UpdateTarget>`,
+  `update_states: HashMap<id, AgentUpdateState>` (`Running`/`Succeeded`/`Failed`),
+  `update_logs: HashMap<id, Vec<String>>` (capped at `UPDATE_LOG_CAP` = 200,
+  oldest dropped). `confirm_update` marks each target `Running`, resets its log,
+  and returns the spawn list. `push_update_output`/`finish_update`/`apply_redetected`
+  apply the channel events.
+- **Rendering**: list status dot shows `◐` **Magenta** while `Running` (distinct
+  from the Yellow GitHub-fetch spinner). Detail panel gains an `Update:` section
+  (state line + trailing ≤12 output lines, DarkGray) whenever the selected agent
+  has update state/logs. Status bar: `{name} updated` / `{name} update failed —
+  see detail panel`.
+- **Cleanup of finished results**: a finished update's state/log auto-expires so
+  it doesn't sit in the detail panel forever — success after **6s** (the dot
+  already reflects the new version), failure after **30s** (long enough to read
+  the error + the manual-run command). Tracked in the main loop's
+  `update_clear_at` (removed when a fresh run starts for that agent;
+  `AgentsApp::clear_update` does the removal, gated on the state not being
+  `Running`). `x` on a finished (non-running) agent **dismisses** it immediately
+  (`has_finished_update` → `clear_update`).
+- **Failure/no-TTY path**: npm-prefix updaters (gemini-cli, qwen-code) can fail
+  without a writable global prefix; the captured stderr + non-zero exit surface
+  in the detail log and the `Failed` state. On `Failed`, the detail Update
+  section adds a `Run manually: $ <cmd>` line (the bare registry command) so the
+  user can run it in their own shell — where they have full interactivity for any
+  prompt. openclaw's updater restarts its daemon (heaviest side effects) —
+  included, shown verbatim in the confirm modal.
+- **Interactive (suspend-and-run) path** — the `u` confirm modal offers `i`
+  (single-agent only; `U`/update-all stays background). `i` →
+  `Message::ConfirmUpdateInteractive` → `AgentsApp::confirm_update_interactive`
+  (marks the agent `Running`, returns `(id, argv)`) → `App.pending_interactive_update`
+  → drained in `run_app` by `run_interactive_update`: it **suspends the TUI**
+  (`disable_raw_mode` + `LeaveAlternateScreen` + `DisableMouseCapture`), runs the
+  updater with **inherited stdio** (`std::process::Command::status()` — fully
+  interactive: prompts, sudo, menus), waits for a keypress, then **unconditionally
+  restores** (`enable_raw_mode` + `EnterAlternateScreen` + `EnableMouseCapture` +
+  `terminal.clear()`) and re-detects the version. Runs synchronously on the
+  terminal-owning thread; restore uses no `?` so a child error can't wedge the
+  screen (the panic hook + `run()` end-cleanup are extra nets). Output goes to the
+  real terminal (not captured), so the detail log shows just the summary line.
+  `run_interactive_update` manipulates the real terminal → not unit-tested; the
+  decision branch (`confirm_update_interactive` single vs multi) is.
+- **Cancel a running update** (`x` → `Message::RequestCancelUpdate`): the main
+  loop holds a per-agent `oneshot::Sender<()>` (`cancel_signals`, created when the
+  update spawns, removed on `Finished`). `x` on a `Running` agent fires it →
+  `spawn_agent_update`'s `tokio::select!` (child exit / 5-min timeout / cancel)
+  takes the cancel branch → `start_kill` + reap → `Finished(false, "✗ update
+  cancelled")`. This frees the user to immediately re-run with `i` (interactive),
+  which is the recovery path when a background update turns out to need input.
+- **Footer**: ` u ` update, ` U ` update all, ` x ` cancel. Help: `u`/`U`/`x`.
+
+---
+
 ## 8. Mouse
 
 `handle_agents_mouse` (in `agents/app.rs`); see style guide §12 for the shared pattern.
@@ -185,3 +360,4 @@ Selected row: Yellow + BOLD (applied via `ListItem::style`, overrides per-span s
 - **Click:** agent row → focus List + `select_agent_at_index`; detail → focus Details only.
 - **Wheel (focus-then-scroll):** over the list → prev/next agent; over the detail → adjust `detail_scroll` (a `u16`, clamped at render).
 - The list renders into the **real** `agent_list_state` so `offset()` is valid while scrolled (fixed the `ListState` copy gotcha — see CLAUDE.md).
+- **Modal mouse:** `modal_popup_open` returns true for `show_picker`, `show_add_form`, **and** `show_update_confirm` so clicks/wheel can't leak to the panels behind. The Add Agent form and the update-confirm modal have no selectable rows — clicks and wheel over them are swallowed (`handle_modal_popup_click`/`handle_modal_popup_mouse` return `None` when `show_add_form || show_update_confirm`).

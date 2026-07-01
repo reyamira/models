@@ -384,7 +384,7 @@ fn get_github_data_batch(
                 let (fetch_result, installed) = tokio::join!(
                     client.fetch_releases_only(&repo),
                     tokio::task::spawn_blocking(move || {
-                        crate::agents::detect::detect_installed(&agent)
+                        crate::agents::detect::detect_installed_cli(&agent)
                     })
                 );
                 let installed = installed.unwrap_or_default();
@@ -1033,6 +1033,7 @@ mod tests {
             cli_binary: cli_binary.map(str::to_string),
             alt_binaries: vec![],
             version_command: vec![],
+            update_command: vec![],
             version_regex: None,
             config_files: vec![],
             homepage: None,

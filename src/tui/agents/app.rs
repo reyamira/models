@@ -4,7 +4,9 @@ use crossterm::event::{MouseButton, MouseEventKind};
 use ratatui::layout::Rect;
 use ratatui::widgets::ListState;
 
-use crate::agents::{detect_installed, AgentEntry, AgentsFile, FetchStatus, GitHubData};
+use crate::agents::{
+    detect_installed, AgentEntry, AgentsFile, FetchStatus, GitHubData, InstalledInfo,
+};
 use crate::config::Config;
 use crate::tui::mouse::{hit, row_at};
 
@@ -83,6 +85,140 @@ pub struct AgentFilters {
     pub open_source_only: bool,
 }
 
+/// Which field of the "Add Agent" form currently has focus.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AddAgentField {
+    #[default]
+    Name,
+    Repo,
+}
+
+impl AddAgentField {
+    fn toggled(self) -> Self {
+        match self {
+            AddAgentField::Name => AddAgentField::Repo,
+            AddAgentField::Repo => AddAgentField::Name,
+        }
+    }
+}
+
+/// State for the in-app "Add Agent" modal — a minimal two-field form (name +
+/// `owner/repo`) that writes a `CustomAgent` to config without the user editing
+/// `config.toml` by hand.
+#[derive(Debug, Clone, Default)]
+pub struct AddAgentForm {
+    pub name: String,
+    pub repo: String,
+    pub field: AddAgentField,
+    /// Inline validation error shown beneath the fields (cleared on next input).
+    pub error: Option<String>,
+}
+
+impl AddAgentForm {
+    fn active_mut(&mut self) -> &mut String {
+        match self.field {
+            AddAgentField::Name => &mut self.name,
+            AddAgentField::Repo => &mut self.repo,
+        }
+    }
+}
+
+/// Lifecycle of an in-app agent self-update (subprocess run in the background).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AgentUpdateState {
+    Running,
+    Succeeded,
+    Failed,
+}
+
+/// One agent queued for update, shown in the confirm modal before anything runs.
+#[derive(Debug, Clone)]
+pub struct UpdateTarget {
+    pub id: String,
+    pub name: String,
+    /// Verified argv (no shell), e.g. `["claude", "update"]` — already made
+    /// install-aware via `AgentEntry::resolved_update_command`.
+    pub command: Vec<String>,
+    /// Detected install method label (e.g. "Homebrew"), shown in the confirm
+    /// modal so the user can see what the command targets. `None` if unknown.
+    pub method: Option<String>,
+    /// The command needs an interactive terminal (sudo / AUR-helper prompts).
+    /// Background execution can't answer a password prompt, so these are excluded
+    /// from `U` (update-all) and route `u` to the interactive (suspend-and-run) path.
+    pub needs_terminal: bool,
+}
+
+/// Whether an update command requires an interactive terminal — a system package
+/// manager or `sudo`, which prompt for a password / AUR review that a backgrounded
+/// child (detached from the TTY) can't answer.
+pub fn command_needs_terminal(command: &[String]) -> bool {
+    matches!(
+        command.first().map(String::as_str),
+        Some("sudo" | "paru" | "yay" | "pacman" | "apt" | "dnf")
+    )
+}
+
+/// Cap on retained per-agent update output lines (oldest dropped) so a chatty
+/// updater can't grow the buffer unbounded.
+const UPDATE_LOG_CAP: usize = 200;
+
+/// True when `repo` is a plausible `owner/name` GitHub slug: exactly one `/`,
+/// non-empty halves, and only characters GitHub allows in owner/repo names.
+fn is_valid_repo_slug(repo: &str) -> bool {
+    let mut parts = repo.split('/');
+    let (Some(owner), Some(name), None) = (parts.next(), parts.next(), parts.next()) else {
+        return false;
+    };
+    let valid_part = |s: &str| {
+        !s.is_empty()
+            && s.chars()
+                .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.'))
+    };
+    valid_part(owner) && valid_part(name)
+}
+
+/// Candidate CLI binary names to probe when adding a custom agent, in priority
+/// order: the repo's last path segment, then the display name (kebab and
+/// joined). Lowercased, de-duplicated, empties dropped. The repo segment comes
+/// first because it's usually the actual binary name (e.g. `sourcegraph/amp` →
+/// `amp`).
+fn binary_candidates(name: &str, repo: &str) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    let mut push = |s: String| {
+        if !s.is_empty() && !out.contains(&s) {
+            out.push(s);
+        }
+    };
+    if let Some(seg) = repo.rsplit('/').next() {
+        push(seg.to_lowercase());
+    }
+    push(name.to_lowercase().replace(' ', "-"));
+    push(name.to_lowercase().replace(' ', ""));
+    out
+}
+
+/// Probe inferred binaries for a custom agent. Returns the first candidate whose
+/// `<bin> --version` yields a version, with its detected install info (version +
+/// path). `None` if nothing resolves — the agent stays detection-less.
+fn detect_custom_agent(name: &str, repo: &str) -> Option<(String, InstalledInfo)> {
+    for cand in binary_candidates(name, repo) {
+        // Reuse CustomAgent::to_agent so the probe Agent matches the real shape.
+        let probe = crate::config::CustomAgent {
+            name: name.to_string(),
+            repo: repo.to_string(),
+            agent_type: Some("cli".to_string()),
+            binary: Some(cand.clone()),
+            version_command: Some(vec!["--version".to_string()]),
+        }
+        .to_agent();
+        let info = detect_installed(&probe);
+        if info.version.is_some() {
+            return Some((cand, info));
+        }
+    }
+    None
+}
+
 pub struct AgentsApp {
     pub entries: Vec<AgentEntry>,
     pub filtered_entries: Vec<usize>, // indices into entries
@@ -97,6 +233,17 @@ pub struct AgentsApp {
     pub show_picker: bool,
     pub picker_selected: usize,
     pub picker_changes: HashMap<String, bool>, // agent_id -> new tracked state
+    // Add-agent form modal state
+    pub show_add_form: bool,
+    pub add_form: AddAgentForm,
+    // Update action state
+    pub show_update_confirm: bool,
+    /// Agents queued in the confirm modal (cleared when it closes).
+    pub update_targets: Vec<UpdateTarget>,
+    /// Per-agent update lifecycle (absent = idle / never updated this session).
+    pub update_states: HashMap<String, AgentUpdateState>,
+    /// Per-agent captured update output (bounded to `UPDATE_LOG_CAP` lines).
+    pub update_logs: HashMap<String, Vec<String>>,
     // Detail panel scroll
     pub detail_scroll: u16,
     // Search match navigation (line indices in detail content)
@@ -174,8 +321,25 @@ impl AgentsApp {
             if entries.iter().any(|e| e.id == id) {
                 continue;
             }
-            let agent = custom.to_agent();
-            let installed = detect_installed(&agent);
+            let mut agent = custom.to_agent();
+            // If no binary was recorded (e.g. added before install-detection, or
+            // not installed at add time), best-effort infer+detect it now so a
+            // later install shows up without re-adding the agent.
+            let installed = if agent.cli_binary.is_none() {
+                match detect_custom_agent(&custom.name, &custom.repo) {
+                    Some((bin, info)) => {
+                        agent.cli_binary = Some(bin);
+                        agent.version_command = vec!["--version".to_string()];
+                        if agent.categories.is_empty() {
+                            agent.categories = vec!["cli".to_string()];
+                        }
+                        info
+                    }
+                    None => InstalledInfo::default(),
+                }
+            } else {
+                detect_installed(&agent)
+            };
             let tracked = config.is_tracked(&id);
             entries.push(AgentEntry {
                 id,
@@ -212,6 +376,12 @@ impl AgentsApp {
             show_picker: false,
             picker_selected: 0,
             picker_changes: HashMap::new(),
+            show_add_form: false,
+            add_form: AddAgentForm::default(),
+            show_update_confirm: false,
+            update_targets: Vec::new(),
+            update_states: HashMap::new(),
+            update_logs: HashMap::new(),
             detail_scroll: 0,
             search_match_lines: Vec::new(),
             search_match_visual_offsets: Vec::new(),
@@ -490,6 +660,275 @@ impl AgentsApp {
         Ok(newly_tracked)
     }
 
+    // Add-agent form methods
+    pub fn open_add_form(&mut self) {
+        self.show_add_form = true;
+        self.add_form = AddAgentForm::default();
+    }
+
+    pub fn close_add_form(&mut self) {
+        self.show_add_form = false;
+        self.add_form = AddAgentForm::default();
+    }
+
+    pub fn add_form_input(&mut self, c: char) {
+        // Ignore control chars; the field accepts plain text only.
+        if c.is_control() {
+            return;
+        }
+        self.add_form.error = None;
+        self.add_form.active_mut().push(c);
+    }
+
+    pub fn add_form_backspace(&mut self) {
+        self.add_form.error = None;
+        self.add_form.active_mut().pop();
+    }
+
+    pub fn add_form_toggle_field(&mut self) {
+        self.add_form.field = self.add_form.field.toggled();
+    }
+
+    /// Validate the form, persist a `CustomAgent` to config, and create a tracked
+    /// `AgentEntry` in-memory. Returns `(id, repo)` for the GitHub fetch the main
+    /// loop will spawn, or an error message to show inline (the form stays open on
+    /// validation errors so the user can correct them; it closes on success).
+    pub fn add_agent_save(&mut self, config: &mut Config) -> Result<(String, String), String> {
+        let name = self.add_form.name.trim().to_string();
+        let repo = self.add_form.repo.trim().to_string();
+
+        if name.is_empty() {
+            self.add_form.error = Some("Name is required".to_string());
+            self.add_form.field = AddAgentField::Name;
+            return Err("Name is required".to_string());
+        }
+        if !is_valid_repo_slug(&repo) {
+            self.add_form.error = Some("Repo must be in owner/name form".to_string());
+            self.add_form.field = AddAgentField::Repo;
+            return Err("Repo must be in owner/name form".to_string());
+        }
+
+        // Id is derived from the name exactly as `AgentsApp::new` derives it for
+        // config-loaded custom agents, so a restart re-resolves to the same id.
+        let id = name.to_lowercase().replace(' ', "-");
+        if self.entries.iter().any(|e| e.id == id) {
+            let msg = format!("An agent named \"{}\" already exists", name);
+            self.add_form.error = Some(msg.clone());
+            return Err(msg);
+        }
+
+        // Best-effort install detection: infer a binary from the repo/name and
+        // probe `<bin> --version`. If it resolves, record the binary + CLI type so
+        // the entry shows installed/path (and the saved CustomAgent re-detects on
+        // restart). The form stays name+repo only — this just uses what we can
+        // derive. `None` keeps the agent detection-less, exactly as before.
+        let detected = detect_custom_agent(&name, &repo);
+        let (binary, version_command, agent_type, installed) = match detected {
+            Some((bin, info)) => (
+                Some(bin),
+                Some(vec!["--version".to_string()]),
+                Some("cli".to_string()),
+                info,
+            ),
+            None => (None, None, None, InstalledInfo::default()),
+        };
+
+        let custom = crate::config::CustomAgent {
+            name: name.clone(),
+            repo: repo.clone(),
+            agent_type,
+            binary,
+            version_command,
+        };
+        let agent = custom.to_agent();
+        config.agents.custom.push(custom);
+        // Persist as tracked so it survives a restart (custom agents are only
+        // shown when their id is in config.agents.tracked).
+        config.set_tracked(&id, true);
+        if let Err(e) = config.save() {
+            // Roll back the in-memory config mutation so a retry doesn't duplicate.
+            config.agents.custom.retain(|c| c.name != name);
+            return Err(format!("Failed to save config: {}", e));
+        }
+
+        self.entries.push(AgentEntry {
+            id: id.clone(),
+            agent,
+            github: GitHubData::default(),
+            installed,
+            tracked: true,
+            fetch_status: FetchStatus::Loading,
+        });
+        // Keep the by-name sort invariant the constructor establishes.
+        self.entries.sort_by(|a, b| a.agent.name.cmp(&b.agent.name));
+
+        self.close_add_form();
+        self.update_filtered();
+        Ok((id, repo))
+    }
+
+    // Update-action methods
+
+    /// Build a confirm-modal target for the currently selected agent, if it has a
+    /// verified updater. Returns `Err` with a status message otherwise (no updater,
+    /// or an update already running for it).
+    pub fn request_update_selected(&mut self) -> Result<(), String> {
+        let entry = self
+            .current_entry()
+            .ok_or_else(|| "No agent selected".to_string())?;
+        let command = match entry.resolved_update_command() {
+            Some(c) => c,
+            None => return Err(format!("No in-app updater for {}", entry.agent.name)),
+        };
+        // Nothing to update if it isn't installed — running the updater would just
+        // fail with "binary not found". (`U`/update-all already gates on
+        // update_available(), which requires a detected install.)
+        if entry.installed.version.is_none() {
+            return Err(format!(
+                "{} is not installed — nothing to update",
+                entry.agent.name
+            ));
+        }
+        if self.update_states.get(&entry.id) == Some(&AgentUpdateState::Running) {
+            return Err(format!("{} is already updating", entry.agent.name));
+        }
+        let needs_terminal = command_needs_terminal(&command);
+        self.update_targets = vec![UpdateTarget {
+            id: entry.id.clone(),
+            name: entry.agent.name.clone(),
+            command,
+            method: entry.install_method().map(|m| m.label().to_string()),
+            needs_terminal,
+        }];
+        self.show_update_confirm = true;
+        Ok(())
+    }
+
+    /// Build confirm-modal targets for every agent with an available update and a
+    /// verified updater (skipping any already updating). Targets that need an
+    /// interactive terminal (sudo / AUR) are excluded — `U` runs in the background,
+    /// which can't answer a prompt — so the user runs those individually with `u`
+    /// then `i`. `Err` if none qualify (a specific message when the only candidates
+    /// were interactive-only).
+    pub fn request_update_all(&mut self) -> Result<usize, String> {
+        let mut interactive_only = 0usize;
+        let targets: Vec<UpdateTarget> = self
+            .entries
+            .iter()
+            .filter(|e| e.tracked && e.update_available())
+            .filter(|e| self.update_states.get(&e.id) != Some(&AgentUpdateState::Running))
+            .filter_map(|e| {
+                let command = e.resolved_update_command()?;
+                if command_needs_terminal(&command) {
+                    interactive_only += 1;
+                    return None;
+                }
+                Some(UpdateTarget {
+                    id: e.id.clone(),
+                    name: e.agent.name.clone(),
+                    command,
+                    method: e.install_method().map(|m| m.label().to_string()),
+                    needs_terminal: false,
+                })
+            })
+            .collect();
+        if targets.is_empty() {
+            if interactive_only > 0 {
+                return Err(format!(
+                    "{interactive_only} agent(s) need an interactive update — use u then i"
+                ));
+            }
+            return Err("No agents with an available update and a known updater".to_string());
+        }
+        let count = targets.len();
+        self.update_targets = targets;
+        self.show_update_confirm = true;
+        Ok(count)
+    }
+
+    pub fn cancel_update(&mut self) {
+        self.show_update_confirm = false;
+        self.update_targets.clear();
+    }
+
+    /// Confirm the queued updates: mark each Running, reset its log, close the
+    /// modal, and return the `(id, command)` pairs the main loop will spawn.
+    pub fn confirm_update(&mut self) -> Vec<(String, Vec<String>)> {
+        let mut spawned = Vec::new();
+        for target in std::mem::take(&mut self.update_targets) {
+            self.update_states
+                .insert(target.id.clone(), AgentUpdateState::Running);
+            self.update_logs.insert(target.id.clone(), Vec::new());
+            spawned.push((target.id, target.command));
+        }
+        self.show_update_confirm = false;
+        spawned
+    }
+
+    /// Confirm a single queued update to run **interactively** (suspend-and-run).
+    /// Only valid for exactly one target (the `u` path); returns `(id, command)`
+    /// for the main loop, or `None` otherwise. Marks the agent `Running` and
+    /// resets its log so the detail panel reflects the in-flight update.
+    pub fn confirm_update_interactive(&mut self) -> Option<(String, Vec<String>)> {
+        if self.update_targets.len() != 1 {
+            return None;
+        }
+        let target = self.update_targets.remove(0);
+        self.update_states
+            .insert(target.id.clone(), AgentUpdateState::Running);
+        self.update_logs.insert(target.id.clone(), Vec::new());
+        self.show_update_confirm = false;
+        Some((target.id, target.command))
+    }
+
+    /// Append a captured output line for an in-progress update (bounded buffer).
+    pub fn push_update_output(&mut self, id: &str, line: String) {
+        let log = self.update_logs.entry(id.to_string()).or_default();
+        log.push(line);
+        if log.len() > UPDATE_LOG_CAP {
+            let overflow = log.len() - UPDATE_LOG_CAP;
+            log.drain(0..overflow);
+        }
+    }
+
+    /// Record an update's terminal result and append a summary line to its log.
+    pub fn finish_update(&mut self, id: &str, success: bool, message: String) {
+        self.update_states.insert(
+            id.to_string(),
+            if success {
+                AgentUpdateState::Succeeded
+            } else {
+                AgentUpdateState::Failed
+            },
+        );
+        self.push_update_output(id, message);
+    }
+
+    /// True when the agent has a *finished* (non-Running) update result that can
+    /// be dismissed.
+    pub fn has_finished_update(&self, id: &str) -> bool {
+        matches!(
+            self.update_states.get(id),
+            Some(AgentUpdateState::Succeeded | AgentUpdateState::Failed)
+        )
+    }
+
+    /// Clear an agent's update state + captured log (the detail-panel Update
+    /// section then disappears). Used to auto-expire finished results and for the
+    /// `x` dismiss.
+    pub fn clear_update(&mut self, id: &str) {
+        self.update_states.remove(id);
+        self.update_logs.remove(id);
+    }
+
+    /// Apply a freshly re-detected installed version after a successful update so
+    /// the status dot flips (green/blue) without restarting the app.
+    pub fn apply_redetected(&mut self, id: &str, installed: InstalledInfo) {
+        if let Some(entry) = self.entries.iter_mut().find(|e| e.id == id) {
+            entry.installed = installed;
+        }
+    }
+
     /// Update match line indices and visual offsets from rendered detail content.
     /// Only resets current_match when the match set actually changes.
     pub fn update_search_matches(&mut self, match_lines: Vec<u16>, visual_offsets: Vec<u16>) {
@@ -637,6 +1076,7 @@ mod tests {
                 cli_binary: None,
                 alt_binaries: vec![],
                 version_command: vec![],
+                update_command: vec![],
                 version_regex: None,
                 config_files: vec![],
                 homepage: None,
@@ -656,6 +1096,282 @@ mod tests {
         }
     }
 
+    #[test]
+    fn binary_candidates_prioritizes_repo_segment() {
+        assert_eq!(binary_candidates("Amp", "sourcegraph/amp"), vec!["amp"]);
+        assert_eq!(
+            binary_candidates("My Agent", "owner/my-agent"),
+            vec!["my-agent", "myagent"]
+        );
+        // Repo segment first, then distinct name forms (kebab dups the segment
+        // here, so only the space-joined form is added).
+        assert_eq!(
+            binary_candidates("Gemini CLI", "google-gemini/gemini-cli"),
+            vec!["gemini-cli", "geminicli"]
+        );
+    }
+
+    #[test]
+    fn repo_slug_validation() {
+        assert!(is_valid_repo_slug("owner/repo"));
+        assert!(is_valid_repo_slug("My-Org/my.repo_2"));
+        assert!(!is_valid_repo_slug("noslash"));
+        assert!(!is_valid_repo_slug("owner/"));
+        assert!(!is_valid_repo_slug("/repo"));
+        assert!(!is_valid_repo_slug("a/b/c"));
+        assert!(!is_valid_repo_slug("own er/repo"));
+        assert!(!is_valid_repo_slug("https://github.com/owner/repo"));
+        assert!(!is_valid_repo_slug(""));
+    }
+
+    #[test]
+    fn add_agent_rejects_empty_name_without_saving() {
+        // Error paths return before config.save(), so no filesystem touch.
+        let mut app = test_app(vec![]);
+        let mut config = Config::default();
+        app.open_add_form();
+        app.add_form.name = "  ".to_string();
+        app.add_form.repo = "owner/repo".to_string();
+        assert!(app.add_agent_save(&mut config).is_err());
+        // Form stays open with an error so the user can correct it.
+        assert!(app.show_add_form);
+        assert_eq!(app.add_form.field, AddAgentField::Name);
+        assert!(app.add_form.error.is_some());
+        assert!(config.agents.custom.is_empty());
+    }
+
+    #[test]
+    fn add_agent_rejects_bad_repo_slug() {
+        let mut app = test_app(vec![]);
+        let mut config = Config::default();
+        app.open_add_form();
+        app.add_form.name = "My Agent".to_string();
+        app.add_form.repo = "not-a-slug".to_string();
+        assert!(app.add_agent_save(&mut config).is_err());
+        assert_eq!(app.add_form.field, AddAgentField::Repo);
+        assert!(app.show_add_form);
+        assert!(config.agents.custom.is_empty());
+    }
+
+    /// Build an entry with an installed version, a (newer) latest release, and an
+    /// optional updater command — the shape the update actions key off.
+    fn updatable_entry(
+        id: &str,
+        name: &str,
+        installed: &str,
+        latest: &str,
+        cmd: &[&str],
+    ) -> AgentEntry {
+        let mut e = agent_entry(id, name, None);
+        e.agent.update_command = cmd.iter().map(|s| s.to_string()).collect();
+        e.installed.version = Some(installed.to_string());
+        e.github.releases[0].version = latest.to_string();
+        e
+    }
+
+    #[test]
+    fn request_update_selected_targets_agent_with_updater() {
+        let mut app = test_app(vec![updatable_entry(
+            "claude-code",
+            "Claude Code",
+            "1.0.0",
+            "2.0.0",
+            &["claude", "update"],
+        )]);
+        assert!(app.request_update_selected().is_ok());
+        assert!(app.show_update_confirm);
+        assert_eq!(app.update_targets.len(), 1);
+        assert_eq!(app.update_targets[0].command, vec!["claude", "update"]);
+    }
+
+    #[test]
+    fn request_update_selected_errors_when_not_installed() {
+        // Has an updater command but no detected install → nothing to update.
+        let mut e = agent_entry("claude-code", "Claude Code", None);
+        e.agent.update_command = vec!["claude".to_string(), "update".to_string()];
+        // installed.version stays None (agent_entry leaves it default).
+        let mut app = test_app(vec![e]);
+        let err = app.request_update_selected().unwrap_err();
+        assert!(err.contains("not installed"), "got: {err}");
+        assert!(!app.show_update_confirm);
+    }
+
+    #[test]
+    fn request_update_selected_errors_without_updater() {
+        // No update_command → no in-app updater.
+        let mut app = test_app(vec![updatable_entry("zed", "Zed", "1.0.0", "2.0.0", &[])]);
+        assert!(app.request_update_selected().is_err());
+        assert!(!app.show_update_confirm);
+        assert!(app.update_targets.is_empty());
+    }
+
+    #[test]
+    fn request_update_all_collects_only_updatable_with_updater() {
+        let mut app = test_app(vec![
+            updatable_entry("a", "A", "1.0.0", "2.0.0", &["a", "update"]), // updatable + cmd → yes
+            updatable_entry("b", "B", "2.0.0", "2.0.0", &["b", "update"]), // up to date → no
+            updatable_entry("c", "C", "1.0.0", "2.0.0", &[]),              // no updater → no
+        ]);
+        let count = app.request_update_all().expect("at least one updatable");
+        assert_eq!(count, 1);
+        assert_eq!(app.update_targets.len(), 1);
+        assert_eq!(app.update_targets[0].id, "a");
+    }
+
+    #[test]
+    fn request_update_all_errors_when_none_qualify() {
+        let mut app = test_app(vec![updatable_entry(
+            "b",
+            "B",
+            "2.0.0",
+            "2.0.0",
+            &["b", "update"],
+        )]);
+        assert!(app.request_update_all().is_err());
+    }
+
+    #[test]
+    fn confirm_update_marks_running_and_returns_commands() {
+        let mut app = test_app(vec![updatable_entry(
+            "claude-code",
+            "Claude Code",
+            "1.0.0",
+            "2.0.0",
+            &["claude", "update"],
+        )]);
+        app.request_update_selected().unwrap();
+        let spawned = app.confirm_update();
+        assert_eq!(spawned.len(), 1);
+        assert_eq!(spawned[0].0, "claude-code");
+        assert_eq!(spawned[0].1, vec!["claude", "update"]);
+        assert!(!app.show_update_confirm);
+        assert_eq!(
+            app.update_states.get("claude-code"),
+            Some(&AgentUpdateState::Running)
+        );
+    }
+
+    #[test]
+    fn confirm_update_interactive_returns_single_target_and_marks_running() {
+        let mut app = test_app(vec![updatable_entry(
+            "claude-code",
+            "Claude Code",
+            "1.0.0",
+            "2.0.0",
+            &["claude", "update"],
+        )]);
+        app.request_update_selected().unwrap();
+        let got = app.confirm_update_interactive();
+        assert_eq!(
+            got,
+            Some((
+                "claude-code".to_string(),
+                vec!["claude".to_string(), "update".to_string()]
+            ))
+        );
+        assert!(!app.show_update_confirm);
+        assert_eq!(
+            app.update_states.get("claude-code"),
+            Some(&AgentUpdateState::Running)
+        );
+    }
+
+    #[test]
+    fn confirm_update_interactive_noops_for_multi_target() {
+        let mut app = test_app(vec![
+            updatable_entry("a", "A", "1.0.0", "2.0.0", &["a", "update"]),
+            updatable_entry("b", "B", "1.0.0", "2.0.0", &["b", "update"]),
+        ]);
+        app.request_update_all().unwrap();
+        assert!(app.confirm_update_interactive().is_none());
+        // Modal stays open so the user can still confirm the background run.
+        assert!(app.show_update_confirm);
+    }
+
+    #[test]
+    fn request_update_selected_blocks_while_already_running() {
+        let mut app = test_app(vec![updatable_entry(
+            "a",
+            "A",
+            "1.0.0",
+            "2.0.0",
+            &["a", "update"],
+        )]);
+        app.update_states
+            .insert("a".to_string(), AgentUpdateState::Running);
+        assert!(app.request_update_selected().is_err());
+    }
+
+    #[test]
+    fn update_output_is_capped() {
+        let mut app = test_app(vec![]);
+        for i in 0..(UPDATE_LOG_CAP + 50) {
+            app.push_update_output("a", format!("line {i}"));
+        }
+        let log = app.update_logs.get("a").unwrap();
+        assert_eq!(log.len(), UPDATE_LOG_CAP);
+        assert_eq!(
+            log.last().unwrap(),
+            &format!("line {}", UPDATE_LOG_CAP + 49)
+        );
+    }
+
+    #[test]
+    fn finish_update_records_state_and_message() {
+        let mut app = test_app(vec![]);
+        app.finish_update("a", false, "boom".to_string());
+        assert_eq!(app.update_states.get("a"), Some(&AgentUpdateState::Failed));
+        assert_eq!(app.update_logs.get("a").unwrap().last().unwrap(), "boom");
+    }
+
+    #[test]
+    fn clear_update_removes_finished_state_and_log() {
+        let mut app = test_app(vec![]);
+        app.update_states
+            .insert("a".to_string(), AgentUpdateState::Running);
+        assert!(!app.has_finished_update("a")); // Running is not "finished"
+        app.finish_update("a", true, "done".to_string());
+        assert!(app.has_finished_update("a"));
+        app.clear_update("a");
+        assert!(!app.has_finished_update("a"));
+        assert!(app.update_states.get("a").is_none());
+        assert!(app.update_logs.get("a").is_none());
+    }
+
+    #[test]
+    fn apply_redetected_updates_installed_version() {
+        let mut app = test_app(vec![updatable_entry(
+            "a",
+            "A",
+            "1.0.0",
+            "2.0.0",
+            &["a", "update"],
+        )]);
+        app.apply_redetected(
+            "a",
+            InstalledInfo {
+                version: Some("2.0.0".to_string()),
+                path: None,
+                ..Default::default()
+            },
+        );
+        let entry = app.entries.iter().find(|e| e.id == "a").unwrap();
+        assert_eq!(entry.installed.version.as_deref(), Some("2.0.0"));
+    }
+
+    #[test]
+    fn add_agent_rejects_id_collision_with_existing_agent() {
+        // "Claude Code" → id "claude-code"; collide with an existing entry.
+        let mut app = test_app(vec![agent_entry("claude-code", "Claude Code", None)]);
+        let mut config = Config::default();
+        app.open_add_form();
+        app.add_form.name = "Claude Code".to_string();
+        app.add_form.repo = "someone/fork".to_string();
+        assert!(app.add_agent_save(&mut config).is_err());
+        assert!(app.add_form.error.is_some());
+        assert!(config.agents.custom.is_empty());
+    }
+
     fn test_app(entries: Vec<AgentEntry>) -> AgentsApp {
         let mut agent_list_state = ListState::default();
         agent_list_state.select(Some(0));
@@ -672,6 +1388,12 @@ mod tests {
             show_picker: false,
             picker_selected: 0,
             picker_changes: HashMap::new(),
+            show_add_form: false,
+            add_form: AddAgentForm::default(),
+            show_update_confirm: false,
+            update_targets: Vec::new(),
+            update_states: HashMap::new(),
+            update_logs: HashMap::new(),
             detail_scroll: 0,
             search_match_lines: Vec::new(),
             search_match_visual_offsets: Vec::new(),

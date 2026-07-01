@@ -83,7 +83,10 @@ pub fn handle_events(app: &mut App) -> Result<Option<Message>> {
 /// handled separately in `handle_mouse`.)
 fn modal_popup_open(app: &App) -> bool {
     match app.current_tab {
-        Tab::Agents => app.agents_app.as_ref().is_some_and(|a| a.show_picker),
+        Tab::Agents => app
+            .agents_app
+            .as_ref()
+            .is_some_and(|a| a.show_picker || a.show_add_form || a.show_update_confirm),
         Tab::Status => app.status_app.as_ref().is_some_and(|a| a.show_picker),
         Tab::Benchmarks => {
             app.benchmarks_app.show_sort_picker
@@ -105,6 +108,15 @@ fn handle_modal_popup_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
     }
     // Wheel → the open popup's own scroll/navigation message.
     let (down, up) = match app.current_tab {
+        // Add-agent form / update-confirm have no scrollable rows — swallow the wheel.
+        Tab::Agents
+            if app
+                .agents_app
+                .as_ref()
+                .is_some_and(|a| a.show_add_form || a.show_update_confirm) =>
+        {
+            return None
+        }
         // Agents / Status provider-tracker checkbox modals.
         Tab::Agents | Tab::Status => (Message::PickerNext, Message::PickerPrev),
         Tab::Benchmarks if app.benchmarks_app.show_sort_picker => {
@@ -164,6 +176,10 @@ fn handle_modal_popup_click(app: &mut App, ev: MouseEvent) -> Option<Message> {
         Tab::Benchmarks => None,
         Tab::Agents => {
             let a = app.agents_app.as_mut()?;
+            // Add-agent form / update-confirm have no selectable rows — swallow the click.
+            if a.show_add_form || a.show_update_confirm {
+                return None;
+            }
             let count = a.entries.len();
             let rect = a.picker_area.get()?;
             let item = popup_row_at(rect, a.picker_selected, count, ev.row)?;
@@ -230,6 +246,14 @@ fn handle_normal_mode(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
         if let Some(ref agents_app) = app.agents_app {
             if agents_app.show_picker {
                 return handle_picker_keys(code);
+            }
+            if agents_app.show_add_form {
+                return handle_add_agent_keys(code);
+            }
+            if agents_app.show_update_confirm {
+                let single_interactive = agents_app.update_targets.len() == 1
+                    && agents_app.update_targets[0].needs_terminal;
+                return handle_update_confirm_keys(code, single_interactive);
             }
         }
     }
@@ -410,6 +434,10 @@ fn handle_agents_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
         KeyCode::Char('2') => Some(Message::ToggleCliFilter),
         KeyCode::Char('3') => Some(Message::ToggleOpenSourceFilter),
         KeyCode::Char('a') => Some(Message::OpenPicker),
+        KeyCode::Char('A') => Some(Message::OpenAddAgent),
+        KeyCode::Char('u') => Some(Message::RequestUpdateAgent),
+        KeyCode::Char('U') => Some(Message::RequestUpdateAll),
+        KeyCode::Char('x') => Some(Message::RequestCancelUpdate),
         KeyCode::Char('n') => Some(Message::NextSearchMatch),
         KeyCode::Char('N') => Some(Message::PrevSearchMatch),
         KeyCode::Char('s') => Some(Message::CycleAgentSort),
@@ -577,6 +605,36 @@ fn handle_benchmarks_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> 
         KeyCode::Char('a') if app.selections.len() < 2 => Some(Message::CycleComparator),
         KeyCode::Char('d') if app.selections.len() >= 2 => Some(Message::ToggleDetailOverlay),
         KeyCode::Char('t') if app.selections.len() >= 2 => Some(Message::ToggleComparePanel),
+        _ => None,
+    }
+}
+
+/// Update-confirm modal keys. `Enter` confirms (runs the queued updates),
+/// `Esc`/`q` cancel; everything else is swallowed so the modal is exclusive.
+/// When the single target needs a terminal (sudo/AUR), `Enter` routes to the
+/// interactive path — backgrounding it would just stall on the password prompt.
+fn handle_update_confirm_keys(code: KeyCode, single_interactive: bool) -> Option<Message> {
+    match code {
+        KeyCode::Enter if single_interactive => Some(Message::ConfirmUpdateInteractive),
+        KeyCode::Enter => Some(Message::ConfirmUpdate),
+        // Interactive (suspend-and-run) — only acts on a single target; the
+        // method no-ops for multi-target (update-all) confirmations.
+        KeyCode::Char('i') => Some(Message::ConfirmUpdateInteractive),
+        KeyCode::Esc | KeyCode::Char('q') => Some(Message::CancelUpdate),
+        _ => None,
+    }
+}
+
+/// Add-agent form keys. Intercepts all keys (returning `None` for unhandled
+/// ones) so the modal is exclusive — `q`/`?`/etc. don't pass through to the
+/// global handler while typing into a field.
+fn handle_add_agent_keys(code: KeyCode) -> Option<Message> {
+    match code {
+        KeyCode::Esc => Some(Message::CloseAddAgent),
+        KeyCode::Enter => Some(Message::AddAgentSave),
+        KeyCode::Tab | KeyCode::Down | KeyCode::Up => Some(Message::AddAgentToggleField),
+        KeyCode::Backspace => Some(Message::AddAgentBackspace),
+        KeyCode::Char(c) => Some(Message::AddAgentInput(c)),
         _ => None,
     }
 }
