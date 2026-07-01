@@ -17,7 +17,7 @@ TUI and CLI for browsing AI models, benchmarks, coding agents, and provider stat
 
 - **~4,000+ models** across 85+ providers from [models.dev](https://models.dev) — filter by capability, price, context, and provider category
 - **~1,000 benchmark entries** across 4 data sources — [Artificial Analysis](https://artificialanalysis.ai), [Epoch AI](https://epoch.ai), [Arena](https://arena.ai), and [LLM Stats](https://llm-stats.com) — compare models head-to-head with scatter plots and radar charts
-- **11+ coding agents** tracked with version detection, changelogs, and GitHub integration
+- **12+ coding agents** tracked with version detection, changelogs, and GitHub integration
 - **22 provider statuses** monitored live across 7 status page platforms
 
 ## What's New in v0.12.1
