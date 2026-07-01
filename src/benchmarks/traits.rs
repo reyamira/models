@@ -618,6 +618,9 @@ mod tests {
             knowledge: None,
             open_weights: false,
             status: None,
+            description: None,
+            structured_output: None,
+            reasoning_options: Vec::new(),
         }
     }
 

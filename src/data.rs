@@ -50,6 +50,14 @@ pub struct Model {
     pub open_weights: bool,
     #[serde(default)]
     pub status: Option<String>,
+    #[serde(default)]
+    pub description: Option<String>,
+    /// `Option` rather than `bool`: only ~49% of models.dev entries carry this
+    /// key, so absent must stay distinguishable from an explicit `false`.
+    #[serde(default)]
+    pub structured_output: Option<bool>,
+    #[serde(default)]
+    pub reasoning_options: Vec<ReasoningOption>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -62,6 +70,53 @@ pub struct Cost {
     pub cache_read: Option<f64>,
     #[serde(default)]
     pub cache_write: Option<f64>,
+    #[serde(default)]
+    pub reasoning: Option<f64>,
+    #[serde(default)]
+    pub input_audio: Option<f64>,
+    #[serde(default)]
+    pub output_audio: Option<f64>,
+    #[serde(default)]
+    pub tiers: Vec<CostTier>,
+}
+
+/// A single reasoning-mode option (models.dev `reasoning_options[]`). Modeled
+/// permissively — `type` stays a raw string so a future tag beyond the current
+/// `budget_tokens`/`effort`/`toggle` set never fails deserialization.
+#[derive(Debug, Clone, Deserialize)]
+pub struct ReasoningOption {
+    #[serde(default)]
+    pub r#type: Option<String>,
+    #[serde(default)]
+    pub min: Option<f64>,
+    #[serde(default)]
+    pub max: Option<f64>,
+}
+
+/// A pricing tier (models.dev `cost.tiers[]`) — e.g. higher rates above a
+/// context-size threshold. All fields optional for forward-compat.
+#[derive(Debug, Clone, Deserialize)]
+pub struct CostTier {
+    #[serde(default)]
+    pub input: Option<f64>,
+    #[serde(default)]
+    pub output: Option<f64>,
+    /// Parsed for forward-compat / JSON completeness; not surfaced in the UI.
+    #[serde(default)]
+    #[allow(dead_code)]
+    pub cache_read: Option<f64>,
+    #[serde(default)]
+    pub tier: Option<TierSpec>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct TierSpec {
+    /// Always `"context"` today; kept as a raw string for forward-compat.
+    #[serde(default)]
+    #[allow(dead_code)]
+    pub r#type: Option<String>,
+    #[serde(default)]
+    pub size: Option<u64>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -166,11 +221,47 @@ impl Model {
         if self.temperature {
             caps.push("temperature");
         }
+        if self.structured_output == Some(true) {
+            caps.push("structured");
+        }
         if caps.is_empty() {
             formatting::EM_DASH.to_string()
         } else {
             caps.join(", ")
         }
+    }
+
+    /// Compact one-line summary of the model's reasoning mode(s), e.g.
+    /// `"budget 0–24.6k"`, `"effort"`, `"toggle"`. Budget ranges are rounded
+    /// with `format_tokens` to match the Limits number style. Returns `None`
+    /// when the model carries no `reasoning_options`.
+    pub fn reasoning_mode_summary(&self) -> Option<String> {
+        if self.reasoning_options.is_empty() {
+            return None;
+        }
+        let parts: Vec<String> = self
+            .reasoning_options
+            .iter()
+            .map(|opt| {
+                let kind = opt.r#type.as_deref().unwrap_or("reasoning");
+                match (opt.min, opt.max) {
+                    (Some(min), Some(max)) => format!(
+                        "{} {}–{}",
+                        kind,
+                        formatting::format_tokens(min as u64),
+                        formatting::format_tokens(max as u64)
+                    ),
+                    (None, Some(max)) => {
+                        format!("{} ≤{}", kind, formatting::format_tokens(max as u64))
+                    }
+                    (Some(min), None) => {
+                        format!("{} ≥{}", kind, formatting::format_tokens(min as u64))
+                    }
+                    (None, None) => kind.to_string(),
+                }
+            })
+            .collect();
+        Some(parts.join(", "))
     }
 
     pub fn modalities_str(&self) -> String {
@@ -219,6 +310,9 @@ mod tests {
             knowledge: None,
             open_weights: false,
             status: None,
+            description: None,
+            structured_output: None,
+            reasoning_options: Vec::new(),
         }
     }
 
@@ -256,5 +350,73 @@ mod tests {
     fn test_is_text_model_empty_output() {
         let m = make_model(Some(vec![]));
         assert!(!m.is_text_model(), "Empty output modalities is not text");
+    }
+
+    /// Deserialize a model carrying every new field shape, including an
+    /// **unknown** reasoning-option `type` — proves the permissive modeling
+    /// (no tagged enum) tolerates a future models.dev tag rather than failing
+    /// the whole parse.
+    #[test]
+    fn test_new_fields_deserialize_permissively() {
+        let json = r#"{
+            "id": "test-model",
+            "name": "Test Model",
+            "description": "A model for testing new fields",
+            "structured_output": true,
+            "reasoning_options": [
+                {"type": "budget_tokens", "min": 0, "max": 24576},
+                {"type": "effort"},
+                {"type": "toggle"},
+                {"type": "some_future_mode", "max": 1000}
+            ],
+            "cost": {
+                "input": 5.0,
+                "output": 15.0,
+                "reasoning": 1.147,
+                "input_audio": 3.584,
+                "output_audio": 7.0,
+                "tiers": [
+                    {"input": 2.5, "output": 15.0, "cache_read": 0.25,
+                     "tier": {"type": "context", "size": 200000}}
+                ]
+            }
+        }"#;
+        let m: Model = serde_json::from_str(json).expect("should deserialize");
+
+        assert_eq!(
+            m.description.as_deref(),
+            Some("A model for testing new fields")
+        );
+        assert_eq!(m.structured_output, Some(true));
+        assert_eq!(m.reasoning_options.len(), 4);
+        // Unknown type round-trips to its raw string instead of failing.
+        assert_eq!(
+            m.reasoning_options[3].r#type.as_deref(),
+            Some("some_future_mode")
+        );
+
+        let cost = m.cost.as_ref().unwrap();
+        assert_eq!(cost.reasoning, Some(1.147));
+        assert_eq!(cost.input_audio, Some(3.584));
+        assert_eq!(cost.output_audio, Some(7.0));
+        assert_eq!(cost.tiers.len(), 1);
+        assert_eq!(cost.tiers[0].tier.as_ref().unwrap().size, Some(200000));
+
+        // Summary rounds the budget range like the Limits section.
+        assert_eq!(
+            m.reasoning_mode_summary().as_deref(),
+            Some("budget_tokens 0–24.6k, effort, toggle, some_future_mode ≤1k")
+        );
+        assert!(m.capabilities_str().contains("structured"));
+    }
+
+    /// Absent `structured_output` stays `None` (unknown), never collapses to
+    /// `Some(false)` — the 49%-coverage guarantee that justified `Option<bool>`.
+    #[test]
+    fn test_structured_output_absent_is_none() {
+        let m: Model = serde_json::from_str(r#"{"id": "x", "name": "X"}"#).unwrap();
+        assert_eq!(m.structured_output, None);
+        assert!(m.reasoning_options.is_empty());
+        assert!(m.reasoning_mode_summary().is_none());
     }
 }

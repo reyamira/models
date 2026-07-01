@@ -2590,6 +2590,9 @@ mod tests {
                         last_updated: None,
                         knowledge: None,
                         status: None,
+                        description: None,
+                        structured_output: None,
+                        reasoning_options: Vec::new(),
                     },
                 )
             })

@@ -541,6 +541,16 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
     }
     lines.push(Line::from(provider_spans));
 
+    // Model description (one wrapped line; ~100% coverage in models.dev data).
+    if let Some(desc) = model.description.as_deref() {
+        if !desc.is_empty() {
+            lines.push(Line::from(Span::styled(
+                desc.to_string(),
+                Style::default().fg(Color::DarkGray),
+            )));
+        }
+    }
+
     // ── Capabilities ──────────────────────────────────────────────────────
     lines.push(Line::from(""));
     lines.push(section_header_line(width, "Capabilities"));
@@ -552,6 +562,14 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
             ("No", Color::DarkGray)
         }
     };
+    // Three-state variant for `Option<bool>` fields (Yes / No / unknown-em-dash).
+    let cap_val_opt = |v: Option<bool>, color: Color| -> (&'static str, Color) {
+        match v {
+            Some(true) => ("Yes", color),
+            Some(false) => ("No", Color::DarkGray),
+            None => (em, Color::DarkGray),
+        }
+    };
     let (r_val, r_col) = cap_val(model.reasoning, Color::Cyan);
     let (t_val, t_col) = cap_val(model.tool_call, Color::Yellow);
     let (f_val, f_col) = cap_val(model.attachment, Color::Magenta);
@@ -561,6 +579,7 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
         ("Closed", Color::Red)
     };
     let (tmp_val, tmp_col) = cap_val(model.temperature, Color::White);
+    let (so_val, so_col) = cap_val_opt(model.structured_output, Color::Cyan);
     lines.push(two_pair_line(
         LabelValue {
             label: "Reasoning: ",
@@ -594,12 +613,19 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
             color: tmp_col,
         },
         LabelValue {
-            label: "",
-            value: "",
-            color: Color::DarkGray,
+            label: "Structured: ",
+            value: so_val,
+            color: so_col,
         },
         col_w,
     ));
+    // Reasoning-mode summary — only when the model carries reasoning_options.
+    if let Some(summary) = model.reasoning_mode_summary() {
+        lines.push(Line::from(vec![
+            Span::styled("Mode: ", Style::default().fg(label_color)),
+            Span::styled(summary, Style::default().fg(text_color)),
+        ]));
+    }
 
     // ── Pricing ───────────────────────────────────────────────────────────
     lines.push(Line::from(""));
@@ -659,6 +685,66 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
         },
         col_w,
     ));
+
+    // Conditional pricing rows — only rendered when the model carries them, so
+    // the common case (none of these) leaves Pricing unchanged.
+    let cost_ref = model.cost.as_ref();
+    let reasoning_cost = cost_ref.and_then(|c| c.reasoning);
+    let audio_in = cost_ref.and_then(|c| c.input_audio);
+    let audio_out = cost_ref.and_then(|c| c.output_audio);
+
+    if reasoning_cost.is_some() {
+        let (rc_str, rc_color) = fmt_cost(reasoning_cost);
+        lines.push(two_pair_line(
+            LabelValue {
+                label: "Reasoning: ",
+                value: &rc_str,
+                color: rc_color,
+            },
+            LabelValue {
+                label: "",
+                value: "",
+                color: Color::DarkGray,
+            },
+            col_w,
+        ));
+    }
+    if audio_in.is_some() || audio_out.is_some() {
+        let (ai_str, ai_color) = fmt_cost(audio_in);
+        let (ao_str, ao_color) = fmt_cost(audio_out);
+        lines.push(two_pair_line(
+            LabelValue {
+                label: "Audio In: ",
+                value: &ai_str,
+                color: ai_color,
+            },
+            LabelValue {
+                label: "Audio Out: ",
+                value: &ao_str,
+                color: ao_color,
+            },
+            col_w,
+        ));
+    }
+    // Tiered pricing (e.g. higher rates above a context threshold): one line per tier.
+    if let Some(cost) = cost_ref {
+        for t in &cost.tiers {
+            let threshold = t
+                .tier
+                .as_ref()
+                .and_then(|ts| ts.size)
+                .map(|s| format!("Over {}: ", crate::formatting::format_tokens(s)))
+                .unwrap_or_else(|| "Tier: ".to_string());
+            let (ti_str, ti_color) = fmt_cost(t.input);
+            let (to_str, to_color) = fmt_cost(t.output);
+            lines.push(Line::from(vec![
+                Span::styled(threshold, Style::default().fg(label_color)),
+                Span::styled(ti_str, Style::default().fg(ti_color)),
+                Span::styled(" / ", Style::default().fg(Color::DarkGray)),
+                Span::styled(to_str, Style::default().fg(to_color)),
+            ]));
+        }
+    }
 
     // ── Limits ────────────────────────────────────────────────────────────
     lines.push(Line::from(""));
