@@ -495,7 +495,6 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
     };
 
     let model = &entry.model;
-    let provider_id = &entry.provider_id;
     let is_deprecated = model.status.as_deref() == Some("deprecated");
     let text_color = if is_deprecated {
         Color::DarkGray
@@ -517,10 +516,10 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
         entry.id.clone(),
         Style::default().fg(Color::DarkGray),
     )));
-    let mut provider_spans = vec![
-        Span::styled("Provider: ", Style::default().fg(label_color)),
-        Span::styled(provider_id.clone(), Style::default().fg(Color::Cyan)),
-        Span::raw("     "),
+    // Provider is already shown in the Provider card directly above this panel
+    // (always the selected model's provider), so it's omitted here to avoid
+    // duplication — this row carries Family + optional Status.
+    let mut meta_spans = vec![
         Span::styled("Family: ", Style::default().fg(label_color)),
         Span::raw(model.family.clone().unwrap_or_else(|| em.to_string())),
     ];
@@ -531,22 +530,24 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
             } else {
                 Color::DarkGray
             };
-            provider_spans.push(Span::raw("     "));
-            provider_spans.push(Span::styled("Status: ", Style::default().fg(label_color)));
-            provider_spans.push(Span::styled(
+            meta_spans.push(Span::raw("     "));
+            meta_spans.push(Span::styled("Status: ", Style::default().fg(label_color)));
+            meta_spans.push(Span::styled(
                 status.to_string(),
                 Style::default().fg(status_color),
             ));
         }
     }
-    lines.push(Line::from(provider_spans));
+    lines.push(Line::from(meta_spans));
 
     // Model description (one wrapped line; ~100% coverage in models.dev data).
+    // Blank line above separates it from the identity rows.
     if let Some(desc) = model.description.as_deref() {
         if !desc.is_empty() {
+            lines.push(Line::from(""));
             lines.push(Line::from(Span::styled(
                 desc.to_string(),
-                Style::default().fg(Color::DarkGray),
+                Style::default().fg(Color::Gray),
             )));
         }
     }
