@@ -620,12 +620,21 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
         },
         col_w,
     ));
-    // Reasoning-mode summary — only when the model carries reasoning_options.
-    if let Some(summary) = model.reasoning_mode_summary() {
-        lines.push(Line::from(vec![
-            Span::styled("Mode: ", Style::default().fg(label_color)),
-            Span::styled(summary, Style::default().fg(text_color)),
-        ]));
+    // Reasoning controls — the API knobs for controlling reasoning, one per
+    // line under a labeled header. Only when the model carries reasoning_options.
+    let controls = model.reasoning_controls();
+    if !controls.is_empty() {
+        lines.push(Line::from(""));
+        lines.push(Line::from(Span::styled(
+            "Reasoning controls:",
+            Style::default().fg(label_color),
+        )));
+        for c in controls {
+            lines.push(Line::from(Span::styled(
+                format!("  {c}"),
+                Style::default().fg(text_color),
+            )));
+        }
     }
 
     // ── Pricing ───────────────────────────────────────────────────────────

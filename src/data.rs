@@ -91,6 +91,10 @@ pub struct ReasoningOption {
     pub min: Option<f64>,
     #[serde(default)]
     pub max: Option<f64>,
+    /// Effort levels (e.g. `["low","medium","high"]`). May contain `null` — the
+    /// "off"/disable choice — which is dropped for display.
+    #[serde(default)]
+    pub values: Vec<Option<String>>,
 }
 
 /// A pricing tier (models.dev `cost.tiers[]`) — e.g. higher rates above a
@@ -229,37 +233,50 @@ impl Model {
         }
     }
 
-    /// Compact one-line summary of the model's reasoning mode(s), e.g.
-    /// `"budget 0–24.6k"`, `"effort"`, `"toggle"`. Budget ranges are rounded
-    /// with `format_tokens` to match the Limits number style. Returns `None`
-    /// when the model carries no `reasoning_options`.
-    pub fn reasoning_mode_summary(&self) -> Option<String> {
-        if self.reasoning_options.is_empty() {
-            return None;
-        }
-        let parts: Vec<String> = self
-            .reasoning_options
+    /// Human-readable list of the model's **reasoning controls** — the API knobs
+    /// for controlling reasoning — one entry per `reasoning_options` element:
+    /// `"budget    0–24.6k"`, `"effort    low, medium, high"`, `"toggle"`. The
+    /// control name is padded so details align into a column. Budget ranges are
+    /// rounded with `format_tokens` (Limits number style); effort `null` levels
+    /// (the "off" choice) are dropped. Empty when the model carries no
+    /// `reasoning_options`. `budget_tokens` is humanized to `budget`; an unknown
+    /// future type shows its raw name (permissive — never fails).
+    pub fn reasoning_controls(&self) -> Vec<String> {
+        self.reasoning_options
             .iter()
             .map(|opt| {
-                let kind = opt.r#type.as_deref().unwrap_or("reasoning");
-                match (opt.min, opt.max) {
-                    (Some(min), Some(max)) => format!(
-                        "{} {}–{}",
-                        kind,
-                        formatting::format_tokens(min as u64),
-                        formatting::format_tokens(max as u64)
-                    ),
-                    (None, Some(max)) => {
-                        format!("{} ≤{}", kind, formatting::format_tokens(max as u64))
-                    }
-                    (Some(min), None) => {
-                        format!("{} ≥{}", kind, formatting::format_tokens(min as u64))
-                    }
-                    (None, None) => kind.to_string(),
+                let raw = opt.r#type.as_deref().unwrap_or("reasoning");
+                let kind = if raw == "budget_tokens" {
+                    "budget"
+                } else {
+                    raw
+                };
+                let detail = match raw {
+                    "budget_tokens" => match (opt.min, opt.max) {
+                        (Some(min), Some(max)) => format!(
+                            "{}–{}",
+                            formatting::format_tokens(min as u64),
+                            formatting::format_tokens(max as u64)
+                        ),
+                        (None, Some(max)) => format!("≤{}", formatting::format_tokens(max as u64)),
+                        (Some(min), None) => format!("≥{}", formatting::format_tokens(min as u64)),
+                        (None, None) => String::new(),
+                    },
+                    "effort" => opt
+                        .values
+                        .iter()
+                        .filter_map(|v| v.as_deref())
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                    _ => String::new(),
+                };
+                if detail.is_empty() {
+                    kind.to_string()
+                } else {
+                    format!("{kind:<9} {detail}")
                 }
             })
-            .collect();
-        Some(parts.join(", "))
+            .collect()
     }
 
     pub fn modalities_str(&self) -> String {
@@ -363,7 +380,7 @@ mod tests {
             "structured_output": true,
             "reasoning_options": [
                 {"type": "budget_tokens", "min": 0, "max": 24576},
-                {"type": "effort"},
+                {"type": "effort", "values": [null, "low", "high"]},
                 {"type": "toggle"},
                 {"type": "some_future_mode", "max": 1000}
             ],
@@ -400,10 +417,16 @@ mod tests {
         assert_eq!(cost.tiers.len(), 1);
         assert_eq!(cost.tiers[0].tier.as_ref().unwrap().size, Some(200000));
 
-        // Summary rounds the budget range like the Limits section.
+        // Controls: budget humanized + rounded, effort levels listed (null
+        // dropped), toggle bare, unknown type shows its raw name.
         assert_eq!(
-            m.reasoning_mode_summary().as_deref(),
-            Some("budget_tokens 0–24.6k, effort, toggle, some_future_mode ≤1k")
+            m.reasoning_controls(),
+            vec![
+                "budget    0–24.6k".to_string(),
+                "effort    low, high".to_string(),
+                "toggle".to_string(),
+                "some_future_mode".to_string(),
+            ]
         );
         assert!(m.capabilities_str().contains("structured"));
     }
@@ -415,6 +438,6 @@ mod tests {
         let m: Model = serde_json::from_str(r#"{"id": "x", "name": "X"}"#).unwrap();
         assert_eq!(m.structured_output, None);
         assert!(m.reasoning_options.is_empty());
-        assert!(m.reasoning_mode_summary().is_none());
+        assert!(m.reasoning_controls().is_empty());
     }
 }
