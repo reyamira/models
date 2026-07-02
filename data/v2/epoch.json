@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-07-02T06:17:54.314663295+00:00",
+    "fetched_at": "2026-07-02T18:17:43.577488434+00:00",
     "verified": true
   },
   "metrics": [
@@ -55,7 +55,7 @@
       "label": "APEX Agents",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-06-09",
+      "last_updated": "2026-06-16",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
     },
@@ -64,7 +64,7 @@
       "label": "PostTrainBench",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-05-28",
+      "last_updated": "2026-06-16",
       "description": "AI R&D automation: a CLI agent must post-train a small base LLM on a single GPU within a time budget to raise its downstream scores. Scored as the average improvement across base models and evaluations; higher is better.",
       "short_label": "PTBench"
     },
@@ -123,6 +123,13 @@
       "kind": "percentage",
       "group": "Academic",
       "last_updated": "2026-06-30"
+    },
+    {
+      "id": "deepresearchbench",
+      "label": "Deepresearchbench",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-05-28"
     },
     {
       "id": "frontiercode",
@@ -207,7 +214,7 @@
       "label": "Vending Bench 2",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-06-12"
+      "last_updated": "2026-06-16"
     }
   ],
   "models": [
@@ -243,6 +250,10 @@
       "scores": {
         "ale_bench": {
           "value": 1046.95,
+          "date": "2026-06-16"
+        },
+        "apex_agents": {
+          "value": 0.35600000000000004,
           "date": "2026-06-16"
         },
         "arc_agi": {
@@ -281,6 +292,10 @@
           "value": 0.8638888888888889,
           "date": "2026-06-25"
         },
+        "posttrainbench": {
+          "value": 0.3429,
+          "date": "2026-06-16"
+        },
         "scicode": {
           "value": 0.50462962962963,
           "date": "2026-06-16"
@@ -292,6 +307,10 @@
         "swe_bench_verified": {
           "value": 0.787,
           "date": "2026-06-25"
+        },
+        "vending_bench_2": {
+          "value": 8313.778333333335,
+          "date": "2026-06-16"
         },
         "weirdml": {
           "value": 0.7012,
@@ -427,6 +446,10 @@
       "creator_name": "NVIDIA",
       "release_date": "2026-06-04",
       "scores": {
+        "apex_agents": {
+          "value": 0.115,
+          "date": "2026-06-04"
+        },
         "critpt": {
           "value": 0.0314285714285714,
           "date": "2026-06-04"
@@ -511,6 +534,10 @@
           "value": 0.638,
           "date": "2026-05-28"
         },
+        "deepresearchbench": {
+          "value": 0.5023412240360061,
+          "date": "2026-05-28"
+        },
         "epoch_capabilities_index": {
           "value": 158.2976679391182,
           "date": "2026-05-28"
@@ -548,7 +575,7 @@
           "date": "2026-06-07"
         },
         "posttrainbench": {
-          "value": 0.37229999999999996,
+          "value": 0.3408,
           "date": "2026-05-28"
         },
         "rli": {
@@ -893,6 +920,10 @@
           "value": 0.643,
           "date": "2026-04-23"
         },
+        "deepresearchbench": {
+          "value": 0.5400960770059647,
+          "date": "2026-04-23"
+        },
         "epoch_capabilities_index": {
           "value": 158.6234555303922,
           "date": "2026-04-23"
@@ -1064,6 +1095,10 @@
       "scores": {
         "ale_bench": {
           "value": 1092.67,
+          "date": "2026-04-20"
+        },
+        "apex_agents": {
+          "value": 0.189,
           "date": "2026-04-20"
         },
         "chess_puzzles": {
@@ -1691,6 +1726,10 @@
           "value": 0.1,
           "date": "2026-03-17"
         },
+        "deepresearchbench": {
+          "value": 0.3626446724539791,
+          "date": "2026-03-17"
+        },
         "epoch_capabilities_index": {
           "value": 148.9752975752708,
           "date": "2026-03-17"
@@ -1796,6 +1835,20 @@
       }
     },
     {
+      "id": "xiaoyi-deepresearch",
+      "name": "xiaoyi-deepresearch",
+      "display_name": "xiaoyi-deepresearch",
+      "creator": "",
+      "creator_name": "",
+      "release_date": "2026-03-06",
+      "scores": {
+        "deepresearchbench": {
+          "value": 0.5513,
+          "date": "2026-03-06"
+        }
+      }
+    },
+    {
       "id": "gpt-5.4-2026-03-05",
       "name": "gpt-5.4-2026-03-05",
       "display_name": "gpt-5.4-2026-03-05",
@@ -1825,6 +1878,10 @@
         },
         "critpt": {
           "value": 0.23428571430000003,
+          "date": "2026-03-05"
+        },
+        "deepresearchbench": {
+          "value": 0.35088809484533334,
           "date": "2026-03-05"
         },
         "epoch_capabilities_index": {
@@ -1971,6 +2028,10 @@
         },
         "critpt": {
           "value": 0.0114285714285714,
+          "date": "2026-03-03"
+        },
+        "deepresearchbench": {
+          "value": 0.3639498038812288,
           "date": "2026-03-03"
         },
         "frontiercode": {
@@ -2227,6 +2288,10 @@
         },
         "cursorbench": {
           "value": 0.49,
+          "date": "2026-02-17"
+        },
+        "deepresearchbench": {
+          "value": 0.5486826034317638,
           "date": "2026-02-17"
         },
         "epoch_capabilities_index": {
@@ -2548,6 +2613,10 @@
         "chess_puzzles": {
           "value": 0.17,
           "date": "2026-02-06"
+        },
+        "deepresearchbench": {
+          "value": 0.5531381702863989,
+          "date": "2026-02-05"
         },
         "epoch_capabilities_index": {
           "value": 155.6012879922839,
@@ -3014,6 +3083,10 @@
         "chess_puzzles": {
           "value": 0.49,
           "date": "2025-12-15"
+        },
+        "deepresearchbench": {
+          "value": 0.4111991557763133,
+          "date": "2025-12-11"
         },
         "epoch_capabilities_index": {
           "value": 153.7667407999208,
@@ -3489,6 +3562,10 @@
           "value": 0.0485714285714286,
           "date": "2025-11-13"
         },
+        "deepresearchbench": {
+          "value": 0.42790202224157375,
+          "date": "2025-11-13"
+        },
         "epoch_capabilities_index": {
           "value": 149.8517841436832,
           "date": "2025-11-13"
@@ -3900,6 +3977,10 @@
           "value": 0.0114285714285714,
           "date": "2025-09-29"
         },
+        "deepresearchbench": {
+          "value": 0.526,
+          "date": "2025-09-29"
+        },
         "epoch_capabilities_index": {
           "value": 146.8086932211122,
           "date": "2025-09-29"
@@ -4197,6 +4278,10 @@
       "creator_name": "",
       "release_date": "2025-08-12",
       "scores": {
+        "ale_bench": {
+          "value": 210.18,
+          "date": "2025-08-12"
+        },
         "critpt": {
           "value": 0.0,
           "date": "2025-08-12"
@@ -4237,6 +4322,10 @@
         },
         "critpt": {
           "value": 0.126,
+          "date": "2025-08-07"
+        },
+        "deepresearchbench": {
+          "value": 0.5513,
           "date": "2025-08-07"
         },
         "epoch_capabilities_index": {
@@ -4425,6 +4514,10 @@
       "scores": {
         "ale_bench": {
           "value": 674.77,
+          "date": "2025-08-05"
+        },
+        "deepresearchbench": {
+          "value": 0.497,
           "date": "2025-08-05"
         },
         "epoch_capabilities_index": {
@@ -4853,6 +4946,10 @@
           "value": 0.28,
           "date": "2026-01-30"
         },
+        "deepresearchbench": {
+          "value": 0.479,
+          "date": "2025-07-09"
+        },
         "epoch_capabilities_index": {
           "value": 147.08497955766464,
           "date": "2025-07-09"
@@ -5028,6 +5125,10 @@
           "value": 0.02,
           "date": "2025-06-17"
         },
+        "deepresearchbench": {
+          "value": 0.49710000000000004,
+          "date": "2025-06-17"
+        },
         "epoch_capabilities_index": {
           "value": 146.1398214315602,
           "date": "2025-06-17"
@@ -5164,6 +5265,10 @@
           "value": 0.0,
           "date": "2025-06-05"
         },
+        "deepresearchbench": {
+          "value": 0.428,
+          "date": "2025-06-05"
+        },
         "epoch_capabilities_index": {
           "value": 146.1398214315602,
           "date": "2025-06-05"
@@ -5208,6 +5313,10 @@
         },
         "arc_agi_2": {
           "value": 0.0112,
+          "date": "2025-05-28"
+        },
+        "deepresearchbench": {
+          "value": 0.351,
           "date": "2025-05-28"
         },
         "epoch_capabilities_index": {
@@ -5270,6 +5379,10 @@
           "value": 0.003,
           "date": "2025-05-22"
         },
+        "deepresearchbench": {
+          "value": 0.49,
+          "date": "2025-05-22"
+        },
         "epoch_capabilities_index": {
           "value": 143.04005065550166,
           "date": "2025-05-22"
@@ -5330,6 +5443,10 @@
         },
         "critpt": {
           "value": 0.00285714285714286,
+          "date": "2025-05-22"
+        },
+        "deepresearchbench": {
+          "value": 0.478,
           "date": "2025-05-22"
         },
         "epoch_capabilities_index": {
@@ -5448,6 +5565,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-05-06",
       "scores": {
+        "deepresearchbench": {
+          "value": 0.319,
+          "date": "2025-05-06"
+        },
         "epoch_capabilities_index": {
           "value": 142.5539502096243,
           "date": "2025-05-06"
@@ -5566,6 +5687,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-04-17",
       "scores": {
+        "deepresearchbench": {
+          "value": 0.2919,
+          "date": "2025-04-17"
+        },
         "epoch_capabilities_index": {
           "value": 140.5052184178356,
           "date": "2025-04-17"
@@ -5638,6 +5763,10 @@
         },
         "critpt": {
           "value": 0.013999999999999999,
+          "date": "2025-04-16"
+        },
+        "deepresearchbench": {
+          "value": 0.466,
           "date": "2025-04-16"
         },
         "epoch_capabilities_index": {
@@ -5758,6 +5887,10 @@
         },
         "arc_agi_2": {
           "value": 0.0042,
+          "date": "2025-04-14"
+        },
+        "deepresearchbench": {
+          "value": 0.29309999999999997,
           "date": "2025-04-14"
         },
         "epoch_capabilities_index": {
@@ -6375,6 +6508,10 @@
           "value": 0.009,
           "date": "2025-02-24"
         },
+        "deepresearchbench": {
+          "value": 0.436,
+          "date": "2025-02-24"
+        },
         "epoch_capabilities_index": {
           "value": 141.7777138791601,
           "date": "2025-02-24"
@@ -6601,6 +6738,20 @@
         },
         "simplebench": {
           "value": 0.307,
+          "date": "2025-01-21"
+        }
+      }
+    },
+    {
+      "id": "sonar-pro",
+      "name": "sonar-pro",
+      "display_name": "sonar-pro",
+      "creator": "perplexity",
+      "creator_name": "Perplexity",
+      "release_date": "2025-01-21",
+      "scores": {
+        "deepresearchbench": {
+          "value": 0.3776,
           "date": "2025-01-21"
         }
       }
@@ -9394,6 +9545,18 @@
         },
         "scicode": {
           "value": 0.502314814814815
+        }
+      }
+    },
+    {
+      "id": "sonar",
+      "name": "sonar",
+      "display_name": "sonar",
+      "creator": "",
+      "creator_name": "",
+      "scores": {
+        "deepresearchbench": {
+          "value": 0.3775
         }
       }
     }
