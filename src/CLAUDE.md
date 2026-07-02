@@ -17,7 +17,7 @@
 |------|---------|
 | `main.rs` | Clap CLI definition, command dispatch, TUI launch; argv[0] symlink-alias detection (`agents`/`benchmarks`/`mstatus`) via `Config::match_alias` |
 | `api.rs` | Synchronous models.dev API fetch (blocking reqwest — intentionally not async, runs before tokio runtime) |
-| `data.rs` | `Provider`, `Model`, `ProvidersMap` — core data structures from models.dev. Used by nearly every module |
+| `data.rs` | `Provider`, `Model`, `ProvidersMap` — core data structures from models.dev. Used by nearly every module. New models.dev fields are modeled **permissively** (all-`Option`/`Vec`, no tagged enums) so a future upstream tag never fails the whole parse: `Model.{description, structured_output: Option<bool>, reasoning_options}` and `Cost.{reasoning, input_audio, output_audio, tiers}` (+ `ReasoningOption`/`CostTier`/`TierSpec`). Surfaced in the Models-tab detail panel + CLI `show`/`--json` |
 | `config.rs` | User config (`~/.config/models/config.toml`) — tracked agents, cache settings, display preferences, symlink aliases (`[aliases]` section) |
 | `formatting.rs` | Shared utilities: `truncate`, `parse_date`, `format_tokens`, `format_stars`, `cmp_opt_f64`, `EM_DASH` |
 | `provider_category.rs` | `ProviderCategory` enum (Origin/Cloud/Inference/Gateway/Tool), categorization logic, display labels |

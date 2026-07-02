@@ -142,9 +142,9 @@ Either hint is omitted entirely if the URL is absent. The gap `"  "` between hin
 
 Detail sections rendered in this order, each preceded by a blank line:
 
-1. **Identity** — model name (White + BOLD, DarkGray if deprecated), model ID (DarkGray), provider + family + status row
-2. **Capabilities** — 2-column `two_pair_line` layout: Reasoning/Tools, Source/Files, Temp/—
-3. **Pricing** — 2-column: Input/Output, Cache Read/Cache Write. `Free` = Green. `$0/M` = Green.
+1. **Identity** — model name (White + BOLD, DarkGray if deprecated), model ID (DarkGray), then a **Family + optional Status** row. Provider is intentionally **omitted** here — the Provider card directly above always shows the selected model's provider (`provider_detail_lines` keys off `entry.provider_id`), so repeating it is pure duplication. A blank line, then a **description** line (`Color::Gray`, wrapped) from models.dev `description` (~100% coverage — omitted only when absent/empty)
+2. **Capabilities** — 2-column `two_pair_line` layout: Reasoning/Tools, Source/Files, Temp/**Structured**. The four RTFO-mirrored fields keep the compact-column's semantic colors (Reasoning Cyan, Tools Yellow, Files Magenta, Source Green/Red); the **new** fields get distinct hues so no single color stacks up in the grid. `Structured` renders from `Model.structured_output` (`Option<bool>`, ~49% coverage) via a three-state `cap_val_opt` — Yes (**Blue**) / No (DarkGray) / `—` (DarkGray, unknown-when-absent — this is why it lives here and **not** in the compact RTFO row, which is binary-only and stays 4-char `RTFO`). When the model carries `reasoning_options`, its **reasoning controls** (the API knobs for *controlling* reasoning — distinct from the Reasoning capability flag and the Thinking price) are appended to the **same 2-column `two_pair_line` grid** as `Label: value` pairs, each with its own non-Cyan color (Budget **LightGreen**, Effort **LightMagenta**, Toggle **LightBlue**, unknown **Blue**). Built by the shared free fn `data::reasoning_controls(&[ReasoningOption]) -> Vec<(String, String)>`: `("Budget", "{min}–{max}")` (`budget_tokens`; ranges rounded via `format_tokens`, `≤max`/`≥min` when only one bound), `("Effort", "{Level, …}")` (title-cased, from the option's `values[]`, `null` "off" entries dropped), `("Toggle", "Yes")`. An unknown future `type` is capitalized with value `"Yes"` (permissive). ~474 models expose 2–3 controls, which flow across the grid like any other pair. Omitted entirely when there are no `reasoning_options`. The **CLI** `models show` prints the same pairs as aligned `Label: value` lines in its Capabilities block, and `--json` emits the raw `reasoning_options` array (via `Serialize` on `ReasoningOption`)
+3. **Pricing** — 2-column: Input/Output, Cache Read/Cache Write. `Free` = Green. `$0/M` = Green. Then **conditional rows, each rendered only when the model carries that cost** (most models show none): `Thinking: $X/M` (`cost.reasoning` — labeled "Thinking" to disambiguate from the Reasoning *capability*), `Audio In:`/`Audio Out:` (`cost.input_audio`/`output_audio`), and one **tier** line per `cost.tiers[]` entry — `Over {format_tokens(size)}: {in} / {out}` (falls back to `Tier:` when the tier has no size). Legacy `cost.context_over_200k` is intentionally **not** read (subsumed by `tiers`). CLI `models show`/`--json` mirror these (tiers serialized via `Serialize` on `CostTier`/`TierSpec`)
 4. **Limits** — 3-column single line: Context / Input / Output (each `width/3` wide)
 5. **Modalities** — Input: / Output: label-value pairs (no 2-column layout)
 6. **Dates** — 2-column: Released/Knowledge, Updated (when present)
@@ -163,6 +163,17 @@ Style: `Color::DarkGray` + `Modifier::BOLD`. Fills to panel inner width with `\u
 - Title: `" Provider "`
 - Border: always DarkGray (no focus coloring — this panel is not focusable)
 - Content: provider name (Cyan + BOLD), Category/Docs/API/Env label-value pairs
+
+---
+
+## 6b. Glossary Popup (`i`)
+
+`i` toggles a scrollable glossary explaining the tab's fields (mirrors the Benchmarks glossary convention; `i` is free in this tab). State lives on `ModelsApp` (`show_glossary: bool`, `glossary_scroll: ScrollOffset`); `toggle_glossary`/`scroll_glossary_up`/`scroll_glossary_down` are the methods.
+
+- **Content** (`build_glossary_lines(width)` in `render.rs`) is **static** — independent of the selected model. Sections mirror the detail panel, each a `section_header_line`: List column (RTFO), Capabilities, Reasoning controls, Pricing, Limits. Each entry is a term (Gray+BOLD) + a White description line + a blank line.
+- **Render** (`draw_glossary`): `centered_rect(60, 70)`, `Clear` background, `ScrollablePanel` with Cyan border, title `" Models Glossary - i or Esc to close (Up/Down to scroll) "`.
+- **Message routing**: reuses the shared `ToggleGlossary`/`ScrollGlossaryUp`/`ScrollGlossaryDown` variants — `App::update` dispatches to `models_app` vs `benchmarks_app` by `current_tab`. `event.rs` intercepts glossary keys (`handle_glossary_keys`: `i`/`Esc` close, arrows/`j`/`k` scroll, everything else swallowed so `q` doesn't quit) before the global handler when `models_app.show_glossary`.
+- **Mouse**: `modal_popup_open` returns true for `models_app.show_glossary`; the wheel scrolls the glossary, clicks are swallowed (no selectable rows). Footer hint: ` i ` (Yellow) + `glossary`. Help: `i — Open field glossary`.
 
 ---
 

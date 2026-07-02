@@ -2,7 +2,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
+    widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap},
     Frame,
 };
 
@@ -11,7 +11,7 @@ use crate::formatting::truncate;
 use crate::formatting::EM_DASH;
 use crate::provider_category::{provider_category, ProviderCategory};
 use crate::tui::app::App;
-use crate::tui::ui::{caret, focus_border};
+use crate::tui::ui::{caret, centered_rect, focus_border};
 use crate::tui::widgets::scrollable_panel::ScrollablePanel;
 
 fn provider_detail_lines(app: &App) -> Vec<Line<'static>> {
@@ -139,6 +139,143 @@ pub(in crate::tui) fn draw_main(f: &mut Frame, area: Rect, app: &mut App) {
     draw_providers(f, chunks[0], app);
     draw_models(f, chunks[1], app);
     draw_right_panel(f, chunks[2], app);
+
+    if app.models_app.show_glossary {
+        draw_glossary(f, area, app);
+    }
+}
+
+/// Glossary popup (`i`) explaining the Models-tab capability and pricing fields.
+/// Static content — independent of the selected model.
+fn draw_glossary(f: &mut Frame, area: Rect, app: &App) {
+    let popup_area = centered_rect(60, 70, area);
+    f.render_widget(Clear, popup_area);
+    let title = " Models Glossary - i or Esc to close (Up/Down to scroll) ";
+    let inner_w = popup_area.width.saturating_sub(2);
+    let lines = build_glossary_lines(inner_w);
+    ScrollablePanel::new(title, lines, &app.models_app.glossary_scroll, true).render(f, popup_area);
+}
+
+/// Build the (static) glossary content. Sections mirror the detail panel.
+fn build_glossary_lines(width: u16) -> Vec<Line<'static>> {
+    let mut lines: Vec<Line<'static>> = Vec::new();
+    let term = |t: &str| {
+        Line::from(Span::styled(
+            t.to_string(),
+            Style::default()
+                .fg(Color::Gray)
+                .add_modifier(Modifier::BOLD),
+        ))
+    };
+    let desc = |d: &str| {
+        Line::from(Span::styled(
+            d.to_string(),
+            Style::default().fg(Color::White),
+        ))
+    };
+
+    let entry = |lines: &mut Vec<Line<'static>>, t: &str, d: &str| {
+        lines.push(term(t));
+        lines.push(desc(d));
+        lines.push(Line::from(""));
+    };
+
+    lines.push(section_header_line(width, "List column (RTFO)"));
+    entry(
+        &mut lines,
+        "R T F O",
+        "Compact capability flags in the model list: Reasoning, Tools, Files (attachments), Open weights (O green = open, C red = closed). A dot means the model lacks that capability.",
+    );
+
+    lines.push(section_header_line(width, "Capabilities"));
+    entry(
+        &mut lines,
+        "Reasoning",
+        "The model performs internal step-by-step reasoning before answering.",
+    );
+    entry(&mut lines, "Tools", "Supports tool / function calling.");
+    entry(
+        &mut lines,
+        "Files",
+        "Accepts file or image attachments (multimodal input).",
+    );
+    entry(
+        &mut lines,
+        "Source",
+        "Open = open-weights (downloadable). Closed = proprietary, API-only.",
+    );
+    entry(
+        &mut lines,
+        "Temp",
+        "The sampling temperature parameter can be adjusted.",
+    );
+    entry(
+        &mut lines,
+        "Structured",
+        "Supports structured / JSON-schema-constrained output. An em-dash (—) means models.dev does not report this capability for the model.",
+    );
+
+    lines.push(section_header_line(width, "Reasoning controls"));
+    entry(
+        &mut lines,
+        "Budget",
+        "You set an explicit thinking-token budget; the range shows the min–max allowed.",
+    );
+    entry(
+        &mut lines,
+        "Effort",
+        "You pick a reasoning-effort level (e.g. Low, Medium, High).",
+    );
+    entry(
+        &mut lines,
+        "Toggle",
+        "Reasoning can only be turned on or off (no fine-grained control).",
+    );
+
+    lines.push(section_header_line(width, "Pricing (USD per 1M tokens)"));
+    entry(
+        &mut lines,
+        "Input / Output",
+        "Price per million prompt (input) and completion (output) tokens.",
+    );
+    entry(
+        &mut lines,
+        "Cache Read / Write",
+        "Prices for reading from and writing to the prompt cache (cheaper reuse of repeated context).",
+    );
+    entry(
+        &mut lines,
+        "Thinking",
+        "Price for reasoning / thinking tokens — often billed higher than output.",
+    );
+    entry(
+        &mut lines,
+        "Audio In / Out",
+        "Per-token prices for audio input and output (omni / speech models).",
+    );
+    entry(
+        &mut lines,
+        "Over {size}",
+        "Tiered pricing: the rate that applies once a request exceeds the given context-size threshold.",
+    );
+
+    lines.push(section_header_line(width, "Limits"));
+    entry(
+        &mut lines,
+        "Context",
+        "Maximum total tokens (input + output) the model accepts per request.",
+    );
+    entry(
+        &mut lines,
+        "Input / Output",
+        "Maximum input tokens accepted and maximum output tokens generated.",
+    );
+
+    // Drop the trailing blank line for a tidy bottom.
+    if lines.last().map(|l| l.width() == 0).unwrap_or(false) {
+        lines.pop();
+    }
+    lines
 }
 
 fn draw_providers(f: &mut Frame, area: Rect, app: &mut App) {
@@ -495,7 +632,6 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
     };
 
     let model = &entry.model;
-    let provider_id = &entry.provider_id;
     let is_deprecated = model.status.as_deref() == Some("deprecated");
     let text_color = if is_deprecated {
         Color::DarkGray
@@ -517,10 +653,10 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
         entry.id.clone(),
         Style::default().fg(Color::DarkGray),
     )));
-    let mut provider_spans = vec![
-        Span::styled("Provider: ", Style::default().fg(label_color)),
-        Span::styled(provider_id.clone(), Style::default().fg(Color::Cyan)),
-        Span::raw("     "),
+    // Provider is already shown in the Provider card directly above this panel
+    // (always the selected model's provider), so it's omitted here to avoid
+    // duplication — this row carries Family + optional Status.
+    let mut meta_spans = vec![
         Span::styled("Family: ", Style::default().fg(label_color)),
         Span::raw(model.family.clone().unwrap_or_else(|| em.to_string())),
     ];
@@ -531,15 +667,27 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
             } else {
                 Color::DarkGray
             };
-            provider_spans.push(Span::raw("     "));
-            provider_spans.push(Span::styled("Status: ", Style::default().fg(label_color)));
-            provider_spans.push(Span::styled(
+            meta_spans.push(Span::raw("     "));
+            meta_spans.push(Span::styled("Status: ", Style::default().fg(label_color)));
+            meta_spans.push(Span::styled(
                 status.to_string(),
                 Style::default().fg(status_color),
             ));
         }
     }
-    lines.push(Line::from(provider_spans));
+    lines.push(Line::from(meta_spans));
+
+    // Model description (one wrapped line; ~100% coverage in models.dev data).
+    // Blank line above separates it from the identity rows.
+    if let Some(desc) = model.description.as_deref() {
+        if !desc.is_empty() {
+            lines.push(Line::from(""));
+            lines.push(Line::from(Span::styled(
+                desc.to_string(),
+                Style::default().fg(Color::Gray),
+            )));
+        }
+    }
 
     // ── Capabilities ──────────────────────────────────────────────────────
     lines.push(Line::from(""));
@@ -552,6 +700,14 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
             ("No", Color::DarkGray)
         }
     };
+    // Three-state variant for `Option<bool>` fields (Yes / No / unknown-em-dash).
+    let cap_val_opt = |v: Option<bool>, color: Color| -> (&'static str, Color) {
+        match v {
+            Some(true) => ("Yes", color),
+            Some(false) => ("No", Color::DarkGray),
+            None => (em, Color::DarkGray),
+        }
+    };
     let (r_val, r_col) = cap_val(model.reasoning, Color::Cyan);
     let (t_val, t_col) = cap_val(model.tool_call, Color::Yellow);
     let (f_val, f_col) = cap_val(model.attachment, Color::Magenta);
@@ -561,6 +717,10 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
         ("Closed", Color::Red)
     };
     let (tmp_val, tmp_col) = cap_val(model.temperature, Color::White);
+    // Structured/reasoning-control colors are deliberately distinct from the
+    // four RTFO-mirrored fields (Reasoning=Cyan, Tools=Yellow, Files=Magenta,
+    // Source=Green/Red) so no single hue stacks up in the grid.
+    let (so_val, so_col) = cap_val_opt(model.structured_output, Color::Blue);
     lines.push(two_pair_line(
         LabelValue {
             label: "Reasoning: ",
@@ -594,12 +754,52 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
             color: tmp_col,
         },
         LabelValue {
-            label: "",
-            value: "",
-            color: Color::DarkGray,
+            label: "Structured: ",
+            value: so_val,
+            color: so_col,
         },
         col_w,
     ));
+    // Reasoning controls — the API knobs for controlling reasoning. Rendered as
+    // Label: value pairs in the same 2-column grid as the capabilities above.
+    // Each control gets its own non-Cyan hue so the rows read as distinct
+    // capabilities rather than a wall of one color. Only present when the model
+    // carries reasoning_options.
+    let control_color = |label: &str| match label {
+        "Budget" => Color::LightGreen,
+        "Effort" => Color::LightMagenta,
+        "Toggle" => Color::LightBlue,
+        _ => Color::Blue,
+    };
+    let control_cells: Vec<(String, String, Color)> =
+        crate::data::reasoning_controls(&model.reasoning_options)
+            .into_iter()
+            .map(|(label, value)| {
+                let color = control_color(&label);
+                (format!("{label}: "), value, color)
+            })
+            .collect();
+    for chunk in control_cells.chunks(2) {
+        let left = LabelValue {
+            label: &chunk[0].0,
+            value: &chunk[0].1,
+            color: chunk[0].2,
+        };
+        let right = if chunk.len() > 1 {
+            LabelValue {
+                label: &chunk[1].0,
+                value: &chunk[1].1,
+                color: chunk[1].2,
+            }
+        } else {
+            LabelValue {
+                label: "",
+                value: "",
+                color: Color::DarkGray,
+            }
+        };
+        lines.push(two_pair_line(left, right, col_w));
+    }
 
     // ── Pricing ───────────────────────────────────────────────────────────
     lines.push(Line::from(""));
@@ -659,6 +859,66 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
         },
         col_w,
     ));
+
+    // Conditional pricing rows — only rendered when the model carries them, so
+    // the common case (none of these) leaves Pricing unchanged.
+    let cost_ref = model.cost.as_ref();
+    let reasoning_cost = cost_ref.and_then(|c| c.reasoning);
+    let audio_in = cost_ref.and_then(|c| c.input_audio);
+    let audio_out = cost_ref.and_then(|c| c.output_audio);
+
+    if reasoning_cost.is_some() {
+        let (rc_str, rc_color) = fmt_cost(reasoning_cost);
+        lines.push(two_pair_line(
+            LabelValue {
+                label: "Thinking: ",
+                value: &rc_str,
+                color: rc_color,
+            },
+            LabelValue {
+                label: "",
+                value: "",
+                color: Color::DarkGray,
+            },
+            col_w,
+        ));
+    }
+    if audio_in.is_some() || audio_out.is_some() {
+        let (ai_str, ai_color) = fmt_cost(audio_in);
+        let (ao_str, ao_color) = fmt_cost(audio_out);
+        lines.push(two_pair_line(
+            LabelValue {
+                label: "Audio In: ",
+                value: &ai_str,
+                color: ai_color,
+            },
+            LabelValue {
+                label: "Audio Out: ",
+                value: &ao_str,
+                color: ao_color,
+            },
+            col_w,
+        ));
+    }
+    // Tiered pricing (e.g. higher rates above a context threshold): one line per tier.
+    if let Some(cost) = cost_ref {
+        for t in &cost.tiers {
+            let threshold = t
+                .tier
+                .as_ref()
+                .and_then(|ts| ts.size)
+                .map(|s| format!("Over {}: ", crate::formatting::format_tokens(s)))
+                .unwrap_or_else(|| "Tier: ".to_string());
+            let (ti_str, ti_color) = fmt_cost(t.input);
+            let (to_str, to_color) = fmt_cost(t.output);
+            lines.push(Line::from(vec![
+                Span::styled(threshold, Style::default().fg(label_color)),
+                Span::styled(ti_str, Style::default().fg(ti_color)),
+                Span::styled(" / ", Style::default().fg(Color::DarkGray)),
+                Span::styled(to_str, Style::default().fg(to_color)),
+            ]));
+        }
+    }
 
     // ── Limits ────────────────────────────────────────────────────────────
     lines.push(Line::from(""));

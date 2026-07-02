@@ -16,7 +16,10 @@ use ratatui::{
 use serde::Serialize;
 
 use crate::formatting::{cmp_opt_f64, parse_date_to_numeric, truncate};
-use crate::{api, data::Model as ApiModel};
+use crate::{
+    api,
+    data::{CostTier, Model as ApiModel, ReasoningOption},
+};
 
 use super::picker::{self, PickerTerminal};
 const PICKER_SORTS: [ModelSort; 6] = [
@@ -52,9 +55,18 @@ pub struct ModelRow {
     pub output_cost: Option<f64>,
     pub cache_read_cost: Option<f64>,
     pub cache_write_cost: Option<f64>,
+    pub reasoning_cost: Option<f64>,
+    pub input_audio_cost: Option<f64>,
+    pub output_audio_cost: Option<f64>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub tiers: Vec<CostTier>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub reasoning_options: Vec<ReasoningOption>,
     pub reasoning: bool,
     pub tool_call: bool,
     pub attachment: bool,
+    pub structured_output: Option<bool>,
+    pub description: Option<String>,
     pub release_date: Option<String>,
     pub last_updated: Option<String>,
     pub knowledge_cutoff: Option<String>,
@@ -75,9 +87,18 @@ pub struct ModelDetail {
     pub output_cost: Option<f64>,
     pub cache_read_cost: Option<f64>,
     pub cache_write_cost: Option<f64>,
+    pub reasoning_cost: Option<f64>,
+    pub input_audio_cost: Option<f64>,
+    pub output_audio_cost: Option<f64>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub tiers: Vec<CostTier>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub reasoning_options: Vec<ReasoningOption>,
     pub reasoning: bool,
     pub tool_call: bool,
     pub attachment: bool,
+    pub structured_output: Option<bool>,
+    pub description: Option<String>,
     pub modalities: String,
     pub release_date: Option<String>,
     pub last_updated: Option<String>,
@@ -530,9 +551,20 @@ fn flatten_model_row(provider_id: &str, provider_name: &str, model: &ApiModel) -
         output_cost: model.cost.as_ref().and_then(|c| c.output),
         cache_read_cost: model.cost.as_ref().and_then(|c| c.cache_read),
         cache_write_cost: model.cost.as_ref().and_then(|c| c.cache_write),
+        reasoning_cost: model.cost.as_ref().and_then(|c| c.reasoning),
+        input_audio_cost: model.cost.as_ref().and_then(|c| c.input_audio),
+        output_audio_cost: model.cost.as_ref().and_then(|c| c.output_audio),
+        tiers: model
+            .cost
+            .as_ref()
+            .map(|c| c.tiers.clone())
+            .unwrap_or_default(),
+        reasoning_options: model.reasoning_options.clone(),
         reasoning: model.reasoning,
         tool_call: model.tool_call,
         attachment: model.attachment,
+        structured_output: model.structured_output,
+        description: model.description.clone(),
         release_date: model.release_date.clone(),
         last_updated: model.last_updated.clone(),
         knowledge_cutoff: model.knowledge.clone(),
@@ -769,9 +801,16 @@ pub fn print_model_detail(row: &ModelRow, json: bool) -> Result<()> {
         output_cost: row.output_cost,
         cache_read_cost: row.cache_read_cost,
         cache_write_cost: row.cache_write_cost,
+        reasoning_cost: row.reasoning_cost,
+        input_audio_cost: row.input_audio_cost,
+        output_audio_cost: row.output_audio_cost,
+        tiers: row.tiers.clone(),
+        reasoning_options: row.reasoning_options.clone(),
         reasoning: row.reasoning,
         tool_call: row.tool_call,
         attachment: row.attachment,
+        structured_output: row.structured_output,
+        description: row.description.clone(),
         modalities: row.modalities.clone(),
         release_date: row.release_date.clone(),
         last_updated: row.last_updated.clone(),
@@ -797,6 +836,9 @@ fn print_detail(d: &ModelDetail) {
     if let Some(family) = &d.family {
         println!("Family:      {}", family);
     }
+    if let Some(desc) = d.description.as_deref().filter(|s| !s.is_empty()) {
+        println!("Description: {}", desc);
+    }
     println!();
 
     println!("Limits");
@@ -819,6 +861,33 @@ fn print_detail(d: &ModelDetail) {
     if let Some(cache_write) = d.cache_write_cost {
         println!("Cache Write: ${:.2}", cache_write);
     }
+    if let Some(reasoning) = d.reasoning_cost {
+        println!("Thinking:    ${:.2}", reasoning);
+    }
+    if let Some(audio_in) = d.input_audio_cost {
+        println!("Audio In:    ${:.2}", audio_in);
+    }
+    if let Some(audio_out) = d.output_audio_cost {
+        println!("Audio Out:   ${:.2}", audio_out);
+    }
+    for t in &d.tiers {
+        let threshold = t
+            .tier
+            .as_ref()
+            .and_then(|ts| ts.size)
+            .map(|s| format!("Over {}", crate::formatting::format_tokens(s)))
+            .unwrap_or_else(|| "Tier".to_string());
+        let fmt = |v: Option<f64>| {
+            v.map(|x| format!("${:.2}", x))
+                .unwrap_or_else(|| "—".into())
+        };
+        println!(
+            "{:<12} {} / {}",
+            format!("{}:", threshold),
+            fmt(t.input),
+            fmt(t.output)
+        );
+    }
     println!();
 
     println!("Capabilities");
@@ -826,6 +895,10 @@ fn print_detail(d: &ModelDetail) {
     println!("Reasoning:   {}", yes_no(d.reasoning));
     println!("Tool Use:    {}", yes_no(d.tool_call));
     println!("Attachments: {}", yes_no(d.attachment));
+    println!("Structured:  {}", yes_no_opt(d.structured_output));
+    for (label, value) in crate::data::reasoning_controls(&d.reasoning_options) {
+        println!("{:<13}{}", format!("{label}:"), value);
+    }
     println!("Modalities:  {}", d.modalities);
     println!();
 
@@ -891,6 +964,16 @@ fn yes_no(value: bool) -> &'static str {
     }
 }
 
+/// Three-state variant for `Option<bool>` capability flags — an em-dash marks
+/// "unknown" (field absent upstream), distinct from an explicit `No`.
+fn yes_no_opt(value: Option<bool>) -> &'static str {
+    match value {
+        Some(true) => "Yes",
+        Some(false) => "No",
+        None => "—",
+    }
+}
+
 fn parse_token_count(text: &str) -> Option<f64> {
     if text == "-" || text == "\u{2014}" {
         return None;
@@ -932,9 +1015,16 @@ mod tests {
             output_cost: input_cost.map(|v| v * 2.0),
             cache_read_cost: None,
             cache_write_cost: None,
+            reasoning_cost: None,
+            input_audio_cost: None,
+            output_audio_cost: None,
+            tiers: Vec::new(),
+            reasoning_options: Vec::new(),
             reasoning: true,
             tool_call: true,
             attachment: false,
+            structured_output: None,
+            description: None,
             release_date: Some("2025-01-01".to_string()),
             last_updated: None,
             knowledge_cutoff: None,

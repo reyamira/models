@@ -1466,13 +1466,25 @@ impl App {
                 self.benchmarks_app.show_sort_picker = false;
             }
             Message::ToggleGlossary => {
-                self.benchmarks_app.toggle_glossary();
+                if self.current_tab == Tab::Models {
+                    self.models_app.toggle_glossary();
+                } else {
+                    self.benchmarks_app.toggle_glossary();
+                }
             }
             Message::ScrollGlossaryUp => {
-                self.benchmarks_app.scroll_glossary_up();
+                if self.current_tab == Tab::Models {
+                    self.models_app.scroll_glossary_up();
+                } else {
+                    self.benchmarks_app.scroll_glossary_up();
+                }
             }
             Message::ScrollGlossaryDown => {
-                self.benchmarks_app.scroll_glossary_down();
+                if self.current_tab == Tab::Models {
+                    self.models_app.scroll_glossary_down();
+                } else {
+                    self.benchmarks_app.scroll_glossary_down();
+                }
             }
             // --- Column visibility picker ---
             Message::OpenColumnPicker => {
@@ -2590,6 +2602,9 @@ mod tests {
                         last_updated: None,
                         knowledge: None,
                         status: None,
+                        description: None,
+                        structured_output: None,
+                        reasoning_options: Vec::new(),
                     },
                 )
             })
