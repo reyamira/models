@@ -20,6 +20,13 @@ TUI and CLI for browsing AI models, benchmarks, coding agents, and provider stat
 - **12+ coding agents** tracked with version detection, changelogs, and GitHub integration
 - **22 provider statuses** monitored live across 7 status page platforms
 
+## What's New in v0.14.0
+
+- **Richer model details** — the Models tab detail panel now surfaces the model's description, a Structured Output capability (Yes/No/—), and reasoning controls (budget range, effort levels, toggle) alongside the existing capabilities.
+- **Deeper pricing** — thinking-token, audio in/out, and tiered ("over N tokens") prices show as conditional rows when a model carries them.
+- **Field glossary** — press `i` in the Models tab for a scrollable breakdown of what each detail field means (mirrors the Benchmarks glossary).
+- **CLI parity** — `models show` and `--json` include the new description, structured-output, reasoning-controls, and pricing fields.
+
 ## What's New in v0.13.0
 
 - **Add agents in-app** — press `A` to add a custom coding agent by name + `owner/repo`; it's tracked and fetched immediately, no config editing.
