@@ -620,21 +620,35 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
         },
         col_w,
     ));
-    // Reasoning controls — the API knobs for controlling reasoning, one per
-    // line under a labeled header. Only when the model carries reasoning_options.
-    let controls = model.reasoning_controls();
-    if !controls.is_empty() {
-        lines.push(Line::from(""));
-        lines.push(Line::from(Span::styled(
-            "Reasoning controls:",
-            Style::default().fg(label_color),
-        )));
-        for c in controls {
-            lines.push(Line::from(Span::styled(
-                format!("  {c}"),
-                Style::default().fg(text_color),
-            )));
-        }
+    // Reasoning controls — the API knobs for controlling reasoning. Rendered as
+    // Label: value pairs in the same 2-column grid as the capabilities above
+    // (values Cyan to tie them to the Reasoning capability). Only present when
+    // the model carries reasoning_options.
+    let control_cells: Vec<(String, String)> =
+        crate::data::reasoning_controls(&model.reasoning_options)
+            .into_iter()
+            .map(|(label, value)| (format!("{label}: "), value))
+            .collect();
+    for chunk in control_cells.chunks(2) {
+        let left = LabelValue {
+            label: &chunk[0].0,
+            value: &chunk[0].1,
+            color: Color::Cyan,
+        };
+        let right = if chunk.len() > 1 {
+            LabelValue {
+                label: &chunk[1].0,
+                value: &chunk[1].1,
+                color: Color::Cyan,
+            }
+        } else {
+            LabelValue {
+                label: "",
+                value: "",
+                color: Color::DarkGray,
+            }
+        };
+        lines.push(two_pair_line(left, right, col_w));
     }
 
     // ── Pricing ───────────────────────────────────────────────────────────

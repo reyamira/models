@@ -83,17 +83,18 @@ pub struct Cost {
 /// A single reasoning-mode option (models.dev `reasoning_options[]`). Modeled
 /// permissively — `type` stays a raw string so a future tag beyond the current
 /// `budget_tokens`/`effort`/`toggle` set never fails deserialization.
-#[derive(Debug, Clone, Deserialize)]
+/// `Serialize` so the CLI can emit reasoning_options in `--json`.
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ReasoningOption {
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub r#type: Option<String>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub min: Option<f64>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub max: Option<f64>,
     /// Effort levels (e.g. `["low","medium","high"]`). May contain `null` — the
     /// "off"/disable choice — which is dropped for display.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub values: Vec<Option<String>>,
 }
 
@@ -233,52 +234,6 @@ impl Model {
         }
     }
 
-    /// Human-readable list of the model's **reasoning controls** — the API knobs
-    /// for controlling reasoning — one entry per `reasoning_options` element:
-    /// `"budget    0–24.6k"`, `"effort    low, medium, high"`, `"toggle"`. The
-    /// control name is padded so details align into a column. Budget ranges are
-    /// rounded with `format_tokens` (Limits number style); effort `null` levels
-    /// (the "off" choice) are dropped. Empty when the model carries no
-    /// `reasoning_options`. `budget_tokens` is humanized to `budget`; an unknown
-    /// future type shows its raw name (permissive — never fails).
-    pub fn reasoning_controls(&self) -> Vec<String> {
-        self.reasoning_options
-            .iter()
-            .map(|opt| {
-                let raw = opt.r#type.as_deref().unwrap_or("reasoning");
-                let kind = if raw == "budget_tokens" {
-                    "budget"
-                } else {
-                    raw
-                };
-                let detail = match raw {
-                    "budget_tokens" => match (opt.min, opt.max) {
-                        (Some(min), Some(max)) => format!(
-                            "{}–{}",
-                            formatting::format_tokens(min as u64),
-                            formatting::format_tokens(max as u64)
-                        ),
-                        (None, Some(max)) => format!("≤{}", formatting::format_tokens(max as u64)),
-                        (Some(min), None) => format!("≥{}", formatting::format_tokens(min as u64)),
-                        (None, None) => String::new(),
-                    },
-                    "effort" => opt
-                        .values
-                        .iter()
-                        .filter_map(|v| v.as_deref())
-                        .collect::<Vec<_>>()
-                        .join(", "),
-                    _ => String::new(),
-                };
-                if detail.is_empty() {
-                    kind.to_string()
-                } else {
-                    format!("{kind:<9} {detail}")
-                }
-            })
-            .collect()
-    }
-
     pub fn modalities_str(&self) -> String {
         match &self.modalities {
             Some(m) => {
@@ -296,6 +251,59 @@ impl Model {
             }
             None => "text -> text".to_string(),
         }
+    }
+}
+
+/// `(label, value)` pairs for a model's **reasoning controls** — the API knobs
+/// for controlling reasoning — one pair per `reasoning_options` entry, shaped to
+/// slot into the same `Label: value` layout as the other capabilities:
+/// `("Budget", "0–24.6k")`, `("Effort", "low, medium, high")`, `("Toggle", "Yes")`.
+/// Budget ranges are rounded with `format_tokens` (Limits number style); effort
+/// `null` levels (the "off" choice) are dropped; an unknown future type keeps its
+/// (capitalized) raw name with value `"Yes"` (permissive — never fails). Empty
+/// when there are no `reasoning_options`. Shared by the TUI detail panel and the
+/// CLI `models show`.
+pub fn reasoning_controls(opts: &[ReasoningOption]) -> Vec<(String, String)> {
+    opts.iter()
+        .map(|opt| {
+            let raw = opt.r#type.as_deref().unwrap_or("reasoning");
+            match raw {
+                "budget_tokens" => {
+                    let v = match (opt.min, opt.max) {
+                        (Some(min), Some(max)) => format!(
+                            "{}–{}",
+                            formatting::format_tokens(min as u64),
+                            formatting::format_tokens(max as u64)
+                        ),
+                        (None, Some(max)) => format!("≤{}", formatting::format_tokens(max as u64)),
+                        (Some(min), None) => format!("≥{}", formatting::format_tokens(min as u64)),
+                        (None, None) => "Yes".to_string(),
+                    };
+                    ("Budget".to_string(), v)
+                }
+                "effort" => {
+                    let levels: Vec<&str> =
+                        opt.values.iter().filter_map(|v| v.as_deref()).collect();
+                    let v = if levels.is_empty() {
+                        "Yes".to_string()
+                    } else {
+                        levels.join(", ")
+                    };
+                    ("Effort".to_string(), v)
+                }
+                "toggle" => ("Toggle".to_string(), "Yes".to_string()),
+                other => (capitalize(other), "Yes".to_string()),
+            }
+        })
+        .collect()
+}
+
+/// Capitalize the first character (for unknown reasoning-control type names).
+fn capitalize(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+        None => String::new(),
     }
 }
 
@@ -417,15 +425,15 @@ mod tests {
         assert_eq!(cost.tiers.len(), 1);
         assert_eq!(cost.tiers[0].tier.as_ref().unwrap().size, Some(200000));
 
-        // Controls: budget humanized + rounded, effort levels listed (null
-        // dropped), toggle bare, unknown type shows its raw name.
+        // Controls: budget rounded, effort levels listed (null dropped), toggle
+        // as Yes, unknown type capitalized with value Yes (permissive).
         assert_eq!(
-            m.reasoning_controls(),
+            reasoning_controls(&m.reasoning_options),
             vec![
-                "budget    0–24.6k".to_string(),
-                "effort    low, high".to_string(),
-                "toggle".to_string(),
-                "some_future_mode".to_string(),
+                ("Budget".to_string(), "0–24.6k".to_string()),
+                ("Effort".to_string(), "low, high".to_string()),
+                ("Toggle".to_string(), "Yes".to_string()),
+                ("Some_future_mode".to_string(), "Yes".to_string()),
             ]
         );
         assert!(m.capabilities_str().contains("structured"));
@@ -438,6 +446,6 @@ mod tests {
         let m: Model = serde_json::from_str(r#"{"id": "x", "name": "X"}"#).unwrap();
         assert_eq!(m.structured_output, None);
         assert!(m.reasoning_options.is_empty());
-        assert!(m.reasoning_controls().is_empty());
+        assert!(reasoning_controls(&m.reasoning_options).is_empty());
     }
 }

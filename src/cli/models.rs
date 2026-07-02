@@ -18,7 +18,7 @@ use serde::Serialize;
 use crate::formatting::{cmp_opt_f64, parse_date_to_numeric, truncate};
 use crate::{
     api,
-    data::{CostTier, Model as ApiModel},
+    data::{CostTier, Model as ApiModel, ReasoningOption},
 };
 
 use super::picker::{self, PickerTerminal};
@@ -60,6 +60,8 @@ pub struct ModelRow {
     pub output_audio_cost: Option<f64>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub tiers: Vec<CostTier>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub reasoning_options: Vec<ReasoningOption>,
     pub reasoning: bool,
     pub tool_call: bool,
     pub attachment: bool,
@@ -90,6 +92,8 @@ pub struct ModelDetail {
     pub output_audio_cost: Option<f64>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub tiers: Vec<CostTier>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub reasoning_options: Vec<ReasoningOption>,
     pub reasoning: bool,
     pub tool_call: bool,
     pub attachment: bool,
@@ -555,6 +559,7 @@ fn flatten_model_row(provider_id: &str, provider_name: &str, model: &ApiModel) -
             .as_ref()
             .map(|c| c.tiers.clone())
             .unwrap_or_default(),
+        reasoning_options: model.reasoning_options.clone(),
         reasoning: model.reasoning,
         tool_call: model.tool_call,
         attachment: model.attachment,
@@ -800,6 +805,7 @@ pub fn print_model_detail(row: &ModelRow, json: bool) -> Result<()> {
         input_audio_cost: row.input_audio_cost,
         output_audio_cost: row.output_audio_cost,
         tiers: row.tiers.clone(),
+        reasoning_options: row.reasoning_options.clone(),
         reasoning: row.reasoning,
         tool_call: row.tool_call,
         attachment: row.attachment,
@@ -890,6 +896,9 @@ fn print_detail(d: &ModelDetail) {
     println!("Tool Use:    {}", yes_no(d.tool_call));
     println!("Attachments: {}", yes_no(d.attachment));
     println!("Structured:  {}", yes_no_opt(d.structured_output));
+    for (label, value) in crate::data::reasoning_controls(&d.reasoning_options) {
+        println!("{:<13}{}", format!("{label}:"), value);
+    }
     println!("Modalities:  {}", d.modalities);
     println!();
 
@@ -1010,6 +1019,7 @@ mod tests {
             input_audio_cost: None,
             output_audio_cost: None,
             tiers: Vec::new(),
+            reasoning_options: Vec::new(),
             reasoning: true,
             tool_call: true,
             attachment: false,
