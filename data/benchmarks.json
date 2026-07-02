@@ -6788,7 +6788,7 @@
     "creator_name": "Alibaba",
     "release_date": "2026-03-02",
     "intelligence_index": 10.2,
-    "coding_index": 19.7,
+    "coding_index": null,
     "math_index": null,
     "mmlu_pro": null,
     "gpqa": 0.456,
@@ -6818,7 +6818,7 @@
     "creator_name": "Alibaba",
     "release_date": "2026-03-02",
     "intelligence_index": 5,
-    "coding_index": 15,
+    "coding_index": null,
     "math_index": null,
     "mmlu_pro": null,
     "gpqa": 0.111,
@@ -9055,9 +9055,9 @@
     "output_tps": 155.832,
     "ttft": 0.499,
     "ttfat": 0.499,
-    "price_input": 0.1,
-    "price_output": 0.1,
-    "price_blended": 0.1
+    "price_input": 0.075,
+    "price_output": 0.095,
+    "price_blended": 0.08
   },
   {
     "id": "71e8d48c-1920-4f27-8ea9-1f10becc615a",
@@ -12145,9 +12145,9 @@
     "output_tps": null,
     "ttft": null,
     "ttfat": null,
-    "price_input": 0.3,
+    "price_input": 0.29,
     "price_output": 0.45,
-    "price_blended": 0.337
+    "price_blended": 0.33
   },
   {
     "id": "75e1c197-f239-4361-a9d6-66dccfead236",
@@ -12295,9 +12295,9 @@
     "output_tps": null,
     "ttft": null,
     "ttfat": null,
-    "price_input": 0.5,
-    "price_output": 1.6,
-    "price_blended": 0.775
+    "price_input": 0.45,
+    "price_output": 1.55,
+    "price_blended": 0.725
   },
   {
     "id": "dfb9292d-bc7c-4425-a260-4256217e709f",
@@ -15145,9 +15145,9 @@
     "output_tps": 50.395,
     "ttft": 1.22,
     "ttfat": 1.22,
-    "price_input": 0.3,
-    "price_output": 1.9,
-    "price_blended": 0.7
+    "price_input": 0.26,
+    "price_output": 1.7,
+    "price_blended": 0.62
   },
   {
     "id": "2bb84433-f38e-4edc-9b65-4d7b1f473db9",
@@ -15205,9 +15205,9 @@
     "output_tps": 66.005,
     "ttft": 1.17,
     "ttfat": 31.471,
-    "price_input": 0.4,
-    "price_output": 2.15,
-    "price_blended": 0.838
+    "price_input": 0.3,
+    "price_output": 2.3,
+    "price_blended": 0.8
   },
   {
     "id": "ce3d286e-093d-413d-a81a-0270309f039e",
@@ -15236,8 +15236,8 @@
     "ttft": 1.051,
     "ttfat": 17.198,
     "price_input": 0.2,
-    "price_output": 0.75,
-    "price_blended": 0.338
+    "price_output": 1,
+    "price_blended": 0.4
   },
   {
     "id": "d1768b3a-0a21-4e08-b3f6-56a9ab6cfbf3",
@@ -15535,9 +15535,9 @@
     "output_tps": 66.32,
     "ttft": 1.697,
     "ttfat": 1.697,
-    "price_input": 0.3,
+    "price_input": 0.65,
     "price_output": 1.8,
-    "price_blended": 0.675
+    "price_blended": 0.938
   },
   {
     "id": "e46198a7-cd29-4afd-933d-cdf180f0f305",
@@ -15745,9 +15745,9 @@
     "output_tps": 112.923,
     "ttft": 1.12,
     "ttfat": 1.12,
-    "price_input": 0.08,
-    "price_output": 0.29,
-    "price_blended": 0.133
+    "price_input": 0.14,
+    "price_output": 0.545,
+    "price_blended": 0.241
   },
   {
     "id": "3cf875b8-b6b5-42c0-ad70-617d5be59d00",
@@ -15805,9 +15805,9 @@
     "output_tps": 110.543,
     "ttft": 0.966,
     "ttfat": 19.058,
-    "price_input": 0.09,
-    "price_output": 0.45,
-    "price_blended": 0.18
+    "price_input": 0.12,
+    "price_output": 0.525,
+    "price_blended": 0.221
   },
   {
     "id": "41f73c27-880c-4f30-8b07-9999ce89a4ae",
@@ -15986,8 +15986,8 @@
     "ttft": 0.971,
     "ttfat": 0.971,
     "price_input": 0.2,
-    "price_output": 0.6,
-    "price_blended": 0.3
+    "price_output": 0.7,
+    "price_blended": 0.325
   },
   {
     "id": "5962d643-0a6f-4630-bb08-ab5720d80056",
@@ -16075,9 +16075,9 @@
     "output_tps": 64.812,
     "ttft": 1.385,
     "ttfat": 32.243,
-    "price_input": 0.11,
-    "price_output": 1.15,
-    "price_blended": 0.37
+    "price_input": 0.18,
+    "price_output": 2.1,
+    "price_blended": 0.66
   },
   {
     "id": "5e0164b3-d902-4bcb-a1b2-83b4f4cd6143",
@@ -16225,9 +16225,9 @@
     "output_tps": 61.393,
     "ttft": 1.413,
     "ttfat": 1.413,
-    "price_input": 0.18,
-    "price_output": 0.2,
-    "price_blended": 0.185
+    "price_input": 0.19,
+    "price_output": 0.45,
+    "price_blended": 0.255
   },
   {
     "id": "806032ff-6252-4c22-ba99-a126e411b7a4",
