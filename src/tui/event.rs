@@ -93,7 +93,7 @@ fn modal_popup_open(app: &App) -> bool {
                 || app.benchmarks_app.show_glossary
                 || app.benchmarks_app.show_column_picker
         }
-        Tab::Models => false,
+        Tab::Models => app.models_app.show_glossary,
     }
 }
 
@@ -127,6 +127,9 @@ fn handle_modal_popup_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
         }
         Tab::Benchmarks if app.benchmarks_app.show_column_picker => {
             (Message::ColumnPickerNext, Message::ColumnPickerPrev)
+        }
+        Tab::Models if app.models_app.show_glossary => {
+            (Message::ScrollGlossaryDown, Message::ScrollGlossaryUp)
         }
         _ => return None,
     };
@@ -274,6 +277,9 @@ fn handle_normal_mode(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
     if app.current_tab == super::app::Tab::Benchmarks && app.benchmarks_app.show_glossary {
         return handle_glossary_keys(code);
     }
+    if app.current_tab == super::app::Tab::Models && app.models_app.show_glossary {
+        return handle_glossary_keys(code);
+    }
     // Column picker intercepts all keys while open (browse mode only).
     if app.current_tab == super::app::Tab::Benchmarks && app.benchmarks_app.show_column_picker {
         return handle_column_picker_keys(code, modifiers);
@@ -358,6 +364,7 @@ fn handle_models_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
         KeyCode::Char('4') => Some(Message::ToggleFree),
         KeyCode::Char('5') => Some(Message::CycleProviderCategory),
         KeyCode::Char('6') => Some(Message::ToggleGrouping),
+        KeyCode::Char('i') => Some(Message::ToggleGlossary),
         _ => None,
     }
 }

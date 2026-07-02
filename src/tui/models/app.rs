@@ -75,6 +75,9 @@ pub struct ModelsApp {
     pub provider_list_items: Vec<ProviderListItem>,
     filtered_models: Vec<ModelEntry>,
     pub detail_scroll: ScrollOffset,
+    /// Glossary popup (`i`) explaining the capability/pricing fields.
+    pub show_glossary: bool,
+    pub glossary_scroll: ScrollOffset,
     /// Panel rects cached at render time for mouse hit-testing (see
     /// `crate::tui::mouse`). The stored areas are the exact rects the list /
     /// detail widgets render into — `provider_list_area`/`model_list_area` are
@@ -108,6 +111,8 @@ impl ModelsApp {
             provider_list_items: Vec::new(),
             filtered_models: Vec::new(),
             detail_scroll: ScrollOffset::default(),
+            show_glossary: false,
+            glossary_scroll: ScrollOffset::default(),
             provider_list_area: None,
             model_list_area: None,
             provider_card_area: None,
@@ -597,6 +602,21 @@ impl ModelsApp {
 
     pub fn reset_detail_scroll(&self) {
         self.detail_scroll.jump_top();
+    }
+
+    pub fn toggle_glossary(&mut self) {
+        self.show_glossary = !self.show_glossary;
+        if self.show_glossary {
+            self.glossary_scroll.jump_top();
+        }
+    }
+
+    pub fn scroll_glossary_down(&self) {
+        self.glossary_scroll.increment(1);
+    }
+
+    pub fn scroll_glossary_up(&self) {
+        self.glossary_scroll.decrement(1);
     }
 
     pub fn cycle_sort(&mut self, providers: &[(String, Provider)]) {

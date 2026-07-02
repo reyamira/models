@@ -257,7 +257,7 @@ impl Model {
 /// `(label, value)` pairs for a model's **reasoning controls** — the API knobs
 /// for controlling reasoning — one pair per `reasoning_options` entry, shaped to
 /// slot into the same `Label: value` layout as the other capabilities:
-/// `("Budget", "0–24.6k")`, `("Effort", "low, medium, high")`, `("Toggle", "Yes")`.
+/// `("Budget", "0–24.6k")`, `("Effort", "Low, Medium, High")`, `("Toggle", "Yes")`.
 /// Budget ranges are rounded with `format_tokens` (Limits number style); effort
 /// `null` levels (the "off" choice) are dropped; an unknown future type keeps its
 /// (capitalized) raw name with value `"Yes"` (permissive — never fails). Empty
@@ -282,8 +282,12 @@ pub fn reasoning_controls(opts: &[ReasoningOption]) -> Vec<(String, String)> {
                     ("Budget".to_string(), v)
                 }
                 "effort" => {
-                    let levels: Vec<&str> =
-                        opt.values.iter().filter_map(|v| v.as_deref()).collect();
+                    let levels: Vec<String> = opt
+                        .values
+                        .iter()
+                        .filter_map(|v| v.as_deref())
+                        .map(capitalize)
+                        .collect();
                     let v = if levels.is_empty() {
                         "Yes".to_string()
                     } else {
@@ -431,7 +435,7 @@ mod tests {
             reasoning_controls(&m.reasoning_options),
             vec![
                 ("Budget".to_string(), "0–24.6k".to_string()),
-                ("Effort".to_string(), "low, high".to_string()),
+                ("Effort".to_string(), "Low, High".to_string()),
                 ("Toggle".to_string(), "Yes".to_string()),
                 ("Some_future_mode".to_string(), "Yes".to_string()),
             ]
