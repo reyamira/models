@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-07-08T18:17:41.590207319+00:00",
+    "fetched_at": "2026-07-08T20:17:25.327511028+00:00",
     "verified": true
   },
   "metrics": [
@@ -3876,7 +3876,7 @@
       "release_date": "2026-04-29",
       "scores": {
         "coding_index": {
-          "value": 46.9
+          "value": 45.2
         },
         "gpqa": {
           "value": 0.748
@@ -3888,7 +3888,7 @@
           "value": 0.687755102040816
         },
         "intelligence_index": {
-          "value": 29.9
+          "value": 29.4
         },
         "lcr": {
           "value": 0.61
@@ -4385,6 +4385,42 @@
         },
         "terminalbench_hard": {
           "value": 0.0227272727272727
+        }
+      }
+    },
+    {
+      "id": "grok-4-5",
+      "name": "Grok 4.5 (high)",
+      "display_name": "Grok 4.5",
+      "creator": "xai",
+      "creator_name": "SpaceXAI",
+      "release_date": "2026-07-08",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
+      "scores": {
+        "coding_index": {
+          "value": 72.4
+        },
+        "gpqa": {
+          "value": 0.931
+        },
+        "hle": {
+          "value": 0.403
+        },
+        "lcr": {
+          "value": 0.676666666666667
+        },
+        "price_blended": {
+          "value": 3.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 6.0
+        },
+        "scicode": {
+          "value": 0.541
         }
       }
     },
