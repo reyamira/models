@@ -3,7 +3,7 @@
     "id": "llmstats",
     "name": "LLM Stats",
     "url": "https://llm-stats.com",
-    "fetched_at": "2026-07-12T18:18:19.220970581+00:00",
+    "fetched_at": "2026-07-12T18:48:27.978484077+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "Agents",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-07-12T18:18:17.096901Z",
+      "last_updated": "2026-07-12T18:48:22.748357Z",
       "description": "Capability on agentic, multi-step tool-using tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -20,7 +20,7 @@
       "label": "Code",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-07-12T18:18:17.215969Z",
+      "last_updated": "2026-07-12T18:48:23.181317Z",
       "description": "Capability on programming and code-generation tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -28,7 +28,7 @@
       "label": "Finance",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-07-12T18:18:17.320643Z",
+      "last_updated": "2026-07-12T18:48:23.408727Z",
       "description": "Capability on finance-domain tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -36,7 +36,7 @@
       "label": "Frontend Dev",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-07-12T18:18:17.416836Z",
+      "last_updated": "2026-07-12T18:48:23.772773Z",
       "description": "Capability on front-end / web-UI development tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better.",
       "short_label": "Front. Dev"
     },
@@ -45,7 +45,7 @@
       "label": "General",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-07-12T18:18:17.509015Z",
+      "last_updated": "2026-07-12T18:48:24.185103Z",
       "description": "Overall general-capability rating across all tracked benchmarks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -53,7 +53,7 @@
       "label": "Healthcare",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-07-12T18:18:17.632946Z",
+      "last_updated": "2026-07-12T18:48:24.451455Z",
       "description": "Capability on healthcare and medical-domain tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -61,7 +61,7 @@
       "label": "Legal",
       "kind": "index",
       "group": "Categories II",
-      "last_updated": "2026-07-12T18:18:17.726645Z",
+      "last_updated": "2026-07-12T18:48:24.607014Z",
       "description": "Capability on legal-domain tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -69,7 +69,7 @@
       "label": "Math",
       "kind": "index",
       "group": "Categories II",
-      "last_updated": "2026-07-12T18:18:17.799503Z",
+      "last_updated": "2026-07-12T18:48:25.001618Z",
       "description": "Capability on mathematical problem-solving tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -77,7 +77,7 @@
       "label": "Multimodal",
       "kind": "index",
       "group": "Categories II",
-      "last_updated": "2026-07-12T18:18:17.872728Z",
+      "last_updated": "2026-07-12T18:48:25.212209Z",
       "description": "Capability on multimodal tasks spanning more than one input modality. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -85,7 +85,7 @@
       "label": "Reasoning",
       "kind": "index",
       "group": "Categories II",
-      "last_updated": "2026-07-12T18:18:17.988185Z",
+      "last_updated": "2026-07-12T18:48:25.605477Z",
       "description": "Capability on logical and multi-step reasoning tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -93,11 +93,62 @@
       "label": "Vision",
       "kind": "index",
       "group": "Categories II",
-      "last_updated": "2026-07-12T18:18:18.063137Z",
+      "last_updated": "2026-07-12T18:48:25.852732Z",
       "description": "Capability on visual understanding tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     }
   ],
   "models": [
+    {
+      "id": "gpt-5.6-sol",
+      "name": "GPT-5.6 Sol",
+      "display_name": "GPT-5.6 Sol",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-07-09",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 49.39,
+          "date": "2026-07-12T18:48:22.748357Z"
+        },
+        "code": {
+          "value": 55.28,
+          "date": "2026-07-12T18:48:23.181317Z"
+        },
+        "finance": {
+          "value": 48.53,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "general": {
+          "value": 52.96,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 42.92,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "legal": {
+          "value": 46.18,
+          "date": "2026-07-12T18:48:24.607014Z"
+        },
+        "math": {
+          "value": 47.78,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "multimodal": {
+          "value": 49.43,
+          "date": "2026-07-12T18:48:25.212209Z"
+        },
+        "reasoning": {
+          "value": 63.24,
+          "date": "2026-07-12T18:48:25.605477Z"
+        },
+        "vision": {
+          "value": 46.6,
+          "date": "2026-07-12T18:48:25.852732Z"
+        }
+      }
+    },
     {
       "id": "claude-fable-5",
       "name": "Claude Fable 5",
@@ -108,44 +159,48 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 50.08,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 48.62,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 58.89,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 55.92,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 49.43,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 48.65,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 51.85,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 58.13,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 51.18,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 39.53,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 51.74,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 51.05,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 52.31,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 52.23,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 49.54,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 46.22,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 66.96,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 60.7,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 50.21,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 47.52,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -158,63 +213,87 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 46.5,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 45.18,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 56.94,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 56.43,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 50.31,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 63.96,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 49.34,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "math": {
-          "value": 61.58,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 61.56,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 51.59,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 50.51,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 71.07,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 64.46,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 50.99,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 50.53,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
     {
-      "id": "gpt-5.5-pro",
-      "name": "GPT-5.5 Pro",
-      "display_name": "GPT-5.5 Pro",
+      "id": "gpt-5.6-terra",
+      "name": "GPT-5.6 Terra",
+      "display_name": "GPT-5.6 Terra",
       "creator": "openai",
       "creator_name": "OpenAI",
-      "release_date": "2026-04-23",
+      "release_date": "2026-07-09",
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 43.08,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 44.51,
+          "date": "2026-07-12T18:48:22.748357Z"
+        },
+        "code": {
+          "value": 51.32,
+          "date": "2026-07-12T18:48:23.181317Z"
+        },
+        "finance": {
+          "value": 41.98,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "general": {
+          "value": 46.95,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 37.21,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "legal": {
+          "value": 40.76,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 50.31,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 44.87,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "multimodal": {
+          "value": 41.71,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 60.04,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 57.53,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 40.52,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 38.5,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -228,44 +307,71 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 43.06,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 42.15,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 52.26,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 51.63,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 44.23,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 42.65,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 48.04,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 59.93,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 50.09,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "legal": {
-          "value": 46.51,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 44.81,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 50.69,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 50.63,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 50.29,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 49.17,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 63.35,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 57.3,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 47.84,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 47.43,
+          "date": "2026-07-12T18:48:25.852732Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.5-pro",
+      "name": "GPT-5.5 Pro",
+      "display_name": "GPT-5.5 Pro",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-04-23",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 40.81,
+          "date": "2026-07-12T18:48:22.748357Z"
+        },
+        "math": {
+          "value": 48.56,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "reasoning": {
+          "value": 53.56,
+          "date": "2026-07-12T18:48:25.605477Z"
+        },
+        "vision": {
+          "value": 40.37,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -279,79 +385,79 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 41.29,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 39.69,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 49.47,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 47.47,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 44.19,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 42.9,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 44.94,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 55.19,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 49.88,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "legal": {
-          "value": 45.1,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 43.58,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 52.4,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 52.35,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 46.22,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 45.02,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 62.14,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 56.22,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 44.59,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 43.85,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
     {
-      "id": "glm-5.2",
-      "name": "GLM-5.2",
-      "display_name": "GLM-5.2",
-      "creator": "zai-org",
-      "creator_name": "Zhipu AI",
-      "release_date": "2026-06-16",
-      "open_weights": true,
+      "id": "grok-4.5",
+      "name": "Grok 4.5",
+      "display_name": "Grok 4.5",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2026-07-08",
+      "open_weights": false,
       "scores": {
         "agents": {
-          "value": 40.81,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 39.4,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 48.81,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 46.57,
+          "date": "2026-07-12T18:48:23.181317Z"
+        },
+        "finance": {
+          "value": 39.16,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "general": {
-          "value": 58.96,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 42.36,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
-        "math": {
-          "value": 50.44,
-          "date": "2026-07-12T18:18:17.799503Z"
+        "legal": {
+          "value": 39.09,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "reasoning": {
-          "value": 59.05,
-          "date": "2026-07-12T18:18:17.988185Z"
-        },
-        "vision": {
-          "value": 38.24,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 53.95,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -365,48 +471,75 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 40.08,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 38.6,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 48.08,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 47.21,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 46.4,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 44.05,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 46.45,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 53.24,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "healthcare": {
-          "value": 35.75,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 44.96,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "legal": {
-          "value": 45.46,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 42.82,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 49.0,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 48.97,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 45.55,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 44.65,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 57.74,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 51.56,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 42.93,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 42.71,
+          "date": "2026-07-12T18:48:25.852732Z"
+        }
+      }
+    },
+    {
+      "id": "glm-5.2",
+      "name": "GLM-5.2",
+      "display_name": "GLM-5.2",
+      "creator": "zai-org",
+      "creator_name": "Zhipu AI",
+      "release_date": "2026-06-16",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 37.88,
+          "date": "2026-07-12T18:48:22.748357Z"
+        },
+        "code": {
+          "value": 45.48,
+          "date": "2026-07-12T18:48:23.181317Z"
+        },
+        "math": {
+          "value": 50.46,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "reasoning": {
+          "value": 52.09,
+          "date": "2026-07-12T18:48:25.605477Z"
+        },
+        "vision": {
+          "value": 38.15,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -420,91 +553,36 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 38.98,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 37.64,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 49.27,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 48.2,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 39.74,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 38.1,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "general": {
-          "value": 55.12,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 45.84,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "math": {
-          "value": 48.9,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 47.89,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 46.2,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 45.1,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 58.71,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 52.74,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 43.5,
-          "date": "2026-07-12T18:18:18.063137Z"
-        }
-      }
-    },
-    {
-      "id": "seed-2.1-pro",
-      "name": "Seed 2.1 Pro",
-      "display_name": "Seed 2.1 Pro",
-      "creator": "bytedance",
-      "creator_name": "ByteDance",
-      "release_date": "2026-06-24",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 38.94,
-          "date": "2026-07-12T18:18:17.096901Z"
-        },
-        "code": {
-          "value": 45.52,
-          "date": "2026-07-12T18:18:17.215969Z"
-        },
-        "finance": {
-          "value": 42.37,
-          "date": "2026-07-12T18:18:17.320643Z"
-        },
-        "frontend_development": {
-          "value": 20.69,
-          "date": "2026-07-12T18:18:17.416836Z"
-        },
-        "general": {
-          "value": 56.06,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "healthcare": {
-          "value": 45.21,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "legal": {
-          "value": 43.26,
-          "date": "2026-07-12T18:18:17.726645Z"
-        },
-        "math": {
-          "value": 48.99,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "multimodal": {
-          "value": 47.74,
-          "date": "2026-07-12T18:18:17.872728Z"
-        },
-        "reasoning": {
-          "value": 58.84,
-          "date": "2026-07-12T18:18:17.988185Z"
-        },
-        "vision": {
-          "value": 40.55,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 43.28,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -518,118 +596,134 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 38.64,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 37.39,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 43.49,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 42.75,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 43.89,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 41.96,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "general": {
-          "value": 52.78,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "legal": {
-          "value": 36.13,
-          "date": "2026-07-12T18:18:17.726645Z"
-        },
-        "math": {
-          "value": 40.26,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 43.66,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "multimodal": {
-          "value": 45.63,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 44.46,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 55.09,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 49.89,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 38.89,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 38.61,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
     {
-      "id": "kimi-k2.7-code",
-      "name": "Kimi K2.7 Code",
-      "display_name": "Kimi K2.7 Code",
-      "creator": "moonshotai",
-      "creator_name": "Moonshot AI",
-      "release_date": "2026-06-12",
-      "open_weights": true,
-      "scores": {
-        "agents": {
-          "value": 37.07,
-          "date": "2026-07-12T18:18:17.096901Z"
-        },
-        "code": {
-          "value": 39.2,
-          "date": "2026-07-12T18:18:17.215969Z"
-        },
-        "reasoning": {
-          "value": 44.98,
-          "date": "2026-07-12T18:18:17.988185Z"
-        }
-      }
-    },
-    {
-      "id": "qwen3.7-max",
-      "name": "Qwen3.7 Max",
-      "display_name": "Qwen3.7 Max",
-      "creator": "qwen",
-      "creator_name": "Alibaba Cloud / Qwen Team",
-      "release_date": "2026-05-19",
+      "id": "gpt-5.6-luna",
+      "name": "GPT-5.6 Luna",
+      "display_name": "GPT-5.6 Luna",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-07-09",
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 36.88,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 36.69,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 45.64,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 43.9,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 48.58,
-          "date": "2026-07-12T18:18:17.320643Z"
-        },
-        "frontend_development": {
-          "value": 40.44,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "value": 36.97,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "general": {
-          "value": 54.6,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "healthcare": {
-          "value": 60.46,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 41.38,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "legal": {
-          "value": 50.57,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 39.62,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 51.3,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 42.86,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 40.52,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 35.81,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 57.58,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 51.57,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 33.57,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 32.39,
+          "date": "2026-07-12T18:48:25.852732Z"
+        }
+      }
+    },
+    {
+      "id": "seed-2.1-pro",
+      "name": "Seed 2.1 Pro",
+      "display_name": "Seed 2.1 Pro",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2026-06-24",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 36.59,
+          "date": "2026-07-12T18:48:22.748357Z"
+        },
+        "code": {
+          "value": 43.35,
+          "date": "2026-07-12T18:48:23.181317Z"
+        },
+        "finance": {
+          "value": 41.92,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "frontend_development": {
+          "value": 20.69,
+          "date": "2026-07-12T18:48:23.772773Z"
+        },
+        "general": {
+          "value": 49.39,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 45.24,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "legal": {
+          "value": 42.83,
+          "date": "2026-07-12T18:48:24.607014Z"
+        },
+        "math": {
+          "value": 49.0,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "multimodal": {
+          "value": 47.03,
+          "date": "2026-07-12T18:48:25.212209Z"
+        },
+        "reasoning": {
+          "value": 52.78,
+          "date": "2026-07-12T18:48:25.605477Z"
+        },
+        "vision": {
+          "value": 40.41,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -643,95 +737,118 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 36.52,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 35.46,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 42.93,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 42.42,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 44.4,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 42.96,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 43.54,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 50.78,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 45.61,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "legal": {
-          "value": 41.91,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 40.57,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 49.3,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 49.28,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 33.08,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 32.32,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 57.01,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 51.66,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 33.24,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 33.01,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
     {
-      "id": "seed-2.1-turbo",
-      "name": "Seed 2.1 Turbo",
-      "display_name": "Seed 2.1 Turbo",
-      "creator": "bytedance",
-      "creator_name": "ByteDance",
-      "release_date": "2026-06-24",
+      "id": "qwen3.7-max",
+      "name": "Qwen3.7 Max",
+      "display_name": "Qwen3.7 Max",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-05-19",
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 35.82,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 35.34,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 41.67,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 44.74,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 38.5,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 47.43,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "frontend_development": {
+          "value": 40.44,
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 52.03,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 48.36,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 41.78,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 60.5,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 39.6,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 49.54,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 47.21,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 51.32,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 42.21,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 39.98,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 55.63,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 51.84,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 35.74,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 33.49,
+          "date": "2026-07-12T18:48:25.852732Z"
+        }
+      }
+    },
+    {
+      "id": "kimi-k2.7-code",
+      "name": "Kimi K2.7 Code",
+      "display_name": "Kimi K2.7 Code",
+      "creator": "moonshotai",
+      "creator_name": "Moonshot AI",
+      "release_date": "2026-06-12",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 35.33,
+          "date": "2026-07-12T18:48:22.748357Z"
+        },
+        "code": {
+          "value": 38.44,
+          "date": "2026-07-12T18:48:23.181317Z"
         }
       }
     },
@@ -745,44 +862,91 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 35.46,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 34.1,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 41.76,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 40.96,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 40.06,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 37.73,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "general": {
-          "value": 56.45,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "healthcare": {
-          "value": 37.75,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 45.62,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "legal": {
-          "value": 36.63,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 34.36,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 47.84,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 45.93,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 39.56,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 38.61,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 54.14,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 47.92,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 35.73,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 35.48,
+          "date": "2026-07-12T18:48:25.852732Z"
+        }
+      }
+    },
+    {
+      "id": "seed-2.1-turbo",
+      "name": "Seed 2.1 Turbo",
+      "display_name": "Seed 2.1 Turbo",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2026-06-24",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 33.88,
+          "date": "2026-07-12T18:48:22.748357Z"
+        },
+        "code": {
+          "value": 39.94,
+          "date": "2026-07-12T18:48:23.181317Z"
+        },
+        "finance": {
+          "value": 38.04,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "general": {
+          "value": 45.8,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 41.81,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "legal": {
+          "value": 39.17,
+          "date": "2026-07-12T18:48:24.607014Z"
+        },
+        "math": {
+          "value": 47.23,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "multimodal": {
+          "value": 41.54,
+          "date": "2026-07-12T18:48:25.212209Z"
+        },
+        "reasoning": {
+          "value": 49.91,
+          "date": "2026-07-12T18:48:25.605477Z"
+        },
+        "vision": {
+          "value": 35.6,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -796,40 +960,40 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 35.09,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 33.37,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 44.38,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 42.84,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 41.23,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 38.91,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 40.58,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "healthcare": {
-          "value": 39.77,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 39.67,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 40.69,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 37.69,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "multimodal": {
-          "value": 37.91,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 37.12,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 52.83,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 47.32,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 31.76,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 31.49,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -843,40 +1007,36 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 34.04,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 32.51,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 41.37,
-          "date": "2026-07-12T18:18:17.215969Z"
-        },
-        "finance": {
-          "value": 35.94,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 40.68,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 39.64,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 50.51,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 41.15,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "math": {
-          "value": 45.52,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 45.54,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 42.72,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 41.95,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 54.92,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 49.13,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 35.99,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 35.82,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -890,44 +1050,44 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 33.16,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 31.91,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 34.97,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 34.75,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 43.73,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 41.7,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 37.56,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 43.48,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 39.69,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "legal": {
-          "value": 40.68,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 38.52,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 42.92,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 42.91,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 29.71,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 29.03,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 48.06,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 43.11,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 31.48,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 31.28,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -941,44 +1101,44 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 32.8,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 31.32,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 41.1,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 40.61,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 44.32,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 43.05,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 42.74,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 49.69,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 43.68,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 47.87,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 47.88,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 44.32,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 43.09,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 49.16,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 49.18,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "reasoning": {
-          "value": 54.74,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 49.44,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 31.98,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 31.93,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -992,20 +1152,20 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 32.45,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 31.03,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 40.8,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 40.14,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "multimodal": {
-          "value": 29.84,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 29.18,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 49.61,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 44.78,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -1019,36 +1179,24 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 31.84,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 30.39,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 41.12,
-          "date": "2026-07-12T18:18:17.215969Z"
-        },
-        "finance": {
-          "value": 35.96,
-          "date": "2026-07-12T18:18:17.320643Z"
-        },
-        "general": {
-          "value": 43.49,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "legal": {
-          "value": 34.14,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 40.25,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "math": {
-          "value": 42.07,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 42.08,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "reasoning": {
-          "value": 50.22,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 44.9,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 36.3,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 36.22,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -1062,48 +1210,48 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 31.74,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 30.35,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 40.41,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 39.81,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 41.22,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 40.44,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 33.63,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 51.61,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 45.69,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 53.23,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 53.2,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 44.04,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 43.36,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 47.41,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 47.44,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 44.46,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 43.7,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 53.16,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 47.86,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 38.14,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 37.95,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -1117,16 +1265,16 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 31.68,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 30.22,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 40.34,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 39.74,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 36.52,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         }
       }
     },
@@ -1140,36 +1288,36 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 30.94,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 29.61,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 41.31,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 40.75,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 41.46,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 52.67,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 42.82,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "math": {
-          "value": 51.93,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 51.89,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 37.67,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 36.7,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 55.38,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 49.07,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 38.66,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 38.45,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -1183,32 +1331,32 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 29.04,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 27.71,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 33.29,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 33.18,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 39.66,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 36.95,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 34.85,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 46.23,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 39.37,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "legal": {
-          "value": 39.4,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 36.78,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "reasoning": {
-          "value": 50.91,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 45.96,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -1222,16 +1370,16 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 28.2,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 26.87,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 35.98,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 35.32,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "reasoning": {
-          "value": 47.25,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 42.61,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -1245,16 +1393,16 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 27.64,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 26.51,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "multimodal": {
-          "value": 31.66,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 31.13,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "vision": {
-          "value": 27.65,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 27.51,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -1268,79 +1416,48 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 27.09,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 25.83,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 37.74,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 37.24,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 42.98,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 42.13,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 36.07,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 49.11,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 43.69,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 52.76,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 52.75,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 45.69,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 44.93,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 46.4,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 46.42,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 39.68,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 39.07,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 49.41,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 44.81,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 33.34,
-          "date": "2026-07-12T18:18:18.063137Z"
-        }
-      }
-    },
-    {
-      "id": "gpt-5.2-pro-2025-12-11",
-      "name": "GPT-5.2 Pro",
-      "display_name": "GPT-5.2 Pro",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "release_date": "2025-12-11",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 27.08,
-          "date": "2026-07-12T18:18:17.096901Z"
-        },
-        "general": {
-          "value": 63.12,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "math": {
-          "value": 49.95,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "reasoning": {
-          "value": 55.03,
-          "date": "2026-07-12T18:18:17.988185Z"
-        },
-        "vision": {
-          "value": 30.77,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 33.18,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -1354,24 +1471,47 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 26.96,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 25.71,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 36.0,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 35.37,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "multimodal": {
-          "value": 35.92,
-          "date": "2026-07-12T18:18:17.872728Z"
-        },
-        "reasoning": {
-          "value": 46.43,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 35.09,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "vision": {
-          "value": 30.44,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 30.11,
+          "date": "2026-07-12T18:48:25.852732Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5.2-pro-2025-12-11",
+      "name": "GPT-5.2 Pro",
+      "display_name": "GPT-5.2 Pro",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-12-11",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 25.68,
+          "date": "2026-07-12T18:48:22.748357Z"
+        },
+        "math": {
+          "value": 49.92,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "reasoning": {
+          "value": 46.9,
+          "date": "2026-07-12T18:48:25.605477Z"
+        },
+        "vision": {
+          "value": 30.63,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -1385,24 +1525,20 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 26.78,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 25.51,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 31.43,
-          "date": "2026-07-12T18:18:17.215969Z"
-        },
-        "finance": {
-          "value": 36.0,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 30.98,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "multimodal": {
-          "value": 32.08,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 31.28,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "vision": {
-          "value": 26.22,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 26.01,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -1416,75 +1552,40 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 26.77,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 25.44,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 35.67,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 35.39,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 41.17,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 40.1,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 37.14,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "healthcare": {
-          "value": 44.07,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 44.1,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 41.16,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 40.11,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 49.47,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 49.5,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "reasoning": {
-          "value": 50.16,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 45.24,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 29.84,
-          "date": "2026-07-12T18:18:18.063137Z"
-        }
-      }
-    },
-    {
-      "id": "seed-2.0-pro",
-      "name": "Seed 2.0 Pro",
-      "display_name": "Seed 2.0 Pro",
-      "creator": "bytedance",
-      "creator_name": "ByteDance",
-      "release_date": "2026-02-14",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 26.67,
-          "date": "2026-07-12T18:18:17.096901Z"
-        },
-        "code": {
-          "value": 31.61,
-          "date": "2026-07-12T18:18:17.215969Z"
-        },
-        "frontend_development": {
-          "value": 31.7,
-          "date": "2026-07-12T18:18:17.416836Z"
-        },
-        "general": {
-          "value": 55.38,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "math": {
-          "value": 43.6,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "reasoning": {
-          "value": 52.18,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 29.79,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -1498,20 +1599,55 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 26.48,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 25.35,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 34.48,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 34.25,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 34.32,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "reasoning": {
-          "value": 49.32,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 44.37,
+          "date": "2026-07-12T18:48:25.605477Z"
+        }
+      }
+    },
+    {
+      "id": "seed-2.0-pro",
+      "name": "Seed 2.0 Pro",
+      "display_name": "Seed 2.0 Pro",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2026-02-14",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 25.31,
+          "date": "2026-07-12T18:48:22.748357Z"
+        },
+        "code": {
+          "value": 31.57,
+          "date": "2026-07-12T18:48:23.181317Z"
+        },
+        "frontend_development": {
+          "value": 31.7,
+          "date": "2026-07-12T18:48:23.772773Z"
+        },
+        "general": {
+          "value": 42.85,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "math": {
+          "value": 43.63,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "reasoning": {
+          "value": 46.01,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -1525,55 +1661,24 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 26.13,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 24.75,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "finance": {
-          "value": 37.69,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 35.22,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 26.72,
-          "date": "2026-07-12T18:18:17.416836Z"
-        },
-        "general": {
-          "value": 44.24,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "legal": {
-          "value": 37.43,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 35.03,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "reasoning": {
-          "value": 46.97,
-          "date": "2026-07-12T18:18:17.988185Z"
-        }
-      }
-    },
-    {
-      "id": "minimax-m2.5",
-      "name": "MiniMax M2.5",
-      "display_name": "MiniMax M2.5",
-      "creator": "minimax",
-      "creator_name": "MiniMax",
-      "release_date": "2026-02-12",
-      "open_weights": true,
-      "scores": {
-        "agents": {
-          "value": 26.05,
-          "date": "2026-07-12T18:18:17.096901Z"
-        },
-        "code": {
-          "value": 36.13,
-          "date": "2026-07-12T18:18:17.215969Z"
-        },
-        "frontend_development": {
-          "value": 38.78,
-          "date": "2026-07-12T18:18:17.416836Z"
-        },
-        "reasoning": {
-          "value": 49.61,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 42.42,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -1587,83 +1692,63 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 25.59,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 24.65,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 38.05,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 37.78,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 44.58,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 43.64,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 40.61,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "math": {
-          "value": 42.23,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 42.22,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 28.58,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 28.24,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 51.97,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 46.48,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 27.94,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 27.81,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
     {
-      "id": "gemini-3-flash-preview",
-      "name": "Gemini 3 Flash",
-      "display_name": "Gemini 3 Flash",
-      "creator": "google",
-      "creator_name": "Google",
-      "release_date": "2025-12-17",
-      "open_weights": false,
+      "id": "minimax-m2.5",
+      "name": "MiniMax M2.5",
+      "display_name": "MiniMax M2.5",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
+      "release_date": "2026-02-12",
+      "open_weights": true,
       "scores": {
         "agents": {
-          "value": 25.32,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 24.62,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 29.44,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 35.65,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
-          "value": 35.08,
-          "date": "2026-07-12T18:18:17.416836Z"
-        },
-        "general": {
-          "value": 47.05,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "healthcare": {
-          "value": 41.94,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "math": {
-          "value": 46.27,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "multimodal": {
-          "value": 36.21,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 38.78,
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "reasoning": {
-          "value": 47.55,
-          "date": "2026-07-12T18:18:17.988185Z"
-        },
-        "vision": {
-          "value": 30.9,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 44.72,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -1677,12 +1762,55 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 25.22,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 24.59,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 30.57,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 30.61,
+          "date": "2026-07-12T18:48:23.181317Z"
+        }
+      }
+    },
+    {
+      "id": "gemini-3-flash-preview",
+      "name": "Gemini 3 Flash",
+      "display_name": "Gemini 3 Flash",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2025-12-17",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 24.08,
+          "date": "2026-07-12T18:48:22.748357Z"
+        },
+        "frontend_development": {
+          "value": 35.08,
+          "date": "2026-07-12T18:48:23.772773Z"
+        },
+        "general": {
+          "value": 41.53,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 40.43,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "math": {
+          "value": 46.27,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "multimodal": {
+          "value": 35.46,
+          "date": "2026-07-12T18:48:25.212209Z"
+        },
+        "reasoning": {
+          "value": 42.36,
+          "date": "2026-07-12T18:48:25.605477Z"
+        },
+        "vision": {
+          "value": 30.7,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -1696,71 +1824,40 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 24.7,
-          "date": "2026-07-12T18:18:17.096901Z"
-        },
-        "code": {
-          "value": 28.94,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 23.58,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "finance": {
-          "value": 42.24,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 41.6,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 30.45,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 48.89,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 43.96,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 51.1,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 51.13,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 42.61,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 41.97,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 44.27,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 44.29,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 31.9,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 31.45,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 47.7,
-          "date": "2026-07-12T18:18:17.988185Z"
-        },
-        "vision": {
-          "value": 25.93,
-          "date": "2026-07-12T18:18:18.063137Z"
-        }
-      }
-    },
-    {
-      "id": "minimax-m2.7",
-      "name": "MiniMax M2.7",
-      "display_name": "MiniMax M2.7",
-      "creator": "minimax",
-      "creator_name": "MiniMax",
-      "release_date": "2026-03-18",
-      "open_weights": true,
-      "scores": {
-        "agents": {
-          "value": 24.4,
-          "date": "2026-07-12T18:18:17.096901Z"
-        },
-        "code": {
-          "value": 36.83,
-          "date": "2026-07-12T18:18:17.215969Z"
-        },
-        "reasoning": {
-          "value": 46.83,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 43.14,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -1774,20 +1871,24 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 24.38,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 23.36,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "finance": {
-          "value": 47.69,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 47.56,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "general": {
+          "value": 39.01,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 49.47,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 49.49,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 48.02,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 47.9,
+          "date": "2026-07-12T18:48:24.607014Z"
         }
       }
     },
@@ -1801,40 +1902,63 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 24.33,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 23.1,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 32.65,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 32.4,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 39.79,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 39.06,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 32.27,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "healthcare": {
-          "value": 44.96,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 44.95,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 39.89,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 39.18,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 41.48,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 41.51,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 35.26,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 34.71,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "vision": {
-          "value": 28.84,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 28.7,
+          "date": "2026-07-12T18:48:25.852732Z"
+        }
+      }
+    },
+    {
+      "id": "minimax-m2.7",
+      "name": "MiniMax M2.7",
+      "display_name": "MiniMax M2.7",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
+      "release_date": "2026-03-18",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 23.04,
+          "date": "2026-07-12T18:48:22.748357Z"
+        },
+        "code": {
+          "value": 36.31,
+          "date": "2026-07-12T18:48:23.181317Z"
+        },
+        "reasoning": {
+          "value": 41.86,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -1848,40 +1972,40 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 23.23,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 22.0,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 33.33,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 33.08,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 38.71,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 51.79,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 40.53,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 44.78,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 44.61,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "math": {
-          "value": 47.73,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 46.98,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 41.77,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 40.82,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 51.64,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 45.81,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 33.53,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 33.28,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -1895,48 +2019,48 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 22.82,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 21.64,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 30.47,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 30.22,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 45.72,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 45.62,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 31.46,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 44.9,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 38.94,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 46.51,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 45.32,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 45.95,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 45.86,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 44.05,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 44.07,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 37.82,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 37.13,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 47.85,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 43.17,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 32.58,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 32.39,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -1950,190 +2074,40 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 21.99,
-          "date": "2026-07-12T18:18:17.096901Z"
+          "value": 20.8,
+          "date": "2026-07-12T18:48:22.748357Z"
         },
         "code": {
-          "value": 30.14,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 29.95,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 32.32,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 50.22,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 39.37,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 47.58,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 47.39,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "math": {
-          "value": 54.65,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 54.61,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 42.84,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 42.08,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 51.09,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 45.23,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 37.75,
-          "date": "2026-07-12T18:18:18.063137Z"
-        }
-      }
-    },
-    {
-      "id": "gemini-3-pro-preview",
-      "name": "Gemini 3 Pro",
-      "display_name": "Gemini 3 Pro",
-      "creator": "google",
-      "creator_name": "Google",
-      "release_date": "2025-11-18",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 21.67,
-          "date": "2026-07-12T18:18:17.096901Z"
-        },
-        "code": {
-          "value": 31.13,
-          "date": "2026-07-12T18:18:17.215969Z"
-        },
-        "frontend_development": {
-          "value": 28.27,
-          "date": "2026-07-12T18:18:17.416836Z"
-        },
-        "general": {
-          "value": 51.58,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "healthcare": {
-          "value": 50.01,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "math": {
-          "value": 46.94,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "multimodal": {
-          "value": 37.72,
-          "date": "2026-07-12T18:18:17.872728Z"
-        },
-        "reasoning": {
-          "value": 48.38,
-          "date": "2026-07-12T18:18:17.988185Z"
-        },
-        "vision": {
-          "value": 31.9,
-          "date": "2026-07-12T18:18:18.063137Z"
-        }
-      }
-    },
-    {
-      "id": "step-3.5-flash",
-      "name": "Step-3.5-Flash",
-      "display_name": "Step-3.5-Flash",
-      "creator": "stepfun",
-      "creator_name": "StepFun",
-      "release_date": "2026-02-02",
-      "open_weights": true,
-      "scores": {
-        "agents": {
-          "value": 21.46,
-          "date": "2026-07-12T18:18:17.096901Z"
-        },
-        "frontend_development": {
-          "value": 26.09,
-          "date": "2026-07-12T18:18:17.416836Z"
-        },
-        "general": {
-          "value": 46.57,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "math": {
-          "value": 44.88,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "reasoning": {
-          "value": 47.68,
-          "date": "2026-07-12T18:18:17.988185Z"
-        }
-      }
-    },
-    {
-      "id": "kimi-k2-thinking-0905",
-      "name": "Kimi K2-Thinking-0905",
-      "display_name": "Kimi K2-Thinking-0905",
-      "creator": "moonshotai",
-      "creator_name": "Moonshot AI",
-      "release_date": "2025-09-05",
-      "reasoning_status": "Reasoning",
-      "open_weights": true,
-      "scores": {
-        "agents": {
-          "value": 21.0,
-          "date": "2026-07-12T18:18:17.096901Z"
-        },
-        "general": {
-          "value": 43.79,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "healthcare": {
-          "value": 40.09,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "math": {
-          "value": 45.77,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "vision": {
-          "value": 34.58,
-          "date": "2026-07-12T18:18:18.063137Z"
-        }
-      }
-    },
-    {
-      "id": "nemotron-3-ultra-550b-a55b",
-      "name": "Nemotron 3 Ultra (550B A55B)",
-      "display_name": "Nemotron 3 Ultra",
-      "creator": "nvidia",
-      "creator_name": "NVIDIA",
-      "release_date": "2026-06-04",
-      "variant_tag": "550B A55B",
-      "open_weights": true,
-      "scores": {
-        "agents": {
-          "value": 20.56,
-          "date": "2026-07-12T18:18:17.096901Z"
-        },
-        "finance": {
-          "value": 37.44,
-          "date": "2026-07-12T18:18:17.320643Z"
-        },
-        "general": {
-          "value": 49.23,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "healthcare": {
-          "value": 47.0,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "legal": {
-          "value": 40.99,
-          "date": "2026-07-12T18:18:17.726645Z"
-        },
-        "math": {
-          "value": 45.12,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "reasoning": {
-          "value": 44.97,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 37.54,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -2147,36 +2121,32 @@
       "open_weights": false,
       "scores": {
         "code": {
-          "value": 32.83,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 32.76,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "finance": {
-          "value": 45.08,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 45.14,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 27.73,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 49.87,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 44.41,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 40.43,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 40.07,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 45.09,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 45.16,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "multimodal": {
-          "value": 35.21,
-          "date": "2026-07-12T18:18:17.872728Z"
-        },
-        "vision": {
-          "value": 26.15,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 34.56,
+          "date": "2026-07-12T18:48:25.212209Z"
         }
       }
     },
@@ -2190,12 +2160,12 @@
       "open_weights": true,
       "scores": {
         "code": {
-          "value": 32.67,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 32.62,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 32.72,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         }
       }
     },
@@ -2209,8 +2179,51 @@
       "open_weights": true,
       "scores": {
         "code": {
-          "value": 32.25,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 32.32,
+          "date": "2026-07-12T18:48:23.181317Z"
+        }
+      }
+    },
+    {
+      "id": "gemini-3-pro-preview",
+      "name": "Gemini 3 Pro",
+      "display_name": "Gemini 3 Pro",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2025-11-18",
+      "open_weights": false,
+      "scores": {
+        "code": {
+          "value": 31.04,
+          "date": "2026-07-12T18:48:23.181317Z"
+        },
+        "frontend_development": {
+          "value": 28.27,
+          "date": "2026-07-12T18:48:23.772773Z"
+        },
+        "general": {
+          "value": 43.34,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 49.77,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "math": {
+          "value": 46.93,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "multimodal": {
+          "value": 36.95,
+          "date": "2026-07-12T18:48:25.212209Z"
+        },
+        "reasoning": {
+          "value": 43.17,
+          "date": "2026-07-12T18:48:25.605477Z"
+        },
+        "vision": {
+          "value": 31.73,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -2224,36 +2237,36 @@
       "open_weights": false,
       "scores": {
         "code": {
-          "value": 30.29,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 30.26,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 30.2,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 56.32,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 44.45,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 47.47,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 47.49,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "math": {
-          "value": 41.32,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 40.38,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 41.04,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 40.86,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "reasoning": {
-          "value": 47.98,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 42.52,
+          "date": "2026-07-12T18:48:25.605477Z"
         },
         "vision": {
-          "value": 33.66,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 33.65,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -2267,36 +2280,28 @@
       "open_weights": false,
       "scores": {
         "code": {
-          "value": 29.81,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 29.78,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 29.67,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 55.06,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 42.78,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 45.4,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "math": {
-          "value": 39.94,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 45.41,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "multimodal": {
-          "value": 39.42,
-          "date": "2026-07-12T18:18:17.872728Z"
-        },
-        "reasoning": {
-          "value": 47.5,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 39.25,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "vision": {
-          "value": 32.05,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 32.04,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -2311,83 +2316,28 @@
       "open_weights": false,
       "scores": {
         "code": {
-          "value": 29.33,
-          "date": "2026-07-12T18:18:17.215969Z"
+          "value": 29.31,
+          "date": "2026-07-12T18:48:23.181317Z"
         },
         "frontend_development": {
           "value": 29.14,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 53.1,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 41.32,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 43.77,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 43.78,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "multimodal": {
-          "value": 37.96,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 37.8,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "vision": {
-          "value": 30.54,
-          "date": "2026-07-12T18:18:18.063137Z"
-        }
-      }
-    },
-    {
-      "id": "kimi-k2-0905",
-      "name": "Kimi K2 0905",
-      "display_name": "Kimi K2 0905",
-      "creator": "moonshotai",
-      "creator_name": "Moonshot AI",
-      "release_date": "2025-09-05",
-      "open_weights": false,
-      "scores": {
-        "code": {
-          "value": 29.19,
-          "date": "2026-07-12T18:18:17.215969Z"
-        },
-        "legal": {
-          "value": 34.6,
-          "date": "2026-07-12T18:18:17.726645Z"
-        }
-      }
-    },
-    {
-      "id": "deepseek-reasoner",
-      "name": "DeepSeek-V3.2 (Thinking)",
-      "display_name": "DeepSeek-V3.2",
-      "creator": "deepseek",
-      "creator_name": "DeepSeek",
-      "release_date": "2025-12-01",
-      "reasoning_status": "Reasoning",
-      "open_weights": true,
-      "scores": {
-        "code": {
-          "value": 27.93,
-          "date": "2026-07-12T18:18:17.215969Z"
-        },
-        "finance": {
-          "value": 39.51,
-          "date": "2026-07-12T18:18:17.320643Z"
-        },
-        "frontend_development": {
-          "value": 21.55,
-          "date": "2026-07-12T18:18:17.416836Z"
-        },
-        "general": {
-          "value": 43.35,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "healthcare": {
-          "value": 39.96,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "legal": {
-          "value": 39.6,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 30.53,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -2401,28 +2351,24 @@
       "open_weights": false,
       "scores": {
         "finance": {
-          "value": 45.2,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 45.11,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "general": {
-          "value": 46.79,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 43.14,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 46.29,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 46.3,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 45.4,
-          "date": "2026-07-12T18:18:17.726645Z"
-        },
-        "math": {
-          "value": 39.45,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 45.32,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "vision": {
-          "value": 26.07,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 26.04,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -2436,51 +2382,16 @@
       "open_weights": false,
       "scores": {
         "finance": {
-          "value": 42.05,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 42.11,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "healthcare": {
-          "value": 37.23,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 37.26,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 42.07,
-          "date": "2026-07-12T18:18:17.726645Z"
-        }
-      }
-    },
-    {
-      "id": "qwen3.5-27b",
-      "name": "Qwen3.5-27B",
-      "display_name": "Qwen3.5-27B",
-      "creator": "qwen",
-      "creator_name": "Alibaba Cloud / Qwen Team",
-      "release_date": "2026-02-24",
-      "open_weights": true,
-      "scores": {
-        "finance": {
-          "value": 41.41,
-          "date": "2026-07-12T18:18:17.320643Z"
-        },
-        "healthcare": {
-          "value": 42.66,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "legal": {
-          "value": 41.74,
-          "date": "2026-07-12T18:18:17.726645Z"
-        },
-        "math": {
-          "value": 41.28,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "multimodal": {
-          "value": 34.62,
-          "date": "2026-07-12T18:18:17.872728Z"
-        },
-        "vision": {
-          "value": 28.0,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 42.14,
+          "date": "2026-07-12T18:48:24.607014Z"
         }
       }
     },
@@ -2494,74 +2405,55 @@
       "open_weights": true,
       "scores": {
         "finance": {
-          "value": 41.31,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 41.3,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "general": {
+          "value": 39.42,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 37.27,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 37.32,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 37.0,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 36.99,
+          "date": "2026-07-12T18:48:24.607014Z"
         }
       }
     },
     {
-      "id": "qwen3.5-122b-a10b",
-      "name": "Qwen3.5-122B-A10B",
-      "display_name": "Qwen3.5-122B-A10B",
+      "id": "qwen3.5-27b",
+      "name": "Qwen3.5-27B",
+      "display_name": "Qwen3.5-27B",
       "creator": "qwen",
       "creator_name": "Alibaba Cloud / Qwen Team",
       "release_date": "2026-02-24",
       "open_weights": true,
       "scores": {
         "finance": {
-          "value": 40.19,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 41.17,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "healthcare": {
-          "value": 46.3,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 42.3,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 40.44,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 41.52,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 42.81,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 41.31,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "multimodal": {
-          "value": 36.09,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 34.07,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "vision": {
-          "value": 29.39,
-          "date": "2026-07-12T18:18:18.063137Z"
-        }
-      }
-    },
-    {
-      "id": "deepseek-r1-0528",
-      "name": "DeepSeek-R1-0528",
-      "display_name": "DeepSeek-R1-0528",
-      "creator": "deepseek",
-      "creator_name": "DeepSeek",
-      "release_date": "2025-05-28",
-      "open_weights": true,
-      "scores": {
-        "finance": {
-          "value": 39.68,
-          "date": "2026-07-12T18:18:17.320643Z"
-        },
-        "healthcare": {
-          "value": 40.17,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "legal": {
-          "value": 39.78,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 27.86,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -2575,16 +2467,149 @@
       "open_weights": false,
       "scores": {
         "finance": {
-          "value": 39.66,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 39.71,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "healthcare": {
-          "value": 35.46,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 35.5,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 39.69,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 39.75,
+          "date": "2026-07-12T18:48:24.607014Z"
+        }
+      }
+    },
+    {
+      "id": "deepseek-r1-0528",
+      "name": "DeepSeek-R1-0528",
+      "display_name": "DeepSeek-R1-0528",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2025-05-28",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 39.64,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "general": {
+          "value": 38.92,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 40.2,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "legal": {
+          "value": 39.74,
+          "date": "2026-07-12T18:48:24.607014Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-122b-a10b",
+      "name": "Qwen3.5-122B-A10B",
+      "display_name": "Qwen3.5-122B-A10B",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-02-24",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 39.58,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "general": {
+          "value": 39.17,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 46.26,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "legal": {
+          "value": 39.85,
+          "date": "2026-07-12T18:48:24.607014Z"
+        },
+        "math": {
+          "value": 42.84,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "multimodal": {
+          "value": 35.53,
+          "date": "2026-07-12T18:48:25.212209Z"
+        },
+        "vision": {
+          "value": 29.24,
+          "date": "2026-07-12T18:48:25.852732Z"
+        }
+      }
+    },
+    {
+      "id": "deepseek-reasoner",
+      "name": "DeepSeek-V3.2 (Thinking)",
+      "display_name": "DeepSeek-V3.2",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2025-12-01",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 39.47,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "frontend_development": {
+          "value": 21.55,
+          "date": "2026-07-12T18:48:23.772773Z"
+        },
+        "general": {
+          "value": 42.43,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 40.0,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "legal": {
+          "value": 39.57,
+          "date": "2026-07-12T18:48:24.607014Z"
+        }
+      }
+    },
+    {
+      "id": "deepseek-v3.2",
+      "name": "DeepSeek-V3.2",
+      "display_name": "DeepSeek-V3.2",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2025-12-01",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 38.93,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "frontend_development": {
+          "value": 20.97,
+          "date": "2026-07-12T18:48:23.772773Z"
+        },
+        "general": {
+          "value": 42.7,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 39.42,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "legal": {
+          "value": 39.02,
+          "date": "2026-07-12T18:48:24.607014Z"
+        },
+        "vision": {
+          "value": 27.65,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -2599,78 +2624,16 @@
       "open_weights": true,
       "scores": {
         "finance": {
-          "value": 39.01,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 38.88,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "healthcare": {
-          "value": 40.23,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 40.26,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 39.75,
-          "date": "2026-07-12T18:18:17.726645Z"
-        }
-      }
-    },
-    {
-      "id": "deepseek-v3.2",
-      "name": "DeepSeek-V3.2",
-      "display_name": "DeepSeek-V3.2",
-      "creator": "deepseek",
-      "creator_name": "DeepSeek",
-      "release_date": "2025-12-01",
-      "open_weights": true,
-      "scores": {
-        "finance": {
-          "value": 38.96,
-          "date": "2026-07-12T18:18:17.320643Z"
-        },
-        "frontend_development": {
-          "value": 20.97,
-          "date": "2026-07-12T18:18:17.416836Z"
-        },
-        "general": {
-          "value": 43.72,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "healthcare": {
-          "value": 39.38,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "legal": {
-          "value": 39.05,
-          "date": "2026-07-12T18:18:17.726645Z"
-        },
-        "vision": {
-          "value": 27.69,
-          "date": "2026-07-12T18:18:18.063137Z"
-        }
-      }
-    },
-    {
-      "id": "qwen3.5-35b-a3b",
-      "name": "Qwen3.5-35B-A3B",
-      "display_name": "Qwen3.5-35B-A3B",
-      "creator": "qwen",
-      "creator_name": "Alibaba Cloud / Qwen Team",
-      "release_date": "2026-02-24",
-      "open_weights": true,
-      "scores": {
-        "finance": {
-          "value": 38.83,
-          "date": "2026-07-12T18:18:17.320643Z"
-        },
-        "healthcare": {
-          "value": 39.32,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "legal": {
-          "value": 39.1,
-          "date": "2026-07-12T18:18:17.726645Z"
-        },
-        "multimodal": {
-          "value": 31.53,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 39.59,
+          "date": "2026-07-12T18:48:24.607014Z"
         }
       }
     },
@@ -2685,20 +2648,47 @@
       "open_weights": false,
       "scores": {
         "finance": {
-          "value": 38.75,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 38.72,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 24.25,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "legal": {
-          "value": 38.28,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 38.26,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 43.15,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 43.18,
+          "date": "2026-07-12T18:48:25.001618Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-35b-a3b",
+      "name": "Qwen3.5-35B-A3B",
+      "display_name": "Qwen3.5-35B-A3B",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-02-24",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 38.67,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "healthcare": {
+          "value": 39.28,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "legal": {
+          "value": 38.95,
+          "date": "2026-07-12T18:48:24.607014Z"
+        },
+        "multimodal": {
+          "value": 31.0,
+          "date": "2026-07-12T18:48:25.212209Z"
         }
       }
     },
@@ -2712,16 +2702,20 @@
       "open_weights": true,
       "scores": {
         "finance": {
-          "value": 38.45,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 38.42,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "general": {
+          "value": 41.31,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 38.84,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 38.88,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 38.53,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 38.5,
+          "date": "2026-07-12T18:48:24.607014Z"
         }
       }
     },
@@ -2735,16 +2729,16 @@
       "open_weights": false,
       "scores": {
         "finance": {
-          "value": 38.06,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 38.11,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "healthcare": {
-          "value": 36.79,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 36.82,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 38.09,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 38.15,
+          "date": "2026-07-12T18:48:24.607014Z"
         }
       }
     },
@@ -2759,16 +2753,16 @@
       "open_weights": true,
       "scores": {
         "finance": {
-          "value": 37.56,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 37.48,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "healthcare": {
-          "value": 38.58,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 38.61,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 38.11,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 38.03,
+          "date": "2026-07-12T18:48:24.607014Z"
         }
       }
     },
@@ -2782,55 +2776,52 @@
       "open_weights": true,
       "scores": {
         "finance": {
-          "value": 37.5,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 37.48,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 22.95,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "healthcare": {
-          "value": 37.85,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 37.89,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 37.57,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 37.55,
+          "date": "2026-07-12T18:48:24.607014Z"
         }
       }
     },
     {
-      "id": "qwen3.6-35b-a3b",
-      "name": "Qwen3.6-35B-A3B",
-      "display_name": "Qwen3.6-35B-A3B",
-      "creator": "qwen",
-      "creator_name": "Alibaba Cloud / Qwen Team",
-      "release_date": "2026-04-16",
+      "id": "nemotron-3-ultra-550b-a55b",
+      "name": "Nemotron 3 Ultra (550B A55B)",
+      "display_name": "Nemotron 3 Ultra",
+      "creator": "nvidia",
+      "creator_name": "NVIDIA",
+      "release_date": "2026-06-04",
+      "variant_tag": "550B A55B",
       "open_weights": true,
       "scores": {
         "finance": {
-          "value": 36.72,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 36.49,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
-        "frontend_development": {
-          "value": 22.54,
-          "date": "2026-07-12T18:18:17.416836Z"
+        "general": {
+          "value": 43.75,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 41.72,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 47.02,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 36.78,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 40.24,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
-        "multimodal": {
-          "value": 33.05,
-          "date": "2026-07-12T18:18:17.872728Z"
-        },
-        "vision": {
-          "value": 27.18,
-          "date": "2026-07-12T18:18:18.063137Z"
+        "math": {
+          "value": 45.14,
+          "date": "2026-07-12T18:48:25.001618Z"
         }
       }
     },
@@ -2846,7 +2837,42 @@
       "scores": {
         "finance": {
           "value": 36.32,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "date": "2026-07-12T18:48:23.408727Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.6-35b-a3b",
+      "name": "Qwen3.6-35B-A3B",
+      "display_name": "Qwen3.6-35B-A3B",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-04-16",
+      "open_weights": true,
+      "scores": {
+        "finance": {
+          "value": 36.08,
+          "date": "2026-07-12T18:48:23.408727Z"
+        },
+        "frontend_development": {
+          "value": 22.54,
+          "date": "2026-07-12T18:48:23.772773Z"
+        },
+        "healthcare": {
+          "value": 41.73,
+          "date": "2026-07-12T18:48:24.451455Z"
+        },
+        "legal": {
+          "value": 36.16,
+          "date": "2026-07-12T18:48:24.607014Z"
+        },
+        "multimodal": {
+          "value": 32.53,
+          "date": "2026-07-12T18:48:25.212209Z"
+        },
+        "vision": {
+          "value": 27.04,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -2860,32 +2886,32 @@
       "open_weights": true,
       "scores": {
         "finance": {
-          "value": 35.73,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 35.72,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "frontend_development": {
           "value": 25.1,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "general": {
-          "value": 44.7,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 39.99,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
         "healthcare": {
-          "value": 36.01,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 36.06,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 35.79,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 35.78,
+          "date": "2026-07-12T18:48:24.607014Z"
         },
         "math": {
-          "value": 42.81,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 42.83,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "vision": {
-          "value": 28.75,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 28.71,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -2899,16 +2925,16 @@
       "open_weights": false,
       "scores": {
         "finance": {
-          "value": 35.73,
-          "date": "2026-07-12T18:18:17.320643Z"
+          "value": 35.71,
+          "date": "2026-07-12T18:48:23.408727Z"
         },
         "healthcare": {
-          "value": 35.98,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 36.03,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "legal": {
-          "value": 35.78,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 35.77,
+          "date": "2026-07-12T18:48:24.607014Z"
         }
       }
     },
@@ -2922,27 +2948,8 @@
       "open_weights": true,
       "scores": {
         "finance": {
-          "value": 35.03,
-          "date": "2026-07-12T18:18:17.320643Z"
-        }
-      }
-    },
-    {
-      "id": "sarvam-105b",
-      "name": "Sarvam-105B",
-      "display_name": "Sarvam-105B",
-      "creator": "sarvamai",
-      "creator_name": "Sarvam AI",
-      "release_date": "2026-03-06",
-      "open_weights": true,
-      "scores": {
-        "finance": {
-          "value": 34.94,
-          "date": "2026-07-12T18:18:17.320643Z"
-        },
-        "legal": {
-          "value": 34.96,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 35.02,
+          "date": "2026-07-12T18:48:23.408727Z"
         }
       }
     },
@@ -2957,7 +2964,34 @@
       "scores": {
         "frontend_development": {
           "value": 26.82,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
+        }
+      }
+    },
+    {
+      "id": "step-3.5-flash",
+      "name": "Step-3.5-Flash",
+      "display_name": "Step-3.5-Flash",
+      "creator": "stepfun",
+      "creator_name": "StepFun",
+      "release_date": "2026-02-02",
+      "open_weights": true,
+      "scores": {
+        "frontend_development": {
+          "value": 26.09,
+          "date": "2026-07-12T18:48:23.772773Z"
+        },
+        "general": {
+          "value": 42.79,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "math": {
+          "value": 44.9,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "reasoning": {
+          "value": 43.58,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -2972,7 +3006,7 @@
       "scores": {
         "frontend_development": {
           "value": 26.04,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         }
       }
     },
@@ -2987,7 +3021,7 @@
       "scores": {
         "frontend_development": {
           "value": 24.37,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         }
       }
     },
@@ -3002,11 +3036,7 @@
       "scores": {
         "frontend_development": {
           "value": 24.32,
-          "date": "2026-07-12T18:18:17.416836Z"
-        },
-        "general": {
-          "value": 43.87,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         }
       }
     },
@@ -3021,7 +3051,7 @@
       "scores": {
         "frontend_development": {
           "value": 22.13,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         }
       }
     },
@@ -3036,7 +3066,7 @@
       "scores": {
         "frontend_development": {
           "value": 21.76,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         }
       }
     },
@@ -3051,11 +3081,11 @@
       "scores": {
         "frontend_development": {
           "value": 20.56,
-          "date": "2026-07-12T18:18:17.416836Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         },
         "math": {
           "value": 44.55,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "date": "2026-07-12T18:48:25.001618Z"
         }
       }
     },
@@ -3070,45 +3100,7 @@
       "scores": {
         "frontend_development": {
           "value": 20.08,
-          "date": "2026-07-12T18:18:17.416836Z"
-        }
-      }
-    },
-    {
-      "id": "gpt-5-medium-2025-08-07",
-      "name": "GPT-5 Medium",
-      "display_name": "GPT-5 Medium",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "release_date": "2025-08-07",
-      "open_weights": false,
-      "scores": {
-        "general": {
-          "value": 53.65,
-          "date": "2026-07-12T18:18:17.509015Z"
-        }
-      }
-    },
-    {
-      "id": "gpt-5-high-2025-08-07",
-      "name": "GPT-5 High",
-      "display_name": "GPT-5 High",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "release_date": "2025-08-07",
-      "open_weights": false,
-      "scores": {
-        "general": {
-          "value": 51.29,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "math": {
-          "value": 40.28,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "reasoning": {
-          "value": 48.16,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "date": "2026-07-12T18:48:23.772773Z"
         }
       }
     },
@@ -3122,34 +3114,8 @@
       "open_weights": false,
       "scores": {
         "general": {
-          "value": 50.23,
-          "date": "2026-07-12T18:18:17.509015Z"
-        }
-      }
-    },
-    {
-      "id": "grok-4-heavy",
-      "name": "Grok-4 Heavy",
-      "display_name": "Grok-4 Heavy",
-      "creator": "xai",
-      "creator_name": "xAI",
-      "open_weights": false,
-      "scores": {
-        "general": {
-          "value": 49.0,
-          "date": "2026-07-12T18:18:17.509015Z"
-        },
-        "math": {
-          "value": 52.26,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "reasoning": {
-          "value": 52.57,
-          "date": "2026-07-12T18:18:17.988185Z"
-        },
-        "vision": {
-          "value": 34.47,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 42.97,
+          "date": "2026-07-12T18:48:24.185103Z"
         }
       }
     },
@@ -3163,50 +3129,60 @@
       "open_weights": false,
       "scores": {
         "general": {
-          "value": 46.18,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 41.54,
+          "date": "2026-07-12T18:48:24.185103Z"
         }
       }
     },
     {
-      "id": "gpt-5.1-high-2025-11-12",
-      "name": "GPT-5.1 High",
-      "display_name": "GPT-5.1 High",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "release_date": "2025-11-12",
-      "open_weights": false,
+      "id": "kimi-k2-thinking-0905",
+      "name": "Kimi K2-Thinking-0905",
+      "display_name": "Kimi K2-Thinking-0905",
+      "creator": "moonshotai",
+      "creator_name": "Moonshot AI",
+      "release_date": "2025-09-05",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
       "scores": {
         "general": {
-          "value": 45.74,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 40.17,
+          "date": "2026-07-12T18:48:24.185103Z"
+        },
+        "healthcare": {
+          "value": 41.11,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "math": {
-          "value": 40.82,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 45.79,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
-        "reasoning": {
-          "value": 49.07,
-          "date": "2026-07-12T18:18:17.988185Z"
+        "vision": {
+          "value": 34.52,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
     {
-      "id": "grok-4",
-      "name": "Grok-4",
-      "display_name": "Grok-4",
-      "creator": "xai",
-      "creator_name": "xAI",
-      "release_date": "2025-07-09",
-      "open_weights": false,
+      "id": "longcat-flash-thinking-2601",
+      "name": "LongCat-Flash-Thinking-2601",
+      "display_name": "LongCat-Flash-Thinking-2601",
+      "creator": "meituan",
+      "creator_name": "Meituan",
+      "release_date": "2026-01-14",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
       "scores": {
         "general": {
-          "value": 45.44,
-          "date": "2026-07-12T18:18:17.509015Z"
+          "value": 39.33,
+          "date": "2026-07-12T18:48:24.185103Z"
         },
-        "vision": {
-          "value": 26.07,
-          "date": "2026-07-12T18:18:18.063137Z"
+        "math": {
+          "value": 40.28,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "reasoning": {
+          "value": 42.06,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -3220,16 +3196,16 @@
       "open_weights": false,
       "scores": {
         "healthcare": {
-          "value": 40.13,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 40.11,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "multimodal": {
-          "value": 34.69,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 34.14,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "vision": {
-          "value": 26.33,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 26.19,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -3243,12 +3219,12 @@
       "open_weights": false,
       "scores": {
         "healthcare": {
-          "value": 39.18,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 39.16,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "multimodal": {
-          "value": 34.04,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 33.72,
+          "date": "2026-07-12T18:48:25.212209Z"
         }
       }
     },
@@ -3262,42 +3238,8 @@
       "open_weights": true,
       "scores": {
         "healthcare": {
-          "value": 38.95,
-          "date": "2026-07-12T18:18:17.632946Z"
-        }
-      }
-    },
-    {
-      "id": "gpt-5.4-nano",
-      "name": "GPT-5.4 nano",
-      "display_name": "GPT-5.4 nano",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "release_date": "2026-03-17",
-      "open_weights": false,
-      "scores": {
-        "healthcare": {
-          "value": 38.7,
-          "date": "2026-07-12T18:18:17.632946Z"
-        }
-      }
-    },
-    {
-      "id": "gemini-3.1-flash-lite-preview",
-      "name": "Gemini 3.1 Flash-Lite",
-      "display_name": "Gemini 3.1 Flash-Lite",
-      "creator": "google",
-      "creator_name": "Google",
-      "release_date": "2026-03-03",
-      "open_weights": false,
-      "scores": {
-        "healthcare": {
-          "value": 38.09,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "multimodal": {
-          "value": 32.39,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 38.23,
+          "date": "2026-07-12T18:48:24.451455Z"
         }
       }
     },
@@ -3311,31 +3253,27 @@
       "open_weights": false,
       "scores": {
         "healthcare": {
-          "value": 36.93,
-          "date": "2026-07-12T18:18:17.632946Z"
-        },
-        "legal": {
-          "value": 34.6,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 36.96,
+          "date": "2026-07-12T18:48:24.451455Z"
         }
       }
     },
     {
-      "id": "gemma-4-31b-it",
-      "name": "Gemma 4 31B",
-      "display_name": "Gemma 4 31B",
+      "id": "gemini-3.1-flash-lite-preview",
+      "name": "Gemini 3.1 Flash-Lite",
+      "display_name": "Gemini 3.1 Flash-Lite",
       "creator": "google",
       "creator_name": "Google",
-      "release_date": "2026-04-02",
-      "open_weights": true,
+      "release_date": "2026-03-03",
+      "open_weights": false,
       "scores": {
         "healthcare": {
-          "value": 36.7,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 36.85,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
         "multimodal": {
-          "value": 31.64,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 31.65,
+          "date": "2026-07-12T18:48:25.212209Z"
         }
       }
     },
@@ -3349,12 +3287,57 @@
       "open_weights": true,
       "scores": {
         "healthcare": {
-          "value": 36.08,
-          "date": "2026-07-12T18:18:17.632946Z"
+          "value": 36.12,
+          "date": "2026-07-12T18:48:24.451455Z"
+        }
+      }
+    },
+    {
+      "id": "gemma-4-31b-it",
+      "name": "Gemma 4 31B",
+      "display_name": "Gemma 4 31B",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-04-02",
+      "open_weights": true,
+      "scores": {
+        "healthcare": {
+          "value": 36.01,
+          "date": "2026-07-12T18:48:24.451455Z"
         },
+        "multimodal": {
+          "value": 30.91,
+          "date": "2026-07-12T18:48:25.212209Z"
+        }
+      }
+    },
+    {
+      "id": "sarvam-105b",
+      "name": "Sarvam-105B",
+      "display_name": "Sarvam-105B",
+      "creator": "sarvamai",
+      "creator_name": "Sarvam AI",
+      "release_date": "2026-03-06",
+      "open_weights": true,
+      "scores": {
         "legal": {
-          "value": 33.74,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 35.0,
+          "date": "2026-07-12T18:48:24.607014Z"
+        }
+      }
+    },
+    {
+      "id": "kimi-k2-0905",
+      "name": "Kimi K2 0905",
+      "display_name": "Kimi K2 0905",
+      "creator": "moonshotai",
+      "creator_name": "Moonshot AI",
+      "release_date": "2025-09-05",
+      "open_weights": false,
+      "scores": {
+        "legal": {
+          "value": 34.63,
+          "date": "2026-07-12T18:48:24.607014Z"
         }
       }
     },
@@ -3369,8 +3352,8 @@
       "open_weights": true,
       "scores": {
         "legal": {
-          "value": 34.51,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 34.44,
+          "date": "2026-07-12T18:48:24.607014Z"
         }
       }
     },
@@ -3384,8 +3367,30 @@
       "open_weights": true,
       "scores": {
         "legal": {
-          "value": 34.37,
-          "date": "2026-07-12T18:18:17.726645Z"
+          "value": 34.4,
+          "date": "2026-07-12T18:48:24.607014Z"
+        }
+      }
+    },
+    {
+      "id": "grok-4-heavy",
+      "name": "Grok-4 Heavy",
+      "display_name": "Grok-4 Heavy",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "open_weights": false,
+      "scores": {
+        "math": {
+          "value": 52.25,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "reasoning": {
+          "value": 46.41,
+          "date": "2026-07-12T18:48:25.605477Z"
+        },
+        "vision": {
+          "value": 34.41,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -3399,8 +3404,12 @@
       "open_weights": true,
       "scores": {
         "math": {
-          "value": 45.88,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 45.89,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "reasoning": {
+          "value": 45.19,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -3414,12 +3423,12 @@
       "open_weights": false,
       "scores": {
         "math": {
-          "value": 44.64,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 44.65,
+          "date": "2026-07-12T18:48:25.001618Z"
         },
         "reasoning": {
-          "value": 46.14,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 43.96,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
@@ -3433,28 +3442,42 @@
       "open_weights": false,
       "scores": {
         "math": {
-          "value": 42.62,
-          "date": "2026-07-12T18:18:17.799503Z"
+          "value": 42.63,
+          "date": "2026-07-12T18:48:25.001618Z"
+        },
+        "reasoning": {
+          "value": 42.0,
+          "date": "2026-07-12T18:48:25.605477Z"
         }
       }
     },
     {
-      "id": "longcat-flash-thinking-2601",
-      "name": "LongCat-Flash-Thinking-2601",
-      "display_name": "LongCat-Flash-Thinking-2601",
-      "creator": "meituan",
-      "creator_name": "Meituan",
-      "release_date": "2026-01-14",
-      "reasoning_status": "Reasoning",
-      "open_weights": true,
+      "id": "gpt-5.1-high-2025-11-12",
+      "name": "GPT-5.1 High",
+      "display_name": "GPT-5.1 High",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-11-12",
+      "open_weights": false,
       "scores": {
         "math": {
-          "value": 40.27,
-          "date": "2026-07-12T18:18:17.799503Z"
-        },
-        "reasoning": {
-          "value": 44.97,
-          "date": "2026-07-12T18:18:17.988185Z"
+          "value": 40.82,
+          "date": "2026-07-12T18:48:25.001618Z"
+        }
+      }
+    },
+    {
+      "id": "gpt-5-high-2025-08-07",
+      "name": "GPT-5 High",
+      "display_name": "GPT-5 High",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2025-08-07",
+      "open_weights": false,
+      "scores": {
+        "math": {
+          "value": 40.29,
+          "date": "2026-07-12T18:48:25.001618Z"
         }
       }
     },
@@ -3468,12 +3491,12 @@
       "open_weights": false,
       "scores": {
         "multimodal": {
-          "value": 33.22,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 32.45,
+          "date": "2026-07-12T18:48:25.212209Z"
         },
         "vision": {
-          "value": 27.29,
-          "date": "2026-07-12T18:18:18.063137Z"
+          "value": 27.03,
+          "date": "2026-07-12T18:48:25.852732Z"
         }
       }
     },
@@ -3487,8 +3510,8 @@
       "open_weights": false,
       "scores": {
         "multimodal": {
-          "value": 31.44,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 31.17,
+          "date": "2026-07-12T18:48:25.212209Z"
         }
       }
     },
@@ -3502,8 +3525,8 @@
       "open_weights": false,
       "scores": {
         "multimodal": {
-          "value": 31.11,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 30.81,
+          "date": "2026-07-12T18:48:25.212209Z"
         }
       }
     },
@@ -3517,8 +3540,8 @@
       "open_weights": true,
       "scores": {
         "multimodal": {
-          "value": 29.05,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 28.8,
+          "date": "2026-07-12T18:48:25.212209Z"
         }
       }
     },
@@ -3532,53 +3555,8 @@
       "open_weights": false,
       "scores": {
         "multimodal": {
-          "value": 28.83,
-          "date": "2026-07-12T18:18:17.872728Z"
-        }
-      }
-    },
-    {
-      "id": "mistral-large-3-2509",
-      "name": "Mistral Large 3",
-      "display_name": "Mistral Large 3",
-      "creator": "mistral",
-      "creator_name": "Mistral AI",
-      "release_date": "2025-09-01",
-      "open_weights": true,
-      "scores": {
-        "multimodal": {
-          "value": 28.41,
-          "date": "2026-07-12T18:18:17.872728Z"
-        }
-      }
-    },
-    {
-      "id": "grok-3",
-      "name": "Grok-3",
-      "display_name": "Grok-3",
-      "creator": "xai",
-      "creator_name": "xAI",
-      "release_date": "2025-02-17",
-      "open_weights": false,
-      "scores": {
-        "multimodal": {
-          "value": 27.38,
-          "date": "2026-07-12T18:18:17.872728Z"
-        }
-      }
-    },
-    {
-      "id": "qwen3-vl-235b-a22b-instruct",
-      "name": "Qwen3 VL 235B A22B Instruct",
-      "display_name": "Qwen3 VL 235B A22B Instruct",
-      "creator": "qwen",
-      "creator_name": "Alibaba Cloud / Qwen Team",
-      "release_date": "2025-09-22",
-      "open_weights": true,
-      "scores": {
-        "multimodal": {
-          "value": 27.28,
-          "date": "2026-07-12T18:18:17.872728Z"
+          "value": 28.71,
+          "date": "2026-07-12T18:48:25.212209Z"
         }
       }
     }
