@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-07-13T06:18:33.069600171+00:00",
+    "fetched_at": "2026-07-13T18:18:29.261770596+00:00",
     "verified": true
   },
   "metrics": [
@@ -106,7 +106,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-10",
+      "last_updated": "2026-07-13",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -150,7 +150,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-09",
+      "last_updated": "2026-07-13",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -166,7 +166,7 @@
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-09",
+      "last_updated": "2026-07-13",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -205,7 +205,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-09",
+      "last_updated": "2026-07-13",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -2675,6 +2675,36 @@
         "weirdml": {
           "value": 0.5226,
           "date": "2026-02-17"
+        }
+      }
+    },
+    {
+      "id": "grok-4.20-0309-reasoning",
+      "name": "grok-4.20-0309-reasoning",
+      "display_name": "grok-4.20-0309-reasoning",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2026-02-17",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.24,
+          "date": "2026-07-13"
+        },
+        "epoch_capabilities_index": {
+          "value": 154.16,
+          "date": "2026-02-17"
+        },
+        "gpqa_diamond": {
+          "value": 0.8933080808080808,
+          "date": "2026-07-13"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9222222222222223,
+          "date": "2026-07-13"
+        },
+        "simpleqa_verified": {
+          "value": 0.351,
+          "date": "2026-07-13"
         }
       }
     },
