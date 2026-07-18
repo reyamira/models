@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-07-17T18:18:50.963494958+00:00",
+    "fetched_at": "2026-07-18T06:17:57.993564346+00:00",
     "verified": true
   },
   "metrics": [
@@ -111,7 +111,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-13",
+      "last_updated": "2026-07-16",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -162,7 +162,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-13",
+      "last_updated": "2026-07-16",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -178,7 +178,7 @@
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-13",
+      "last_updated": "2026-07-16",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -224,7 +224,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-13",
+      "last_updated": "2026-07-16",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -244,6 +244,33 @@
     }
   ],
   "models": [
+    {
+      "id": "kimi-k3",
+      "name": "kimi-k3_max",
+      "display_name": "kimi-k3",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
+      "release_date": "2026-07-16",
+      "effort_level": "max",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.39,
+          "date": "2026-07-16"
+        },
+        "gpqa_diamond": {
+          "value": 0.9311868686868687,
+          "date": "2026-07-16"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9722222222222222,
+          "date": "2026-07-16"
+        },
+        "simpleqa_verified": {
+          "value": 0.427,
+          "date": "2026-07-16"
+        }
+      }
+    },
     {
       "id": "gpt-5.6-luna",
       "name": "gpt-5.6-luna",
