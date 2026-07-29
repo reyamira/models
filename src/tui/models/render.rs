@@ -562,9 +562,14 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
         header_spans.push(Span::styled(cell, style));
     }
 
-    // Build items with header row
-    let mut items: Vec<ListItem> = Vec::with_capacity(models.len() + 1);
-    items.push(ListItem::new(Line::from(header_spans)));
+    // Sticky header: fixed line above the list (see draw_grouped_list).
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Length(1), Constraint::Min(0)])
+        .split(inner_area);
+    f.render_widget(Paragraph::new(Line::from(header_spans)), chunks[0]);
+
+    let mut items: Vec<ListItem> = Vec::with_capacity(models.len());
 
     // Model rows
     for (display_idx, entry) in models.iter().enumerate() {
@@ -699,10 +704,11 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
     }
 
     let list = List::new(items);
-    // Cache the list rect and render into the real state so its post-render
-    // `offset()` (clamped to the viewport) is available for mouse hit-testing.
-    app.models_app.model_list_area = Some(inner_area);
-    f.render_stateful_widget(list, inner_area, &mut app.models_app.model_list_state);
+    // Cache the bare row rect and render into the real state so its
+    // post-render `offset()` (clamped to the viewport) is available for
+    // mouse hit-testing.
+    app.models_app.model_list_area = Some(chunks[1]);
+    f.render_stateful_widget(list, chunks[1], &mut app.models_app.model_list_state);
 }
 
 /// Columns right of the model id, in display order (which doubles as the
@@ -936,8 +942,15 @@ fn draw_grouped_list(f: &mut Frame, area: Rect, app: &mut App) {
         header_spans.push(Span::styled(cell, style));
     }
 
-    let mut items: Vec<ListItem> = Vec::with_capacity(app.models_app.groups.len() + 1);
-    items.push(ListItem::new(Line::from(header_spans)));
+    // Sticky header: a fixed line above the list, so it survives scrolling
+    // (as a list item it scrolled away and never came back after G-then-g).
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Length(1), Constraint::Min(0)])
+        .split(inner_area);
+    f.render_widget(Paragraph::new(Line::from(header_spans)), chunks[0]);
+
+    let mut items: Vec<ListItem> = Vec::with_capacity(app.models_app.groups.len());
 
     for (display_idx, g) in app.models_app.groups.iter().enumerate() {
         let is_selected = display_idx == app.models_app.selected_group;
@@ -1020,10 +1033,10 @@ fn draw_grouped_list(f: &mut Frame, area: Rect, app: &mut App) {
     }
 
     let list = List::new(items);
-    // Shared hit-rect with the flat list; the mouse handler dispatches on
-    // list_mode() for state/offset.
-    app.models_app.model_list_area = Some(inner_area);
-    f.render_stateful_widget(list, inner_area, &mut app.models_app.group_list_state);
+    // Shared hit-rect with the flat list (bare row region below the sticky
+    // header); the mouse handler dispatches on list_mode() for state/offset.
+    app.models_app.model_list_area = Some(chunks[1]);
+    f.render_stateful_widget(list, chunks[1], &mut app.models_app.group_list_state);
 }
 
 fn draw_provider_detail(f: &mut Frame, area: Rect, lines: Vec<Line<'static>>) {
@@ -1700,8 +1713,8 @@ mod mouse_tests {
         );
         render(&mut app, 120, 40);
         let area = app.models_app.model_list_area.expect("list rect cached");
-        // Item 0 is the column header; the third group is two rows below it.
-        handle_models_mouse(&mut app, click(area.x + 6, area.y + 3));
+        // Rows map 1:1 from the rect top (sticky header sits above it).
+        handle_models_mouse(&mut app, click(area.x + 6, area.y + 2));
         assert_eq!(app.models_app.focus, Focus::Models);
         assert_eq!(app.models_app.selected_group, 2);
     }
@@ -1762,6 +1775,28 @@ mod mouse_tests {
         assert!(app.models_app.is_all_selected());
     }
 
+    /// The reported bug: as a list item, the column header scrolled away and
+    /// never returned after G-then-g (ratatui only scrolls the *selected*
+    /// item into view, and item 0 was never selectable). Sticky header fix:
+    /// it must be present in every frame regardless of scroll position.
+    #[test]
+    fn header_stays_visible_after_jump_to_bottom_and_back() {
+        let mut app = test_app();
+        // Short viewport so the 31-group list actually scrolls.
+        app.models_app.select_last_model();
+        let text = render_to_text(&mut app, 120, 12);
+        assert!(
+            text.lines().any(|l| l.contains("RTFO")),
+            "header visible while scrolled to the bottom"
+        );
+        app.models_app.select_first_model();
+        let text = render_to_text(&mut app, 120, 12);
+        assert!(
+            text.lines().any(|l| l.contains("RTFO")),
+            "header visible after jumping back to the top"
+        );
+    }
+
     #[test]
     fn grouped_header_shows_group_columns() {
         let mut app = test_app();
@@ -1779,14 +1814,15 @@ mod mouse_tests {
         flat(&mut app);
         render(&mut app, 120, 40);
         let area = app.models_app.model_list_area.expect("model rect cached");
-        // Item 0 is the column header at area.y; first model is one row below.
-        handle_models_mouse(&mut app, click(area.x + 6, area.y + 1));
+        // The cached rect is the bare row region — the sticky column header
+        // sits ABOVE it, so rows map 1:1 from the rect's top.
+        handle_models_mouse(&mut app, click(area.x + 6, area.y));
         assert_eq!(app.models_app.focus, Focus::Models);
         assert_eq!(app.models_app.selected_model, 0);
-        // Clicking the header row itself selects nothing new.
-        handle_models_mouse(&mut app, click(area.x + 6, area.y + 3));
+        handle_models_mouse(&mut app, click(area.x + 6, area.y + 2));
         assert_eq!(app.models_app.selected_model, 2);
-        handle_models_mouse(&mut app, click(area.x + 6, area.y)); // header
+        // Clicking the sticky header (one row above the rect) selects nothing.
+        handle_models_mouse(&mut app, click(area.x + 6, area.y - 1));
         assert_eq!(app.models_app.selected_model, 2); // unchanged
     }
 
@@ -1795,7 +1831,7 @@ mod mouse_tests {
         // Short viewport forces the list to scroll once selection nears the end.
         let mut app = test_app();
         flat(&mut app);
-        // Drive selection deep so the model list scrolls (header item 0 leaves view).
+        // Drive selection deep so the model list scrolls.
         for _ in 0..25 {
             app.models_app.next_model();
         }
@@ -1803,11 +1839,10 @@ mod mouse_tests {
         let area = app.models_app.model_list_area.expect("model rect cached");
         let offset = app.models_app.model_list_state.offset();
         assert!(offset > 0, "list should have scrolled (offset={offset})");
-        // Click two rows below the top visible row. Top visible list-item index is
-        // `offset`; +2 rows → item `offset+2` → model `offset+1`.
+        // Click two rows below the top visible row: model `offset + 2`
+        // (rows map 1:1 — the sticky header sits above the cached rect).
         handle_models_mouse(&mut app, click(area.x + 6, area.y + 2));
-        let expected_model = offset + 2 - 1; // -1 for the header item at index 0
-        assert_eq!(app.models_app.selected_model, expected_model);
+        assert_eq!(app.models_app.selected_model, offset + 2);
     }
 
     #[test]

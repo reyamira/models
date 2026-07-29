@@ -41,7 +41,8 @@ Focus cycles two panels only: `Focus::Models ↔ Focus::Details`.
 - Nav dispatch: `next_model`/`select_model_at_index`/etc. operate on the group
   list in Grouped mode via `nav_len`/`nav_selected`/`nav_select` — event.rs is
   mode-agnostic. Grouped list renders into `group_list_state` (header row at
-  item 0, same +1 offset convention); the mouse handler picks the state by
+  a **sticky** fixed line above the list, never a list item); the mouse
+  handler picks the state by
   `list_mode()` and shares the `model_list_area` rect.
 
 **Right panel**: in Grouped mode the detail takes the full height (no provider
@@ -186,7 +187,7 @@ immediate predecessor in display order, so dimming is a reading aid for runs,
 never a global claim. Verified by `consecutive_duplicate_rows_dim_id_and_rtfo`
 and `dimming_keys_on_display_name_not_id`.
 
-**Header row** — occupies list index 0, offset by +1 in `model_list_state.select()`:
+**Header row** — a **sticky** 1-line widget rendered above the list (`Length(1)` + `Min(0)` split of the inner area), NOT a list item. As item 0 it scrolled away and never returned after `G`-then-`g` (ratatui only scrolls the *selected* item into view, and the header was never selectable). Selection indices therefore map 1:1 (`select(Some(idx))`, no +1). Guarded by `header_stays_visible_after_jump_to_bottom_and_back`:
 - Default style: `Color::Yellow` + `Modifier::BOLD`
 - Actively-sorted column: `Color::Cyan` + `Modifier::BOLD`
 - "Input" and "Output" headers share the same style as the active sort column when sorting by cost
@@ -287,8 +288,8 @@ Focus::Models  ↔  Focus::Details
 
 This tab is the **reference implementation** for TUI mouse support (`handle_models_mouse` + `mouse_tests` in `src/tui/models/`). See style guide §12 for the shared pattern.
 
-- **Cached rects** (`ModelsApp`, written at render time): `model_list_area` (the list inner area — the column header is list item 0; shared by the grouped and flat lists), `provider_card_area`, `model_detail_area`. `provider_list_area` is reset to `None` every frame (the sidebar is gone; no stale hit-area may linger).
-- **Click:** list row → focus Models + select (item 0 is the header → ignored, `idx - 1` maps to the row; grouped mode selects a group). The handler picks state/offset/row-count by `list_mode()` (`group_list_state` vs `model_list_state`, `mouse_row_count()`). Provider card or model detail → focus Details only.
+- **Cached rects** (`ModelsApp`, written at render time): `model_list_area` (the **bare row region below the sticky header** — rows map 1:1, `top_skip = 0`; shared by the grouped and flat lists), `provider_card_area`, `model_detail_area`. `provider_list_area` is reset to `None` every frame (the sidebar is gone; no stale hit-area may linger).
+- **Click:** list row → focus Models + select (rows map 1:1 from the rect top; the sticky header sits above the rect and is not clickable; grouped mode selects a group). The handler picks state/offset/row-count by `list_mode()` (`group_list_state` vs `model_list_state`, `mouse_row_count()`). Provider card or model detail → focus Details only.
 - **Wheel (focus-then-scroll):** over the list → prev/next row (mode-dispatched); over the right panel → scroll the model detail.
 - **Provider modal**: `modal_popup_open` includes `show_provider_picker`; wheel → `ProviderPickerNext/Prev`, click → row via `popup_row_at` + click-to-apply.
 - Both lists render into their **real** `ListState`s so `offset()` is valid for click-to-select while scrolled (the `ListState` copy gotcha — see CLAUDE.md).

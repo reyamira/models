@@ -316,7 +316,7 @@ ratatui recomputes and discards layout `Rect`s every frame, so hit-testing a cli
 2. The tab's `render.rs` writes the **exact rect each widget rendered into** at render time (the loop draws before it handles events, so the cache and any `ListState::offset()` reflect the clicked frame).
 3. The tab's `handle_<tab>_mouse(app, ev)` hit-tests with the pure helpers in `src/tui/mouse.rs`:
    - `hit(area: Option<Rect>, &MouseEvent) -> bool` — `Rect::contains` wrapper.
-   - `row_at(area, offset, top_skip, item_count, click_row) -> Option<usize>` — maps a click row to a list index. `top_skip` = non-item rows at the top of the stored rect (0 for a bare item region, 1 if it still includes a top border). An in-list header rendered as item 0 is a real item — pass `item_count = visible + 1` and subtract 1 from the result (see the Models model list).
+   - `row_at(area, offset, top_skip, item_count, click_row) -> Option<usize>` — maps a click row to a list index. `top_skip` = non-item rows at the top of the stored rect (0 for a bare item region, 1 if it still includes a top border). An in-list header rendered as item 0 is a real item — pass `item_count = visible + 1` and subtract 1 from the result (see the Agents list; the Models lists moved to a **sticky** header above the list, where rows map 1:1).
 
 **`ListState::offset()` is only valid after the widget renders into that same state object** — never render into a copy of the list state, or `offset()` goes stale and click-to-select breaks on a scrolled list.
 

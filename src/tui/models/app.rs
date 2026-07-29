@@ -153,7 +153,7 @@ impl ModelsApp {
         let mut provider_list_state = ListState::default();
         provider_list_state.select(Some(0));
         let mut model_list_state = ListState::default();
-        model_list_state.select(Some(1)); // +1 for header row
+        model_list_state.select(Some(0));
 
         let mut app = Self {
             selected_provider: 0, // Start with "All"
@@ -183,7 +183,7 @@ impl ModelsApp {
             selected_group: 0,
             group_list_state: {
                 let mut s = ListState::default();
-                s.select(Some(1)); // +1 for header row
+                s.select(Some(0));
                 s
             },
             show_provider_picker: false,
@@ -516,7 +516,7 @@ impl ModelsApp {
         if self.selected_group >= self.groups.len() {
             self.selected_group = self.groups.len().saturating_sub(1);
         }
-        self.group_list_state.select(Some(self.selected_group + 1));
+        self.group_list_state.select(Some(self.selected_group));
     }
 
     /// Group sort mirrors the flat sort semantics on aggregates: date = max
@@ -600,7 +600,7 @@ impl ModelsApp {
         };
         self.drill_name = Some(name);
         self.selected_model = 0;
-        self.model_list_state.select(Some(1));
+        self.model_list_state.select(Some(0));
         self.update_filtered_models(providers);
         self.reset_detail_scroll();
     }
@@ -654,7 +654,7 @@ impl ModelsApp {
             }
         }
         self.selected_model = 0;
-        self.model_list_state.select(Some(1));
+        self.model_list_state.select(Some(0));
         self.update_filtered_models(providers);
         self.reset_detail_scroll();
     }
@@ -672,7 +672,7 @@ impl ModelsApp {
             self.selected_provider = 0;
             self.provider_list_state.select(Some(0));
             self.selected_model = 0;
-            self.model_list_state.select(Some(1));
+            self.model_list_state.select(Some(0));
             self.update_filtered_models(providers);
             self.reset_detail_scroll();
             return true;
@@ -761,7 +761,7 @@ impl ModelsApp {
         self.provider_list_state
             .select(Some(self.selected_provider));
         self.update_filtered_models(providers);
-        self.model_list_state.select(Some(self.selected_model + 1));
+        self.model_list_state.select(Some(self.selected_model));
         // +1 for header
         self.reset_detail_scroll();
     }
@@ -836,10 +836,10 @@ impl ModelsApp {
     fn nav_select(&mut self, idx: usize) {
         if self.list_mode() == ListMode::Grouped {
             self.selected_group = idx;
-            self.group_list_state.select(Some(idx + 1)); // +1 for header
+            self.group_list_state.select(Some(idx));
         } else {
             self.selected_model = idx;
-            self.model_list_state.select(Some(idx + 1)); // +1 for header
+            self.model_list_state.select(Some(idx));
         }
         self.reset_detail_scroll();
     }
@@ -927,7 +927,7 @@ impl ModelsApp {
         self.sort_ascending = false;
         self.selected_model = 0;
         self.update_filtered_models(providers);
-        self.model_list_state.select(Some(self.selected_model + 1));
+        self.model_list_state.select(Some(self.selected_model));
         self.reset_detail_scroll();
     }
 
@@ -936,7 +936,7 @@ impl ModelsApp {
             self.sort_ascending = !self.sort_ascending;
             self.selected_model = 0;
             self.update_filtered_models(providers);
-            self.model_list_state.select(Some(self.selected_model + 1));
+            self.model_list_state.select(Some(self.selected_model));
             self.reset_detail_scroll();
         }
     }
@@ -969,7 +969,7 @@ impl ModelsApp {
             .select(Some(self.selected_provider));
         self.selected_model = 0;
         self.update_filtered_models(providers);
-        self.model_list_state.select(Some(self.selected_model + 1));
+        self.model_list_state.select(Some(self.selected_model));
         self.reset_detail_scroll();
     }
 
@@ -981,7 +981,7 @@ impl ModelsApp {
             .select(Some(self.selected_provider));
         self.selected_model = 0;
         self.update_filtered_models(providers);
-        self.model_list_state.select(Some(self.selected_model + 1));
+        self.model_list_state.select(Some(self.selected_model));
         self.reset_detail_scroll();
     }
 
@@ -1023,7 +1023,7 @@ impl ModelsApp {
             .select(Some(self.selected_provider));
         self.selected_model = 0;
         self.update_filtered_models(providers);
-        self.model_list_state.select(Some(self.selected_model + 1));
+        self.model_list_state.select(Some(self.selected_model));
         self.reset_detail_scroll();
     }
 }
@@ -1040,7 +1040,8 @@ pub fn handle_models_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
             if hit(app.models_app.model_list_area, &ev) {
                 app.models_app.focus = Focus::Models;
                 if let Some(area) = app.models_app.model_list_area {
-                    // Item 0 is the column header; rows occupy items 1..=N.
+                    // The cached rect is the bare row region (the column
+                    // header is a fixed line ABOVE the list, so rows map 1:1).
                     // The state/row-count pair is mode-dependent (grouped list
                     // vs flat offerings) — `nav_*` dispatches identically.
                     let offset = if app.models_app.list_mode() == super::app::ListMode::Grouped {
@@ -1048,16 +1049,10 @@ pub fn handle_models_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
                     } else {
                         app.models_app.model_list_state.offset()
                     };
-                    if let Some(idx) = row_at(
-                        area,
-                        offset,
-                        0,
-                        app.models_app.mouse_row_count() + 1,
-                        ev.row,
-                    ) {
-                        if let Some(row_idx) = idx.checked_sub(1) {
-                            app.models_app.select_model_at_index(row_idx);
-                        }
+                    if let Some(idx) =
+                        row_at(area, offset, 0, app.models_app.mouse_row_count(), ev.row)
+                    {
+                        app.models_app.select_model_at_index(idx);
                     }
                 }
             } else if hit(app.models_app.model_detail_area, &ev)
