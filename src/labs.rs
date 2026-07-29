@@ -1,11 +1,16 @@
-//! Lab (canonical model creator) resolution.
+//! Lab (canonical model creator) and canonical-model resolution.
 //!
 //! models.dev's repo links provider model entries to a canonical `models/`
-//! registry via `base_model` references, and its site derives the "Lab"
-//! column from the canonical id's namespace (`anthropic/claude-opus-5` →
-//! Anthropic). No published endpoint exposes that linkage per offering
-//! (api.json and catalog.json both resolve and strip `base_model`), so the
-//! lab is *reconstructed* here from the published signals, in order:
+//! registry via `base_model` references; its site groups offerings by that
+//! link (one "Claude Opus 5" row covering the Bedrock regional variants and
+//! the 2×-priced "Fast" endpoints — all carry
+//! `base_model = "anthropic/claude-opus-5"`) and derives the "Lab" column
+//! from the canonical id's namespace. No published endpoint exposes the
+//! linkage per offering (api.json and catalog.json both resolve and strip
+//! `base_model`), so both facts are *reconstructed* here from the published
+//! signals.
+//!
+//! Lab tiers (`resolve`), in order:
 //!
 //! 1. exact display-name match into the canonical registry (`models.json`)
 //! 2. name with a trailing parenthetical stripped ("Claude Opus 5 (EU)")
@@ -13,23 +18,47 @@
 //!    covers families the 279-model registry doesn't)
 //! 4. model-id namespace prefix (`moonshotai/Kimi-K3`)
 //!
-//! Measured coverage on live data (2026-07-29): ~79% of 5,813 offerings.
-//! Unresolved models get no lab (rendered as an em-dash).
+//! Canonical-model tiers (`resolve_model`, the grouped view's grouping key):
+//!
+//! 1. direct canonical id — either the provider model id already is a
+//!    canonical id, or `provider_id/model_id` is one (the same two exact
+//!    fallbacks models.dev's website uses after consulting `base_model`)
+//! 2. name match — exact, paren-stripped, and squashed (case/punctuation
+//!    dropped, so `Claude-Opus-4.5` / `claude-opus-4-5` / "Qwen 3.7 Max" vs
+//!    "Qwen3.7 Max" all converge)
+//! 3. the same after stripping a vendor prefix ("Qwen: Qwen3 Max",
+//!    "Anthropic: Claude 3.7 Sonnet" — gateway providers self-report names
+//!    instead of inheriting the canonical spelling)
+//! 4. longest canonical slug contained in the offering id at dash
+//!    boundaries (`eu.anthropic.claude-opus-5` and `claude-opus-5-fast`
+//!    both contain `claude-opus-5`; longest-wins keeps `gpt-5-mini` from
+//!    folding into `gpt-5`)
+//!
+//! Measured lab coverage on live data (2026-07-29): ~79% of 5,813 offerings.
+//! Unresolved models get no lab (rendered as an em-dash) and fall back to a
+//! normalized name key. That fallback preserves words such as `(EU)` (only a
+//! canonical match is allowed to fold a regional/fast variant into its base)
+//! while collapsing provider punctuation/case differences.
 
 use std::collections::{HashMap, HashSet};
 
 use serde::Deserialize;
 
-const MODELS_JSON_URL: &str = "https://models.dev/models.json";
-
 /// One record of the canonical `models/` registry. Only the fields the
 /// resolver needs — everything else is ignored.
 #[derive(Debug, Deserialize)]
-struct CanonicalModel {
+pub(crate) struct CanonicalModel {
     #[serde(default)]
     name: String,
     #[serde(default)]
     family: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+struct CanonicalTarget {
+    id: String,
+    name: String,
+    lab: String,
 }
 
 /// Families → lab slugs for model lines the canonical registry doesn't
@@ -106,25 +135,16 @@ pub struct LabCatalog {
     family_to_lab: HashMap<String, String>,
     /// Known lab slugs, for the id-namespace-prefix tier.
     lab_slugs: HashSet<String>,
+    /// Canonical id -> canonical identity returned by `resolve_model`.
+    canonical_models: HashMap<String, CanonicalTarget>,
+    /// Squashed canonical display name -> canonical id. Ambiguous normalized
+    /// names are omitted (`Command R` and `Command R+`, for example).
+    name_to_model: HashMap<String, String>,
+    /// Unique canonical id slugs, longest first, for matching provider ids.
+    model_slugs: Vec<(String, String)>,
 }
 
 impl LabCatalog {
-    /// Fetch and build the catalog from models.dev's canonical registry.
-    /// Best-effort: on any failure the curated-only catalog is returned, so
-    /// the family and prefix tiers keep working offline.
-    pub fn fetch() -> Self {
-        let fetched = reqwest::blocking::Client::builder()
-            .timeout(std::time::Duration::from_secs(5))
-            .build()
-            .ok()
-            .and_then(|c| c.get(MODELS_JSON_URL).send().ok())
-            .and_then(|r| r.json::<HashMap<String, CanonicalModel>>().ok());
-        match fetched {
-            Some(canonical) => Self::from_canonical(&canonical),
-            None => Self::curated_only(),
-        }
-    }
-
     fn curated_only() -> Self {
         let mut cat = Self::default();
         for (fam, lab) in CURATED_FAMILY_LABS {
@@ -134,7 +154,7 @@ impl LabCatalog {
         cat
     }
 
-    fn from_canonical(canonical: &HashMap<String, CanonicalModel>) -> Self {
+    pub(crate) fn from_canonical(canonical: &HashMap<String, CanonicalModel>) -> Self {
         let mut cat = Self::curated_only();
         // Names or families claimed by more than one lab are ambiguous and
         // must not resolve (e.g. the Nano Banana preview/GA pairs are fine —
@@ -142,6 +162,8 @@ impl LabCatalog {
         let mut name_claims: HashMap<&str, HashSet<&str>> = HashMap::new();
         let mut family_claims: HashMap<&str, HashSet<&str>> = HashMap::new();
         let mut family_model_count: HashMap<&str, usize> = HashMap::new();
+        let mut model_name_claims: HashMap<String, HashSet<&str>> = HashMap::new();
+        let mut model_slug_claims: HashMap<String, HashSet<&str>> = HashMap::new();
         for (cid, m) in canonical {
             let Some(lab) = cid.split('/').next().filter(|s| !s.is_empty()) else {
                 continue;
@@ -149,6 +171,24 @@ impl LabCatalog {
             cat.lab_slugs.insert(lab.to_string());
             if !m.name.is_empty() {
                 name_claims.entry(m.name.as_str()).or_default().insert(lab);
+                cat.canonical_models.insert(
+                    cid.clone(),
+                    CanonicalTarget {
+                        id: cid.clone(),
+                        name: m.name.clone(),
+                        lab: lab.to_string(),
+                    },
+                );
+                model_name_claims
+                    .entry(squash_model_name(&m.name))
+                    .or_default()
+                    .insert(cid);
+                if let Some(slug) = cid.rsplit('/').next().filter(|s| !s.is_empty()) {
+                    model_slug_claims
+                        .entry(slug.to_ascii_lowercase())
+                        .or_default()
+                        .insert(cid);
+                }
             }
             if let Some(fam) = m.family.as_deref() {
                 family_claims.entry(fam).or_default().insert(lab);
@@ -176,6 +216,20 @@ impl LabCatalog {
                 );
             }
         }
+        for (name, ids) in model_name_claims {
+            if ids.len() == 1 {
+                cat.name_to_model
+                    .insert(name, ids.into_iter().next().unwrap().to_string());
+            }
+        }
+        for (slug, ids) in model_slug_claims {
+            if ids.len() == 1 {
+                cat.model_slugs
+                    .push((slug, ids.into_iter().next().unwrap().to_string()));
+            }
+        }
+        cat.model_slugs
+            .sort_by(|(a, _), (b, _)| b.len().cmp(&a.len()).then_with(|| a.cmp(b)));
         cat
     }
 
@@ -213,6 +267,81 @@ impl LabCatalog {
         }
         None
     }
+
+    /// Resolve one provider offering to `(canonical id, canonical display
+    /// name, lab slug)`. Exact canonical ids are checked first, matching the
+    /// models.dev website's public-data fallbacks. Heuristic name matching is
+    /// attempted before id containment; the id slugs are longest-first so
+    /// `gpt-5-mini-fast` maps to `gpt-5-mini`, never the shorter `gpt-5`.
+    pub fn resolve_model<'a>(
+        &'a self,
+        name: &str,
+        provider_id: &str,
+        model_id: &str,
+    ) -> Option<(&'a str, &'a str, &'a str)> {
+        if let Some(target) = self.canonical_models.get(model_id) {
+            return Some((
+                target.id.as_str(),
+                target.name.as_str(),
+                target.lab.as_str(),
+            ));
+        }
+        let provider_scoped_id = format!("{provider_id}/{model_id}");
+        if let Some(target) = self.canonical_models.get(&provider_scoped_id) {
+            return Some((
+                target.id.as_str(),
+                target.name.as_str(),
+                target.lab.as_str(),
+            ));
+        }
+
+        let from_name = |candidate: &str| {
+            let normalized = squash_model_name(candidate);
+            self.name_to_model
+                .get(&normalized)
+                .and_then(|id| self.canonical_models.get(id))
+        };
+
+        let mut target = from_name(name);
+        if target.is_none() {
+            target = strip_trailing_parenthetical(name).and_then(&from_name);
+        }
+        if target.is_none() {
+            if let Some(unprefixed) = strip_vendor_prefix(name) {
+                target = from_name(unprefixed);
+                if target.is_none() {
+                    target = strip_trailing_parenthetical(unprefixed).and_then(&from_name);
+                }
+            }
+        }
+        if target.is_none() {
+            let id = model_id.to_ascii_lowercase();
+            target = self.model_slugs.iter().find_map(|(slug, canonical_id)| {
+                contains_at_id_boundary(&id, slug)
+                    .then(|| self.canonical_models.get(canonical_id))
+                    .flatten()
+            });
+        }
+
+        target.map(|m| (m.id.as_str(), m.name.as_str(), m.lab.as_str()))
+    }
+
+    #[cfg(test)]
+    pub(crate) fn from_test_entries(entries: &[(&str, &str, Option<&str>)]) -> Self {
+        let canonical = entries
+            .iter()
+            .map(|(id, name, family)| {
+                (
+                    (*id).to_string(),
+                    CanonicalModel {
+                        name: (*name).to_string(),
+                        family: family.map(String::from),
+                    },
+                )
+            })
+            .collect();
+        Self::from_canonical(&canonical)
+    }
 }
 
 /// `"Claude Opus 5 (EU)"` → `"Claude Opus 5"`. Returns `None` when there is
@@ -225,6 +354,45 @@ fn strip_trailing_parenthetical(name: &str) -> Option<&str> {
     let open = trimmed.rfind('(')?;
     let base = trimmed[..open].trim_end();
     (!base.is_empty()).then_some(base)
+}
+
+/// Drop a gateway's echoed vendor prefix (`Qwen: Qwen3 Max`). The suffix is
+/// only used as an additional lookup/grouping candidate; the displayed name
+/// still comes from the canonical registry or the majority provider spelling.
+fn strip_vendor_prefix(name: &str) -> Option<&str> {
+    let (_, suffix) = name.split_once(':')?;
+    let suffix = suffix.trim();
+    (!suffix.is_empty()).then_some(suffix)
+}
+
+/// Case/punctuation-insensitive model-name key. `+` is expanded rather than
+/// discarded because it carries model identity (`Command R` != `Command R+`).
+fn squash_model_name(name: &str) -> String {
+    let mut out = String::with_capacity(name.len());
+    for c in name.chars() {
+        if c == '+' {
+            out.push_str("plus");
+        } else if c.is_alphanumeric() {
+            out.extend(c.to_lowercase());
+        }
+    }
+    out
+}
+
+/// Public fallback key used by the grouped Models view when no canonical
+/// identity can be reconstructed. Parenthetical words are deliberately kept.
+pub fn normalized_model_name(name: &str) -> String {
+    squash_model_name(strip_vendor_prefix(name).unwrap_or(name))
+}
+
+fn contains_at_id_boundary(id: &str, slug: &str) -> bool {
+    id.match_indices(slug).any(|(start, _)| {
+        let before = id[..start].chars().next_back();
+        let end = start + slug.len();
+        let after = id[end..].chars().next();
+        before.is_none_or(|c| !c.is_ascii_alphanumeric())
+            && after.is_none_or(|c| !c.is_ascii_alphanumeric())
+    })
 }
 
 /// Pretty display name for a lab slug.
@@ -326,6 +494,117 @@ mod tests {
             ("b/model-2", "Shared Name", None),
         ]));
         assert_eq!(cat.resolve("Shared Name", None, "x"), None);
+    }
+
+    #[test]
+    fn canonical_model_folds_regional_and_fast_offerings() {
+        let cat = LabCatalog::from_canonical(&canon(&[(
+            "anthropic/claude-opus-5",
+            "Claude Opus 5",
+            Some("claude-opus"),
+        )]));
+        let expected = Some(("anthropic/claude-opus-5", "Claude Opus 5", "anthropic"));
+
+        // Parenthetical regional spelling resolves by canonical name.
+        assert_eq!(
+            cat.resolve_model(
+                "Claude Opus 5 (EU)",
+                "amazon-bedrock",
+                "eu.anthropic.claude-opus-5"
+            ),
+            expected
+        );
+        // A provider's non-parenthetical Fast spelling resolves by the
+        // longest canonical slug contained in its offering id.
+        assert_eq!(
+            cat.resolve_model("Claude Opus 5 Fast", "venice", "claude-opus-5-fast"),
+            expected
+        );
+    }
+
+    #[test]
+    fn direct_catalog_id_matches_precede_heuristics() {
+        let cat = LabCatalog::from_canonical(&canon(&[
+            ("openai/gpt-5", "GPT-5", Some("gpt")),
+            (
+                "anthropic/claude-opus-5",
+                "Claude Opus 5",
+                Some("claude-opus"),
+            ),
+        ]));
+
+        // A fully qualified provider model id is already canonical.
+        assert_eq!(
+            cat.resolve_model("Misleading name", "gateway", "openai/gpt-5"),
+            Some(("openai/gpt-5", "GPT-5", "openai"))
+        );
+        // Origin providers commonly become canonical as provider/id.
+        assert_eq!(
+            cat.resolve_model("Misleading name", "anthropic", "claude-opus-5"),
+            Some(("anthropic/claude-opus-5", "Claude Opus 5", "anthropic"))
+        );
+    }
+
+    #[test]
+    fn canonical_model_normalizes_punctuation_and_vendor_prefixes() {
+        let cat = LabCatalog::from_canonical(&canon(&[(
+            "alibaba/qwen-3-7-max",
+            "Qwen 3.7 Max",
+            Some("qwen"),
+        )]));
+        let expected = Some(("alibaba/qwen-3-7-max", "Qwen 3.7 Max", "alibaba"));
+
+        assert_eq!(
+            cat.resolve_model("Qwen3.7-Max", "gateway", "opaque"),
+            expected
+        );
+        assert_eq!(
+            cat.resolve_model("Qwen: Qwen3.7 Max", "gateway", "opaque"),
+            expected
+        );
+    }
+
+    #[test]
+    fn canonical_id_matching_is_longest_first_and_boundary_aware() {
+        let cat = LabCatalog::from_canonical(&canon(&[
+            ("openai/gpt-5", "GPT-5", Some("gpt")),
+            ("openai/gpt-5-mini", "GPT-5 mini", Some("gpt")),
+        ]));
+
+        assert_eq!(
+            cat.resolve_model("Unknown", "gateway", "gateway/gpt-5-mini-fast"),
+            Some(("openai/gpt-5-mini", "GPT-5 mini", "openai"))
+        );
+        assert_eq!(
+            cat.resolve_model("Unknown", "gateway", "gateway/agpt-5x"),
+            None
+        );
+    }
+
+    #[test]
+    fn ambiguous_squashed_names_do_not_claim_a_canonical_model() {
+        let cat = LabCatalog::from_canonical(&canon(&[
+            ("cohere/command-r", "Command R", None),
+            ("other/command-r", "Command-R", None),
+        ]));
+
+        assert_eq!(cat.resolve_model("command r", "gateway", "opaque"), None);
+    }
+
+    #[test]
+    fn fallback_name_normalization_preserves_identity_words() {
+        assert_eq!(
+            normalized_model_name("Qwen: Qwen3.7-Max"),
+            normalized_model_name("Qwen 3.7 Max")
+        );
+        assert_ne!(
+            normalized_model_name("Claude Opus 5 (EU)"),
+            normalized_model_name("Claude Opus 5")
+        );
+        assert_ne!(
+            normalized_model_name("Command R+"),
+            normalized_model_name("Command R")
+        );
     }
 
     #[test]

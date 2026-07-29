@@ -287,12 +287,12 @@ pub enum Message {
     CycleDataSourcePrev,
     CycleDataSourceNext,
     // `r` on Models tab — re-fetch models.dev data. The fetch is spawned in
-    // the main loop; its result arrives as `ProvidersRefreshed`.
+    // the main loop; its result arrives as `ModelsRefreshed`.
     RefreshModels,
-    /// Result of an `r`-triggered models.dev refetch. `Some(map)` => swap in
-    /// the new providers and state-preservingly rebuild; `None` => keep the
-    /// current providers, report a non-fatal failure.
-    ProvidersRefreshed(Option<crate::data::ProvidersMap>),
+    /// Result of an `r`-triggered models.dev catalog refetch. `Some(snapshot)`
+    /// => atomically replace providers + canonical registry and rebuild;
+    /// `None` => keep current data and report a non-fatal failure.
+    ModelsRefreshed(Option<crate::api::ModelsCatalog>),
     // `R` on Agents tab — re-trigger GitHub fetches for tracked agents.
     RefreshAgents,
     // `r` — re-fetch the active source (stale-while-revalidate). The fetch is
@@ -585,9 +585,10 @@ impl App {
 
     /// Apply the result of an `r`-triggered models.dev refetch.
     ///
-    /// `Some(map)` => replace `app.providers`, rebuild the models sub-app
-    /// state-preservingly (keep search, filters, sort; try to keep the
-    /// selected provider and model by id, falling back to index 0).
+    /// `Some(snapshot)` => replace `app.providers` and the canonical model
+    /// registry together, then rebuild the models sub-app state-preservingly
+    /// (keep search, filters, sort; try to keep the selected provider and
+    /// model/group, falling back to index 0).
     ///
     /// `None` => keep the existing providers untouched; set a non-fatal
     /// failure status.
@@ -595,10 +596,11 @@ impl App {
     /// Note: already-loaded benchmark sources keep the trait fields applied
     /// at their original load time — re-enrichment on a models refresh is out
     /// of scope (see plan §3.1).
-    pub fn apply_models_refresh(&mut self, result: Option<crate::data::ProvidersMap>) {
+    pub fn apply_models_refresh(&mut self, result: Option<crate::api::ModelsCatalog>) {
         match result {
-            Some(map) => {
-                let mut providers: Vec<(String, crate::data::Provider)> = map.into_iter().collect();
+            Some(snapshot) => {
+                let mut providers: Vec<(String, crate::data::Provider)> =
+                    snapshot.providers.into_iter().collect();
                 providers.sort_by(|a, b| a.0.cmp(&b.0));
                 let n = providers.iter().map(|(_, p)| p.models.len()).sum::<usize>();
 
@@ -609,8 +611,13 @@ impl App {
                     .map(|(id, _)| id.clone());
                 let prev_model_id: Option<String> =
                     self.models_app.current_model().map(|e| e.id.clone());
+                let prev_group_name = self
+                    .models_app
+                    .current_group()
+                    .map(|group| group.name.clone());
 
                 self.providers = providers;
+                self.models_app.lab_catalog = snapshot.lab_catalog;
                 // Rebuild state (preserves search, filters, sort; resets
                 // selection to index 0 as a conservative fallback, then we
                 // try to restore by id below).
@@ -641,8 +648,20 @@ impl App {
                     self.models_app.update_filtered_models(&self.providers);
                 }
 
-                // Attempt to restore the selected model by id.
-                if let Some(ref mid) = prev_model_id {
+                // Restore a grouped selection by its canonical/majority name;
+                // flat and offerings modes restore the exact offering id.
+                if self.models_app.list_mode() == crate::tui::models::ListMode::Grouped {
+                    if let Some(ref name) = prev_group_name {
+                        if let Some(new_idx) = self
+                            .models_app
+                            .groups
+                            .iter()
+                            .position(|group| &group.name == name)
+                        {
+                            self.models_app.select_model_at_index(new_idx);
+                        }
+                    }
+                } else if let Some(ref mid) = prev_model_id {
                     if let Some(new_idx) = self
                         .models_app
                         .filtered_models()
@@ -650,7 +669,7 @@ impl App {
                         .position(|e| &e.id == mid)
                     {
                         self.models_app.selected_model = new_idx;
-                        self.models_app.model_list_state.select(Some(new_idx + 1));
+                        self.models_app.model_list_state.select(Some(new_idx));
                     }
                 }
                 self.models_app.reset_detail_scroll();
@@ -759,6 +778,7 @@ impl App {
             }
             Message::ToggleFlatModels => {
                 self.models_app.flat_view = !self.models_app.flat_view;
+                self.models_app.drill_key = None;
                 self.models_app.drill_name = None;
                 self.models_app.update_filtered_models(&self.providers);
                 self.models_app.reset_detail_scroll();
@@ -1566,7 +1586,7 @@ impl App {
                 // Fetch is spawned in the main loop; status updated there since
                 // the runtime isn't accessible from update().
             }
-            Message::ProvidersRefreshed(result) => {
+            Message::ModelsRefreshed(result) => {
                 self.apply_models_refresh(result);
             }
             Message::RefreshAgents => {
@@ -2654,14 +2674,21 @@ mod tests {
         map
     }
 
+    fn models_catalog(providers: crate::data::ProvidersMap) -> crate::api::ModelsCatalog {
+        crate::api::ModelsCatalog {
+            providers,
+            lab_catalog: crate::labs::LabCatalog::default(),
+        }
+    }
+
     #[test]
-    fn providers_refreshed_none_keeps_old_providers() {
+    fn models_refreshed_none_keeps_old_providers() {
         let initial = make_providers_map_with("openai", &["gpt-4", "gpt-3.5"]);
         let mut app = App::new(initial, None, None);
         let before_count = app.providers.len();
 
         // A None result must not discard the existing providers.
-        app.update(Message::ProvidersRefreshed(None));
+        app.update(Message::ModelsRefreshed(None));
 
         assert_eq!(app.providers.len(), before_count);
         assert!(app
@@ -2672,12 +2699,12 @@ mod tests {
     }
 
     #[test]
-    fn providers_refreshed_some_swaps_and_sets_status() {
+    fn models_refreshed_some_swaps_and_sets_status() {
         let initial = make_providers_map_with("openai", &["gpt-4"]);
         let mut app = App::new(initial, None, None);
 
         let refreshed = make_providers_map_with("openai", &["gpt-4", "gpt-4o", "gpt-4-mini"]);
-        app.update(Message::ProvidersRefreshed(Some(refreshed)));
+        app.update(Message::ModelsRefreshed(Some(models_catalog(refreshed))));
 
         // Provider list now reflects the new data.
         assert!(app.providers.iter().any(|(id, _)| id == "openai"));
@@ -2689,7 +2716,7 @@ mod tests {
     }
 
     #[test]
-    fn providers_refreshed_preserves_search_filter_sort() {
+    fn models_refreshed_preserves_search_filter_sort() {
         use crate::tui::models::app::SortOrder;
         let initial = make_providers_map_with("openai", &["gpt-4", "gpt-4o"]);
         let mut app = App::new(initial, None, None);
@@ -2700,11 +2727,36 @@ mod tests {
         app.models_app.sort_order = SortOrder::Cost;
 
         let refreshed = make_providers_map_with("openai", &["gpt-4", "gpt-4o", "o3"]);
-        app.update(Message::ProvidersRefreshed(Some(refreshed)));
+        app.update(Message::ModelsRefreshed(Some(models_catalog(refreshed))));
 
         assert_eq!(app.models_app.search_query, "gpt-4");
         assert!(app.models_app.filters.reasoning);
         assert_eq!(app.models_app.sort_order, SortOrder::Cost);
+    }
+
+    #[test]
+    fn models_refreshed_replaces_canonical_registry_with_providers() {
+        let mut providers =
+            make_providers_map_with("amazon-bedrock", &["eu.anthropic.claude-opus-5"]);
+        providers
+            .get_mut("amazon-bedrock")
+            .and_then(|provider| provider.models.get_mut("eu.anthropic.claude-opus-5"))
+            .expect("test offering")
+            .name = "Claude Opus 5 (EU)".to_string();
+        let mut app = App::new(providers.clone(), None, None);
+        assert_eq!(app.models_app.groups[0].name, "Claude Opus 5 (EU)");
+
+        app.update(Message::ModelsRefreshed(Some(crate::api::ModelsCatalog {
+            providers,
+            lab_catalog: crate::labs::LabCatalog::from_test_entries(&[(
+                "anthropic/claude-opus-5",
+                "Claude Opus 5",
+                Some("claude-opus"),
+            )]),
+        })));
+
+        assert_eq!(app.models_app.groups[0].name, "Claude Opus 5");
+        assert_eq!(app.models_app.groups[0].lab.as_deref(), Some("anthropic"));
     }
 
     /// Verifies the in-process state transitions from `Message::RefreshAgents`:

@@ -214,15 +214,13 @@ fn main() -> Result<()> {
             status,
         }) => cli::link::run(dir, remove, status, &config)?,
         None => {
-            // Fetch providers before entering async runtime to avoid blocking in async context
-            let providers = api::fetch_providers()?;
-            // Lab catalog (canonical model registry) — best-effort; the app
-            // degrades to curated-table lab resolution when it can't load.
-            let lab_catalog = labs::LabCatalog::fetch();
+            // Fetch providers + the canonical model registry in one coherent
+            // catalog snapshot before entering the async runtime.
+            let catalog = api::fetch_catalog()?;
 
             // Create and run the async runtime only for the TUI
             let runtime = tokio::runtime::Runtime::new()?;
-            runtime.block_on(tui::run(providers, lab_catalog))?;
+            runtime.block_on(tui::run(catalog))?;
         }
     }
 

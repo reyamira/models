@@ -27,7 +27,6 @@ use crate::benchmarks::fetch_source;
 use crate::benchmarks::schema::SourceFile;
 use crate::benchmarks::sources::SOURCES;
 use crate::config::Config;
-use crate::data::ProvidersMap;
 use crate::status::{StatusFetchResult, StatusFetcher};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -110,14 +109,14 @@ struct RuntimeHandles {
     refresh_rx: mpsc::Receiver<(usize, Option<SourceFile>)>,
     refresh_tx: mpsc::Sender<(usize, Option<SourceFile>)>,
     /// `r`-triggered models.dev refetch result.
-    models_refresh_rx: mpsc::Receiver<Option<crate::data::ProvidersMap>>,
-    models_refresh_tx: mpsc::Sender<Option<crate::data::ProvidersMap>>,
+    models_refresh_rx: mpsc::Receiver<Option<crate::api::ModelsCatalog>>,
+    models_refresh_tx: mpsc::Sender<Option<crate::api::ModelsCatalog>>,
     /// Final URL opened by an async benchmark-url task (Epoch 404-fallback path).
     url_rx: mpsc::Receiver<String>,
     url_tx: mpsc::Sender<String>,
     status: StatusRuntime,
 }
-pub async fn run(providers: ProvidersMap, lab_catalog: crate::labs::LabCatalog) -> Result<()> {
+pub async fn run(catalog: crate::api::ModelsCatalog) -> Result<()> {
     // Load remaining data
     let agents_file = load_agents().ok();
     let config = Config::load().ok();
@@ -129,8 +128,8 @@ pub async fn run(providers: ProvidersMap, lab_catalog: crate::labs::LabCatalog) 
     let disk_cache = GitHubCache::load();
 
     // Create app BEFORE entering alternate screen
-    let mut app = app::App::new(providers, agents_file.as_ref(), config);
-    app.models_app.lab_catalog = lab_catalog;
+    let mut app = app::App::new(catalog.providers, agents_file.as_ref(), config);
+    app.models_app.lab_catalog = catalog.lab_catalog;
     app.models_app.flat_view = app.config.display.flat_models;
     // Rebuild with the real catalog + persisted view mode — App::new built the
     // initial groups with the default (empty) catalog.
@@ -689,7 +688,7 @@ fn run_app(
 
         // Drain `r`-triggered models.dev refresh results.
         while let Ok(result) = runtime.models_refresh_rx.try_recv() {
-            app.update(app::Message::ProvidersRefreshed(result));
+            app.update(app::Message::ModelsRefreshed(result));
             last_status_time = Some(std::time::Instant::now());
         }
 
@@ -1044,11 +1043,11 @@ fn run_app(
                 app::Message::RefreshModels => {
                     // Spawn an async models.dev refetch. Runs the blocking
                     // reqwest call in a `spawn_blocking` wrapper so the event
-                    // loop is never blocked. Result arrives via `ProvidersRefreshed`.
+                    // loop is never blocked. Result arrives via `ModelsRefreshed`.
                     let models_refresh_tx = runtime.models_refresh_tx.clone();
                     tokio::spawn(async move {
                         let result =
-                            tokio::task::spawn_blocking(|| crate::api::fetch_providers().ok())
+                            tokio::task::spawn_blocking(|| crate::api::fetch_catalog().ok())
                                 .await
                                 .unwrap_or(None);
                         let _ = models_refresh_tx.send(result).await;

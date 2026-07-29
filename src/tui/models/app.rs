@@ -92,8 +92,9 @@ pub struct ModelsApp {
     /// `V` toggle: flat per-offering list instead of the grouped view when
     /// "All" is selected. Persisted via config by the caller.
     pub flat_view: bool,
-    /// Push-in drill: `Some(group name)` = the list shows only that group's
-    /// offerings (today's flat rows). `Esc` pops back to the grouped list.
+    /// Push-in drill identity. The key is stable across provider spellings;
+    /// the name is the user-facing breadcrumb. `Esc` clears both.
+    pub drill_key: Option<String>,
     pub drill_name: Option<String>,
     /// Grouped view rows, rebuilt alongside `filtered_models` whenever the
     /// All scope is active and no drill applies.
@@ -124,6 +125,8 @@ pub enum ListMode {
 /// majority-plus-dim-when-mixed policy.
 #[derive(Debug, Clone)]
 pub struct ModelGroup {
+    /// Stable canonical/normalized identity used for drilling and aggregation.
+    key: String,
     pub name: String,
     /// Lab slug (via `crate::labs`), `None` when unresolved.
     pub lab: Option<String>,
@@ -178,6 +181,7 @@ impl ModelsApp {
             model_detail_area: None,
             lab_catalog: crate::labs::LabCatalog::default(),
             flat_view: false,
+            drill_key: None,
             drill_name: None,
             groups: Vec::new(),
             selected_group: 0,
@@ -387,8 +391,8 @@ impl ModelsApp {
                 .collect();
 
             // Push-in drill: restrict to the drilled group's offerings.
-            if let Some(drill) = &self.drill_name {
-                entries.retain(|e| group_key(e) == *drill);
+            if let Some(drill) = &self.drill_key {
+                entries.retain(|e| self.group_identity(e).0 == *drill);
             }
             self.sort_entries(&mut entries);
             entries
@@ -427,7 +431,7 @@ impl ModelsApp {
     /// Rebuild the grouped rows from the current `filtered_models`. Only
     /// meaningful in the All scope without a drill; cleared otherwise.
     fn rebuild_groups(&mut self) {
-        if !self.is_all_selected() || self.drill_name.is_some() {
+        if !self.is_all_selected() || self.drill_key.is_some() {
             // `selected_group` is deliberately preserved here so a drill
             // round-trip (Enter → Esc) restores the user's place.
             self.groups.clear();
@@ -440,16 +444,29 @@ impl ModelsApp {
             String,
             std::collections::HashSet<String>,
         > = std::collections::HashMap::new();
+        let mut display_name_counts: std::collections::HashMap<
+            String,
+            std::collections::HashMap<String, usize>,
+        > = std::collections::HashMap::new();
         for (idx, e) in self.filtered_models.iter().enumerate() {
-            let key = group_key(e);
+            let (key, display_name, canonical_lab) = self.group_identity(e);
+            if canonical_lab.is_none() && !e.model.name.is_empty() {
+                *display_name_counts
+                    .entry(key.clone())
+                    .or_default()
+                    .entry(e.model.name.clone())
+                    .or_default() += 1;
+            }
             let g = map.entry(key.clone()).or_insert_with(|| {
                 order.push(key.clone());
                 ModelGroup {
-                    name: key.clone(),
-                    lab: self
-                        .lab_catalog
-                        .resolve(&e.model.name, e.model.family.as_deref(), &e.id)
-                        .map(String::from),
+                    key: key.clone(),
+                    name: display_name,
+                    lab: canonical_lab.or_else(|| {
+                        self.lab_catalog
+                            .resolve(&e.model.name, e.model.family.as_deref(), &e.id)
+                            .map(String::from)
+                    }),
                     provider_count: 0,
                     offering_count: 0,
                     reasoning: (0, 0),
@@ -503,11 +520,24 @@ impl ModelsApp {
                 }
             }
         }
+        // For non-canonical groups, the most common upstream spelling becomes
+        // the beacon. Ties prefer an unprefixed spelling, then lexical order.
+        for (key, names) in display_name_counts {
+            let preferred = names.iter().min_by(|(a_name, a_count), (b_name, b_count)| {
+                b_count
+                    .cmp(a_count)
+                    .then_with(|| a_name.contains(':').cmp(&b_name.contains(':')))
+                    .then_with(|| a_name.cmp(b_name))
+            });
+            if let (Some(g), Some((name, _))) = (map.get_mut(&key), preferred) {
+                g.name.clone_from(name);
+            }
+        }
         let mut groups: Vec<ModelGroup> = order
             .into_iter()
             .map(|k| {
                 let mut g = map.remove(&k).expect("group present");
-                g.provider_count = providers_seen.get(&g.name).map_or(0, |s| s.len());
+                g.provider_count = providers_seen.get(&g.key).map_or(0, |s| s.len());
                 g
             })
             .collect();
@@ -576,7 +606,7 @@ impl ModelsApp {
         if !self.is_all_selected() {
             return ListMode::Flat;
         }
-        if self.drill_name.is_some() {
+        if self.drill_key.is_some() {
             return ListMode::Offerings;
         }
         if self.flat_view {
@@ -595,9 +625,13 @@ impl ModelsApp {
         if self.list_mode() != ListMode::Grouped {
             return;
         }
-        let Some(name) = self.current_group().map(|g| g.name.clone()) else {
+        let Some((key, name)) = self
+            .current_group()
+            .map(|g| (g.key.clone(), g.name.clone()))
+        else {
             return;
         };
+        self.drill_key = Some(key);
         self.drill_name = Some(name);
         self.selected_model = 0;
         self.model_list_state.select(Some(0));
@@ -639,6 +673,7 @@ impl ModelsApp {
             return;
         };
         self.show_provider_picker = false;
+        self.drill_key = None;
         self.drill_name = None;
         match choice {
             None => {
@@ -662,7 +697,8 @@ impl ModelsApp {
     /// Esc, before search-clearing: pop the drill, or provider scope back to
     /// All. Returns true when the key was consumed.
     pub fn escape_back(&mut self, providers: &[(String, Provider)]) -> bool {
-        if self.drill_name.is_some() {
+        if self.drill_key.is_some() {
+            self.drill_key = None;
             self.drill_name = None;
             self.update_filtered_models(providers);
             self.reset_detail_scroll();
@@ -681,13 +717,40 @@ impl ModelsApp {
     }
 }
 
-/// Grouping key for an offering: the display name, id fallback for nameless
-/// entries (mirrors what the flat list displays).
-pub fn group_key(e: &ModelEntry) -> String {
-    if e.model.name.is_empty() {
-        e.id.clone()
-    } else {
-        e.model.name.clone()
+impl ModelsApp {
+    /// Stable group identity, display name, and (when canonical) lab slug.
+    /// `model:` keys correspond to models.dev's hidden `base_model` edge;
+    /// `name:` keys are the punctuation/case-insensitive fallback.
+    fn group_identity(&self, e: &ModelEntry) -> (String, String, Option<String>) {
+        if let Some((canonical_id, canonical_name, lab)) =
+            self.lab_catalog
+                .resolve_model(&e.model.name, &e.provider_id, &e.id)
+        {
+            return (
+                format!("model:{canonical_id}"),
+                canonical_name.to_string(),
+                Some(lab.to_string()),
+            );
+        }
+
+        if e.model.name.is_empty() {
+            return (
+                format!("id:{}", e.id.to_ascii_lowercase()),
+                e.id.clone(),
+                None,
+            );
+        }
+
+        let normalized = crate::labs::normalized_model_name(&e.model.name);
+        if normalized.is_empty() {
+            (
+                format!("id:{}", e.id.to_ascii_lowercase()),
+                e.model.name.clone(),
+                None,
+            )
+        } else {
+            (format!("name:{normalized}"), e.model.name.clone(), None)
+        }
     }
 }
 

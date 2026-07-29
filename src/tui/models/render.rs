@@ -1608,6 +1608,34 @@ mod mouse_tests {
         app
     }
 
+    fn canonical_group_app() -> App {
+        let json = r#"{
+            "anthropic": { "id": "anthropic", "name": "Anthropic", "models": {
+                "claude-opus-5": { "id": "claude-opus-5", "name": "Claude Opus 5" }
+            }},
+            "amazon-bedrock": { "id": "amazon-bedrock", "name": "Amazon Bedrock", "models": {
+                "eu.anthropic.claude-opus-5": { "id": "eu.anthropic.claude-opus-5", "name": "Claude Opus 5 (EU)" }
+            }},
+            "openrouter": { "id": "openrouter", "name": "OpenRouter", "models": {
+                "anthropic/claude-opus-5-fast": { "id": "anthropic/claude-opus-5-fast", "name": "Claude Opus 5 (Fast)" }
+            }},
+            "venice": { "id": "venice", "name": "Venice", "models": {
+                "claude-opus-5-fast": { "id": "claude-opus-5-fast", "name": "Claude Opus 5 Fast" }
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+        app.models_app.lab_catalog = crate::labs::LabCatalog::from_test_entries(&[(
+            "anthropic/claude-opus-5",
+            "Claude Opus 5",
+            Some("claude-opus"),
+        )]);
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+        app.current_tab = Tab::Models;
+        app
+    }
+
     /// Switch the app into the flat All view (the `V` toggle) — the mode the
     /// per-offering row/column/dimming tests exercise.
     fn flat(app: &mut App) {
@@ -1672,6 +1700,53 @@ mod mouse_tests {
         handle_models_mouse(&mut app, click(area.x + 6, area.y + 2));
         assert_eq!(app.models_app.focus, Focus::Models);
         assert_eq!(app.models_app.selected_group, 2);
+    }
+
+    #[test]
+    fn canonical_base_model_identity_groups_variants_and_drills_all_members() {
+        let mut app = canonical_group_app();
+        assert_eq!(app.models_app.groups.len(), 1);
+        let group = &app.models_app.groups[0];
+        assert_eq!(group.name, "Claude Opus 5");
+        assert_eq!(group.lab.as_deref(), Some("anthropic"));
+        assert_eq!(group.provider_count, 4);
+        assert_eq!(group.offering_count, 4);
+
+        let providers = app.providers.clone();
+        app.models_app.enter_selection(&providers);
+        assert_eq!(
+            app.models_app.drill_key.as_deref(),
+            Some("model:anthropic/claude-opus-5")
+        );
+        assert_eq!(app.models_app.drill_name.as_deref(), Some("Claude Opus 5"));
+        assert_eq!(app.models_app.filtered_models().len(), 4);
+    }
+
+    #[test]
+    fn unresolved_provider_spellings_use_one_majority_named_group() {
+        let json = r#"{
+            "alpha": { "id": "alpha", "name": "Alpha", "models": {
+                "a": { "id": "a", "name": "Qwen3.7 Max" }
+            }},
+            "beta": { "id": "beta", "name": "Beta", "models": {
+                "b": { "id": "b", "name": "Qwen3.7 Max" }
+            }},
+            "gamma": { "id": "gamma", "name": "Gamma", "models": {
+                "c": { "id": "c", "name": "Qwen 3.7-Max" }
+            }},
+            "delta": { "id": "delta", "name": "Delta", "models": {
+                "d": { "id": "d", "name": "Qwen: Qwen3.7 Max" }
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+        assert_eq!(app.models_app.groups.len(), 1);
+        assert_eq!(app.models_app.groups[0].name, "Qwen3.7 Max");
+        assert_eq!(app.models_app.groups[0].provider_count, 4);
+
+        let providers = app.providers.clone();
+        app.models_app.enter_selection(&providers);
+        assert_eq!(app.models_app.filtered_models().len(), 4);
     }
 
     #[test]

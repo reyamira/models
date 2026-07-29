@@ -26,7 +26,7 @@ Focus cycles two panels only: `Focus::Models ↔ Focus::Details`.
 | Mode | When | Rows |
 |------|------|------|
 | `Grouped` | All scope, no drill, `flat_view` off (**default**) | one per model name (`ModelGroup`) |
-| `Offerings` | `drill_name` is `Some` (Enter on a grouped row) | that group's flat offering rows |
+| `Offerings` | `drill_key` is `Some` (Enter on a grouped row; `drill_name` is the breadcrumb only) | that group's flat offering rows |
 | `Flat` | provider-scoped, or the `V` toggle | flat per-offering rows |
 
 - **Enter** (grouped) → push into the group's offerings; breadcrumb title
@@ -68,15 +68,24 @@ under the id, a `── Providers (N) ──` section (cheapest first, capped at
 with an overflow hint) after the description; the rest describes the
 representative (first) offering.
 
-**Lab resolution** (`src/labs.rs`): models.dev's canonical `models/` registry
-links offerings via `base_model`, but every published endpoint strips it — the
-lab is reconstructed: exact name → paren-stripped name → family → id-prefix,
-against `models.json` (fetched at startup, 5s timeout, curated-table fallback
-offline). Canonical families need **≥2 models** to be trusted (Thinking
-Machines' lone "Inkling" claims family `ling`, which would mislabel
-InclusionAI's Ling line — guarded by a curated `ling → inclusionai` entry).
-`ModelsApp.lab_catalog` is assigned **after** `App::new`, so `tui::run`
-re-runs `update_filtered_models` — groups built at construction have no labs.
+**Lab/canonical resolution** (`src/labs.rs`): models.dev's provider TOMLs link
+offerings via `base_model`, but all three served JSON files strip that edge.
+The TUI fetches `catalog.json` so providers + the canonical registry arrive in
+one coherent snapshot. Resolution first applies models.dev's two exact
+public-data fallbacks (`model_id` already canonical, then
+`provider_id/model_id` canonical), then reconstructs cross-namespace identity
+by normalized / paren-stripped / vendor-prefix-stripped canonical name,
+followed by longest-boundary-matched canonical id slug. The canonical id is the
+group/drill key; unresolved offerings fall back to normalized display name
+with the majority spelling as the beacon. This is explicitly approximate: the
+exact cross-namespace link remains available only in upstream TOMLs /
+models.dev's build process.
+Lab fallback remains exact name → paren-stripped name → family → id-prefix.
+Canonical families need **≥2 models** to be trusted (Thinking Machines' lone
+"Inkling" claims family `ling`, which would mislabel InclusionAI's Ling line —
+guarded by a curated `ling → inclusionai` entry). `ModelsApp.lab_catalog` is
+assigned **after** `App::new`, so `tui::run` re-runs
+`update_filtered_models` — groups built at construction have no labs.
 
 ---
 
