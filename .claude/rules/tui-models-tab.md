@@ -115,16 +115,24 @@ Benchmarks list `max_cols` policy. Verified by the `*_render_*`-named tests in
 appear as namespace prefixes inside the Model ID column. Falls back to the id
 when the provider isn't found. Style follows the row (`style`), never dimmed.
 
-**Duplicate-row dimming**: consecutive rows with the **same model id** render
-the id in `Color::DarkGray` (first occurrence keeps the default style) so the
-Provider column carries the difference — sameness recedes, difference advances.
+**Duplicate-row dimming**: consecutive rows for the **same underlying model**
+render the id in `Color::DarkGray` (first occurrence keeps the default style)
+so the Provider column carries the difference — sameness recedes, difference
+advances. The **sameness key is the models.dev display name** (`Model.name`),
+not the id: upstream, provider entries inherit `name` verbatim from the
+canonical `models/` registry (`base_model` resolution in the models.dev build)
+and override it exactly when a variant genuinely differs — `"Claude Opus 5
+(EU)"`, `"(Fast)"`, `"(JP)"` stay bright while `us.anthropic.claude-opus-5` /
+`claude-opus-5` / `anthropic/claude-opus-5` (all named `"Claude Opus 5"`) dim
+as one run. Do **not** add `family` as a guard key — its per-provider
+granularity is inconsistent (`qwen` vs `qwen3.7-plus`) and reintroduces misses.
 The RTFO cluster dims too, but **only when the four capability flags are also
 identical**: a bright RTFO on a dimmed-id row signals that this vendor's
 deployment of the "same" model genuinely differs. Selection styling always
-wins (a selected row is never dimmed). Exact consecutive string equality only —
-`us.anthropic.claude-opus-5` after `claude-opus-5` stays bright (the id
-genuinely differs; no normalization in v1). Verified by
-`consecutive_duplicate_rows_dim_id_and_rtfo`.
+wins (a selected row is never dimmed). Adjacency-only: rows compare to their
+immediate predecessor in display order, so dimming is a reading aid for runs,
+never a global claim. Verified by `consecutive_duplicate_rows_dim_id_and_rtfo`
+and `dimming_keys_on_display_name_not_id`.
 
 **Header row** — occupies list index 0, offset by +1 in `model_list_state.select()`:
 - Default style: `Color::Yellow` + `Modifier::BOLD`

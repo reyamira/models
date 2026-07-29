@@ -588,22 +588,37 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
         let prefix = if is_selected { caret } else { "  " };
         let m = &entry.model;
 
-        // Repeat detection: consecutive rows with the same id render the id
-        // in DarkGray so the Provider column carries the difference —
-        // sameness recedes, difference advances. The RTFO cluster dims too,
-        // but only when the capability flags are also identical: a bright
-        // RTFO on a dimmed-id row signals that this vendor's deployment of
-        // the "same" model genuinely differs. Selection styling wins.
+        // Repeat detection: consecutive rows for the same underlying model
+        // render the id in DarkGray so the Provider column carries the
+        // difference — sameness recedes, difference advances.
+        //
+        // Sameness key: the models.dev **display name** (`Model.name`), not
+        // the id. Upstream, provider entries inherit `name` verbatim from the
+        // canonical `models/` registry (`base_model` resolution in their
+        // build), and providers override it exactly when a variant genuinely
+        // differs — "Claude Opus 5 (EU)", "(Fast)", "(JP)". So name equality
+        // is the curated same-model judgment the id string hides:
+        // `us.anthropic.claude-opus-5` / `claude-opus-5` /
+        // `anthropic/claude-opus-5` all carry name "Claude Opus 5". Measured
+        // on live data (2026-07-29): 770 adjacent repeats under name equality
+        // vs 403 under id equality. Family was rejected as a guard key — its
+        // per-provider granularity is inconsistent ("qwen" vs "qwen3.7-plus")
+        // and would reintroduce misses.
+        //
+        // The RTFO cluster dims too, but only when the capability flags are
+        // also identical: a bright RTFO on a dimmed-id row signals that this
+        // vendor's deployment of the "same" model genuinely differs.
+        // Selection styling wins.
         let (id_repeat, rtfo_repeat) = if display_idx > 0 {
             let prev = &models[display_idx - 1];
             let pm = &prev.model;
-            let idr = prev.id == entry.id;
-            let rr = idr
+            let same_model = !m.name.is_empty() && pm.name == m.name;
+            let rr = same_model
                 && pm.reasoning == m.reasoning
                 && pm.tool_call == m.tool_call
                 && pm.attachment == m.attachment
                 && pm.open_weights == m.open_weights;
-            (idr, rr)
+            (same_model, rr)
         } else {
             (false, false)
         };
@@ -1477,5 +1492,71 @@ mod mouse_tests {
         // repeat since capabilities match exactly.
         assert_eq!(fg_at(x0 - 2, y0), Some(Color::Red));
         assert_eq!(fg_at(x1 - 2, y1), Some(Color::DarkGray));
+    }
+
+    /// The sameness key is the models.dev display name, not the id: two
+    /// providers spelling the same model differently (`a-opus` /
+    /// `b.ns.opus`) still dim, while a name override ("Opus X (Fast)") —
+    /// upstream's curated signal that the variant genuinely differs — stays
+    /// bright even in the same run.
+    #[test]
+    fn dimming_keys_on_display_name_not_id() {
+        use ratatui::style::Color;
+
+        let json = r#"{
+            "alpha": { "id": "alpha", "name": "Alpha", "models": {
+                "a-opus": { "id": "a-opus", "name": "Opus X" },
+                "z-fast": { "id": "z-fast", "name": "Opus X (Fast)" }
+            } },
+            "beta": { "id": "beta", "name": "Beta", "models": {
+                "b.ns.opus": { "id": "b.ns.opus", "name": "Opus X" }
+            } }
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+        app.current_tab = Tab::Models;
+        // Dateless models sort by id ascending: a-opus, b.ns.opus, z-fast.
+        // Keep the selection on the first row; it's the bright one anyway.
+        let backend = TestBackend::new(120, 40);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| crate::tui::ui::draw(f, &mut app))
+            .expect("draw");
+        let buf = terminal.backend().buffer().clone();
+
+        // Locate each row by its id's first cell and record its fg color.
+        let mut found = std::collections::HashMap::new();
+        for y in 0..40u16 {
+            let symbols: Vec<&str> = (0..120u16)
+                .map(|x| buf.cell((x, y)).map(|c| c.symbol()).unwrap_or(" "))
+                .collect();
+            let row: String = symbols.concat();
+            for id in ["a-opus", "b.ns.opus", "z-fast"] {
+                if row.contains(&format!(" {id} ")) {
+                    let x = symbols
+                        .windows(2)
+                        .position(|w| w[0] == " " && w[1] == &id[0..1])
+                        .map(|p| p + 1)
+                        .unwrap();
+                    // Verify we're at the id start, not a stray match.
+                    let slice: String = symbols[x..x + id.len()].concat();
+                    if slice == id {
+                        found.insert(id, buf.cell((x as u16, y)).expect("cell").style().fg);
+                    }
+                }
+            }
+        }
+        // Same name, different id -> dims. Overridden name -> bright.
+        assert_ne!(found["a-opus"], Some(Color::DarkGray), "first stays bright");
+        assert_eq!(
+            found["b.ns.opus"],
+            Some(Color::DarkGray),
+            "same display name dims despite differing id"
+        );
+        assert_ne!(
+            found["z-fast"],
+            Some(Color::DarkGray),
+            "name override marks a real variant — never dimmed"
+        );
     }
 }
