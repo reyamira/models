@@ -354,10 +354,18 @@ fn draw_providers(f: &mut Frame, area: Rect, app: &mut App) {
                     let cat = provider_category(id);
                     let initial = &cat.short_label()[..1];
                     let color = cat.color();
+                    // Truncate the id with an ellipsis so the count stays
+                    // visible at narrow widths (a clipped "alibaba-cn (84" is
+                    // indistinguishable from its "-cn"-less sibling).
+                    let count_str = format!("({})", count);
+                    let avail = inner_area.width.saturating_sub(2) as usize; // highlight symbol
+                    let id_max = avail
+                        .saturating_sub(2) // initial + space
+                        .saturating_sub(count_str.len() + 1); // space + count
                     let line = Line::from(vec![
                         Span::styled(initial, Style::default().fg(color)),
-                        Span::raw(format!(" {} ", id)),
-                        Span::styled(format!("({})", count), Style::default().fg(Color::Gray)),
+                        Span::raw(format!(" {} ", truncate(id, id_max))),
+                        Span::styled(count_str, Style::default().fg(Color::Gray)),
                     ]);
                     items.push(ListItem::new(line));
                 }
@@ -451,15 +459,43 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
     let inner_area = outer_block.inner(area);
     f.render_widget(outer_block, area);
 
-    // Fixed column widths: caret(2) + caps(5) + Input(8) Output(8) Context(8) + gaps(3)
+    // Fixed column widths: caret(2) + caps(5), then up to three 9-wide numeric
+    // columns (1-space gap + 8-wide value). Numeric columns shed from the
+    // right before the name column starves (mirrors the Benchmarks list) —
+    // the old fixed layout silently clipped the Context column at narrow
+    // widths, rendering a 1M-context model as "1". The actively-sorted
+    // column always survives the drop.
     let caret_w: u16 = 2;
     let caps_w: u16 = 5; // "RTFO " — 4 indicator chars + 1 space
-    let input_w: u16 = 8;
-    let output_w: u16 = 8;
-    let ctx_w: u16 = 8;
-    let num_gaps: u16 = 3;
-    let fixed_w = caret_w + caps_w + input_w + output_w + ctx_w + num_gaps;
-    let name_width = (inner_area.width.saturating_sub(fixed_w) as usize).max(10);
+    const NUM_COL_W: u16 = 9; // 1-space gap + 8-wide value
+    const NAME_MIN: u16 = 18;
+    let fixed_w = caret_w + caps_w;
+    let capacity = (inner_area
+        .width
+        .saturating_sub(fixed_w + NAME_MIN)
+        .saturating_div(NUM_COL_W) as usize)
+        .min(3);
+    let mut num_cols: Vec<ModelListColumn> = [
+        ModelListColumn::Input,
+        ModelListColumn::Output,
+        ModelListColumn::Context,
+    ][..capacity]
+        .to_vec();
+    let sort_needs = match app.models_app.sort_order {
+        SortOrder::Cost => Some(ModelListColumn::Input),
+        SortOrder::Context => Some(ModelListColumn::Context),
+        SortOrder::Default | SortOrder::ReleaseDate => None,
+    };
+    if let Some(needed) = sort_needs {
+        if !num_cols.is_empty() && !num_cols.contains(&needed) {
+            *num_cols.last_mut().unwrap() = needed;
+        }
+    }
+    let name_width = (inner_area
+        .width
+        .saturating_sub(fixed_w + num_cols.len() as u16 * NUM_COL_W)
+        as usize)
+        .max(10);
 
     let header_style = Style::default()
         .fg(Color::Yellow)
@@ -497,16 +533,21 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
             },
         ),
     ];
-    header_spans.push(Span::styled(format!(" {:>8}", "Input"), cost_style));
-    header_spans.push(Span::styled(format!(" {:>8}", "Output"), cost_style));
-    header_spans.push(Span::styled(
-        format!(" {:>8}", "Context"),
-        if sort_col == "context" {
-            active_header_style
-        } else {
-            header_style
-        },
-    ));
+    for col in &num_cols {
+        let (label, style) = match col {
+            ModelListColumn::Input => ("Input", cost_style),
+            ModelListColumn::Output => ("Output", cost_style),
+            ModelListColumn::Context => (
+                "Context",
+                if sort_col == "context" {
+                    active_header_style
+                } else {
+                    header_style
+                },
+            ),
+        };
+        header_spans.push(Span::styled(format!(" {:>8}", label), style));
+    }
 
     // Build items with header row
     let mut items: Vec<ListItem> = Vec::with_capacity(models.len() + 1);
@@ -566,9 +607,14 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
                 style,
             ),
         ];
-        row_spans.push(Span::styled(format!(" {:>8}", input_cost), style));
-        row_spans.push(Span::styled(format!(" {:>8}", output_cost), style));
-        row_spans.push(Span::styled(format!(" {:>8}", ctx), style));
+        for col in &num_cols {
+            let value = match col {
+                ModelListColumn::Input => &input_cost,
+                ModelListColumn::Output => &output_cost,
+                ModelListColumn::Context => &ctx,
+            };
+            row_spans.push(Span::styled(format!(" {:>8}", value), style));
+        }
 
         items.push(ListItem::new(Line::from(row_spans)));
     }
@@ -578,6 +624,15 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
     // `offset()` (clamped to the viewport) is available for mouse hit-testing.
     app.models_app.model_list_area = Some(inner_area);
     f.render_stateful_widget(list, inner_area, &mut app.models_app.model_list_state);
+}
+
+/// Numeric columns of the model list, in display order. Which ones render is
+/// width-dependent (see the drop policy in `draw_model_list`).
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ModelListColumn {
+    Input,
+    Output,
+    Context,
 }
 
 fn draw_provider_detail(f: &mut Frame, area: Rect, lines: Vec<Line<'static>>) {
@@ -1105,11 +1160,24 @@ mod mouse_tests {
     }
 
     fn render(app: &mut App, w: u16, h: u16) {
+        render_to_text(app, w, h);
+    }
+
+    fn render_to_text(app: &mut App, w: u16, h: u16) -> String {
         let backend = TestBackend::new(w, h);
         let mut terminal = Terminal::new(backend).expect("terminal");
         terminal
             .draw(|f| crate::tui::ui::draw(f, app))
             .expect("draw");
+        let buf = terminal.backend().buffer().clone();
+        let mut out = String::new();
+        for y in 0..h {
+            for x in 0..w {
+                out.push_str(buf.cell((x, y)).map(|c| c.symbol()).unwrap_or(" "));
+            }
+            out.push('\n');
+        }
+        out
     }
 
     fn click(col: u16, row: u16) -> MouseEvent {
@@ -1216,5 +1284,60 @@ mod mouse_tests {
         render(&mut app, 120, 40);
         // "Agents" label sits at x 10..16 on the header row (row 0).
         assert!(matches!(crate::tui::ui::tab_at(11, 0), Some(Tab::Agents)));
+    }
+
+    /// Extract the model-list header row (the one carrying "RTFO").
+    fn list_header_row(text: &str) -> String {
+        text.lines()
+            .find(|l| l.contains("RTFO"))
+            .expect("model list header row")
+            .to_string()
+    }
+
+    #[test]
+    fn wide_render_keeps_all_numeric_columns() {
+        let mut app = test_app();
+        let header = list_header_row(&render_to_text(&mut app, 175, 45));
+        assert!(header.contains("Input"));
+        assert!(header.contains("Output"));
+        assert!(header.contains("Context"));
+    }
+
+    #[test]
+    fn narrow_render_drops_context_before_starving_name() {
+        let mut app = test_app();
+        // 100 total cols -> models panel 45 -> inner 43: room for 2 numeric
+        // columns after the 18-char name minimum. Context sheds; no clipping.
+        let header = list_header_row(&render_to_text(&mut app, 100, 40));
+        assert!(header.contains("Input"));
+        assert!(header.contains("Output"));
+        assert!(
+            !header.contains("Context") && !header.contains("Contex"),
+            "Context must drop cleanly, not clip: {header:?}"
+        );
+    }
+
+    #[test]
+    fn narrow_render_sort_column_survives_drop() {
+        let mut app = test_app();
+        app.models_app.sort_order = crate::tui::models::SortOrder::Context;
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+        let header = list_header_row(&render_to_text(&mut app, 100, 40));
+        // Context replaces the last kept column instead of dropping.
+        assert!(header.contains("Context"), "sort column must survive");
+        assert!(!header.contains("Output"));
+    }
+
+    #[test]
+    fn very_narrow_render_keeps_name_only() {
+        let mut app = test_app();
+        // Inner list width < NAME_MIN + one numeric column: every numeric
+        // column sheds; the name takes the full width, nothing clips.
+        let header = list_header_row(&render_to_text(&mut app, 60, 40));
+        assert!(header.contains("Model ID"));
+        assert!(!header.contains("Input"));
+        assert!(!header.contains("Output"));
+        assert!(!header.contains("Context"));
     }
 }

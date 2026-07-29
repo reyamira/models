@@ -145,6 +145,11 @@ pub(in crate::tui) fn section_header_line_with_suffix(
     let prefix = format!("\u{2500}\u{2500} {} ", title);
     let suffix_text = format!("({}) ", suffix);
     let consumed = prefix.chars().count() + suffix_text.chars().count();
+    // A suffix that doesn't fit would wrap mid-phrase ("── Agentic (% score ·
+    // higher is" / "better)") — degrade to the plain header instead.
+    if consumed > width {
+        return section_header_line(title, width);
+    }
     let fill_len = width.saturating_sub(consumed);
     let fill = "\u{2500}".repeat(fill_len);
     Line::from(vec![

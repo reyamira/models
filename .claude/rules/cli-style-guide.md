@@ -211,6 +211,11 @@ For non-picker output (e.g., `agents status`, `agents list-sources`):
 - Headers: `header_cell()` (Cyan + Bold)
 - Used when non-TTY or `--json` is not specified
 - JSON output: `serde_json::to_string_pretty()` via `--json` flag
+- **Width**: call `styles::arrange_table(&mut table)` after `load_preset` on
+  every comfy-table — on a TTY it sets `ContentArrangement::Dynamic` so wide
+  tables wrap to the terminal width instead of overflowing. **Piped/non-TTY
+  output is deliberately left content-sized (byte-identical to previous
+  releases)** so text parsers are unaffected; `--json` remains the machine path
 
 ## 10. Resolve Pattern
 

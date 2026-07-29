@@ -34,8 +34,13 @@ fn url_style() -> Style {
 
 // ── Inline span parsing ─────────────────────────────────────────────
 
-static INLINE_RE: LazyLock<regex::Regex> =
-    LazyLock::new(|| regex::Regex::new(r"\*\*(.+?)\*\*|`([^`]+)`|(https?://[^\s)\]>]+)").unwrap());
+// The `[label](url)` alternative must precede the bare-URL branch: alternation
+// is first-match, so the bare pattern would otherwise claim the inner URL and
+// leave `[label](` + `)` as literal text.
+static INLINE_RE: LazyLock<regex::Regex> = LazyLock::new(|| {
+    regex::Regex::new(r"\[([^\]]+)\]\(([^)\s]+)\)|\*\*(.+?)\*\*|`([^`]+)`|(https?://[^\s)\]>]+)")
+        .unwrap()
+});
 
 fn parse_inline_spans(text: &str) -> Vec<Span<'static>> {
     let mut spans = Vec::new();
@@ -46,11 +51,16 @@ fn parse_inline_spans(text: &str) -> Vec<Span<'static>> {
         if whole.start() > last_end {
             spans.push(Span::raw(text[last_end..whole.start()].to_owned()));
         }
-        if let Some(bold) = cap.get(1) {
+        if let Some(label) = cap.get(1) {
+            // Markdown link: render the label only (URL dropped — terminal
+            // links aren't clickable and the raw URL is pure noise in
+            // link-dense changelogs like Zed's).
+            spans.push(Span::styled(label.as_str().to_owned(), url_style()));
+        } else if let Some(bold) = cap.get(3) {
             spans.push(Span::styled(bold.as_str().to_owned(), bold_style()));
-        } else if let Some(code) = cap.get(2) {
+        } else if let Some(code) = cap.get(4) {
             spans.push(Span::styled(code.as_str().to_owned(), code_style()));
-        } else if let Some(url) = cap.get(3) {
+        } else if let Some(url) = cap.get(5) {
             spans.push(Span::styled(url.as_str().to_owned(), url_style()));
         }
         last_end = whole.end();
@@ -222,6 +232,31 @@ mod tests {
         let lines = changelog_to_lines("- **Full Changelog**: see repo");
         assert_eq!(lines[0].spans[1].content, "Full Changelog");
         assert_eq!(lines[0].spans[1].style, bold_style());
+    }
+
+    #[test]
+    fn markdown_link_renders_label_only() {
+        let lines =
+            changelog_to_lines("- Improved picker ([#61215](https://github.com/z/z/pull/61215))");
+        let contents: Vec<&str> = lines[0].spans.iter().map(|s| s.content.as_ref()).collect();
+        // Label survives, styled as a URL; the raw URL and []() syntax are gone.
+        let label = lines[0]
+            .spans
+            .iter()
+            .find(|s| s.content == "#61215")
+            .expect("link label span");
+        assert_eq!(label.style, url_style());
+        assert!(!contents.iter().any(|c| c.contains("https://")));
+        assert!(!contents.iter().any(|c| c.contains("](")));
+    }
+
+    #[test]
+    fn markdown_link_mixed_with_bare_url() {
+        let lines = changelog_to_lines("- [docs](https://a.io/d) and https://b.io/x");
+        let contents: Vec<&str> = lines[0].spans.iter().map(|s| s.content.as_ref()).collect();
+        assert!(contents.contains(&"docs"));
+        assert!(contents.contains(&"https://b.io/x"));
+        assert!(!contents.iter().any(|c| c.contains("a.io")));
     }
 
     #[test]

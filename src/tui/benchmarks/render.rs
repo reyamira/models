@@ -1301,6 +1301,29 @@ pub(super) fn build_benchmark_detail_lines(
             .max()
             .unwrap_or(1),
     };
+    // Precompute comparator cells and decide once, panel-wide, whether the
+    // comparator column fits. Per-row dropping would flicker the column in and
+    // out across rows; a wrapped comparator orphans (`avg 19.2` alone at
+    // column 0) and reads as a stray row — at narrow widths the whole column
+    // yields instead.
+    let mut comparator_cells: Vec<Option<String>> = (0..file.metrics.len())
+        .map(|mi| comparator_cell_text(comparator, file, mi, model))
+        .collect();
+    let comparator_max_w = comparator_cells
+        .iter()
+        .flatten()
+        .map(|t| unicode_width::UnicodeWidthStr::width(t.as_str()))
+        .max()
+        .unwrap_or(0);
+    let comparator_fits = metric_row_layout.indent as usize
+        + metric_row_layout.label_w
+        + metric_row_layout.value_w
+        + 2
+        + comparator_max_w
+        <= width;
+    if !comparator_fits {
+        comparator_cells = vec![None; file.metrics.len()];
+    }
     for group in groups_in_order(file) {
         lines.push(Line::from(""));
         // Headers carry the scale and/or direction explanation when the
@@ -1313,7 +1336,7 @@ pub(super) fn build_benchmark_detail_lines(
         for mi in metric_indices_in_group(file, group) {
             let metric = &file.metrics[mi];
             let cell = model.scores.get(&metric.id);
-            let comparator_cell = comparator_cell_text(comparator, file, mi, model);
+            let comparator_cell = comparator_cells[mi].take();
             push_metric_row(
                 &mut lines,
                 &metric_row_layout,
@@ -1369,9 +1392,16 @@ struct ColumnWidths {
     label: u16,
     value: u16,
     label2: u16,
+    /// Below this panel width the 2x2 grid can't hold real values without the
+    /// left value colliding into the right label (`AnthropicReleased`) —
+    /// identity rows stack as one label/value pair per line instead.
+    stacked: bool,
 }
 
 impl ColumnWidths {
+    /// Minimum panel width for the 2x2 identity grid; below it, rows stack.
+    const GRID_MIN_WIDTH: u16 = 46;
+
     fn from_width(width: u16) -> Self {
         let indent: u16 = 2;
         let usable = width.saturating_sub(indent);
@@ -1389,6 +1419,7 @@ impl ColumnWidths {
             label: chunks[0].width.max(8),
             value: chunks[1].width.max(6),
             label2: chunks[2].width.max(8),
+            stacked: width < Self::GRID_MIN_WIDTH,
         }
     }
 }
@@ -1401,13 +1432,44 @@ fn style_for(c: Color) -> Style {
     }
 }
 
-/// Push a 2-column label/value metadata row.
+/// Push a 2-column label/value metadata row. In `stacked` mode (narrow
+/// panels), each pair gets its own line so values can never collide with the
+/// next label.
 fn push_meta_row(
     lines: &mut Vec<Line<'static>>,
     cw: &ColumnWidths,
     left: (&str, &str, Color),
     right: (&str, &str, Color),
 ) {
+    if cw.stacked {
+        for (label, value, color) in [left, right] {
+            if label.is_empty() {
+                continue;
+            }
+            lines.push(Line::from(vec![
+                Span::styled(
+                    format!(
+                        "{:indent$}{:<w$}",
+                        "",
+                        label,
+                        indent = cw.indent as usize,
+                        w = cw.label as usize
+                    ),
+                    Style::default().fg(Color::Gray),
+                ),
+                Span::styled(value.to_string(), style_for(color)),
+            ]));
+        }
+        return;
+    }
+
+    // Grid mode: pad the left value to its column; a value that overflows the
+    // column still gets a 1-space gap instead of running into the next label.
+    let left_value = if left.1.chars().count() >= cw.value as usize {
+        format!("{} ", left.1)
+    } else {
+        format!("{:<w$}", left.1, w = cw.value as usize)
+    };
     let mut spans = vec![
         Span::styled(
             format!(
@@ -1419,10 +1481,7 @@ fn push_meta_row(
             ),
             Style::default().fg(Color::Gray),
         ),
-        Span::styled(
-            format!("{:<w$}", left.1, w = cw.value as usize),
-            style_for(left.2),
-        ),
+        Span::styled(left_value, style_for(left.2)),
     ];
 
     if !right.0.is_empty() {
@@ -1897,6 +1956,75 @@ mod tests {
         // Source attribution moved to the source bar — no longer in the detail.
         assert!(!joined.contains("Source: Test Source"));
         assert!(!joined.contains("self-reported"));
+    }
+
+    /// Narrow panels must never emit a line wider than the panel: wide lines
+    /// wrap and collide ("AnthropicReleased", orphaned "avg 19.2" rows).
+    #[test]
+    fn detail_lines_fit_narrow_panel() {
+        use unicode_width::UnicodeWidthStr;
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![
+                metric(
+                    "long_context_reasoning",
+                    "Long Context Reasoning",
+                    MetricKind::Percentage,
+                    "Agentic",
+                ),
+                metric("gpqa", "GPQA", MetricKind::Percentage, "Agentic"),
+            ],
+            models: vec![model_with(vec![
+                ("long_context_reasoning", cell(0.553, None, None)),
+                ("gpqa", cell(0.914, None, None)),
+            ])],
+        };
+        // 38 = detail panel inner width at a 100-col terminal.
+        let width = 38u16;
+        let lines =
+            build_benchmark_detail_lines(width, &file, &file.models[0], ComparatorMode::FieldAvg);
+        for line in &lines {
+            let text = line_text(line);
+            assert!(
+                text.width() <= width as usize,
+                "line exceeds panel width ({} > {width}): {text:?}",
+                text.width()
+            );
+        }
+        // Identity rows are stacked (one pair per line): no line carries both
+        // a left and a right identity label.
+        let joined: Vec<String> = lines.iter().map(line_text).collect();
+        assert!(joined.iter().any(|l| l.contains("Creator")));
+        assert!(joined.iter().any(|l| l.contains("Released")));
+        assert!(!joined
+            .iter()
+            .any(|l| l.contains("Creator") && l.contains("Released")));
+    }
+
+    /// At comfortable widths the 2x2 identity grid and comparator column are
+    /// unchanged.
+    #[test]
+    fn detail_lines_wide_panel_keeps_grid_and_comparator() {
+        let file = SourceFile {
+            source: meta(true),
+            metrics: vec![metric(
+                "intelligence_index",
+                "Intelligence",
+                MetricKind::Index,
+                "Indexes",
+            )],
+            models: vec![model_with(vec![(
+                "intelligence_index",
+                cell(70.0, None, None),
+            )])],
+        };
+        let lines =
+            build_benchmark_detail_lines(66, &file, &file.models[0], ComparatorMode::FieldAvg);
+        let joined: Vec<String> = lines.iter().map(line_text).collect();
+        assert!(joined
+            .iter()
+            .any(|l| l.contains("Creator") && l.contains("Released")));
+        assert!(joined.iter().any(|l| l.contains("avg ")));
     }
 
     #[test]

@@ -421,6 +421,7 @@ pub fn providers(json: bool) -> Result<()> {
 
     let mut table = ComfyTable::new();
     table.load_preset(UTF8_FULL_CONDENSED);
+    super::styles::arrange_table(&mut table);
     table.set_header(vec!["ID", "Name", "Models"]);
     for info in infos {
         table.add_row(vec![info.id, info.name, info.models_count.to_string()]);
@@ -762,6 +763,7 @@ fn filter_picker_entries(
 fn print_model_table(rows: &[ModelRow], sort: ModelSort) {
     let mut table = ComfyTable::new();
     table.load_preset(UTF8_FULL_CONDENSED);
+    super::styles::arrange_table(&mut table);
     table.set_header(vec![
         "ID",
         "Name",
@@ -913,7 +915,7 @@ fn print_detail(d: &ModelDetail) {
     if let Some(date) = &d.knowledge_cutoff {
         println!("Knowledge:   {}", date);
     }
-    println!("Open Weights: {}", yes_no(d.open_weights));
+    println!("Weights:     {}", yes_no(d.open_weights));
     if let Some(status) = &d.status {
         println!("Status:      {}", status);
     }

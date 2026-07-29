@@ -359,6 +359,7 @@ fn print_list_table(entries: &[ProviderStatus]) {
 
     let mut table = ComfyTable::new();
     table.load_preset(UTF8_FULL_CONDENSED);
+    styles::arrange_table(&mut table);
     table.set_header(vec![
         styles::header_cell("Provider"),
         styles::header_cell("Health"),
@@ -422,6 +423,7 @@ fn run_status_table(json: bool) -> Result<()> {
 
     let mut table = ComfyTable::new();
     table.load_preset(UTF8_FULL_CONDENSED);
+    styles::arrange_table(&mut table);
     table.set_header(vec![
         styles::header_cell("Provider"),
         styles::header_cell("Health"),
@@ -699,6 +701,7 @@ fn print_sources_table(items: &[SourceItem]) {
 
     let mut table = ComfyTable::new();
     table.load_preset(UTF8_FULL_CONDENSED);
+    styles::arrange_table(&mut table);
     table.set_header(vec![
         styles::header_cell("Slug"),
         styles::header_cell("Provider"),

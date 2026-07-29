@@ -474,6 +474,7 @@ fn run_status() -> Result<()> {
 
     let mut table = comfy_table::Table::new();
     table.load_preset(comfy_table::presets::UTF8_FULL);
+    styles::arrange_table(&mut table);
     table.set_header(vec![
         styles::header_cell("Tool"),
         styles::header_cell("24h"),
@@ -710,6 +711,7 @@ fn run_list_sources() -> Result<()> {
 
     let mut table = comfy_table::Table::new();
     table.load_preset(comfy_table::presets::UTF8_FULL);
+    styles::arrange_table(&mut table);
     table.set_header(vec![
         styles::header_cell("ID"),
         styles::header_cell("Name"),
@@ -985,6 +987,7 @@ fn run_version_list(
 
     let mut table = comfy_table::Table::new();
     table.load_preset(comfy_table::presets::UTF8_FULL);
+    styles::arrange_table(&mut table);
     table.set_header(vec![
         styles::header_cell("Version"),
         styles::header_cell("Released"),

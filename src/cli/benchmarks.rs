@@ -726,6 +726,7 @@ fn run_list(options: ListOptions, json: bool) -> Result<()> {
 fn print_list_table(entries: &[&ModelRow], sort: BenchmarkSort) {
     let mut table = ComfyTable::new();
     table.load_preset(UTF8_FULL_CONDENSED);
+    super::styles::arrange_table(&mut table);
     table.set_header(vec![
         "Slug",
         "Name",

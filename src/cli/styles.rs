@@ -18,6 +18,17 @@ pub fn is_tty() -> bool {
     *IS_TTY.get_or_init(|| std::io::stdout().is_terminal())
 }
 
+// ── Table arrangement (comfy-table) ──────────────────────────────────
+/// On a TTY, arrange columns dynamically to the terminal width so wide tables
+/// wrap cell content instead of overflowing (the models list is ~330 cols
+/// content-sized). Piped/non-TTY output is left untouched — content-sized,
+/// byte-identical to previous releases — so text parsers are unaffected.
+pub fn arrange_table(table: &mut comfy_table::Table) {
+    if is_tty() {
+        table.set_content_arrangement(comfy_table::ContentArrangement::Dynamic);
+    }
+}
+
 // ── Cell helpers (comfy-table) ───────────────────────────────────────
 pub fn header_cell(text: &str) -> comfy_table::Cell {
     if is_tty() {

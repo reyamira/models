@@ -64,6 +64,9 @@ In the detail panel, capabilities expand to `Yes`/`No` values using the same col
   {initial} {provider_id} ({count})
   ```
   Initial color: `cat.color()`. Provider ID: default style. Count: `Color::Gray`.
+  The id is truncated with `truncate()` (ellipsis) so the count always stays
+  visible at narrow widths — a bare clip (`alibaba-cn (84`) is indistinguishable
+  from a sibling id.
 - `find_selectable_index()` skips `CategoryHeader` items — they are never highlighted.
 
 **Provider category colors** (from `ProviderCategory`): Origin=White, Cloud=Cyan, Inference=Yellow, Gateway=Green, Tool=Magenta. These are tab-specific — do not assume fixed colors; use `cat.color()`.
@@ -83,17 +86,26 @@ In the detail panel, capabilities expand to `Yes`/`No` values using the same col
 
 ## 4. Model List Columns
 
-Fixed column widths (left to right):
+Column widths (left to right):
 
 | Column | Width | Notes |
 |--------|-------|-------|
 | Caret | 2 | `"> "` focused / `"  "` unfocused |
 | RTFO | 5 | 4 indicator chars + 1 space |
-| Model name | dynamic | `inner_width - (2+5+8+8+8+3)`, minimum 10 |
-| Input cost | 8 | right-aligned `{:>8}` |
-| Output cost | 8 | right-aligned `{:>8}` |
-| Context | 8 | right-aligned `{:>8}` |
-| Gap spaces | 3 | one leading space per numeric column |
+| Model name | dynamic | remainder after kept numeric columns, minimum 10 |
+| Input cost | 9 | 1-space gap + right-aligned `{:>8}` |
+| Output cost | 9 | 1-space gap + right-aligned `{:>8}` |
+| Context | 9 | 1-space gap + right-aligned `{:>8}` |
+
+**Column drop policy** (`ModelListColumn` in `render.rs`): numeric columns shed
+from the right (Context first, then Output, then Input) before the name column
+drops below an 18-char minimum — capacity = `(inner_width - 7 - 18) / 9`,
+capped at 3. The **actively-sorted column always survives** the drop (Cost sort
+keeps Input, Context sort keeps Context) by replacing the last kept column.
+Header and rows render only the kept columns, so nothing ever clips mid-value
+(the old fixed layout rendered a 1M-context model as `"1"` at ≤100 total cols).
+Mirrors the Benchmarks list `max_cols` policy. Verified by the
+`*_render_*`-named tests in `mouse_tests`.
 
 **Header row** — occupies list index 0, offset by +1 in `model_list_state.select()`:
 - Default style: `Color::Yellow` + `Modifier::BOLD`
