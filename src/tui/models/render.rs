@@ -459,28 +459,33 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
     let inner_area = outer_block.inner(area);
     f.render_widget(outer_block, area);
 
-    // Fixed column widths: caret(2) + caps(5), then up to three 9-wide numeric
-    // columns (1-space gap + 8-wide value). Numeric columns shed from the
-    // right before the name column starves (mirrors the Benchmarks list) —
-    // the old fixed layout silently clipped the Context column at narrow
-    // widths, rendering a 1M-context model as "1". The actively-sorted
-    // column always survives the drop.
+    // Fixed column widths: caret(2) + caps(5), then the Provider column
+    // (1-space gap + 14-wide display name) and up to three 9-wide numeric
+    // columns (1-space gap + 8-wide value). Columns shed greedily from the
+    // right of the keep-priority order — Provider, Input, Output, Context —
+    // before the name column starves (mirrors the Benchmarks list): Provider
+    // is the last to go because in the "All" view it is the differentiator
+    // between otherwise-identical duplicate rows. The old fixed layout
+    // silently clipped the Context column at narrow widths, rendering a
+    // 1M-context model as "1". The actively-sorted column always survives
+    // the drop.
     let caret_w: u16 = 2;
     let caps_w: u16 = 5; // "RTFO " — 4 indicator chars + 1 space
-    const NUM_COL_W: u16 = 9; // 1-space gap + 8-wide value
     const NAME_MIN: u16 = 18;
     let fixed_w = caret_w + caps_w;
-    let capacity = (inner_area
-        .width
-        .saturating_sub(fixed_w + NAME_MIN)
-        .saturating_div(NUM_COL_W) as usize)
-        .min(3);
-    let mut num_cols: Vec<ModelListColumn> = [
+    let mut budget = inner_area.width.saturating_sub(fixed_w + NAME_MIN);
+    let mut num_cols: Vec<ModelListColumn> = Vec::new();
+    for col in [
+        ModelListColumn::Provider,
         ModelListColumn::Input,
         ModelListColumn::Output,
         ModelListColumn::Context,
-    ][..capacity]
-        .to_vec();
+    ] {
+        if budget >= col.width() {
+            budget -= col.width();
+            num_cols.push(col);
+        }
+    }
     let sort_needs = match app.models_app.sort_order {
         SortOrder::Cost => Some(ModelListColumn::Input),
         SortOrder::Context => Some(ModelListColumn::Context),
@@ -488,14 +493,20 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
     };
     if let Some(needed) = sort_needs {
         if !num_cols.is_empty() && !num_cols.contains(&needed) {
+            // Numeric columns are never wider than the column they replace
+            // (Provider is the widest), so the swap always fits.
             *num_cols.last_mut().unwrap() = needed;
         }
     }
-    let name_width = (inner_area
-        .width
-        .saturating_sub(fixed_w + num_cols.len() as u16 * NUM_COL_W)
-        as usize)
-        .max(10);
+    let cols_w: u16 = num_cols.iter().map(|c| c.width()).sum();
+    let name_width = (inner_area.width.saturating_sub(fixed_w + cols_w) as usize).max(10);
+
+    // Provider display names for the Provider column, keyed by provider id.
+    let provider_names: std::collections::HashMap<&str, &str> = app
+        .providers
+        .iter()
+        .map(|(id, p)| (id.as_str(), p.name.as_str()))
+        .collect();
 
     let header_style = Style::default()
         .fg(Color::Yellow)
@@ -535,6 +546,7 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
     ];
     for col in &num_cols {
         let (label, style) = match col {
+            ModelListColumn::Provider => ("Provider", header_style),
             ModelListColumn::Input => ("Input", cost_style),
             ModelListColumn::Output => ("Output", cost_style),
             ModelListColumn::Context => (
@@ -546,7 +558,11 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
                 },
             ),
         };
-        header_spans.push(Span::styled(format!(" {:>8}", label), style));
+        let cell = match col {
+            ModelListColumn::Provider => format!(" {:<14}", label),
+            _ => format!(" {:>8}", label),
+        };
+        header_spans.push(Span::styled(cell, style));
     }
 
     // Build items with header row
@@ -571,6 +587,33 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
 
         let prefix = if is_selected { caret } else { "  " };
         let m = &entry.model;
+
+        // Repeat detection: consecutive rows with the same id render the id
+        // in DarkGray so the Provider column carries the difference —
+        // sameness recedes, difference advances. The RTFO cluster dims too,
+        // but only when the capability flags are also identical: a bright
+        // RTFO on a dimmed-id row signals that this vendor's deployment of
+        // the "same" model genuinely differs. Selection styling wins.
+        let (id_repeat, rtfo_repeat) = if display_idx > 0 {
+            let prev = &models[display_idx - 1];
+            let pm = &prev.model;
+            let idr = prev.id == entry.id;
+            let rr = idr
+                && pm.reasoning == m.reasoning
+                && pm.tool_call == m.tool_call
+                && pm.attachment == m.attachment
+                && pm.open_weights == m.open_weights;
+            (idr, rr)
+        } else {
+            (false, false)
+        };
+        let dim_rtfo = rtfo_repeat && !is_selected;
+        let paint = |c: Color| if dim_rtfo { Color::DarkGray } else { c };
+        let id_style = if id_repeat && !is_selected {
+            Style::default().fg(Color::DarkGray)
+        } else {
+            style
+        };
         let (r_ch, r_color) = if m.reasoning {
             ("R", Color::Cyan)
         } else {
@@ -593,10 +636,10 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
         };
         let mut row_spans: Vec<Span> = vec![
             Span::styled(prefix, style),
-            Span::styled(r_ch, Style::default().fg(r_color)),
-            Span::styled(t_ch, Style::default().fg(t_color)),
-            Span::styled(f_ch, Style::default().fg(f_color)),
-            Span::styled(o_ch, Style::default().fg(o_color)),
+            Span::styled(r_ch, Style::default().fg(paint(r_color))),
+            Span::styled(t_ch, Style::default().fg(paint(t_color))),
+            Span::styled(f_ch, Style::default().fg(paint(f_color))),
+            Span::styled(o_ch, Style::default().fg(paint(o_color))),
             Span::raw(" "),
             Span::styled(
                 format!(
@@ -604,16 +647,28 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
                     truncate(&entry.id, name_width.saturating_sub(1)),
                     width = name_width
                 ),
-                style,
+                id_style,
             ),
         ];
         for col in &num_cols {
-            let value = match col {
-                ModelListColumn::Input => &input_cost,
-                ModelListColumn::Output => &output_cost,
-                ModelListColumn::Context => &ctx,
-            };
-            row_spans.push(Span::styled(format!(" {:>8}", value), style));
+            match col {
+                ModelListColumn::Provider => {
+                    let name = provider_names
+                        .get(entry.provider_id.as_str())
+                        .copied()
+                        .unwrap_or(entry.provider_id.as_str());
+                    row_spans.push(Span::styled(format!(" {:<14}", truncate(name, 14)), style));
+                }
+                ModelListColumn::Input => {
+                    row_spans.push(Span::styled(format!(" {:>8}", input_cost), style))
+                }
+                ModelListColumn::Output => {
+                    row_spans.push(Span::styled(format!(" {:>8}", output_cost), style))
+                }
+                ModelListColumn::Context => {
+                    row_spans.push(Span::styled(format!(" {:>8}", ctx), style))
+                }
+            }
         }
 
         items.push(ListItem::new(Line::from(row_spans)));
@@ -626,13 +681,27 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
     f.render_stateful_widget(list, inner_area, &mut app.models_app.model_list_state);
 }
 
-/// Numeric columns of the model list, in display order. Which ones render is
-/// width-dependent (see the drop policy in `draw_model_list`).
+/// Columns right of the model id, in display order (which doubles as the
+/// keep-priority order). Which ones render is width-dependent (see the drop
+/// policy in `draw_models`).
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum ModelListColumn {
+    Provider,
     Input,
     Output,
     Context,
+}
+
+impl ModelListColumn {
+    /// Total column width including its 1-space leading gap.
+    fn width(self) -> u16 {
+        match self {
+            // 14-wide left-aligned display name.
+            Self::Provider => 15,
+            // 8-wide right-aligned value.
+            Self::Input | Self::Output | Self::Context => 9,
+        }
+    }
 }
 
 fn draw_provider_detail(f: &mut Frame, area: Rect, lines: Vec<Line<'static>>) {
@@ -1295,24 +1364,27 @@ mod mouse_tests {
     }
 
     #[test]
-    fn wide_render_keeps_all_numeric_columns() {
+    fn wide_render_keeps_all_columns() {
         let mut app = test_app();
         let header = list_header_row(&render_to_text(&mut app, 175, 45));
+        assert!(header.contains("Provider"));
         assert!(header.contains("Input"));
         assert!(header.contains("Output"));
         assert!(header.contains("Context"));
     }
 
     #[test]
-    fn narrow_render_drops_context_before_starving_name() {
+    fn narrow_render_keeps_provider_sheds_numerics() {
         let mut app = test_app();
-        // 100 total cols -> models panel 45 -> inner 43: room for 2 numeric
-        // columns after the 18-char name minimum. Context sheds; no clipping.
+        // 100 total cols -> models panel 45 -> inner 43: after the 18-char
+        // name minimum only the Provider column (highest keep-priority — it
+        // disambiguates duplicate rows) fits. Numerics shed; nothing clips.
         let header = list_header_row(&render_to_text(&mut app, 100, 40));
-        assert!(header.contains("Input"));
-        assert!(header.contains("Output"));
+        assert!(header.contains("Provider"));
+        assert!(!header.contains("Input"));
+        assert!(!header.contains("Output"));
         assert!(
-            !header.contains("Context") && !header.contains("Contex"),
+            !header.contains("Contex"),
             "Context must drop cleanly, not clip: {header:?}"
         );
     }
@@ -1324,20 +1396,86 @@ mod mouse_tests {
         app.models_app
             .update_filtered_models(&app.providers.clone());
         let header = list_header_row(&render_to_text(&mut app, 100, 40));
-        // Context replaces the last kept column instead of dropping.
+        // Context replaces the last kept column (Provider) instead of dropping.
         assert!(header.contains("Context"), "sort column must survive");
+        assert!(!header.contains("Provider"));
         assert!(!header.contains("Output"));
     }
 
     #[test]
     fn very_narrow_render_keeps_name_only() {
         let mut app = test_app();
-        // Inner list width < NAME_MIN + one numeric column: every numeric
-        // column sheds; the name takes the full width, nothing clips.
+        // Inner list width < NAME_MIN + the narrowest column: everything
+        // sheds; the name takes the full width, nothing clips.
         let header = list_header_row(&render_to_text(&mut app, 60, 40));
         assert!(header.contains("Model ID"));
+        assert!(!header.contains("Provider"));
         assert!(!header.contains("Input"));
         assert!(!header.contains("Output"));
         assert!(!header.contains("Context"));
+    }
+
+    /// Two providers shipping the same model id, identical capabilities: the
+    /// second (consecutive) row dims its id and RTFO cluster to DarkGray while
+    /// the first stays default — the Provider column carries the difference.
+    #[test]
+    fn consecutive_duplicate_rows_dim_id_and_rtfo() {
+        use ratatui::style::Color;
+
+        let json = r#"{
+            "alpha": { "id": "alpha", "name": "Alpha", "models": {
+                "dup": { "id": "dup", "name": "Dup" },
+                "solo": { "id": "solo", "name": "Solo" }
+            } },
+            "beta": { "id": "beta", "name": "Beta", "models": {
+                "dup": { "id": "dup", "name": "Dup" }
+            } }
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+        app.current_tab = Tab::Models;
+        // Move selection off the duplicate rows — selection styling overrides
+        // dimming by design.
+        app.models_app.selected_model = 2;
+
+        let backend = TestBackend::new(120, 40);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| crate::tui::ui::draw(f, &mut app))
+            .expect("draw");
+        let buf = terminal.backend().buffer().clone();
+
+        // Find the two "dup" rows and the CELL column where the id starts.
+        // (String::find would return byte offsets — the border/dot glyphs are
+        // multi-byte, so byte index != cell column.)
+        let mut dup_cells = Vec::new();
+        for y in 0..40u16 {
+            let symbols: Vec<&str> = (0..120u16)
+                .map(|x| buf.cell((x, y)).map(|c| c.symbol()).unwrap_or(" "))
+                .collect();
+            for x in 1..117 {
+                if symbols[x - 1] == " "
+                    && symbols[x] == "d"
+                    && symbols[x + 1] == "u"
+                    && symbols[x + 2] == "p"
+                    && symbols[x + 3] == " "
+                {
+                    dup_cells.push((x as u16, y));
+                    break;
+                }
+            }
+        }
+        assert_eq!(dup_cells.len(), 2, "expected two dup rows");
+        let fg_at = |x: u16, y: u16| buf.cell((x, y)).expect("cell").style().fg;
+        let (x0, y0) = dup_cells[0];
+        let (x1, y1) = dup_cells[1];
+        // First occurrence: default id color; repeat: DarkGray.
+        assert_ne!(fg_at(x0, y0), Some(Color::DarkGray), "first dup not dimmed");
+        assert_eq!(fg_at(x1, y1), Some(Color::DarkGray), "repeat dup dimmed");
+        // RTFO cluster: the O/C indicator (4th capability char) sits 2 cols
+        // left of the id start. Red (closed) on the first row, dimmed on the
+        // repeat since capabilities match exactly.
+        assert_eq!(fg_at(x0 - 2, y0), Some(Color::Red));
+        assert_eq!(fg_at(x1 - 2, y1), Some(Color::DarkGray));
     }
 }

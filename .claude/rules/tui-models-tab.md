@@ -92,20 +92,39 @@ Column widths (left to right):
 |--------|-------|-------|
 | Caret | 2 | `"> "` focused / `"  "` unfocused |
 | RTFO | 5 | 4 indicator chars + 1 space |
-| Model name | dynamic | remainder after kept numeric columns, minimum 10 |
+| Model name | dynamic | remainder after kept columns, minimum 10 |
+| Provider | 15 | 1-space gap + left-aligned `{:<14}` display name (truncated with ellipsis) |
 | Input cost | 9 | 1-space gap + right-aligned `{:>8}` |
 | Output cost | 9 | 1-space gap + right-aligned `{:>8}` |
 | Context | 9 | 1-space gap + right-aligned `{:>8}` |
 
-**Column drop policy** (`ModelListColumn` in `render.rs`): numeric columns shed
-from the right (Context first, then Output, then Input) before the name column
-drops below an 18-char minimum — capacity = `(inner_width - 7 - 18) / 9`,
-capped at 3. The **actively-sorted column always survives** the drop (Cost sort
-keeps Input, Context sort keeps Context) by replacing the last kept column.
-Header and rows render only the kept columns, so nothing ever clips mid-value
-(the old fixed layout rendered a 1M-context model as `"1"` at ≤100 total cols).
-Mirrors the Benchmarks list `max_cols` policy. Verified by the
-`*_render_*`-named tests in `mouse_tests`.
+**Column drop policy** (`ModelListColumn` in `render.rs`): columns right of the
+name shed greedily from the right of the keep-priority order — **Provider,
+Input, Output, Context** — before the name column drops below an 18-char
+minimum. Provider is kept first (dropped last) because in the "All" view it is
+the differentiator between otherwise-identical duplicate rows. The
+**actively-sorted column always survives** the drop (Cost sort keeps Input,
+Context sort keeps Context) by replacing the last kept column. Header and rows
+render only the kept columns, so nothing ever clips mid-value (the old fixed
+layout rendered a 1M-context model as `"1"` at ≤100 total cols). Mirrors the
+Benchmarks list `max_cols` policy. Verified by the `*_render_*`-named tests in
+`mouse_tests`.
+
+**Provider column content**: models.dev **display name** (`Provider.name`, e.g.
+`Amazon Bedrock`, `Alibaba (China)`, `302.AI`), not the id slug — ids already
+appear as namespace prefixes inside the Model ID column. Falls back to the id
+when the provider isn't found. Style follows the row (`style`), never dimmed.
+
+**Duplicate-row dimming**: consecutive rows with the **same model id** render
+the id in `Color::DarkGray` (first occurrence keeps the default style) so the
+Provider column carries the difference — sameness recedes, difference advances.
+The RTFO cluster dims too, but **only when the four capability flags are also
+identical**: a bright RTFO on a dimmed-id row signals that this vendor's
+deployment of the "same" model genuinely differs. Selection styling always
+wins (a selected row is never dimmed). Exact consecutive string equality only —
+`us.anthropic.claude-opus-5` after `claude-opus-5` stays bright (the id
+genuinely differs; no normalization in v1). Verified by
+`consecutive_duplicate_rows_dim_id_and_rtfo`.
 
 **Header row** — occupies list index 0, offset by +1 in `model_list_state.select()`:
 - Default style: `Color::Yellow` + `Modifier::BOLD`
