@@ -167,25 +167,16 @@ preview/GA and window-size pairs) — the detail panel disambiguates those.
 the id when the provider isn't found. Style follows the row (`style`), never
 dimmed.
 
-**Duplicate-row dimming**: consecutive rows for the **same underlying model**
-render the name cell in `Color::DarkGray` (first occurrence keeps the default
-style)
-so the Provider column carries the difference — sameness recedes, difference
-advances. The **sameness key is the models.dev display name** (`Model.name`),
-not the id: upstream, provider entries inherit `name` verbatim from the
-canonical `models/` registry (`base_model` resolution in the models.dev build)
-and override it exactly when a variant genuinely differs — `"Claude Opus 5
-(EU)"`, `"(Fast)"`, `"(JP)"` stay bright while `us.anthropic.claude-opus-5` /
-`claude-opus-5` / `anthropic/claude-opus-5` (all named `"Claude Opus 5"`) dim
-as one run. Do **not** add `family` as a guard key — its per-provider
-granularity is inconsistent (`qwen` vs `qwen3.7-plus`) and reintroduces misses.
-The RTFO cluster dims too, but **only when the four capability flags are also
-identical**: a bright RTFO on a dimmed-id row signals that this vendor's
-deployment of the "same" model genuinely differs. Selection styling always
-wins (a selected row is never dimmed). Adjacency-only: rows compare to their
-immediate predecessor in display order, so dimming is a reading aid for runs,
-never a global claim. Verified by `consecutive_duplicate_rows_dim_id_and_rtfo`
-and `dimming_keys_on_display_name_not_id`.
+**Duplicate-row dimming — PAUSED** (user decision 2026-07-29): flat/offerings
+rows do **not** dim consecutive same-name duplicates. The grouped default view
+already communicates sameness structurally (one row per name, drill for
+per-provider rows), so the dim read as noise/confusion on top of it. The
+removed mechanism (for the record, if ever revived): adjacency-only DarkGray
+on the name cell keyed on the models.dev display name (`Model.name` — never
+`family`, whose per-provider granularity is inconsistent), RTFO dimming only
+on an exact four-flag capability match, selection styling always winning.
+History: removed in the "pause duplicate-row dimming" commit on
+`fix/tui-cli-visual-defects`.
 
 **Header row** — a **sticky** 1-line widget rendered above the list (`Length(1)` + `Min(0)` split of the inner area), NOT a list item. As item 0 it scrolled away and never returned after `G`-then-`g` (ratatui only scrolls the *selected* item into view, and the header was never selectable). Selection indices therefore map 1:1 (`select(Some(idx))`, no +1). Guarded by `header_stays_visible_after_jump_to_bottom_and_back`:
 - Default style: `Color::Yellow` + `Modifier::BOLD`

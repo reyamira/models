@@ -590,47 +590,6 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
         let prefix = if is_selected { caret } else { "  " };
         let m = &entry.model;
 
-        // Repeat detection: consecutive rows for the same underlying model
-        // render the id in DarkGray so the Provider column carries the
-        // difference — sameness recedes, difference advances.
-        //
-        // Sameness key: the models.dev **display name** (`Model.name`), not
-        // the id. Upstream, provider entries inherit `name` verbatim from the
-        // canonical `models/` registry (`base_model` resolution in their
-        // build), and providers override it exactly when a variant genuinely
-        // differs — "Claude Opus 5 (EU)", "(Fast)", "(JP)". So name equality
-        // is the curated same-model judgment the id string hides:
-        // `us.anthropic.claude-opus-5` / `claude-opus-5` /
-        // `anthropic/claude-opus-5` all carry name "Claude Opus 5". Measured
-        // on live data (2026-07-29): 770 adjacent repeats under name equality
-        // vs 403 under id equality. Family was rejected as a guard key — its
-        // per-provider granularity is inconsistent ("qwen" vs "qwen3.7-plus")
-        // and would reintroduce misses.
-        //
-        // The RTFO cluster dims too, but only when the capability flags are
-        // also identical: a bright RTFO on a dimmed-id row signals that this
-        // vendor's deployment of the "same" model genuinely differs.
-        // Selection styling wins.
-        let (id_repeat, rtfo_repeat) = if display_idx > 0 {
-            let prev = &models[display_idx - 1];
-            let pm = &prev.model;
-            let same_model = !m.name.is_empty() && pm.name == m.name;
-            let rr = same_model
-                && pm.reasoning == m.reasoning
-                && pm.tool_call == m.tool_call
-                && pm.attachment == m.attachment
-                && pm.open_weights == m.open_weights;
-            (same_model, rr)
-        } else {
-            (false, false)
-        };
-        let dim_rtfo = rtfo_repeat && !is_selected;
-        let paint = |c: Color| if dim_rtfo { Color::DarkGray } else { c };
-        let id_style = if id_repeat && !is_selected {
-            Style::default().fg(Color::DarkGray)
-        } else {
-            style
-        };
         let (r_ch, r_color) = if m.reasoning {
             ("R", Color::Cyan)
         } else {
@@ -653,10 +612,10 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
         };
         let mut row_spans: Vec<Span> = vec![
             Span::styled(prefix, style),
-            Span::styled(r_ch, Style::default().fg(paint(r_color))),
-            Span::styled(t_ch, Style::default().fg(paint(t_color))),
-            Span::styled(f_ch, Style::default().fg(paint(f_color))),
-            Span::styled(o_ch, Style::default().fg(paint(o_color))),
+            Span::styled(r_ch, Style::default().fg(r_color)),
+            Span::styled(t_ch, Style::default().fg(t_color)),
+            Span::styled(f_ch, Style::default().fg(f_color)),
+            Span::styled(o_ch, Style::default().fg(o_color)),
             Span::raw(" "),
             Span::styled(
                 format!(
@@ -676,7 +635,7 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
                     ),
                     width = name_width
                 ),
-                id_style,
+                style,
             ),
         ];
         for col in &num_cols {
@@ -734,7 +693,7 @@ impl ModelListColumn {
     }
 }
 
-/// Format a min–max cost range compactly: `—` / `$5.0` / `$5.0–6.0`.
+/// Format a min–max cost range compactly: `—` / `$5` / `$5–6`.
 fn fmt_cost_range(range: Option<(f64, f64)>) -> String {
     match range {
         None => EM_DASH.to_string(),
@@ -1366,14 +1325,10 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
                 }
             }
             Some(0.0) => ("$0/M".to_string(), Color::Green),
-            Some(v) => {
-                let formatted = if v.fract() == 0.0 {
-                    format!("${}/M", v as u64)
-                } else {
-                    format!("${:.2}/M", v)
-                };
-                (formatted, cost_color)
-            }
+            Some(v) => (
+                format!("{}/M", crate::formatting::format_usd(v)),
+                cost_color,
+            ),
         }
     };
     let (input_str, input_color) = fmt_cost(model.cost.as_ref().and_then(|c| c.input));
@@ -1943,136 +1898,5 @@ mod mouse_tests {
         assert!(!header.contains("Input"));
         assert!(!header.contains("Output"));
         assert!(!header.contains("Context"));
-    }
-
-    /// Two providers shipping the same model, identical capabilities: the
-    /// second (consecutive) row dims its name cell and RTFO cluster to
-    /// DarkGray while the first stays default — the Provider column carries
-    /// the difference.
-    #[test]
-    fn consecutive_duplicate_rows_dim_id_and_rtfo() {
-        use ratatui::style::Color;
-
-        let json = r#"{
-            "alpha": { "id": "alpha", "name": "Alpha", "models": {
-                "dup": { "id": "dup", "name": "Dup" },
-                "solo": { "id": "solo", "name": "Solo" }
-            } },
-            "beta": { "id": "beta", "name": "Beta", "models": {
-                "dup": { "id": "dup", "name": "Dup" }
-            } }
-        }"#;
-        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
-        let mut app = App::new(map, None, None);
-        app.current_tab = Tab::Models;
-        flat(&mut app);
-        // Move selection off the duplicate rows — selection styling overrides
-        // dimming by design.
-        app.models_app.selected_model = 2;
-
-        let backend = TestBackend::new(120, 40);
-        let mut terminal = Terminal::new(backend).expect("terminal");
-        terminal
-            .draw(|f| crate::tui::ui::draw(f, &mut app))
-            .expect("draw");
-        let buf = terminal.backend().buffer().clone();
-
-        // Find the two "Dup" rows and the CELL column where the name starts.
-        // (String::find would return byte offsets — the border/dot glyphs are
-        // multi-byte, so byte index != cell column.)
-        let mut dup_cells = Vec::new();
-        for y in 0..40u16 {
-            let symbols: Vec<&str> = (0..120u16)
-                .map(|x| buf.cell((x, y)).map(|c| c.symbol()).unwrap_or(" "))
-                .collect();
-            for x in 1..117 {
-                if symbols[x - 1] == " "
-                    && symbols[x] == "D"
-                    && symbols[x + 1] == "u"
-                    && symbols[x + 2] == "p"
-                    && symbols[x + 3] == " "
-                {
-                    dup_cells.push((x as u16, y));
-                    break;
-                }
-            }
-        }
-        assert_eq!(dup_cells.len(), 2, "expected two dup rows");
-        let fg_at = |x: u16, y: u16| buf.cell((x, y)).expect("cell").style().fg;
-        let (x0, y0) = dup_cells[0];
-        let (x1, y1) = dup_cells[1];
-        // First occurrence: default color; repeat: DarkGray.
-        assert_ne!(fg_at(x0, y0), Some(Color::DarkGray), "first dup not dimmed");
-        assert_eq!(fg_at(x1, y1), Some(Color::DarkGray), "repeat dup dimmed");
-        // RTFO cluster: the O/C indicator (4th capability char) sits 2 cols
-        // left of the name start. Red (closed) on the first row, dimmed on
-        // the repeat since capabilities match exactly.
-        assert_eq!(fg_at(x0 - 2, y0), Some(Color::Red));
-        assert_eq!(fg_at(x1 - 2, y1), Some(Color::DarkGray));
-    }
-
-    /// The sameness key is the models.dev display name, not the id: two
-    /// providers spelling the same model differently (`a-opus` /
-    /// `b.ns.opus`) still dim, while a name override ("Opus X (Fast)") —
-    /// upstream's curated signal that the variant genuinely differs — stays
-    /// bright even in the same run.
-    #[test]
-    fn dimming_keys_on_display_name_not_id() {
-        use ratatui::style::Color;
-
-        let json = r#"{
-            "alpha": { "id": "alpha", "name": "Alpha", "models": {
-                "a-opus": { "id": "a-opus", "name": "Opus X" },
-                "z-fast": { "id": "z-fast", "name": "Opus X (Fast)" }
-            } },
-            "beta": { "id": "beta", "name": "Beta", "models": {
-                "b.ns.opus": { "id": "b.ns.opus", "name": "Opus X" }
-            } }
-        }"#;
-        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
-        let mut app = App::new(map, None, None);
-        app.current_tab = Tab::Models;
-        flat(&mut app);
-        // Dateless models sort by id ascending: a-opus, b.ns.opus, z-fast.
-        // Keep the selection on the first row; it's the bright one anyway.
-        let backend = TestBackend::new(120, 40);
-        let mut terminal = Terminal::new(backend).expect("terminal");
-        terminal
-            .draw(|f| crate::tui::ui::draw(f, &mut app))
-            .expect("draw");
-        let buf = terminal.backend().buffer().clone();
-
-        // Locate the three "Opus X…" rows (display order = id sort: a-opus,
-        // b.ns.opus, z-fast) by the displayed name's first cell; record its
-        // fg color and whether the row is the "(Fast)" variant.
-        let mut found: Vec<(bool, Option<Color>)> = Vec::new();
-        for y in 0..40u16 {
-            let symbols: Vec<&str> = (0..120u16)
-                .map(|x| buf.cell((x, y)).map(|c| c.symbol()).unwrap_or(" "))
-                .collect();
-            for x in 1..110 {
-                if symbols[x - 1] == " " && symbols[x..x + 7].concat() == "Opus X " {
-                    let is_fast = symbols[x + 7] == "(";
-                    found.push((is_fast, buf.cell((x as u16, y)).expect("cell").style().fg));
-                    break;
-                }
-            }
-        }
-        assert_eq!(found.len(), 3, "expected three Opus X rows");
-        // Same name, different id -> dims. Overridden name -> bright.
-        assert!(!found[0].0);
-        assert_ne!(found[0].1, Some(Color::DarkGray), "first stays bright");
-        assert!(!found[1].0);
-        assert_eq!(
-            found[1].1,
-            Some(Color::DarkGray),
-            "same display name dims despite differing id"
-        );
-        assert!(found[2].0, "third row is the (Fast) variant");
-        assert_ne!(
-            found[2].1,
-            Some(Color::DarkGray),
-            "name override marks a real variant — never dimmed"
-        );
     }
 }
