@@ -1,8 +1,8 @@
 # Models Tab
 
 ## Files
-- `app.rs` — `ModelsApp` state, `Focus` (Providers/Models/Details), `SortOrder`, `Filters`, `ProviderListItem`, `ModelEntry`, `detail_scroll: ScrollOffset`
-- `render.rs` — `draw_main()` renders the 3-column layout (providers | model list | detail panel)
+- `app.rs` — `ModelsApp` state, `Focus` (Models/Details), `ListMode` (Grouped/Offerings/Flat), `ModelGroup`, `SortOrder`, `Filters`, `ModelEntry`, provider-picker modal state, `detail_scroll: ScrollOffset`
+- `render.rs` — `draw_main()` renders the 2-column layout (model list 60% | right panel 40%): `draw_grouped_list` (default), the flat/offerings renderer, the provider picker modal, group detail Providers section
 
 ## Key Patterns
 - `ModelsApp::update_filtered_models(&mut self, providers)` takes `&[(String, Provider)]` param — providers live on `App`, not `ModelsApp`
@@ -10,12 +10,13 @@
 - `ProviderListItem::CategoryHeader` items are non-selectable — `find_selectable_index()` skips them
 - Sort/filter methods (`cycle_sort`, `toggle_reasoning`, etc.) live on `ModelsApp` and call `update_filtered_models` internally
 - Detail panel uses `ScrollablePanel` widget with `detail_scroll: ScrollOffset` for scrollable, focus-aware rendering
-- Focus navigation uses directional `focus_left()`/`focus_right()` cycling through Providers → Models → Details
+- Focus toggles between Models ↔ Details (the provider sidebar is retired; `p` opens the provider modal)
 - `reset_detail_scroll()` called on every model selection change (navigation, sort, filter, search)
-- Provider list items display a category initial prefix (O/C/I/G/T for Origin/Cloud/Inference/Gateway/Tool) at the start of each item instead of an abbreviated label at the end
+- Provider modal rows display a category initial prefix (O/C/I/G/T for Origin/Cloud/Inference/Gateway/Tool); `provider_list_items` powers the modal, not a sidebar
+- Grouped view state machine: `list_mode()` derives Grouped/Offerings/Flat from scope + `drill_name` + `flat_view`; nav methods dispatch via `nav_len`/`nav_selected`/`nav_select`; lab resolution via `crate::labs` (catalog assigned after `App::new` — `tui::run` re-runs `update_filtered_models`)
 
 ## Provider Detail Card
-- Rendered above model detail in the right panel — border always DarkGray (not focusable)
+- Offerings/Flat modes only (grouped mode gives the detail panel the full height) — border always DarkGray (not focusable)
 - Height dynamically computed from wrapped content lines + 2 borders
 - Shows: provider name (Cyan+BOLD), category, docs URL, API URL, env var
 
