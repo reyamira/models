@@ -92,7 +92,7 @@ Column widths (left to right):
 |--------|-------|-------|
 | Caret | 2 | `"> "` focused / `"  "` unfocused |
 | RTFO | 5 | 4 indicator chars + 1 space |
-| Model name | dynamic | remainder after kept columns, minimum 10 |
+| Model | dynamic | remainder after kept columns, minimum 10 — **display name** (`Model.name`), header `"Model"`; id fallback for nameless models |
 | Provider | 15 | 1-space gap + left-aligned `{:<14}` display name (truncated with ellipsis) |
 | Input cost | 9 | 1-space gap + right-aligned `{:>8}` |
 | Output cost | 9 | 1-space gap + right-aligned `{:>8}` |
@@ -110,13 +110,23 @@ layout rendered a 1M-context model as `"1"` at ≤100 total cols). Mirrors the
 Benchmarks list `max_cols` policy. Verified by the `*_render_*`-named tests in
 `mouse_tests`.
 
+**Name-primary identity**: the identifying column shows the models.dev
+**display name**, not the model id. Rationale: the id is the *acting* artifact
+(config strings) and stays served by `c`/`C` copy and the detail panel; the
+name is the *reading* one — shorter (mean 16.5 vs 20.6 chars), curated
+upstream, and consistent with what search matches (search matches id OR name
+OR provider, so an id-displaying list showed rows whose visible text didn't
+contain the query). Within-provider name collisions are ~1% of rows (28
+preview/GA and window-size pairs) — the detail panel disambiguates those.
+
 **Provider column content**: models.dev **display name** (`Provider.name`, e.g.
-`Amazon Bedrock`, `Alibaba (China)`, `302.AI`), not the id slug — ids already
-appear as namespace prefixes inside the Model ID column. Falls back to the id
-when the provider isn't found. Style follows the row (`style`), never dimmed.
+`Amazon Bedrock`, `Alibaba (China)`, `302.AI`), not the id slug. Falls back to
+the id when the provider isn't found. Style follows the row (`style`), never
+dimmed.
 
 **Duplicate-row dimming**: consecutive rows for the **same underlying model**
-render the id in `Color::DarkGray` (first occurrence keeps the default style)
+render the name cell in `Color::DarkGray` (first occurrence keeps the default
+style)
 so the Provider column carries the difference — sameness recedes, difference
 advances. The **sameness key is the models.dev display name** (`Model.name`),
 not the id: upstream, provider entries inherit `name` verbatim from the

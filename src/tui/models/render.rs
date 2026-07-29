@@ -536,7 +536,7 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
         Span::raw("  "),
         Span::styled("RTFO ", header_style),
         Span::styled(
-            format!("{:<width$}", "Model ID", width = name_width),
+            format!("{:<width$}", "Model", width = name_width),
             if sort_col == "name" {
                 active_header_style
             } else {
@@ -659,7 +659,19 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
             Span::styled(
                 format!(
                     "{:<width$}",
-                    truncate(&entry.id, name_width.saturating_sub(1)),
+                    // Display name, not id: the id is the *acting* artifact
+                    // (config strings — served by `c`/`C` copy and the detail
+                    // panel), the name is the *reading* one. Names are
+                    // shorter, curated upstream, and match what search
+                    // matches. Id fallback for a hypothetical nameless model.
+                    truncate(
+                        if m.name.is_empty() {
+                            &entry.id
+                        } else {
+                            &m.name
+                        },
+                        name_width.saturating_sub(1)
+                    ),
                     width = name_width
                 ),
                 id_style,
@@ -1423,16 +1435,17 @@ mod mouse_tests {
         // Inner list width < NAME_MIN + the narrowest column: everything
         // sheds; the name takes the full width, nothing clips.
         let header = list_header_row(&render_to_text(&mut app, 60, 40));
-        assert!(header.contains("Model ID"));
+        assert!(header.contains("Model"));
         assert!(!header.contains("Provider"));
         assert!(!header.contains("Input"));
         assert!(!header.contains("Output"));
         assert!(!header.contains("Context"));
     }
 
-    /// Two providers shipping the same model id, identical capabilities: the
-    /// second (consecutive) row dims its id and RTFO cluster to DarkGray while
-    /// the first stays default — the Provider column carries the difference.
+    /// Two providers shipping the same model, identical capabilities: the
+    /// second (consecutive) row dims its name cell and RTFO cluster to
+    /// DarkGray while the first stays default — the Provider column carries
+    /// the difference.
     #[test]
     fn consecutive_duplicate_rows_dim_id_and_rtfo() {
         use ratatui::style::Color;
@@ -1460,7 +1473,7 @@ mod mouse_tests {
             .expect("draw");
         let buf = terminal.backend().buffer().clone();
 
-        // Find the two "dup" rows and the CELL column where the id starts.
+        // Find the two "Dup" rows and the CELL column where the name starts.
         // (String::find would return byte offsets — the border/dot glyphs are
         // multi-byte, so byte index != cell column.)
         let mut dup_cells = Vec::new();
@@ -1470,7 +1483,7 @@ mod mouse_tests {
                 .collect();
             for x in 1..117 {
                 if symbols[x - 1] == " "
-                    && symbols[x] == "d"
+                    && symbols[x] == "D"
                     && symbols[x + 1] == "u"
                     && symbols[x + 2] == "p"
                     && symbols[x + 3] == " "
@@ -1484,12 +1497,12 @@ mod mouse_tests {
         let fg_at = |x: u16, y: u16| buf.cell((x, y)).expect("cell").style().fg;
         let (x0, y0) = dup_cells[0];
         let (x1, y1) = dup_cells[1];
-        // First occurrence: default id color; repeat: DarkGray.
+        // First occurrence: default color; repeat: DarkGray.
         assert_ne!(fg_at(x0, y0), Some(Color::DarkGray), "first dup not dimmed");
         assert_eq!(fg_at(x1, y1), Some(Color::DarkGray), "repeat dup dimmed");
         // RTFO cluster: the O/C indicator (4th capability char) sits 2 cols
-        // left of the id start. Red (closed) on the first row, dimmed on the
-        // repeat since capabilities match exactly.
+        // left of the name start. Red (closed) on the first row, dimmed on
+        // the repeat since capabilities match exactly.
         assert_eq!(fg_at(x0 - 2, y0), Some(Color::Red));
         assert_eq!(fg_at(x1 - 2, y1), Some(Color::DarkGray));
     }
@@ -1524,37 +1537,35 @@ mod mouse_tests {
             .expect("draw");
         let buf = terminal.backend().buffer().clone();
 
-        // Locate each row by its id's first cell and record its fg color.
-        let mut found = std::collections::HashMap::new();
+        // Locate the three "Opus X…" rows (display order = id sort: a-opus,
+        // b.ns.opus, z-fast) by the displayed name's first cell; record its
+        // fg color and whether the row is the "(Fast)" variant.
+        let mut found: Vec<(bool, Option<Color>)> = Vec::new();
         for y in 0..40u16 {
             let symbols: Vec<&str> = (0..120u16)
                 .map(|x| buf.cell((x, y)).map(|c| c.symbol()).unwrap_or(" "))
                 .collect();
-            let row: String = symbols.concat();
-            for id in ["a-opus", "b.ns.opus", "z-fast"] {
-                if row.contains(&format!(" {id} ")) {
-                    let x = symbols
-                        .windows(2)
-                        .position(|w| w[0] == " " && w[1] == &id[0..1])
-                        .map(|p| p + 1)
-                        .unwrap();
-                    // Verify we're at the id start, not a stray match.
-                    let slice: String = symbols[x..x + id.len()].concat();
-                    if slice == id {
-                        found.insert(id, buf.cell((x as u16, y)).expect("cell").style().fg);
-                    }
+            for x in 1..110 {
+                if symbols[x - 1] == " " && symbols[x..x + 7].concat() == "Opus X " {
+                    let is_fast = symbols[x + 7] == "(";
+                    found.push((is_fast, buf.cell((x as u16, y)).expect("cell").style().fg));
+                    break;
                 }
             }
         }
+        assert_eq!(found.len(), 3, "expected three Opus X rows");
         // Same name, different id -> dims. Overridden name -> bright.
-        assert_ne!(found["a-opus"], Some(Color::DarkGray), "first stays bright");
+        assert!(!found[0].0);
+        assert_ne!(found[0].1, Some(Color::DarkGray), "first stays bright");
+        assert!(!found[1].0);
         assert_eq!(
-            found["b.ns.opus"],
+            found[1].1,
             Some(Color::DarkGray),
             "same display name dims despite differing id"
         );
+        assert!(found[2].0, "third row is the (Fast) variant");
         assert_ne!(
-            found["z-fast"],
+            found[2].1,
             Some(Color::DarkGray),
             "name override marks a real variant — never dimmed"
         );
