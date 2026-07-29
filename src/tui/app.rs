@@ -94,18 +94,24 @@ impl Tab {
 #[derive(Debug)]
 pub enum Message {
     Quit,
-    NextProvider,
-    PrevProvider,
     NextModel,
     PrevModel,
-    SelectFirstProvider,
-    SelectLastProvider,
     SelectFirstModel,
     SelectLastModel,
-    PageDownProvider,
-    PageUpProvider,
     PageDownModel,
     PageUpModel,
+    /// Enter on a grouped Models row: push into its offerings.
+    ModelsEnter,
+    /// `V`: toggle grouped vs flat All view (persisted).
+    ToggleFlatModels,
+    /// `p`: open the provider picker modal.
+    OpenProviderPicker,
+    CloseProviderPicker,
+    ApplyProviderPicker,
+    ProviderPickerNext,
+    ProviderPickerPrev,
+    ProviderPickerBackspace,
+    ProviderPickerInput(char),
     EnterSearch,
     ExitSearch,
     SearchInput(char),
@@ -730,23 +736,11 @@ impl App {
     pub fn update(&mut self, msg: Message) -> bool {
         match msg {
             Message::Quit => return false,
-            Message::NextProvider => {
-                self.models_app.next_provider(&self.providers);
-            }
-            Message::PrevProvider => {
-                self.models_app.prev_provider(&self.providers);
-            }
             Message::NextModel => {
                 self.models_app.next_model();
             }
             Message::PrevModel => {
                 self.models_app.prev_model();
-            }
-            Message::SelectFirstProvider => {
-                self.models_app.select_first_provider(&self.providers);
-            }
-            Message::SelectLastProvider => {
-                self.models_app.select_last_provider(&self.providers);
             }
             Message::SelectFirstModel => {
                 self.models_app.select_first_model();
@@ -754,17 +748,48 @@ impl App {
             Message::SelectLastModel => {
                 self.models_app.select_last_model();
             }
-            Message::PageDownProvider => {
-                self.models_app.page_down_provider(&self.providers);
-            }
-            Message::PageUpProvider => {
-                self.models_app.page_up_provider(&self.providers);
-            }
             Message::PageDownModel => {
                 self.models_app.page_down_model();
             }
             Message::PageUpModel => {
                 self.models_app.page_up_model();
+            }
+            Message::ModelsEnter => {
+                self.models_app.enter_selection(&self.providers);
+            }
+            Message::ToggleFlatModels => {
+                self.models_app.flat_view = !self.models_app.flat_view;
+                self.models_app.drill_name = None;
+                self.models_app.update_filtered_models(&self.providers);
+                self.models_app.reset_detail_scroll();
+                self.config.display.flat_models = self.models_app.flat_view;
+                let _ = self.config.save();
+            }
+            Message::OpenProviderPicker => {
+                self.models_app.open_provider_picker();
+            }
+            Message::CloseProviderPicker => {
+                self.models_app.show_provider_picker = false;
+            }
+            Message::ApplyProviderPicker => {
+                self.models_app.apply_picker_selection(&self.providers);
+            }
+            Message::ProviderPickerNext => {
+                let len = self.models_app.picker_rows(&self.providers).len();
+                if self.models_app.picker_selected + 1 < len {
+                    self.models_app.picker_selected += 1;
+                }
+            }
+            Message::ProviderPickerPrev => {
+                self.models_app.picker_selected = self.models_app.picker_selected.saturating_sub(1);
+            }
+            Message::ProviderPickerBackspace => {
+                self.models_app.picker_query.pop();
+                self.models_app.picker_selected = 0;
+            }
+            Message::ProviderPickerInput(c) => {
+                self.models_app.picker_query.push(c);
+                self.models_app.picker_selected = 0;
             }
             Message::FocusModelLeft => {
                 self.models_app.focus_left();
@@ -848,7 +873,11 @@ impl App {
             },
             Message::ClearSearch => match self.current_tab {
                 Tab::Models => {
-                    self.models_app.clear_search(&self.providers);
+                    // Esc precedence: pop the drill / provider scope first;
+                    // only a "top-level" Esc clears the search query.
+                    if !self.models_app.escape_back(&self.providers) {
+                        self.models_app.clear_search(&self.providers);
+                    }
                 }
                 Tab::Agents => {
                     if let Some(ref mut agents_app) = self.agents_app {

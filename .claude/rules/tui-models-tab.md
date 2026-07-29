@@ -1,5 +1,5 @@
 ---
-description: Models tab design conventions — 3-column layout, RTFO indicators, provider list, model list columns, copy/open keybindings, detail sections
+description: Models tab design conventions — grouped/flat views, provider modal, lab resolution, RTFO indicators, model list columns, copy/open keybindings, detail sections
 globs:
   - src/tui/models/**
 ---
@@ -10,22 +10,43 @@ Tab-specific patterns only. For shared colors, borders, focus, search, footer, a
 
 ---
 
-## 1. Layout
+## 1. Layout & View Modes
 
 ```
-Percentage(20)   -- Providers panel (with filter row)
-Percentage(45)   -- Model list
-Percentage(35)   -- Right panel (provider detail top + model detail bottom)
+Percentage(60)   -- Model list (grouped or flat)
+Percentage(40)   -- Right panel
 ```
 
-**Providers panel internal split** (rendered manually — outer block drawn first, inner area split):
+There is **no provider sidebar** (retired 2026-07-29): its filtering job moved
+to the `p` provider modal (§3), its browse job to the grouped list itself.
+Focus cycles two panels only: `Focus::Models ↔ Focus::Details`.
 
-```rust
-Constraint::Length(1)  -- Filter toggles row
-Constraint::Min(0)     -- Provider list (stateful)
-```
+**View modes** (`ListMode`, derived by `list_mode()` — never stored):
 
-**Right panel vertical split** (dynamic height — provider detail is auto-sized):
+| Mode | When | Rows |
+|------|------|------|
+| `Grouped` | All scope, no drill, `flat_view` off (**default**) | one per model name (`ModelGroup`) |
+| `Offerings` | `drill_name` is `Some` (Enter on a grouped row) | that group's flat offering rows |
+| `Flat` | provider-scoped, or the `V` toggle | flat per-offering rows |
+
+- **Enter** (grouped) → push into the group's offerings; breadcrumb title
+  `" Models ▸ {name} ({n} providers) "` (distinct-provider count, singular
+  when 1). **Esc** pops back with `selected_group` preserved (guarded by
+  `enter_drills_into_group_and_esc_pops_back`); Esc from a provider scope
+  returns to All-grouped; only a top-level Esc clears search
+  (`escape_back()` before `clear_search` in the `ClearSearch` arm).
+- **`V`** toggles Grouped ↔ Flat for the All view, persisted as
+  `config.display.flat_models`. Flat-All title: `" Models · flat ({count}) "`.
+- Grouped title: `" Models ({group_count}) "`.
+- Nav dispatch: `next_model`/`select_model_at_index`/etc. operate on the group
+  list in Grouped mode via `nav_len`/`nav_selected`/`nav_select` — event.rs is
+  mode-agnostic. Grouped list renders into `group_list_state` (header row at
+  item 0, same +1 offset convention); the mouse handler picks the state by
+  `list_mode()` and shares the `model_list_area` rect.
+
+**Right panel**: in Grouped mode the detail takes the full height (no provider
+card — meaningless for a multi-provider group). In Offerings/Flat modes the
+split is unchanged:
 
 ```rust
 Constraint::Length(provider_h)  -- Provider card (visual height computed from wrapped lines + 2 borders)
@@ -33,6 +54,28 @@ Constraint::Min(0)              -- Model detail (ScrollablePanel)
 ```
 
 Provider card height is computed as the sum of visual wrapped line heights + 2 (borders). Word-wrap adds +1 slack per wrapped line beyond `div_ceil` estimate.
+
+**Grouped row columns** (`draw_grouped_list`): caret 2 + RTFO 5 + name
+(min 18) + greedy-kept columns Lab(16) / Providers(11) / Input(12) /
+Output(12) / Context(12), sort column survives (same policy as §4). Ranges
+render `min–max` (`fmt_cost_range` / `fmt_ctx_range`), collapsing when equal —
+and context ranges within 5% collapse to one value (providers spell the same
+window as 1,000,000 vs 1,048,576; `1M–1.0M` is noise). RTFO on grouped rows
+uses **majority + dim-when-mixed** (`group_cap_char`): the majority value
+picks the char; a genuine split renders it DarkGray. Grouped detail: `Lab:`
+under the id, a `── Providers (N) ──` section (cheapest first, capped at 10
+with an overflow hint) after the description; the rest describes the
+representative (first) offering.
+
+**Lab resolution** (`src/labs.rs`): models.dev's canonical `models/` registry
+links offerings via `base_model`, but every published endpoint strips it — the
+lab is reconstructed: exact name → paren-stripped name → family → id-prefix,
+against `models.json` (fetched at startup, 5s timeout, curated-table fallback
+offline). Canonical families need **≥2 models** to be trusted (Thinking
+Machines' lone "Inkling" claims family `ling`, which would mislabel
+InclusionAI's Ling line — guarded by a curated `ling → inclusionai` entry).
+`ModelsApp.lab_catalog` is assigned **after** `App::new`, so `tui::run`
+re-runs `update_filtered_models` — groups built at construction have no labs.
 
 ---
 
@@ -51,36 +94,35 @@ In the detail panel, capabilities expand to `Yes`/`No` values using the same col
 
 ---
 
-## 3. Provider List
+## 3. Provider Modal (`p`)
 
-- **"All" item**: text `Color::Green`, format `"All ({count})"` where count is the filtered model count
-- **Category header items** (`ProviderListItem::CategoryHeader`): non-selectable, rendered as:
-  ```
-  ── Label ──────────────────
-  ```
-  Color: `cat.color()` + `Modifier::BOLD`. Trailing `\u{2500}` chars fill to inner panel width minus 2.
-- **Provider items** (`ProviderListItem::Provider`): single-char category initial + provider ID + count in Gray:
-  ```
-  {initial} {provider_id} ({count})
-  ```
-  Initial color: `cat.color()`. Provider ID: default style. Count: `Color::Gray`.
-  The id is truncated with `truncate()` (ellipsis) so the count always stays
-  visible at narrow widths — a bare clip (`alibaba-cn (84`) is indistinguishable
-  from a sibling id.
-- `find_selectable_index()` skips `CategoryHeader` items — they are never highlighted.
+Search-first provider scoping — the sidebar's replacement. Standard popup
+chrome: `Clear` background, Cyan border, `centered_rect_fixed(46, …)`, title
+`" Provider ({count}) "`, bottom title `" Enter: browse | Esc: cancel "`.
+
+- **Search is scope-local by design** (user decision): it matches provider
+  id/name only, never the models a provider carries — "who sells Claude" is
+  answered by the grouped list's Enter drill, not the modal.
+- Layout: 1-line query row (`/ {query}_`, SLOW_BLINK cursor) + row list. Row 0
+  is always `All models ({total})` (Green); provider rows are
+  `{category initial} {id} ({model count})` (initial in `cat.color()`).
+  **Typing is immediate** — every printable char (digits included: `302ai`)
+  goes to the query, so the modal intercepts all keys
+  (`handle_provider_picker_keys`); `q` never quits from inside it.
+- Enter (or click — click-to-apply like the sort picker) applies the scope:
+  provider rows → provider-scoped Flat view with the Provider card pinned;
+  `All models` → back to All-grouped. `picker_rows()` is the single source of
+  the row list for render, keys, and mouse alike.
+- Renders a **fresh ListState per frame** (deterministic offset for
+  `popup_row_at` — see style guide §12); popup inner rect cached in
+  `picker_area` (a `Cell`).
 
 **Provider category colors** (from `ProviderCategory`): Origin=White, Cloud=Cyan, Inference=Yellow, Gateway=Green, Tool=Magenta. These are tab-specific — do not assume fixed colors; use `cat.color()`.
 
-**Filter row** (1-line, rendered as plain `Paragraph` above the list):
-
-```
-[5] Cat  [6] Grp
-```
-
-- `[5]` key: category color when active (cycles through categories), `Color::DarkGray` when inactive. Label shows `cat.short_label()` when active, `"Cat"` when inactive.
-- `[6]` key: `Color::Green` when grouping active, `Color::DarkGray` when not.
-
-**Filter keys**: `1`=reasoning, `2`=tools, `3`=open weights, `4`=free, `5`=provider category (cycles), `6`=group by category
+**Filter keys** (global on the tab): `1`=reasoning, `2`=tools, `3`=open
+weights, `4`=free, `5`=provider category (cycles), `6`=group by category.
+`5`/`6` shape which providers the modal lists; there is no filter-toggle row
+anymore (the sidebar that hosted it is gone).
 
 ---
 
@@ -228,13 +270,12 @@ Style: `Color::DarkGray` + `Modifier::BOLD`. Fills to panel inner width with `\u
 
 ## 7. Focus States
 
-Three focus positions cycle left/right via `h`/`l`:
+Two focus positions; `h`/`l`/`Tab` toggle:
 
 ```
-Focus::Providers  →  Focus::Models  →  Focus::Details
+Focus::Models  ↔  Focus::Details
 ```
 
-- Providers border: Cyan when focused
 - Models border: Cyan when focused
 - Details (`ScrollablePanel`): Cyan border when focused, scrollable
 
@@ -246,7 +287,8 @@ Focus::Providers  →  Focus::Models  →  Focus::Details
 
 This tab is the **reference implementation** for TUI mouse support (`handle_models_mouse` + `mouse_tests` in `src/tui/models/`). See style guide §12 for the shared pattern.
 
-- **Cached rects** (`ModelsApp`, written at render time): `provider_list_area` (bare list region below the filter-toggle row), `model_list_area` (the list inner area — the column header is list item 0), `provider_card_area`, `model_detail_area`.
-- **Click:** provider row → focus Providers + select (category-header rows are skipped); model row → focus Models + select (item 0 is the header → ignored, `idx - 1` maps to the model); provider card or model detail → focus Details only.
-- **Wheel (focus-then-scroll):** over providers → prev/next provider; over models → prev/next model; over the right panel → scroll the model detail.
-- The model list renders into the **real** `model_list_state` so `offset()` is valid for click-to-select while scrolled (this is the `ListState` copy gotcha — see CLAUDE.md).
+- **Cached rects** (`ModelsApp`, written at render time): `model_list_area` (the list inner area — the column header is list item 0; shared by the grouped and flat lists), `provider_card_area`, `model_detail_area`. `provider_list_area` is reset to `None` every frame (the sidebar is gone; no stale hit-area may linger).
+- **Click:** list row → focus Models + select (item 0 is the header → ignored, `idx - 1` maps to the row; grouped mode selects a group). The handler picks state/offset/row-count by `list_mode()` (`group_list_state` vs `model_list_state`, `mouse_row_count()`). Provider card or model detail → focus Details only.
+- **Wheel (focus-then-scroll):** over the list → prev/next row (mode-dispatched); over the right panel → scroll the model detail.
+- **Provider modal**: `modal_popup_open` includes `show_provider_picker`; wheel → `ProviderPickerNext/Prev`, click → row via `popup_row_at` + click-to-apply.
+- Both lists render into their **real** `ListState`s so `offset()` is valid for click-to-select while scrolled (the `ListState` copy gotcha — see CLAUDE.md).

@@ -13,7 +13,6 @@ const PAGE_SIZE: usize = 10;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Focus {
-    Providers,
     Models,
     Details,
 }
@@ -87,6 +86,66 @@ pub struct ModelsApp {
     pub model_list_area: Option<Rect>,
     pub provider_card_area: Option<Rect>,
     pub model_detail_area: Option<Rect>,
+    /// Lab (canonical creator) resolver — set once at startup from
+    /// models.dev's canonical registry; defaults to the curated-only table.
+    pub lab_catalog: crate::labs::LabCatalog,
+    /// `V` toggle: flat per-offering list instead of the grouped view when
+    /// "All" is selected. Persisted via config by the caller.
+    pub flat_view: bool,
+    /// Push-in drill: `Some(group name)` = the list shows only that group's
+    /// offerings (today's flat rows). `Esc` pops back to the grouped list.
+    pub drill_name: Option<String>,
+    /// Grouped view rows, rebuilt alongside `filtered_models` whenever the
+    /// All scope is active and no drill applies.
+    pub groups: Vec<ModelGroup>,
+    pub selected_group: usize,
+    pub group_list_state: ListState,
+    /// Provider picker modal (`p`): search-first provider filter.
+    pub show_provider_picker: bool,
+    pub picker_query: String,
+    pub picker_selected: usize,
+    /// Popup inner rect cached at render time for mouse row mapping.
+    pub picker_area: std::cell::Cell<Option<Rect>>,
+}
+
+/// Which list the center panel is showing. Derived state — see `list_mode`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ListMode {
+    /// One row per model name (All scope, default).
+    Grouped,
+    /// Offerings of one drilled-into group (breadcrumb view).
+    Offerings,
+    /// Flat per-offering rows (provider-scoped, or the `V` toggle).
+    Flat,
+}
+
+/// Aggregate row of the grouped view: one model name across its providers.
+/// Capability tallies are `(true_count, total)` so the renderer can apply the
+/// majority-plus-dim-when-mixed policy.
+#[derive(Debug, Clone)]
+pub struct ModelGroup {
+    pub name: String,
+    /// Lab slug (via `crate::labs`), `None` when unresolved.
+    pub lab: Option<String>,
+    /// Distinct providers carrying the model (the "Providers" column — a
+    /// provider listing the same name twice counts once).
+    pub provider_count: usize,
+    pub offering_count: usize,
+    pub reasoning: (usize, usize),
+    pub tools: (usize, usize),
+    pub files: (usize, usize),
+    pub open: (usize, usize),
+    pub input_range: Option<(f64, f64)>,
+    pub output_range: Option<(f64, f64)>,
+    pub context_range: Option<(u64, u64)>,
+    /// Latest release date across offerings (dates are canonical-inherited,
+    /// so usually identical).
+    pub max_release: Option<String>,
+    /// Index of the first member in `filtered_models` — the representative
+    /// offering for detail rendering.
+    pub first_entry: usize,
+    /// Indices of all members in `filtered_models`, list order.
+    pub member_indices: Vec<usize>,
 }
 
 impl ModelsApp {
@@ -101,7 +160,7 @@ impl ModelsApp {
             selected_model: 0,
             provider_list_state,
             model_list_state,
-            focus: Focus::Providers,
+            focus: Focus::Models,
             sort_order: SortOrder::ReleaseDate,
             sort_ascending: false,
             filters: Filters::default(),
@@ -117,6 +176,20 @@ impl ModelsApp {
             model_list_area: None,
             provider_card_area: None,
             model_detail_area: None,
+            lab_catalog: crate::labs::LabCatalog::default(),
+            flat_view: false,
+            drill_name: None,
+            groups: Vec::new(),
+            selected_group: 0,
+            group_list_state: {
+                let mut s = ListState::default();
+                s.select(Some(1)); // +1 for header row
+                s
+            },
+            show_provider_picker: false,
+            picker_query: String::new(),
+            picker_selected: 0,
+            picker_area: std::cell::Cell::new(None),
         };
 
         app.update_provider_list(providers);
@@ -129,10 +202,6 @@ impl ModelsApp {
             self.provider_list_items.get(self.selected_provider),
             Some(ProviderListItem::All)
         )
-    }
-
-    pub fn provider_list_len(&self) -> usize {
-        self.provider_list_items.len()
     }
 
     pub fn selected_provider_data<'a>(
@@ -317,6 +386,10 @@ impl ModelsApp {
                 })
                 .collect();
 
+            // Push-in drill: restrict to the drilled group's offerings.
+            if let Some(drill) = &self.drill_name {
+                entries.retain(|e| group_key(e) == *drill);
+            }
             self.sort_entries(&mut entries);
             entries
         } else {
@@ -348,8 +421,277 @@ impl ModelsApp {
                 Vec::new()
             }
         };
+        self.rebuild_groups();
     }
 
+    /// Rebuild the grouped rows from the current `filtered_models`. Only
+    /// meaningful in the All scope without a drill; cleared otherwise.
+    fn rebuild_groups(&mut self) {
+        if !self.is_all_selected() || self.drill_name.is_some() {
+            // `selected_group` is deliberately preserved here so a drill
+            // round-trip (Enter → Esc) restores the user's place.
+            self.groups.clear();
+            return;
+        }
+        let mut order: Vec<String> = Vec::new();
+        let mut map: std::collections::HashMap<String, ModelGroup> =
+            std::collections::HashMap::new();
+        let mut providers_seen: std::collections::HashMap<
+            String,
+            std::collections::HashSet<String>,
+        > = std::collections::HashMap::new();
+        for (idx, e) in self.filtered_models.iter().enumerate() {
+            let key = group_key(e);
+            let g = map.entry(key.clone()).or_insert_with(|| {
+                order.push(key.clone());
+                ModelGroup {
+                    name: key.clone(),
+                    lab: self
+                        .lab_catalog
+                        .resolve(&e.model.name, e.model.family.as_deref(), &e.id)
+                        .map(String::from),
+                    provider_count: 0,
+                    offering_count: 0,
+                    reasoning: (0, 0),
+                    tools: (0, 0),
+                    files: (0, 0),
+                    open: (0, 0),
+                    input_range: None,
+                    output_range: None,
+                    context_range: None,
+                    max_release: None,
+                    first_entry: idx,
+                    member_indices: Vec::new(),
+                }
+            });
+            g.offering_count += 1;
+            g.member_indices.push(idx);
+            providers_seen
+                .entry(key)
+                .or_default()
+                .insert(e.provider_id.clone());
+            let m = &e.model;
+            let tally = |t: &mut (usize, usize), v: bool| {
+                t.1 += 1;
+                if v {
+                    t.0 += 1;
+                }
+            };
+            tally(&mut g.reasoning, m.reasoning);
+            tally(&mut g.tools, m.tool_call);
+            tally(&mut g.files, m.attachment);
+            tally(&mut g.open, m.open_weights);
+            let fold_f = |r: &mut Option<(f64, f64)>, v: Option<f64>| {
+                if let Some(v) = v {
+                    *r = Some(match *r {
+                        Some((lo, hi)) => (lo.min(v), hi.max(v)),
+                        None => (v, v),
+                    });
+                }
+            };
+            fold_f(&mut g.input_range, m.cost.as_ref().and_then(|c| c.input));
+            fold_f(&mut g.output_range, m.cost.as_ref().and_then(|c| c.output));
+            if let Some(ctx) = m.limit.as_ref().and_then(|l| l.context) {
+                g.context_range = Some(match g.context_range {
+                    Some((lo, hi)) => (lo.min(ctx), hi.max(ctx)),
+                    None => (ctx, ctx),
+                });
+            }
+            if let Some(d) = &m.release_date {
+                if g.max_release.as_deref().is_none_or(|cur| d.as_str() > cur) {
+                    g.max_release = Some(d.clone());
+                }
+            }
+        }
+        let mut groups: Vec<ModelGroup> = order
+            .into_iter()
+            .map(|k| {
+                let mut g = map.remove(&k).expect("group present");
+                g.provider_count = providers_seen.get(&g.name).map_or(0, |s| s.len());
+                g
+            })
+            .collect();
+        self.sort_groups(&mut groups);
+        self.groups = groups;
+        if self.selected_group >= self.groups.len() {
+            self.selected_group = self.groups.len().saturating_sub(1);
+        }
+        self.group_list_state.select(Some(self.selected_group + 1));
+    }
+
+    /// Group sort mirrors the flat sort semantics on aggregates: date = max
+    /// release, cost = cheapest offering, context = largest window.
+    fn sort_groups(&self, groups: &mut [ModelGroup]) {
+        let asc = self.sort_ascending;
+        match self.sort_order {
+            SortOrder::Default => groups.sort_by(|a, b| a.name.cmp(&b.name)),
+            SortOrder::ReleaseDate => {
+                groups.sort_by(|a, b| match (&b.max_release, &a.max_release) {
+                    (Some(bd), Some(ad)) => {
+                        if asc {
+                            ad.cmp(bd)
+                        } else {
+                            bd.cmp(ad)
+                        }
+                    }
+                    (Some(_), None) => std::cmp::Ordering::Less,
+                    (None, Some(_)) => std::cmp::Ordering::Greater,
+                    (None, None) => a.name.cmp(&b.name),
+                })
+            }
+            SortOrder::Cost => groups.sort_by(|a, b| {
+                match (a.input_range.map(|r| r.0), b.input_range.map(|r| r.0)) {
+                    (Some(av), Some(bv)) => {
+                        let cmp = av.partial_cmp(&bv).unwrap_or(std::cmp::Ordering::Equal);
+                        if asc {
+                            cmp.reverse()
+                        } else {
+                            cmp
+                        }
+                    }
+                    (Some(_), None) => std::cmp::Ordering::Less,
+                    (None, Some(_)) => std::cmp::Ordering::Greater,
+                    (None, None) => a.name.cmp(&b.name),
+                }
+            }),
+            SortOrder::Context => groups.sort_by(|a, b| {
+                match (b.context_range.map(|r| r.1), a.context_range.map(|r| r.1)) {
+                    (Some(bv), Some(av)) => {
+                        if asc {
+                            av.cmp(&bv)
+                        } else {
+                            bv.cmp(&av)
+                        }
+                    }
+                    (Some(_), None) => std::cmp::Ordering::Less,
+                    (None, Some(_)) => std::cmp::Ordering::Greater,
+                    (None, None) => a.name.cmp(&b.name),
+                }
+            }),
+        }
+    }
+
+    /// Which list the center panel shows right now.
+    pub fn list_mode(&self) -> ListMode {
+        if !self.is_all_selected() {
+            return ListMode::Flat;
+        }
+        if self.drill_name.is_some() {
+            return ListMode::Offerings;
+        }
+        if self.flat_view {
+            ListMode::Flat
+        } else {
+            ListMode::Grouped
+        }
+    }
+
+    pub fn current_group(&self) -> Option<&ModelGroup> {
+        self.groups.get(self.selected_group)
+    }
+
+    /// Enter on a grouped row: push into its offerings.
+    pub fn enter_selection(&mut self, providers: &[(String, Provider)]) {
+        if self.list_mode() != ListMode::Grouped {
+            return;
+        }
+        let Some(name) = self.current_group().map(|g| g.name.clone()) else {
+            return;
+        };
+        self.drill_name = Some(name);
+        self.selected_model = 0;
+        self.model_list_state.select(Some(1));
+        self.update_filtered_models(providers);
+        self.reset_detail_scroll();
+    }
+
+    pub fn open_provider_picker(&mut self) {
+        self.show_provider_picker = true;
+        self.picker_query.clear();
+        self.picker_selected = 0;
+    }
+
+    /// Provider-picker rows for the current query: `(provider index in
+    /// `providers`, display row)` — "All" is row 0 (`None` index).
+    pub fn picker_rows(&self, providers: &[(String, Provider)]) -> Vec<Option<usize>> {
+        let q = self.picker_query.to_lowercase();
+        let mut rows: Vec<Option<usize>> = vec![None];
+        for item in &self.provider_list_items {
+            if let ProviderListItem::Provider(idx, _) = item {
+                if let Some((id, p)) = providers.get(*idx) {
+                    if q.is_empty()
+                        || id.to_lowercase().contains(&q)
+                        || p.name.to_lowercase().contains(&q)
+                    {
+                        rows.push(Some(*idx));
+                    }
+                }
+            }
+        }
+        rows
+    }
+
+    /// Apply the picker selection: scope to one provider (or All), close the
+    /// modal, and rebuild.
+    pub fn apply_picker_selection(&mut self, providers: &[(String, Provider)]) {
+        let rows = self.picker_rows(providers);
+        let Some(choice) = rows.get(self.picker_selected).copied() else {
+            return;
+        };
+        self.show_provider_picker = false;
+        self.drill_name = None;
+        match choice {
+            None => {
+                self.selected_provider = 0;
+            }
+            Some(provider_idx) => {
+                // Map the providers-vec index back to its list-item position.
+                if let Some(pos) = self.provider_list_items.iter().position(
+                    |it| matches!(it, ProviderListItem::Provider(i, _) if *i == provider_idx),
+                ) {
+                    self.selected_provider = pos;
+                }
+            }
+        }
+        self.selected_model = 0;
+        self.model_list_state.select(Some(1));
+        self.update_filtered_models(providers);
+        self.reset_detail_scroll();
+    }
+
+    /// Esc, before search-clearing: pop the drill, or provider scope back to
+    /// All. Returns true when the key was consumed.
+    pub fn escape_back(&mut self, providers: &[(String, Provider)]) -> bool {
+        if self.drill_name.is_some() {
+            self.drill_name = None;
+            self.update_filtered_models(providers);
+            self.reset_detail_scroll();
+            return true;
+        }
+        if !self.is_all_selected() {
+            self.selected_provider = 0;
+            self.provider_list_state.select(Some(0));
+            self.selected_model = 0;
+            self.model_list_state.select(Some(1));
+            self.update_filtered_models(providers);
+            self.reset_detail_scroll();
+            return true;
+        }
+        false
+    }
+}
+
+/// Grouping key for an offering: the display name, id fallback for nameless
+/// entries (mirrors what the flat list displays).
+pub fn group_key(e: &ModelEntry) -> String {
+    if e.model.name.is_empty() {
+        e.id.clone()
+    } else {
+        e.model.name.clone()
+    }
+}
+
+impl ModelsApp {
     fn sort_entries(&self, entries: &mut [ModelEntry]) {
         match self.sort_order {
             SortOrder::Default => {
@@ -424,22 +766,19 @@ impl ModelsApp {
         self.reset_detail_scroll();
     }
 
+    /// The entry the detail panel keys off. In grouped mode this is the
+    /// selected group's representative (first) offering.
     pub fn current_model(&self) -> Option<&ModelEntry> {
-        self.filtered_models.get(self.selected_model)
+        if self.list_mode() == ListMode::Grouped {
+            self.current_group()
+                .and_then(|g| self.filtered_models.get(g.first_entry))
+        } else {
+            self.filtered_models.get(self.selected_model)
+        }
     }
 
     pub fn filtered_models(&self) -> &[ModelEntry] {
         &self.filtered_models
-    }
-
-    pub fn filtered_model_count(&self) -> usize {
-        self.provider_list_items
-            .iter()
-            .filter_map(|item| match item {
-                ProviderListItem::Provider(_, count) => Some(count),
-                _ => None,
-            })
-            .sum()
     }
 
     pub fn get_copy_full(&self) -> Option<String> {
@@ -471,133 +810,97 @@ impl ModelsApp {
 
     // --- Navigation handlers called from App::update ---
 
-    pub fn next_provider(&mut self, providers: &[(String, Provider)]) {
-        if self.selected_provider < self.provider_list_len().saturating_sub(1) {
-            let next = self.find_selectable_index(self.selected_provider + 1, true);
-            if next != self.selected_provider {
-                self.select_provider_at_index(next, providers);
-            }
+    /// Row count of whichever list the center panel is showing (public for
+    /// the mouse handler's row mapping).
+    pub fn mouse_row_count(&self) -> usize {
+        self.nav_len()
+    }
+
+    /// Row count of whichever list the center panel is showing.
+    fn nav_len(&self) -> usize {
+        if self.list_mode() == ListMode::Grouped {
+            self.groups.len()
+        } else {
+            self.filtered_models.len()
         }
     }
 
-    pub fn prev_provider(&mut self, providers: &[(String, Provider)]) {
-        if self.selected_provider > 0 {
-            let prev = self.find_selectable_index(self.selected_provider - 1, false);
-            if prev != self.selected_provider {
-                self.select_provider_at_index(prev, providers);
-            }
+    fn nav_selected(&self) -> usize {
+        if self.list_mode() == ListMode::Grouped {
+            self.selected_group
+        } else {
+            self.selected_model
         }
     }
 
-    pub fn select_first_provider(&mut self, providers: &[(String, Provider)]) {
-        let first = self.find_selectable_index(0, true);
-        if first != self.selected_provider {
-            self.select_provider_at_index(first, providers);
+    fn nav_select(&mut self, idx: usize) {
+        if self.list_mode() == ListMode::Grouped {
+            self.selected_group = idx;
+            self.group_list_state.select(Some(idx + 1)); // +1 for header
+        } else {
+            self.selected_model = idx;
+            self.model_list_state.select(Some(idx + 1)); // +1 for header
         }
-    }
-
-    pub fn select_last_provider(&mut self, providers: &[(String, Provider)]) {
-        let last_raw = self.provider_list_len().saturating_sub(1);
-        let last = self.find_selectable_index(last_raw, false);
-        if last != self.selected_provider {
-            self.select_provider_at_index(last, providers);
-        }
-    }
-
-    pub fn page_down_provider(&mut self, providers: &[(String, Provider)]) {
-        let last_index = self.provider_list_len().saturating_sub(1);
-        let raw = (self.selected_provider + PAGE_SIZE).min(last_index);
-        let next = self.find_selectable_index(raw, true);
-        if next != self.selected_provider {
-            self.select_provider_at_index(next, providers);
-        }
-    }
-
-    pub fn page_up_provider(&mut self, providers: &[(String, Provider)]) {
-        let raw = self.selected_provider.saturating_sub(PAGE_SIZE);
-        let next = self.find_selectable_index(raw, false);
-        if next != self.selected_provider {
-            self.select_provider_at_index(next, providers);
-        }
+        self.reset_detail_scroll();
     }
 
     pub fn next_model(&mut self) {
-        if self.selected_model < self.filtered_models.len().saturating_sub(1) {
-            self.selected_model += 1;
-            self.model_list_state.select(Some(self.selected_model + 1));
-            // +1 for header
-            self.reset_detail_scroll();
+        if self.nav_selected() < self.nav_len().saturating_sub(1) {
+            self.nav_select(self.nav_selected() + 1);
         }
     }
 
     pub fn prev_model(&mut self) {
-        if self.selected_model > 0 {
-            self.selected_model -= 1;
-            self.model_list_state.select(Some(self.selected_model + 1));
-            // +1 for header
-            self.reset_detail_scroll();
+        if self.nav_selected() > 0 {
+            self.nav_select(self.nav_selected() - 1);
         }
     }
 
-    /// Select a model by its index into `filtered_models` (used by mouse clicks).
+    /// Select a row by its index into the visible list (used by mouse clicks).
     pub fn select_model_at_index(&mut self, index: usize) {
-        if index < self.filtered_models.len() && index != self.selected_model {
-            self.selected_model = index;
-            self.model_list_state.select(Some(self.selected_model + 1));
-            // +1 for header
-            self.reset_detail_scroll();
+        if index < self.nav_len() && index != self.nav_selected() {
+            self.nav_select(index);
         }
     }
 
     pub fn select_first_model(&mut self) {
-        if self.selected_model > 0 {
-            self.selected_model = 0;
-            self.model_list_state.select(Some(self.selected_model + 1));
-            self.reset_detail_scroll();
+        if self.nav_selected() > 0 {
+            self.nav_select(0);
         }
     }
 
     pub fn select_last_model(&mut self) {
-        if self.selected_model < self.filtered_models.len().saturating_sub(1) {
-            self.selected_model = self.filtered_models.len().saturating_sub(1);
-            self.model_list_state.select(Some(self.selected_model + 1));
-            self.reset_detail_scroll();
+        let last = self.nav_len().saturating_sub(1);
+        if self.nav_selected() < last {
+            self.nav_select(last);
         }
     }
 
     pub fn page_down_model(&mut self) {
-        let last_index = self.filtered_models.len().saturating_sub(1);
-        let next = (self.selected_model + PAGE_SIZE).min(last_index);
-        if next != self.selected_model {
-            self.selected_model = next;
-            self.model_list_state.select(Some(self.selected_model + 1));
-            self.reset_detail_scroll();
+        let last_index = self.nav_len().saturating_sub(1);
+        let next = (self.nav_selected() + PAGE_SIZE).min(last_index);
+        if next != self.nav_selected() {
+            self.nav_select(next);
         }
     }
 
     pub fn page_up_model(&mut self) {
-        let next = self.selected_model.saturating_sub(PAGE_SIZE);
-        if next != self.selected_model {
-            self.selected_model = next;
-            self.model_list_state.select(Some(self.selected_model + 1));
-            self.reset_detail_scroll();
+        let next = self.nav_selected().saturating_sub(PAGE_SIZE);
+        if next != self.nav_selected() {
+            self.nav_select(next);
         }
     }
 
     pub fn focus_right(&mut self) {
         self.focus = match self.focus {
-            Focus::Providers => Focus::Models,
             Focus::Models => Focus::Details,
-            Focus::Details => Focus::Providers,
+            Focus::Details => Focus::Models,
         };
     }
 
     pub fn focus_left(&mut self) {
-        self.focus = match self.focus {
-            Focus::Providers => Focus::Details,
-            Focus::Models => Focus::Providers,
-            Focus::Details => Focus::Models,
-        };
+        // Two panels: left/right both toggle.
+        self.focus_right();
     }
 
     pub fn reset_detail_scroll(&self) {
@@ -734,38 +1037,26 @@ impl ModelsApp {
 pub fn handle_models_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
     match ev.kind {
         MouseEventKind::Down(MouseButton::Left) => {
-            if hit(app.models_app.provider_list_area, &ev) {
-                app.models_app.focus = Focus::Providers;
-                if let Some(area) = app.models_app.provider_list_area {
-                    if let Some(idx) = row_at(
-                        area,
-                        app.models_app.provider_list_state.offset(),
-                        0,
-                        app.models_app.provider_list_items.len(),
-                        ev.row,
-                    ) {
-                        // Skip non-selectable category headers.
-                        if !matches!(
-                            app.models_app.provider_list_items.get(idx),
-                            Some(ProviderListItem::CategoryHeader(_))
-                        ) {
-                            app.models_app.select_provider_at_index(idx, &app.providers);
-                        }
-                    }
-                }
-            } else if hit(app.models_app.model_list_area, &ev) {
+            if hit(app.models_app.model_list_area, &ev) {
                 app.models_app.focus = Focus::Models;
                 if let Some(area) = app.models_app.model_list_area {
-                    // Item 0 is the column header; models occupy items 1..=N.
+                    // Item 0 is the column header; rows occupy items 1..=N.
+                    // The state/row-count pair is mode-dependent (grouped list
+                    // vs flat offerings) — `nav_*` dispatches identically.
+                    let offset = if app.models_app.list_mode() == super::app::ListMode::Grouped {
+                        app.models_app.group_list_state.offset()
+                    } else {
+                        app.models_app.model_list_state.offset()
+                    };
                     if let Some(idx) = row_at(
                         area,
-                        app.models_app.model_list_state.offset(),
+                        offset,
                         0,
-                        app.models_app.filtered_models.len() + 1,
+                        app.models_app.mouse_row_count() + 1,
                         ev.row,
                     ) {
-                        if let Some(model_idx) = idx.checked_sub(1) {
-                            app.models_app.select_model_at_index(model_idx);
+                        if let Some(row_idx) = idx.checked_sub(1) {
+                            app.models_app.select_model_at_index(row_idx);
                         }
                     }
                 }
@@ -778,10 +1069,7 @@ pub fn handle_models_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
         // Wheel: focus the panel under the cursor, then scroll it (reusing the
         // same per-panel nav the arrow keys drive).
         MouseEventKind::ScrollDown => {
-            if hit(app.models_app.provider_list_area, &ev) {
-                app.models_app.focus = Focus::Providers;
-                app.models_app.next_provider(&app.providers);
-            } else if hit(app.models_app.model_list_area, &ev) {
+            if hit(app.models_app.model_list_area, &ev) {
                 app.models_app.focus = Focus::Models;
                 app.models_app.next_model();
             } else if hit(app.models_app.model_detail_area, &ev)
@@ -792,10 +1080,7 @@ pub fn handle_models_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
             }
         }
         MouseEventKind::ScrollUp => {
-            if hit(app.models_app.provider_list_area, &ev) {
-                app.models_app.focus = Focus::Providers;
-                app.models_app.prev_provider(&app.providers);
-            } else if hit(app.models_app.model_list_area, &ev) {
+            if hit(app.models_app.model_list_area, &ev) {
                 app.models_app.focus = Focus::Models;
                 app.models_app.prev_model();
             } else if hit(app.models_app.model_detail_area, &ev)

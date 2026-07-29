@@ -6,7 +6,7 @@ use ratatui::{
     Frame,
 };
 
-use super::app::{Filters, Focus, ProviderListItem, SortOrder};
+use super::app::{Filters, Focus, ListMode, ModelGroup, SortOrder};
 use crate::formatting::truncate;
 use crate::formatting::EM_DASH;
 use crate::provider_category::{provider_category, ProviderCategory};
@@ -87,6 +87,15 @@ fn provider_detail_lines(app: &App) -> Vec<Line<'static>> {
 }
 
 fn draw_right_panel(f: &mut Frame, area: Rect, app: &mut App) {
+    // Grouped mode: the provider card is meaningless for a multi-provider
+    // group — the detail panel (with its Providers section) takes the full
+    // height.
+    if app.models_app.list_mode() == ListMode::Grouped {
+        app.models_app.provider_card_area = None;
+        app.models_app.model_detail_area = Some(area);
+        draw_model_detail(f, area, app);
+        return;
+    }
     let lines = provider_detail_lines(app);
 
     // Compute visual height: sum of wrapped line heights + 2 for borders.
@@ -126,23 +135,104 @@ fn draw_right_panel(f: &mut Frame, area: Rect, app: &mut App) {
 }
 
 pub(in crate::tui) fn draw_main(f: &mut Frame, area: Rect, app: &mut App) {
-    // 3-column layout: providers 20% | models 45% | right panel 35%
+    // 2-column layout: model list 60% | right panel 40%. The provider
+    // sidebar was retired in favor of the `p` provider modal — its filtering
+    // job lives there, and its browse job is the grouped list itself.
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage(20),
-            Constraint::Percentage(45),
-            Constraint::Percentage(35),
-        ])
+        .constraints([Constraint::Percentage(60), Constraint::Percentage(40)])
         .split(area);
 
-    draw_providers(f, chunks[0], app);
-    draw_models(f, chunks[1], app);
-    draw_right_panel(f, chunks[2], app);
+    // The sidebar rect is gone for good; make sure no stale hit-area lingers.
+    app.models_app.provider_list_area = None;
+
+    draw_models(f, chunks[0], app);
+    draw_right_panel(f, chunks[1], app);
 
     if app.models_app.show_glossary {
         draw_glossary(f, area, app);
     }
+    if app.models_app.show_provider_picker {
+        draw_provider_picker(f, area, app);
+    }
+}
+
+/// Provider picker modal (`p`): search-first scoping to one provider (or back
+/// to All). Search is deliberately scope-local — it matches provider id/name
+/// only, never the models a provider carries ("who sells Claude" is answered
+/// by the grouped list's Enter drill instead).
+fn draw_provider_picker(f: &mut Frame, area: Rect, app: &App) {
+    use ratatui::widgets::{List as PickList, ListItem as PickItem, ListState as PickState};
+
+    let rows = app.models_app.picker_rows(&app.providers);
+    let height = (rows.len() as u16 + 3).clamp(6, area.height.saturating_sub(4));
+    let width = 46u16.min(area.width.saturating_sub(4));
+    let popup = crate::tui::ui::centered_rect_fixed(width, height, area);
+    f.render_widget(Clear, popup);
+
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(Color::Cyan))
+        .title(format!(" Provider ({}) ", rows.len().saturating_sub(1)))
+        .title_bottom(ratatui::text::Line::from(" Enter: browse | Esc: cancel ").centered());
+    let inner = block.inner(popup);
+    f.render_widget(block, popup);
+
+    // Search line + rows below it.
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Length(1), Constraint::Min(0)])
+        .split(inner);
+    let cursor = "_";
+    f.render_widget(
+        Paragraph::new(Line::from(vec![
+            Span::styled(" / ", Style::default().fg(Color::Cyan)),
+            Span::raw(app.models_app.picker_query.clone()),
+            Span::styled(cursor, Style::default().add_modifier(Modifier::SLOW_BLINK)),
+        ])),
+        chunks[0],
+    );
+
+    let items: Vec<PickItem> = rows
+        .iter()
+        .map(|row| match row {
+            None => {
+                let total: usize = app.providers.iter().map(|(_, p)| p.models.len()).sum();
+                PickItem::new(Line::from(vec![Span::styled(
+                    format!("All models ({})", total),
+                    Style::default().fg(Color::Green),
+                )]))
+            }
+            Some(idx) => {
+                let (id, p) = &app.providers[*idx];
+                let cat = provider_category(id);
+                let initial = &cat.short_label()[..1];
+                PickItem::new(Line::from(vec![
+                    Span::styled(initial.to_string(), Style::default().fg(cat.color())),
+                    Span::raw(format!(" {} ", id)),
+                    Span::styled(
+                        format!("({})", p.models.len()),
+                        Style::default().fg(Color::Gray),
+                    ),
+                ]))
+            }
+        })
+        .collect();
+
+    // Fresh ListState each frame → deterministic offset for popup_row_at.
+    let mut state = PickState::default();
+    state.select(Some(
+        app.models_app
+            .picker_selected
+            .min(rows.len().saturating_sub(1)),
+    ));
+    let list = PickList::new(items).highlight_style(
+        Style::default()
+            .fg(Color::Yellow)
+            .add_modifier(Modifier::BOLD),
+    );
+    app.models_app.picker_area.set(Some(chunks[1]));
+    f.render_stateful_widget(list, chunks[1], &mut state);
 }
 
 /// Glossary popup (`i`) explaining the Models-tab capability and pricing fields.
@@ -278,116 +368,11 @@ fn build_glossary_lines(width: u16) -> Vec<Line<'static>> {
     lines
 }
 
-fn draw_providers(f: &mut Frame, area: Rect, app: &mut App) {
-    let is_focused = app.models_app.focus == Focus::Providers;
-    let border_style = focus_border(is_focused);
-
-    let outer_block = Block::default()
-        .borders(Borders::ALL)
-        .border_style(border_style)
-        .title(" Providers ");
-    let inner_area = outer_block.inner(area);
-    f.render_widget(outer_block, area);
-
-    // Split inner area into filter row + list
-    let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Length(1), Constraint::Min(0)])
-        .split(inner_area);
-
-    // Filter toggles row
-    let cat_active = app.models_app.provider_category_filter != ProviderCategory::All;
-    let cat_color = if cat_active {
-        app.models_app.provider_category_filter.color()
-    } else {
-        Color::DarkGray
-    };
-    let grp_color = if app.models_app.group_by_category {
-        Color::Green
-    } else {
-        Color::DarkGray
-    };
-
-    let cat_label = if cat_active {
-        app.models_app.provider_category_filter.short_label()
-    } else {
-        "Cat"
-    };
-
-    let filter_line = Line::from(vec![
-        Span::styled("[5]", Style::default().fg(cat_color)),
-        Span::raw(format!(" {} ", cat_label)),
-        Span::styled("[6]", Style::default().fg(grp_color)),
-        Span::raw(" Grp"),
-    ]);
-    f.render_widget(Paragraph::new(filter_line), chunks[0]);
-
-    // Build items list from provider_list_items
-    let mut items: Vec<ListItem> = Vec::with_capacity(app.models_app.provider_list_items.len());
-
-    for item in &app.models_app.provider_list_items {
-        match item {
-            ProviderListItem::All => {
-                let count = app.models_app.filtered_model_count();
-                let text = format!("All ({})", count);
-                items.push(ListItem::new(text).style(Style::default().fg(Color::Green)));
-            }
-            ProviderListItem::CategoryHeader(cat) => {
-                let label = cat.label();
-                let color = cat.color();
-                // Create a separator line like "── Origin ──────"
-                let avail = inner_area.width.saturating_sub(2) as usize; // account for highlight symbol space
-                let label_len = label.len() + 4; // "── " + label + " "
-                let trailing = if avail > label_len {
-                    "\u{2500}".repeat(avail - label_len)
-                } else {
-                    String::new()
-                };
-                let text = format!("\u{2500}\u{2500} {} {}", label, trailing);
-                items.push(
-                    ListItem::new(text)
-                        .style(Style::default().fg(color).add_modifier(Modifier::BOLD)),
-                );
-            }
-            ProviderListItem::Provider(idx, count) => {
-                if let Some((id, _)) = app.providers.get(*idx) {
-                    let cat = provider_category(id);
-                    let initial = &cat.short_label()[..1];
-                    let color = cat.color();
-                    // Truncate the id with an ellipsis so the count stays
-                    // visible at narrow widths (a clipped "alibaba-cn (84" is
-                    // indistinguishable from its "-cn"-less sibling).
-                    let count_str = format!("({})", count);
-                    let avail = inner_area.width.saturating_sub(2) as usize; // highlight symbol
-                    let id_max = avail
-                        .saturating_sub(2) // initial + space
-                        .saturating_sub(count_str.len() + 1); // space + count
-                    let line = Line::from(vec![
-                        Span::styled(initial, Style::default().fg(color)),
-                        Span::raw(format!(" {} ", truncate(id, id_max))),
-                        Span::styled(count_str, Style::default().fg(Color::Gray)),
-                    ]);
-                    items.push(ListItem::new(line));
-                }
-            }
-        }
-    }
-
-    let caret = caret(is_focused);
-    let list = List::new(items)
-        .highlight_style(
-            Style::default()
-                .fg(Color::Yellow)
-                .add_modifier(Modifier::BOLD),
-        )
-        .highlight_symbol(caret);
-
-    // Cache the bare list rect (no border, no filter row) for mouse hit-testing.
-    app.models_app.provider_list_area = Some(chunks[1]);
-    f.render_stateful_widget(list, chunks[1], &mut app.models_app.provider_list_state);
-}
-
 fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
+    if app.models_app.list_mode() == ListMode::Grouped {
+        draw_grouped_list(f, area, app);
+        return;
+    }
     let is_focused = app.models_app.focus == Focus::Models;
     let border_style = focus_border(is_focused);
 
@@ -416,39 +401,51 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
         app.models_app.provider_category_filter,
     );
 
-    // Show provider name in title when a specific provider is selected
-    let provider_label = app
-        .models_app
-        .selected_provider_data(&app.providers)
-        .map(|(_, p)| p.name.as_str())
-        .unwrap_or("Models");
+    // Base label per mode: provider display name when scoped, breadcrumb when
+    // drilled into a group, "Models · flat" for the V-toggled fire-hose.
+    let breadcrumb;
+    let provider_label = match app.models_app.list_mode() {
+        ListMode::Offerings => {
+            let name = app.models_app.drill_name.as_deref().unwrap_or("?");
+            breadcrumb = format!("Models \u{25B8} {}", name);
+            breadcrumb.as_str()
+        }
+        _ => app
+            .models_app
+            .selected_provider_data(&app.providers)
+            .map(|(_, p)| p.name.as_str())
+            .unwrap_or("Models \u{00B7} flat"),
+    };
+    // Offerings mode counts distinct providers (the number the breadcrumb
+    // promises); other modes count rows.
+    let count = if app.models_app.list_mode() == ListMode::Offerings {
+        let mut seen: std::collections::HashSet<&str> = std::collections::HashSet::new();
+        for e in models {
+            seen.insert(e.provider_id.as_str());
+        }
+        let n = seen.len();
+        format!("{} provider{}", n, if n == 1 { "" } else { "s" })
+    } else {
+        models.len().to_string()
+    };
+    let count = count.as_str();
 
     let title = if app.models_app.search_query.is_empty() && filter_indicator.is_empty() {
-        format!(" {} ({}){} ", provider_label, models.len(), sort_indicator)
+        format!(" {} ({}){} ", provider_label, count, sort_indicator)
     } else if app.models_app.search_query.is_empty() {
         format!(
             " {} ({}){} [{}] ",
-            provider_label,
-            models.len(),
-            sort_indicator,
-            filter_indicator
+            provider_label, count, sort_indicator, filter_indicator
         )
     } else if filter_indicator.is_empty() {
         format!(
             " {} ({}) [/{}]{} ",
-            provider_label,
-            models.len(),
-            app.models_app.search_query,
-            sort_indicator
+            provider_label, count, app.models_app.search_query, sort_indicator
         )
     } else {
         format!(
             " {} ({}) [/{}] [{}]{} ",
-            provider_label,
-            models.len(),
-            app.models_app.search_query,
-            filter_indicator,
-            sort_indicator
+            provider_label, count, app.models_app.search_query, filter_indicator, sort_indicator
         )
     };
 
@@ -731,6 +728,304 @@ impl ModelListColumn {
     }
 }
 
+/// Format a min–max cost range compactly: `—` / `$5.0` / `$5.0–6.0`.
+fn fmt_cost_range(range: Option<(f64, f64)>) -> String {
+    match range {
+        None => EM_DASH.to_string(),
+        Some((lo, hi)) if lo == hi => crate::data::Model::cost_short(Some(lo)),
+        Some((lo, hi)) => format!(
+            "{}\u{2013}{}",
+            crate::data::Model::cost_short(Some(lo)),
+            crate::data::Model::cost_short(Some(hi)).trim_start_matches('$')
+        ),
+    }
+}
+
+/// Format a min–max context range: `—` / `1M` / `131.1k–1M`. Values within
+/// 5% of each other collapse to one — providers spell the "same" window as
+/// 1,000,000 vs 1,048,576, and a `1M–1.0M` range is noise, not information.
+fn fmt_ctx_range(range: Option<(u64, u64)>) -> String {
+    match range {
+        None => EM_DASH.to_string(),
+        Some((lo, hi)) if lo == hi || (hi - lo) * 20 < hi => crate::formatting::format_tokens(hi),
+        Some((lo, hi)) => format!(
+            "{}\u{2013}{}",
+            crate::formatting::format_tokens(lo),
+            crate::formatting::format_tokens(hi)
+        ),
+    }
+}
+
+/// Capability char for a grouped row under the majority-plus-dim policy:
+/// majority value picks the char; a split (0 < true < total) dims it.
+fn group_cap_char(
+    tally: (usize, usize),
+    active: (&'static str, Color),
+    inactive: (&'static str, Color),
+) -> (&'static str, Color) {
+    let (yes, total) = tally;
+    let majority_active = yes * 2 > total;
+    let mixed = yes > 0 && yes < total;
+    let (ch, color) = if majority_active { active } else { inactive };
+    if mixed {
+        (ch, Color::DarkGray)
+    } else {
+        (ch, color)
+    }
+}
+
+/// The grouped Models view: one row per model name. Columns after the name
+/// shed greedily (Lab, Providers, Input, Output, Context) before the name
+/// drops below its minimum, mirroring the flat list's drop policy.
+fn draw_grouped_list(f: &mut Frame, area: Rect, app: &mut App) {
+    let is_focused = app.models_app.focus == Focus::Models;
+    let border_style = focus_border(is_focused);
+
+    let sort_indicator = match app.models_app.sort_order {
+        SortOrder::Default => String::new(),
+        _ => {
+            let arrow = if app.models_app.sort_ascending {
+                "\u{2191}"
+            } else {
+                "\u{2193}"
+            };
+            let label = match app.models_app.sort_order {
+                SortOrder::ReleaseDate => "date",
+                SortOrder::Cost => "cost",
+                SortOrder::Context => "ctx",
+                SortOrder::Default => unreachable!(),
+            };
+            format!(" {}{}", arrow, label)
+        }
+    };
+    let filter_indicator = format_filters(
+        &app.models_app.filters,
+        app.models_app.provider_category_filter,
+    );
+    let n = app.models_app.groups.len();
+    let title = if app.models_app.search_query.is_empty() && filter_indicator.is_empty() {
+        format!(" Models ({}){} ", n, sort_indicator)
+    } else if app.models_app.search_query.is_empty() {
+        format!(" Models ({}){} [{}] ", n, sort_indicator, filter_indicator)
+    } else if filter_indicator.is_empty() {
+        format!(
+            " Models ({}) [/{}]{} ",
+            n, app.models_app.search_query, sort_indicator
+        )
+    } else {
+        format!(
+            " Models ({}) [/{}] [{}]{} ",
+            n, app.models_app.search_query, filter_indicator, sort_indicator
+        )
+    };
+
+    let outer_block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(border_style)
+        .title(title);
+    let inner_area = outer_block.inner(area);
+    f.render_widget(outer_block, area);
+
+    // Column set: Lab(16 = gap+15), Providers(11 = gap+10), Input(12),
+    // Output(12), Context(12); greedy drop from the right, name min 18,
+    // sorted column survives.
+    #[derive(Clone, Copy, PartialEq)]
+    enum GCol {
+        Lab,
+        Providers,
+        Input,
+        Output,
+        Context,
+    }
+    let col_w = |c: &GCol| -> u16 {
+        match c {
+            GCol::Lab => 16,
+            GCol::Providers => 11,
+            GCol::Input | GCol::Output | GCol::Context => 12,
+        }
+    };
+    let caret_w: u16 = 2;
+    let caps_w: u16 = 5;
+    const NAME_MIN: u16 = 18;
+    let fixed_w = caret_w + caps_w;
+    let mut budget = inner_area.width.saturating_sub(fixed_w + NAME_MIN);
+    let mut cols: Vec<GCol> = Vec::new();
+    for c in [
+        GCol::Lab,
+        GCol::Providers,
+        GCol::Input,
+        GCol::Output,
+        GCol::Context,
+    ] {
+        if budget >= col_w(&c) {
+            budget -= col_w(&c);
+            cols.push(c);
+        }
+    }
+    let sort_needs = match app.models_app.sort_order {
+        SortOrder::Cost => Some(GCol::Input),
+        SortOrder::Context => Some(GCol::Context),
+        SortOrder::Default | SortOrder::ReleaseDate => None,
+    };
+    if let Some(needed) = sort_needs {
+        if !cols.is_empty() && !cols.contains(&needed) {
+            *cols.last_mut().unwrap() = needed;
+        }
+    }
+    let cols_w: u16 = cols.iter().map(col_w).sum();
+    let name_width = (inner_area.width.saturating_sub(fixed_w + cols_w) as usize).max(10);
+
+    let header_style = Style::default()
+        .fg(Color::Yellow)
+        .add_modifier(Modifier::BOLD);
+    let active_header_style = Style::default()
+        .fg(Color::Cyan)
+        .add_modifier(Modifier::BOLD);
+    let sort_col = match app.models_app.sort_order {
+        SortOrder::Default | SortOrder::ReleaseDate => "name",
+        SortOrder::Cost => "cost",
+        SortOrder::Context => "context",
+    };
+    let caret = caret(is_focused);
+
+    let mut header_spans: Vec<Span> = vec![
+        Span::raw("  "),
+        Span::styled("RTFO ", header_style),
+        Span::styled(
+            format!("{:<width$}", "Model", width = name_width),
+            if sort_col == "name" {
+                active_header_style
+            } else {
+                header_style
+            },
+        ),
+    ];
+    for c in &cols {
+        let (label, style, left) = match c {
+            GCol::Lab => ("Lab", header_style, true),
+            GCol::Providers => ("Providers", header_style, false),
+            GCol::Input | GCol::Output => (
+                if matches!(c, GCol::Input) {
+                    "Input"
+                } else {
+                    "Output"
+                },
+                if sort_col == "cost" {
+                    active_header_style
+                } else {
+                    header_style
+                },
+                false,
+            ),
+            GCol::Context => (
+                "Context",
+                if sort_col == "context" {
+                    active_header_style
+                } else {
+                    header_style
+                },
+                false,
+            ),
+        };
+        let w = (col_w(c) - 1) as usize;
+        let cell = if left {
+            format!(" {:<w$}", label, w = w)
+        } else {
+            format!(" {:>w$}", label, w = w)
+        };
+        header_spans.push(Span::styled(cell, style));
+    }
+
+    let mut items: Vec<ListItem> = Vec::with_capacity(app.models_app.groups.len() + 1);
+    items.push(ListItem::new(Line::from(header_spans)));
+
+    for (display_idx, g) in app.models_app.groups.iter().enumerate() {
+        let is_selected = display_idx == app.models_app.selected_group;
+        let style = if is_selected {
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD)
+        } else {
+            Style::default()
+        };
+        let prefix = if is_selected { caret } else { "  " };
+        let (r_ch, r_color) = group_cap_char(
+            g.reasoning,
+            ("R", Color::Cyan),
+            ("\u{00B7}", Color::DarkGray),
+        );
+        let (t_ch, t_color) =
+            group_cap_char(g.tools, ("T", Color::Yellow), ("\u{00B7}", Color::DarkGray));
+        let (f_ch, f_color) = group_cap_char(
+            g.files,
+            ("F", Color::Magenta),
+            ("\u{00B7}", Color::DarkGray),
+        );
+        let (o_ch, o_color) = group_cap_char(g.open, ("O", Color::Green), ("C", Color::Red));
+
+        let mut row_spans: Vec<Span> = vec![
+            Span::styled(prefix, style),
+            Span::styled(r_ch, Style::default().fg(r_color)),
+            Span::styled(t_ch, Style::default().fg(t_color)),
+            Span::styled(f_ch, Style::default().fg(f_color)),
+            Span::styled(o_ch, Style::default().fg(o_color)),
+            Span::raw(" "),
+            Span::styled(
+                format!(
+                    "{:<width$}",
+                    truncate(&g.name, name_width.saturating_sub(1)),
+                    width = name_width
+                ),
+                style,
+            ),
+        ];
+        for c in &cols {
+            let w = (col_w(c) - 1) as usize;
+            match c {
+                GCol::Lab => {
+                    let lab = g
+                        .lab
+                        .as_deref()
+                        .map(crate::labs::lab_display)
+                        .unwrap_or_else(|| EM_DASH.to_string());
+                    let lab_style = if g.lab.is_some() {
+                        style
+                    } else {
+                        Style::default().fg(Color::DarkGray)
+                    };
+                    row_spans.push(Span::styled(
+                        format!(" {:<w$}", truncate(&lab, w), w = w),
+                        lab_style,
+                    ));
+                }
+                GCol::Providers => row_spans.push(Span::styled(
+                    format!(" {:>w$}", g.provider_count, w = w),
+                    style,
+                )),
+                GCol::Input => row_spans.push(Span::styled(
+                    format!(" {:>w$}", fmt_cost_range(g.input_range), w = w),
+                    style,
+                )),
+                GCol::Output => row_spans.push(Span::styled(
+                    format!(" {:>w$}", fmt_cost_range(g.output_range), w = w),
+                    style,
+                )),
+                GCol::Context => row_spans.push(Span::styled(
+                    format!(" {:>w$}", fmt_ctx_range(g.context_range), w = w),
+                    style,
+                )),
+            }
+        }
+        items.push(ListItem::new(Line::from(row_spans)));
+    }
+
+    let list = List::new(items);
+    // Shared hit-rect with the flat list; the mouse handler dispatches on
+    // list_mode() for state/offset.
+    app.models_app.model_list_area = Some(inner_area);
+    f.render_stateful_widget(list, inner_area, &mut app.models_app.group_list_state);
+}
+
 fn draw_provider_detail(f: &mut Frame, area: Rect, lines: Vec<Line<'static>>) {
     let paragraph = Paragraph::new(lines)
         .block(Block::default().borders(Borders::ALL).title(" Provider "))
@@ -774,6 +1069,71 @@ fn two_pair_line(left: LabelValue<'_>, right: LabelValue<'_>, col_w: usize) -> L
     ])
 }
 
+/// "── Providers (N) ──" section of the grouped detail panel: one line per
+/// offering, cheapest input first, capped with an overflow hint.
+fn group_providers_section(app: &App, g: &ModelGroup, width: u16) -> Vec<Line<'static>> {
+    const MAX_ROWS: usize = 10;
+    let mut lines: Vec<Line<'static>> = Vec::new();
+    lines.push(Line::from(""));
+    lines.push(section_header_line(
+        width,
+        &format!("Providers ({})", g.provider_count),
+    ));
+    // Collect (provider display name, input, output, ctx) per member.
+    type OfferingRow = (String, Option<f64>, Option<f64>, Option<u64>);
+    let mut rows: Vec<OfferingRow> = g
+        .member_indices
+        .iter()
+        .filter_map(|&i| app.models_app.filtered_models().get(i))
+        .map(|e| {
+            let name = app
+                .providers
+                .iter()
+                .find(|(id, _)| *id == e.provider_id)
+                .map(|(_, p)| p.name.clone())
+                .unwrap_or_else(|| e.provider_id.clone());
+            (
+                name,
+                e.model.cost.as_ref().and_then(|c| c.input),
+                e.model.cost.as_ref().and_then(|c| c.output),
+                e.model.limit.as_ref().and_then(|l| l.context),
+            )
+        })
+        .collect();
+    rows.sort_by(|a, b| match (a.1, b.1) {
+        (Some(x), Some(y)) => x.partial_cmp(&y).unwrap_or(std::cmp::Ordering::Equal),
+        (Some(_), None) => std::cmp::Ordering::Less,
+        (None, Some(_)) => std::cmp::Ordering::Greater,
+        (None, None) => a.0.cmp(&b.0),
+    });
+    let overflow = rows.len().saturating_sub(MAX_ROWS);
+    for (name, input, output, ctx) in rows.into_iter().take(MAX_ROWS) {
+        let cost = format!(
+            "{} / {}",
+            crate::data::Model::cost_short(input),
+            crate::data::Model::cost_short(output)
+        );
+        let ctx_str = ctx
+            .map(crate::formatting::format_tokens)
+            .unwrap_or_else(|| EM_DASH.to_string());
+        lines.push(Line::from(vec![
+            Span::styled(
+                format!("  {:<18}", truncate(&name, 18)),
+                Style::default().fg(Color::Gray),
+            ),
+            Span::styled(format!("{:>15}", cost), Style::default().fg(Color::White)),
+            Span::styled(format!("{:>9}", ctx_str), Style::default().fg(Color::White)),
+        ]));
+    }
+    if overflow > 0 {
+        lines.push(Line::from(Span::styled(
+            format!("  \u{2026} {} more \u{2014} Enter to browse", overflow),
+            Style::default().fg(Color::DarkGray),
+        )));
+    }
+    lines
+}
+
 fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
     let Some(entry) = app.models_app.current_model() else {
         return vec![Line::from(Span::styled(
@@ -804,6 +1164,23 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
         entry.id.clone(),
         Style::default().fg(Color::DarkGray),
     )));
+    // Grouped mode: identify the lab right under the id; the Providers
+    // section lands after the description (before Capabilities).
+    if app.models_app.list_mode() == ListMode::Grouped {
+        if let Some(lab) = app
+            .models_app
+            .current_group()
+            .and_then(|g| g.lab.as_deref())
+        {
+            lines.push(Line::from(vec![
+                Span::styled("Lab: ", Style::default().fg(label_color)),
+                Span::styled(
+                    crate::labs::lab_display(lab),
+                    Style::default().fg(text_color),
+                ),
+            ]));
+        }
+    }
     // Provider is already shown in the Provider card directly above this panel
     // (always the selected model's provider), so it's omitted here to avoid
     // duplication — this row carries Family + optional Status.
@@ -837,6 +1214,14 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
                 desc.to_string(),
                 Style::default().fg(Color::Gray),
             )));
+        }
+    }
+
+    // Grouped mode: every provider carrying the model, cheapest first (the
+    // rest of the detail describes the representative offering).
+    if app.models_app.list_mode() == ListMode::Grouped {
+        if let Some(g) = app.models_app.current_group() {
+            lines.extend(group_providers_section(app, g, width));
         }
     }
 
@@ -1255,6 +1640,14 @@ mod mouse_tests {
         app
     }
 
+    /// Switch the app into the flat All view (the `V` toggle) — the mode the
+    /// per-offering row/column/dimming tests exercise.
+    fn flat(app: &mut App) {
+        app.models_app.flat_view = true;
+        let providers = app.providers.clone();
+        app.models_app.update_filtered_models(&providers);
+    }
+
     fn render(app: &mut App, w: u16, h: u16) {
         render_to_text(app, w, h);
     }
@@ -1299,22 +1692,91 @@ mod mouse_tests {
     }
 
     #[test]
-    fn click_provider_row_selects_and_focuses() {
+    fn grouped_is_default_and_click_selects_group() {
         let mut app = test_app();
+        assert_eq!(
+            app.models_app.list_mode(),
+            crate::tui::models::ListMode::Grouped
+        );
         render(&mut app, 120, 40);
-        let area = app
-            .models_app
-            .provider_list_area
-            .expect("provider rect cached");
-        // Row 0 of the list = "All"; row 1 = first real provider (alpha).
-        handle_models_mouse(&mut app, click(area.x + 1, area.y + 1));
-        assert_eq!(app.models_app.focus, Focus::Providers);
-        assert_eq!(app.models_app.selected_provider, 1); // index 0 is "All"
+        let area = app.models_app.model_list_area.expect("list rect cached");
+        // Item 0 is the column header; the third group is two rows below it.
+        handle_models_mouse(&mut app, click(area.x + 6, area.y + 3));
+        assert_eq!(app.models_app.focus, Focus::Models);
+        assert_eq!(app.models_app.selected_group, 2);
+    }
+
+    #[test]
+    fn enter_drills_into_group_and_esc_pops_back() {
+        let mut app = test_app();
+        // All 31 models have unique names -> 31 groups; drill into the first.
+        let name = app.models_app.groups[0].name.clone();
+        let providers = app.providers.clone();
+        app.models_app.enter_selection(&providers);
+        assert_eq!(
+            app.models_app.list_mode(),
+            crate::tui::models::ListMode::Offerings
+        );
+        assert_eq!(app.models_app.drill_name.as_deref(), Some(name.as_str()));
+        assert_eq!(app.models_app.filtered_models().len(), 1);
+        assert!(app.models_app.escape_back(&providers));
+        assert_eq!(
+            app.models_app.list_mode(),
+            crate::tui::models::ListMode::Grouped
+        );
+        // Top-level Esc is not consumed (falls through to search clearing).
+        assert!(!app.models_app.escape_back(&providers));
+
+        // Selection survives a drill round-trip.
+        app.models_app.select_model_at_index(7);
+        assert_eq!(app.models_app.selected_group, 7);
+        let name7 = app.models_app.groups[7].name.clone();
+        app.models_app.enter_selection(&providers);
+        assert_eq!(app.models_app.drill_name.as_deref(), Some(name7.as_str()));
+        assert!(app.models_app.escape_back(&providers));
+        assert_eq!(app.models_app.selected_group, 7, "selection preserved");
+    }
+
+    #[test]
+    fn provider_picker_filters_and_applies_scope() {
+        let mut app = test_app();
+        app.models_app.open_provider_picker();
+        for c in "bet".chars() {
+            app.models_app.picker_query.push(c);
+        }
+        let providers = app.providers.clone();
+        let rows = app.models_app.picker_rows(&providers);
+        // "All" + the one matching provider (beta).
+        assert_eq!(rows.len(), 2);
+        app.models_app.picker_selected = 1;
+        app.models_app.apply_picker_selection(&providers);
+        assert!(!app.models_app.show_provider_picker);
+        assert!(!app.models_app.is_all_selected());
+        assert_eq!(
+            app.models_app.list_mode(),
+            crate::tui::models::ListMode::Flat
+        );
+        assert_eq!(app.models_app.filtered_models().len(), 1); // beta's b0
+                                                               // Esc pops the provider scope back to All-grouped.
+        assert!(app.models_app.escape_back(&providers));
+        assert!(app.models_app.is_all_selected());
+    }
+
+    #[test]
+    fn grouped_header_shows_group_columns() {
+        let mut app = test_app();
+        let header = list_header_row(&render_to_text(&mut app, 175, 45));
+        assert!(header.contains("Model"));
+        assert!(header.contains("Lab"));
+        assert!(header.contains("Providers"));
+        assert!(header.contains("Input"));
+        assert!(header.contains("Context"));
     }
 
     #[test]
     fn click_model_row_at_top_selects_that_model() {
         let mut app = test_app();
+        flat(&mut app);
         render(&mut app, 120, 40);
         let area = app.models_app.model_list_area.expect("model rect cached");
         // Item 0 is the column header at area.y; first model is one row below.
@@ -1332,6 +1794,7 @@ mod mouse_tests {
     fn click_model_row_with_nonzero_scroll_offset() {
         // Short viewport forces the list to scroll once selection nears the end.
         let mut app = test_app();
+        flat(&mut app);
         // Drive selection deep so the model list scrolls (header item 0 leaves view).
         for _ in 0..25 {
             app.models_app.next_model();
@@ -1350,6 +1813,7 @@ mod mouse_tests {
     #[test]
     fn scroll_wheel_over_model_list_focuses_and_moves() {
         let mut app = test_app();
+        flat(&mut app);
         render(&mut app, 120, 40);
         let area = app.models_app.model_list_area.expect("model rect cached");
         assert_eq!(app.models_app.selected_model, 0);
@@ -1393,6 +1857,7 @@ mod mouse_tests {
     #[test]
     fn wide_render_keeps_all_columns() {
         let mut app = test_app();
+        flat(&mut app);
         let header = list_header_row(&render_to_text(&mut app, 175, 45));
         assert!(header.contains("Provider"));
         assert!(header.contains("Input"));
@@ -1403,13 +1868,14 @@ mod mouse_tests {
     #[test]
     fn narrow_render_keeps_provider_sheds_numerics() {
         let mut app = test_app();
-        // 100 total cols -> models panel 45 -> inner 43: after the 18-char
-        // name minimum only the Provider column (highest keep-priority — it
-        // disambiguates duplicate rows) fits. Numerics shed; nothing clips.
+        flat(&mut app);
+        // 100 total cols -> the list is 60% (inner ~58): after the 18-char
+        // name minimum, Provider (highest keep-priority — it disambiguates
+        // duplicate rows) plus Input/Output fit; Context sheds cleanly.
         let header = list_header_row(&render_to_text(&mut app, 100, 40));
         assert!(header.contains("Provider"));
-        assert!(!header.contains("Input"));
-        assert!(!header.contains("Output"));
+        assert!(header.contains("Input"));
+        assert!(header.contains("Output"));
         assert!(
             !header.contains("Contex"),
             "Context must drop cleanly, not clip: {header:?}"
@@ -1419,22 +1885,24 @@ mod mouse_tests {
     #[test]
     fn narrow_render_sort_column_survives_drop() {
         let mut app = test_app();
+        flat(&mut app);
         app.models_app.sort_order = crate::tui::models::SortOrder::Context;
         app.models_app
             .update_filtered_models(&app.providers.clone());
         let header = list_header_row(&render_to_text(&mut app, 100, 40));
-        // Context replaces the last kept column (Provider) instead of dropping.
+        // Context replaces the last kept column (Output) instead of dropping.
         assert!(header.contains("Context"), "sort column must survive");
-        assert!(!header.contains("Provider"));
+        assert!(header.contains("Provider"));
         assert!(!header.contains("Output"));
     }
 
     #[test]
     fn very_narrow_render_keeps_name_only() {
         let mut app = test_app();
+        flat(&mut app);
         // Inner list width < NAME_MIN + the narrowest column: everything
         // sheds; the name takes the full width, nothing clips.
-        let header = list_header_row(&render_to_text(&mut app, 60, 40));
+        let header = list_header_row(&render_to_text(&mut app, 48, 40));
         assert!(header.contains("Model"));
         assert!(!header.contains("Provider"));
         assert!(!header.contains("Input"));
@@ -1462,6 +1930,7 @@ mod mouse_tests {
         let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
         let mut app = App::new(map, None, None);
         app.current_tab = Tab::Models;
+        flat(&mut app);
         // Move selection off the duplicate rows — selection styling overrides
         // dimming by design.
         app.models_app.selected_model = 2;
@@ -1528,6 +1997,7 @@ mod mouse_tests {
         let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
         let mut app = App::new(map, None, None);
         app.current_tab = Tab::Models;
+        flat(&mut app);
         // Dateless models sort by id ascending: a-opus, b.ns.opus, z-fast.
         // Keep the selection on the first row; it's the bright one anyway.
         let backend = TestBackend::new(120, 40);

@@ -93,7 +93,7 @@ fn modal_popup_open(app: &App) -> bool {
                 || app.benchmarks_app.show_glossary
                 || app.benchmarks_app.show_column_picker
         }
-        Tab::Models => app.models_app.show_glossary,
+        Tab::Models => app.models_app.show_glossary || app.models_app.show_provider_picker,
     }
 }
 
@@ -130,6 +130,9 @@ fn handle_modal_popup_mouse(app: &mut App, ev: MouseEvent) -> Option<Message> {
         }
         Tab::Models if app.models_app.show_glossary => {
             (Message::ScrollGlossaryDown, Message::ScrollGlossaryUp)
+        }
+        Tab::Models if app.models_app.show_provider_picker => {
+            (Message::ProviderPickerNext, Message::ProviderPickerPrev)
         }
         _ => return None,
     };
@@ -197,6 +200,15 @@ fn handle_modal_popup_click(app: &mut App, ev: MouseEvent) -> Option<Message> {
             s.picker_selected = item;
             Some(Message::PickerToggle)
         }
+        Tab::Models if app.models_app.show_provider_picker => {
+            let count = app.models_app.picker_rows(&app.providers).len();
+            let rect = app.models_app.picker_area.get()?;
+            let item = popup_row_at(rect, app.models_app.picker_selected, count, ev.row)?;
+            app.models_app.picker_selected = item;
+            // Click-to-apply, like the sort picker.
+            Some(Message::ApplyProviderPicker)
+        }
+        // Models glossary has no selectable rows — swallow the click.
         Tab::Models => None,
     }
 }
@@ -280,6 +292,11 @@ fn handle_normal_mode(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
     if app.current_tab == super::app::Tab::Models && app.models_app.show_glossary {
         return handle_glossary_keys(code);
     }
+    // Provider picker modal intercepts everything (search-first: printable
+    // chars — including digits — type into the query).
+    if app.current_tab == super::app::Tab::Models && app.models_app.show_provider_picker {
+        return handle_provider_picker_keys(code);
+    }
     // Column picker intercepts all keys while open (browse mode only).
     if app.current_tab == super::app::Tab::Benchmarks && app.benchmarks_app.show_column_picker {
         return handle_column_picker_keys(code, modifiers);
@@ -309,32 +326,26 @@ fn handle_normal_mode(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
 fn resolve_models_nav(app: &App, action: NavAction) -> Option<Message> {
     match action {
         NavAction::Down => match app.models_app.focus {
-            Focus::Providers => Some(Message::NextProvider),
             Focus::Models => Some(Message::NextModel),
             Focus::Details => Some(Message::ScrollModelDetailDown),
         },
         NavAction::Up => match app.models_app.focus {
-            Focus::Providers => Some(Message::PrevProvider),
             Focus::Models => Some(Message::PrevModel),
             Focus::Details => Some(Message::ScrollModelDetailUp),
         },
         NavAction::First => match app.models_app.focus {
-            Focus::Providers => Some(Message::SelectFirstProvider),
             Focus::Models => Some(Message::SelectFirstModel),
             Focus::Details => Some(Message::ScrollModelDetailTop),
         },
         NavAction::Last => match app.models_app.focus {
-            Focus::Providers => Some(Message::SelectLastProvider),
             Focus::Models => Some(Message::SelectLastModel),
             Focus::Details => Some(Message::ScrollModelDetailBottom),
         },
         NavAction::PageDown => match app.models_app.focus {
-            Focus::Providers => Some(Message::PageDownProvider),
             Focus::Models => Some(Message::PageDownModel),
             Focus::Details => Some(Message::PageScrollModelDetailDown),
         },
         NavAction::PageUp => match app.models_app.focus {
-            Focus::Providers => Some(Message::PageUpProvider),
             Focus::Models => Some(Message::PageUpModel),
             Focus::Details => Some(Message::PageScrollModelDetailUp),
         },
@@ -342,6 +353,20 @@ fn resolve_models_nav(app: &App, action: NavAction) -> Option<Message> {
         NavAction::FocusRight | NavAction::FocusNext => Some(Message::FocusModelRight),
         NavAction::Search => Some(Message::EnterSearch),
         NavAction::ClearEsc => Some(Message::ClearSearch),
+    }
+}
+
+/// Provider-picker modal keys. Printable characters type into the query
+/// (search-first), so every key is intercepted while the modal is open.
+fn handle_provider_picker_keys(code: KeyCode) -> Option<Message> {
+    match code {
+        KeyCode::Esc => Some(Message::CloseProviderPicker),
+        KeyCode::Enter => Some(Message::ApplyProviderPicker),
+        KeyCode::Down => Some(Message::ProviderPickerNext),
+        KeyCode::Up => Some(Message::ProviderPickerPrev),
+        KeyCode::Backspace => Some(Message::ProviderPickerBackspace),
+        KeyCode::Char(c) => Some(Message::ProviderPickerInput(c)),
+        _ => None,
     }
 }
 
@@ -364,6 +389,9 @@ fn handle_models_keys(app: &App, code: KeyCode, modifiers: KeyModifiers) -> Opti
         KeyCode::Char('4') => Some(Message::ToggleFree),
         KeyCode::Char('5') => Some(Message::CycleProviderCategory),
         KeyCode::Char('6') => Some(Message::ToggleGrouping),
+        KeyCode::Enter => Some(Message::ModelsEnter),
+        KeyCode::Char('V') => Some(Message::ToggleFlatModels),
+        KeyCode::Char('p') => Some(Message::OpenProviderPicker),
         KeyCode::Char('i') => Some(Message::ToggleGlossary),
         _ => None,
     }

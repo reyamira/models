@@ -185,6 +185,10 @@ impl Default for StatusConfig {
 pub struct DisplayConfig {
     #[serde(default)]
     pub default_tab: Option<String>,
+    /// Models tab: flat per-offering All view instead of the grouped view
+    /// (`V` toggle; grouped is the default).
+    #[serde(default)]
+    pub flat_models: bool,
 }
 
 impl Config {

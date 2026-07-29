@@ -5,6 +5,7 @@ mod cli;
 mod config;
 mod data;
 mod formatting;
+mod labs;
 mod provider_category;
 mod status;
 mod tui;
@@ -215,10 +216,13 @@ fn main() -> Result<()> {
         None => {
             // Fetch providers before entering async runtime to avoid blocking in async context
             let providers = api::fetch_providers()?;
+            // Lab catalog (canonical model registry) — best-effort; the app
+            // degrades to curated-table lab resolution when it can't load.
+            let lab_catalog = labs::LabCatalog::fetch();
 
             // Create and run the async runtime only for the TUI
             let runtime = tokio::runtime::Runtime::new()?;
-            runtime.block_on(tui::run(providers))?;
+            runtime.block_on(tui::run(providers, lab_catalog))?;
         }
     }
 

@@ -117,7 +117,7 @@ struct RuntimeHandles {
     url_tx: mpsc::Sender<String>,
     status: StatusRuntime,
 }
-pub async fn run(providers: ProvidersMap) -> Result<()> {
+pub async fn run(providers: ProvidersMap, lab_catalog: crate::labs::LabCatalog) -> Result<()> {
     // Load remaining data
     let agents_file = load_agents().ok();
     let config = Config::load().ok();
@@ -130,6 +130,14 @@ pub async fn run(providers: ProvidersMap) -> Result<()> {
 
     // Create app BEFORE entering alternate screen
     let mut app = app::App::new(providers, agents_file.as_ref(), config);
+    app.models_app.lab_catalog = lab_catalog;
+    app.models_app.flat_view = app.config.display.flat_models;
+    // Rebuild with the real catalog + persisted view mode — App::new built the
+    // initial groups with the default (empty) catalog.
+    {
+        let providers = app.providers.clone();
+        app.models_app.update_filtered_models(&providers);
+    }
 
     // Install panic hook to restore terminal on crash
     let original_hook = std::panic::take_hook();

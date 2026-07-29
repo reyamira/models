@@ -343,26 +343,55 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
                 .split(area);
 
             let left_content = match app.current_tab {
-                Tab::Models => Line::from(vec![
-                    Span::styled(" q ", Style::default().fg(Color::Yellow)),
-                    Span::raw("quit  "),
-                    Span::styled(" ↑/↓ ", Style::default().fg(Color::Yellow)),
-                    Span::raw("nav  "),
-                    Span::styled(" Tab ", Style::default().fg(Color::Yellow)),
-                    Span::raw("switch  "),
-                    Span::styled(" / ", Style::default().fg(Color::Yellow)),
-                    Span::raw("search  "),
-                    Span::styled(" s/S ", Style::default().fg(Color::Yellow)),
-                    Span::raw("sort  "),
-                    Span::styled(" 1-6 ", Style::default().fg(Color::Yellow)),
-                    Span::raw("filter  "),
-                    Span::styled(" r ", Style::default().fg(Color::Yellow)),
-                    Span::raw("refresh  "),
-                    Span::styled(" i ", Style::default().fg(Color::Yellow)),
-                    Span::raw("glossary  "),
-                    Span::styled(" c ", Style::default().fg(Color::Yellow)),
-                    Span::raw("copy"),
-                ]),
+                Tab::Models => {
+                    // Mode-dependent lead hint: drill in from the grouped
+                    // list, back out of a drill / provider scope.
+                    let mode = app.models_app.list_mode();
+                    let mut spans = vec![
+                        Span::styled(" q ", Style::default().fg(Color::Yellow)),
+                        Span::raw("quit  "),
+                        Span::styled(" ↑/↓ ", Style::default().fg(Color::Yellow)),
+                        Span::raw("nav  "),
+                    ];
+                    match mode {
+                        crate::tui::models::ListMode::Grouped => {
+                            spans.push(Span::styled(" Enter ", Style::default().fg(Color::Yellow)));
+                            spans.push(Span::raw("providers  "));
+                        }
+                        crate::tui::models::ListMode::Offerings => {
+                            spans.push(Span::styled(" Esc ", Style::default().fg(Color::Yellow)));
+                            spans.push(Span::raw("back  "));
+                        }
+                        crate::tui::models::ListMode::Flat => {
+                            if !app.models_app.is_all_selected() {
+                                spans.push(Span::styled(
+                                    " Esc ",
+                                    Style::default().fg(Color::Yellow),
+                                ));
+                                spans.push(Span::raw("all  "));
+                            }
+                        }
+                    }
+                    spans.extend([
+                        Span::styled(" p ", Style::default().fg(Color::Yellow)),
+                        Span::raw("provider  "),
+                        Span::styled(" V ", Style::default().fg(Color::Yellow)),
+                        Span::raw("flat  "),
+                        Span::styled(" / ", Style::default().fg(Color::Yellow)),
+                        Span::raw("search  "),
+                        Span::styled(" s/S ", Style::default().fg(Color::Yellow)),
+                        Span::raw("sort  "),
+                        Span::styled(" 1-6 ", Style::default().fg(Color::Yellow)),
+                        Span::raw("filter  "),
+                        Span::styled(" r ", Style::default().fg(Color::Yellow)),
+                        Span::raw("refresh  "),
+                        Span::styled(" i ", Style::default().fg(Color::Yellow)),
+                        Span::raw("glossary  "),
+                        Span::styled(" c ", Style::default().fg(Color::Yellow)),
+                        Span::raw("copy"),
+                    ]);
+                    Line::from(spans)
+                }
                 Tab::Agents => Line::from(vec![
                     Span::styled(" q ", Style::default().fg(Color::Yellow)),
                     Span::raw("quit  "),
@@ -592,6 +621,12 @@ fn draw_help_popup(f: &mut Frame, scroll: &ScrollOffset, app: &App) {
     match current_tab {
         Tab::Models => {
             help_text.extend(vec![
+                help_section("Views"),
+                help_line("Enter", "Open a model's provider offerings"),
+                help_line("Esc", "Back (offerings → models; provider → All)"),
+                help_line("p", "Provider picker (type to filter)"),
+                help_line("V", "Toggle grouped vs flat All view"),
+                Line::from(""),
                 help_section("Filters & Sort"),
                 help_line("s", "Cycle sort (name → date → cost → context)"),
                 help_line("S", "Toggle sort direction"),
