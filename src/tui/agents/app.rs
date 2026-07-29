@@ -1004,10 +1004,7 @@ pub fn handle_agents_mouse(
     app: &mut crate::tui::app::App,
     ev: crossterm::event::MouseEvent,
 ) -> Option<crate::tui::app::Message> {
-    let agents_app = match app.agents_app {
-        Some(ref mut a) => a,
-        None => return None,
-    };
+    let agents_app = app.agents_app.as_mut()?;
 
     match ev.kind {
         MouseEventKind::Down(MouseButton::Left) => {
@@ -1334,8 +1331,8 @@ mod tests {
         assert!(app.has_finished_update("a"));
         app.clear_update("a");
         assert!(!app.has_finished_update("a"));
-        assert!(app.update_states.get("a").is_none());
-        assert!(app.update_logs.get("a").is_none());
+        assert!(!app.update_states.contains_key("a"));
+        assert!(!app.update_logs.contains_key("a"));
     }
 
     #[test]
