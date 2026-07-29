@@ -13,7 +13,7 @@
 - Focus toggles between Models ↔ Details (the provider sidebar is retired; `p` opens the provider modal)
 - `reset_detail_scroll()` called on every model selection change (navigation, sort, filter, search)
 - Provider modal rows display a category initial prefix (O/C/I/G/T for Origin/Cloud/Inference/Gateway/Tool); `provider_list_items` powers the modal, not a sidebar
-- Grouped view state machine: `list_mode()` derives Grouped/Offerings/Flat from scope + `drill_key` + `flat_view`; `drill_name` is only the breadcrumb. Nav methods dispatch via `nav_len`/`nav_selected`/`nav_select`; lab/canonical resolution uses `crate::labs` from the `catalog.json` snapshot (assigned after `App::new` — `tui::run` re-runs `update_filtered_models`)
+- Grouped view state machine: `list_mode()` derives Grouped/Offerings/Flat from scope + `drill_key` + `flat_view`; `drill_name` is only the breadcrumb. Nav methods dispatch via `nav_len`/`nav_selected`/`nav_select`; canonical resolution uses `crate::labs` with the live `catalog.json` registry plus generated `data/models-dev-base-model-refs.json` (assigned after `App::new` — `tui::run` re-runs `update_filtered_models`). Resolution is exact-ref → direct model id → provider/model id → unlinked; unlinked offerings use unique keys, never name/slug grouping
 
 ## Provider Detail Card
 - Offerings/Flat modes only (grouped mode gives the detail panel the full height) — border always DarkGray (not focusable)

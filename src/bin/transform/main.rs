@@ -1,14 +1,17 @@
 //! `transform` — offline data-pipeline binary (feature `pipeline`).
 //!
 //! Converts raw upstream benchmark API/data dumps into the v2 `SourceFile`
-//! schema that the TUI/CLI deserialize. Built only with `--features pipeline`
-//! so the published `models` binary stays lean.
+//! schema and extracts models.dev's provider-TOML canonical identity edge.
+//! Built only with `--features pipeline` so the published `models` binary
+//! stays lean.
 //!
 //! The crate has no lib target, so the shared schema is pulled in via a
 //! `#[path]` module include of the very same file the app compiles as
 //! `crate::benchmarks::schema`. This guarantees the transform output can never
 //! drift from what the app reads.
 
+#[path = "../../model_refs.rs"]
+mod model_refs;
 #[path = "../../benchmarks/schema.rs"]
 mod schema;
 
@@ -16,6 +19,7 @@ mod aa;
 mod arena;
 mod epoch;
 mod llmstats;
+mod models_dev;
 
 use std::path::PathBuf;
 use std::process::ExitCode;
@@ -25,7 +29,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser)]
 #[command(
     name = "transform",
-    about = "Transform raw benchmark data dumps into the v2 SourceFile schema"
+    about = "Transform benchmark data and models.dev canonical references"
 )]
 struct Cli {
     #[command(subcommand)]
@@ -69,6 +73,17 @@ enum Command {
         #[arg(short, long)]
         output: PathBuf,
     },
+    /// Extract models.dev's provider-offering → canonical-model references.
+    ModelsDevRefs {
+        /// Path to a checkout of anomalyco/models.dev.
+        input: PathBuf,
+        /// Exact upstream Git commit represented by the checkout.
+        #[arg(long)]
+        upstream_commit: String,
+        /// Output path for the generated reference artifact.
+        #[arg(short, long)]
+        output: PathBuf,
+    },
 }
 
 fn main() -> ExitCode {
@@ -82,6 +97,11 @@ fn main() -> ExitCode {
             models,
             output,
         } => llmstats::run(&rankings, models.as_deref(), &output),
+        Command::ModelsDevRefs {
+            input,
+            upstream_commit,
+            output,
+        } => models_dev::run(&input, &upstream_commit, &output),
     };
 
     match result {

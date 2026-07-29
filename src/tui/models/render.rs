@@ -739,9 +739,10 @@ fn group_cap_char(
     }
 }
 
-/// The grouped Models view: one row per model name. Columns after the name
-/// shed greedily (Lab, Providers, Input, Output, Context) before the name
-/// drops below its minimum, mirroring the flat list's drop policy.
+/// The grouped Models view: one row per canonical model or unlinked offering.
+/// Columns after the name shed greedily (Lab, Providers, Input, Output,
+/// Context) before the name drops below its minimum, mirroring the flat list's
+/// drop policy.
 fn draw_grouped_list(f: &mut Frame, area: Rect, app: &mut App) {
     let is_focused = app.models_app.focus == Focus::Models;
     let border_style = focus_border(is_focused);
@@ -1625,11 +1626,24 @@ mod mouse_tests {
         }"#;
         let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
         let mut app = App::new(map, None, None);
-        app.models_app.lab_catalog = crate::labs::LabCatalog::from_test_entries(&[(
-            "anthropic/claude-opus-5",
-            "Claude Opus 5",
-            Some("claude-opus"),
-        )]);
+        app.models_app.lab_catalog = crate::labs::LabCatalog::from_test_entries_with_refs(
+            &[(
+                "anthropic/claude-opus-5",
+                "Claude Opus 5",
+                Some("claude-opus"),
+            )],
+            &[
+                (
+                    "amazon-bedrock/eu.anthropic.claude-opus-5",
+                    "anthropic/claude-opus-5",
+                ),
+                (
+                    "openrouter/anthropic/claude-opus-5-fast",
+                    "anthropic/claude-opus-5",
+                ),
+                ("venice/claude-opus-5-fast", "anthropic/claude-opus-5"),
+            ],
+        );
         app.models_app
             .update_filtered_models(&app.providers.clone());
         app.current_tab = Tab::Models;
@@ -1723,7 +1737,7 @@ mod mouse_tests {
     }
 
     #[test]
-    fn unresolved_provider_spellings_use_one_majority_named_group() {
+    fn unresolved_provider_spellings_remain_independent_offerings() {
         let json = r#"{
             "alpha": { "id": "alpha", "name": "Alpha", "models": {
                 "a": { "id": "a", "name": "Qwen3.7 Max" }
@@ -1740,13 +1754,16 @@ mod mouse_tests {
         }"#;
         let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
         let mut app = App::new(map, None, None);
-        assert_eq!(app.models_app.groups.len(), 1);
-        assert_eq!(app.models_app.groups[0].name, "Qwen3.7 Max");
-        assert_eq!(app.models_app.groups[0].provider_count, 4);
+        assert_eq!(app.models_app.groups.len(), 4);
+        assert!(app
+            .models_app
+            .groups
+            .iter()
+            .all(|group| group.provider_count == 1 && group.offering_count == 1));
 
         let providers = app.providers.clone();
         app.models_app.enter_selection(&providers);
-        assert_eq!(app.models_app.filtered_models().len(), 4);
+        assert_eq!(app.models_app.filtered_models().len(), 1);
     }
 
     #[test]

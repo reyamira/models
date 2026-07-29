@@ -1,9 +1,10 @@
 # `transform` — Benchmark Data Pipeline Bin
 
 Offline data-pipeline binary (Cargo feature `pipeline`). Converts raw upstream
-benchmark API/data dumps into the v2 `SourceFile` schema that the TUI/CLI
-deserialize, writing `data/v2/<id>.json`. **Not built by default** — `cargo
-install modelsdev` skips it. Build/run with `--features pipeline`.
+benchmark API/data dumps into the v2 `SourceFile` schema and extracts the exact
+provider-offering → canonical-model edge from a models.dev checkout. **Not
+built by default** — `cargo install modelsdev` skips it. Build/run with
+`--features pipeline`.
 
 Bare `cargo run` is ambiguous (two `[[bin]]` targets); `Cargo.toml` sets
 `default-run = "models"`, so always invoke this bin explicitly:
@@ -28,6 +29,7 @@ transform output can never drift from what the app reads. Each sub-module uses
 | `arena <dir> -o <out>` | directory of 6 board JSONs | `data/v2/arena.json` |
 | `epoch <dir> -o <out>` | *unzipped* `benchmark_data.zip` CSV dir | `data/v2/epoch.json` |
 | `llmstats <rankings> [--models <m>] -o <out>` | assembled `/v1/rankings` (+ optional `/v1/models`) | `data/v2/llmstats.json` |
+| `models-dev-refs <checkout> --upstream-commit <sha> -o <out>` | anomalyco/models.dev checkout | `data/models-dev-base-model-refs.json` |
 
 Each sub-module exposes `run(...) -> Result<(), String>`. `main` maps `Ok` →
 `ExitCode::SUCCESS`, `Err` → prints `error: {err}` to stderr + `FAILURE`.

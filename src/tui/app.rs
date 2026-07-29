@@ -2748,11 +2748,17 @@ mod tests {
 
         app.update(Message::ModelsRefreshed(Some(crate::api::ModelsCatalog {
             providers,
-            lab_catalog: crate::labs::LabCatalog::from_test_entries(&[(
-                "anthropic/claude-opus-5",
-                "Claude Opus 5",
-                Some("claude-opus"),
-            )]),
+            lab_catalog: crate::labs::LabCatalog::from_test_entries_with_refs(
+                &[(
+                    "anthropic/claude-opus-5",
+                    "Claude Opus 5",
+                    Some("claude-opus"),
+                )],
+                &[(
+                    "amazon-bedrock/eu.anthropic.claude-opus-5",
+                    "anthropic/claude-opus-5",
+                )],
+            ),
         })));
 
         assert_eq!(app.models_app.groups[0].name, "Claude Opus 5");

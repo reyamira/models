@@ -9,7 +9,7 @@
 | `cli/` | Subcommands, inline pickers, shared picker infrastructure | Yes |
 | `status/` | Provider health types, registry, assessment, fetch adapters | Yes |
 | `tui/` | App state, sub-apps, event handling, per-tab rendering | Yes |
-| `bin/` | `transform/` — offline benchmark data-pipeline bin (feature `pipeline`); not built by default | Yes |
+| `bin/` | `transform/` — offline benchmark and models.dev-reference pipeline bin (feature `pipeline`); not built by default | Yes |
 
 ## Top-Level Files
 
@@ -20,6 +20,7 @@
 | `data.rs` | `Provider`, `Model`, `ProvidersMap` — core data structures from models.dev. Used by nearly every module. New models.dev fields are modeled **permissively** (all-`Option`/`Vec`, no tagged enums) so a future upstream tag never fails the whole parse: `Model.{description, structured_output: Option<bool>, reasoning_options}` and `Cost.{reasoning, input_audio, output_audio, tiers}` (+ `ReasoningOption`/`CostTier`/`TierSpec`). Surfaced in the Models-tab detail panel + CLI `show`/`--json` |
 | `config.rs` | User config (`~/.config/models/config.toml`) — tracked agents, cache settings, display preferences, symlink aliases (`[aliases]` section) |
 | `formatting.rs` | Shared utilities: `truncate`, `parse_date`, `format_tokens`, `format_stars`, `cmp_opt_f64`, `EM_DASH` |
+| `model_refs.rs` | Versioned wire schema for the generated models.dev provider-offering → canonical-model reference map |
 | `provider_category.rs` | `ProviderCategory` enum (Origin/Cloud/Inference/Gateway/Tool), categorization logic, display labels |
 
 ## Cross-Module Dependencies

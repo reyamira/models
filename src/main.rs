@@ -6,6 +6,7 @@ mod config;
 mod data;
 mod formatting;
 mod labs;
+mod model_refs;
 mod provider_category;
 mod status;
 mod tui;

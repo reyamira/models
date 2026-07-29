@@ -208,6 +208,24 @@ echo "Updated data/v2/epoch.json ($(jq '.models | length' data/v2/epoch.json) mo
 echo "Updated data/v2/llmstats.json ($(jq '.models | length' data/v2/llmstats.json) models)"
 """
 
+[tasks.refresh-model-refs]
+description = "Regenerate exact models.dev provider-to-canonical references from upstream TOMLs"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+git clone --quiet --depth=1 --single-branch --branch dev \
+  https://github.com/anomalyco/models.dev.git "$work/models.dev"
+commit=$(git -C "$work/models.dev" rev-parse HEAD)
+cargo run --features pipeline --bin transform -- \
+  models-dev-refs "$work/models.dev" \
+  --upstream-commit "$commit" \
+  --output data/models-dev-base-model-refs.json
+echo "Updated data/models-dev-base-model-refs.json from models.dev $commit"
+"""
+
 [tasks.snapshot-stats]
 description = "Snapshot daily jsDelivr CDN hits per data file into data/stats/jsdelivr-history.json (app-launch proxy)"
 run = "bash scripts/snapshot-stats.sh"

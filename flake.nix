@@ -45,6 +45,7 @@
           root = unfilteredRoot;
           fileset = lib.fileset.unions [
             ./data/agents.json # required for compilation
+            ./data/models-dev-base-model-refs.json # exact canonical identity map
             ./data/v2 # committed source files read by drift-guard tests
             (craneLib.fileset.commonCargoSources unfilteredRoot)
           ];

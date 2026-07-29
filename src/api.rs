@@ -55,8 +55,8 @@ mod tests {
         let response: CatalogResponse = serde_json::from_str(
             r#"{
                 "providers": {
-                    "bedrock": {
-                        "id": "bedrock",
+                    "amazon-bedrock": {
+                        "id": "amazon-bedrock",
                         "name": "Bedrock",
                         "models": {
                             "eu.anthropic.claude-opus-5": {
@@ -82,11 +82,9 @@ mod tests {
 
         assert_eq!(snapshot.providers.len(), 1);
         assert_eq!(
-            snapshot.lab_catalog.resolve_model(
-                "Claude Opus 5 (EU)",
-                "bedrock",
-                "eu.anthropic.claude-opus-5"
-            ),
+            snapshot
+                .lab_catalog
+                .resolve_model("amazon-bedrock", "eu.anthropic.claude-opus-5"),
             Some(("anthropic/claude-opus-5", "Claude Opus 5", "anthropic"))
         );
     }

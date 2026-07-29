@@ -112,7 +112,7 @@ pub struct ModelsApp {
 /// Which list the center panel is showing. Derived state — see `list_mode`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ListMode {
-    /// One row per model name (All scope, default).
+    /// One row per canonical model or unlinked provider offering (All scope).
     Grouped,
     /// Offerings of one drilled-into group (breadcrumb view).
     Offerings,
@@ -120,12 +120,13 @@ pub enum ListMode {
     Flat,
 }
 
-/// Aggregate row of the grouped view: one model name across its providers.
+/// Aggregate row of the grouped view: one canonical model across its providers,
+/// or one provider offering when models.dev supplies no canonical identity.
 /// Capability tallies are `(true_count, total)` so the renderer can apply the
 /// majority-plus-dim-when-mixed policy.
 #[derive(Debug, Clone)]
 pub struct ModelGroup {
-    /// Stable canonical/normalized identity used for drilling and aggregation.
+    /// Stable canonical/offering identity used for drilling and aggregation.
     key: String,
     pub name: String,
     /// Lab slug (via `crate::labs`), `None` when unresolved.
@@ -444,19 +445,8 @@ impl ModelsApp {
             String,
             std::collections::HashSet<String>,
         > = std::collections::HashMap::new();
-        let mut display_name_counts: std::collections::HashMap<
-            String,
-            std::collections::HashMap<String, usize>,
-        > = std::collections::HashMap::new();
         for (idx, e) in self.filtered_models.iter().enumerate() {
             let (key, display_name, canonical_lab) = self.group_identity(e);
-            if canonical_lab.is_none() && !e.model.name.is_empty() {
-                *display_name_counts
-                    .entry(key.clone())
-                    .or_default()
-                    .entry(e.model.name.clone())
-                    .or_default() += 1;
-            }
             let g = map.entry(key.clone()).or_insert_with(|| {
                 order.push(key.clone());
                 ModelGroup {
@@ -518,19 +508,6 @@ impl ModelsApp {
                 if g.max_release.as_deref().is_none_or(|cur| d.as_str() > cur) {
                     g.max_release = Some(d.clone());
                 }
-            }
-        }
-        // For non-canonical groups, the most common upstream spelling becomes
-        // the beacon. Ties prefer an unprefixed spelling, then lexical order.
-        for (key, names) in display_name_counts {
-            let preferred = names.iter().min_by(|(a_name, a_count), (b_name, b_count)| {
-                b_count
-                    .cmp(a_count)
-                    .then_with(|| a_name.contains(':').cmp(&b_name.contains(':')))
-                    .then_with(|| a_name.cmp(b_name))
-            });
-            if let (Some(g), Some((name, _))) = (map.get_mut(&key), preferred) {
-                g.name.clone_from(name);
             }
         }
         let mut groups: Vec<ModelGroup> = order
@@ -719,12 +696,11 @@ impl ModelsApp {
 
 impl ModelsApp {
     /// Stable group identity, display name, and (when canonical) lab slug.
-    /// `model:` keys correspond to models.dev's hidden `base_model` edge;
-    /// `name:` keys are the punctuation/case-insensitive fallback.
+    /// `model:` keys reproduce models.dev canonical identity; unresolved rows
+    /// get unique `offering:` keys and are never grouped by name or partial id.
     fn group_identity(&self, e: &ModelEntry) -> (String, String, Option<String>) {
         if let Some((canonical_id, canonical_name, lab)) =
-            self.lab_catalog
-                .resolve_model(&e.model.name, &e.provider_id, &e.id)
+            self.lab_catalog.resolve_model(&e.provider_id, &e.id)
         {
             return (
                 format!("model:{canonical_id}"),
@@ -733,24 +709,16 @@ impl ModelsApp {
             );
         }
 
-        if e.model.name.is_empty() {
-            return (
-                format!("id:{}", e.id.to_ascii_lowercase()),
-                e.id.clone(),
-                None,
-            );
-        }
-
-        let normalized = crate::labs::normalized_model_name(&e.model.name);
-        if normalized.is_empty() {
-            (
-                format!("id:{}", e.id.to_ascii_lowercase()),
-                e.model.name.clone(),
-                None,
-            )
+        let display_name = if e.model.name.is_empty() {
+            e.id.clone()
         } else {
-            (format!("name:{normalized}"), e.model.name.clone(), None)
-        }
+            e.model.name.clone()
+        };
+        (
+            format!("offering:{}/{}", e.provider_id, e.id),
+            display_name,
+            None,
+        )
     }
 }
 
