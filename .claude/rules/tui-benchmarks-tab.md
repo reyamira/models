@@ -236,6 +236,13 @@ Type grouping key `[2]`: `Color::Magenta` when active, `Color::DarkGray` when no
 [1] Region  [2] Type    (region grouping active — label expands)
 ```
 
+**Effort-variant suffix** (browse list name cell): models carrying an
+`effort_level` append a dim ` · {effort}` (DarkGray) after the display name —
+the differentiator between AA's per-effort duplicate rows ("Claude Opus 5" ×5).
+The suffix is reserved out of the name budget (it must survive truncation) and
+skipped when the column can't keep 10 chars of name alongside it. Browse list
+only — compare/H2H views are unchanged.
+
 **Reasoning/Source indicators** in compact list rows:
 
 | Indicator | Chars | Color |

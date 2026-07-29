@@ -950,15 +950,39 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
             ));
         }
 
-        // Name
-        row_spans.push(Span::styled(
-            format!(
-                "{:<width$}",
-                truncate(&model.display_name, name_width.saturating_sub(1)),
-                width = name_width
-            ),
-            style,
-        ));
+        // Name, plus a dim effort-variant suffix ("Claude Opus 5 · medium")
+        // when the source distinguishes effort variants — without it, AA's
+        // per-effort entries render as identical duplicate rows whose only
+        // differentiator lives in the detail panel. The suffix is reserved out
+        // of the name budget (it IS the distinguishing information, so it must
+        // survive truncation), and skipped entirely when the column is too
+        // narrow to keep 10 chars of name alongside it.
+        let effort_suffix = model
+            .effort_level
+            .as_ref()
+            .map(|e| format!(" \u{00B7} {e}"))
+            .filter(|s| name_width >= s.chars().count() + 10);
+        if let Some(suffix) = effort_suffix {
+            let name = truncate(
+                &model.display_name,
+                name_width
+                    .saturating_sub(1)
+                    .saturating_sub(suffix.chars().count()),
+            );
+            let used = name.chars().count() + suffix.chars().count();
+            row_spans.push(Span::styled(name, style));
+            row_spans.push(Span::styled(suffix, Style::default().fg(Color::DarkGray)));
+            row_spans.push(Span::raw(" ".repeat(name_width.saturating_sub(used))));
+        } else {
+            row_spans.push(Span::styled(
+                format!(
+                    "{:<width$}",
+                    truncate(&model.display_name, name_width.saturating_sub(1)),
+                    width = name_width
+                ),
+                style,
+            ));
+        }
 
         // Metric columns (visible + sort, in render order).
         for &mi in &render_metric_cols {
@@ -3083,6 +3107,42 @@ mod mouse_tests {
             row,
             modifiers: KeyModifiers::NONE,
         }
+    }
+
+    /// Models carrying an effort level get a dim ` · {effort}` suffix in the
+    /// browse-list name cell — the differentiator between AA's per-effort
+    /// duplicate rows ("Claude Opus 5" ×5).
+    #[test]
+    fn browse_list_shows_effort_suffix() {
+        let mut app = test_app(3);
+        if let Some(f) = app.multi_store.file_mut(0) {
+            f.models[1].effort_level = Some("medium".into());
+        }
+        if let Some(f) = app.multi_store.file(0) {
+            app.benchmarks_app.update_filtered(f);
+        }
+        let backend = TestBackend::new(140, 30);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| crate::tui::ui::draw(f, &mut app))
+            .expect("draw");
+        let buf = terminal.backend().buffer().clone();
+        let mut rows: Vec<String> = Vec::new();
+        for y in 0..30u16 {
+            rows.push(
+                (0..140u16)
+                    .map(|x| buf.cell((x, y)).map(|c| c.symbol()).unwrap_or(" "))
+                    .collect(),
+            );
+        }
+        assert!(
+            rows.iter().any(|r| r.contains("Model 01 \u{00B7} medium")),
+            "effort suffix should render after the model name"
+        );
+        assert!(
+            !rows.iter().any(|r| r.contains("Model 00 \u{00B7}")),
+            "models without an effort level get no suffix"
+        );
     }
 
     #[test]
