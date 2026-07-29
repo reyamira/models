@@ -265,8 +265,8 @@ All popups follow these rules:
 |-----------|--------|---------------|
 | Dates | `%Y-%m-%d` with `(relative)` suffix | em-dash `\u{2014}` |
 | Token counts | `128k`, `1M`, `1.5M` | em-dash |
-| Prices (list) | `$100`, `$1.5`, `$0.05`, `$0.001` (tiered by magnitude) | em-dash |
-| Prices (detail) | `Free` (Green), `$15/M`, `$2.50/M` | em-dash |
+| Prices (list) | `$150`, `$5`, `$2.5`, `$1.25`, `$0.075` — `formatting::format_usd`: tiered precision, trailing fractional zeros trimmed (a decimal digit only appears when it carries information) | em-dash |
+| Prices (detail) | `Free` (Green), `$15/M`, `$2.5/M` (same `format_usd` + `/M` suffix) | em-dash |
 | Star counts | `12.3k`, `1.2m` | — |
 | Version strings | `v` prefix: `v1.2.3` | — |
 | Percentages | `{:.1}%` (1 decimal) | em-dash |

@@ -150,7 +150,7 @@ pub fn format_metric_value(kind: MetricKind, value: f64) -> String {
         // bare number would be unitless everywhere it matters.
         MetricKind::TokensPerSec => format!("{value:.0} tok/s"),
         MetricKind::Seconds => format!("{value:.2}s"),
-        MetricKind::UsdPerMTok => format!("${value:.2}"),
+        MetricKind::UsdPerMTok => crate::formatting::format_usd(value),
     }
 }
 
@@ -411,7 +411,7 @@ mod tests {
             "129 tok/s"
         );
         assert_eq!(format_metric_value(MetricKind::Seconds, 0.456), "0.46s");
-        assert_eq!(format_metric_value(MetricKind::UsdPerMTok, 2.5), "$2.50");
+        assert_eq!(format_metric_value(MetricKind::UsdPerMTok, 2.5), "$2.5");
     }
 
     #[test]

@@ -2203,8 +2203,8 @@ mod tests {
         assert_eq!(list_value_for(&file, m, SortKey::ReleaseDate), "2026-01-15");
         // Metric(0) Index -> "70.0"
         assert_eq!(list_value_for(&file, m, SortKey::Metric(0)), "70.0");
-        // Metric(1) price -> "$2.50"
-        assert_eq!(list_value_for(&file, m, SortKey::Metric(1)), "$2.50");
+        // Metric(1) price -> "$2.5" (trailing fractional zeros trimmed)
+        assert_eq!(list_value_for(&file, m, SortKey::Metric(1)), "$2.5");
     }
 
     #[test]

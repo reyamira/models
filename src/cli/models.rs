@@ -851,26 +851,27 @@ fn print_detail(d: &ModelDetail) {
 
     println!("Pricing (per million tokens)");
     println!("----------------------------");
+    let usd = crate::formatting::format_usd;
     if let Some(input) = d.input_cost {
-        println!("Input:       ${:.2}", input);
+        println!("Input:       {}", usd(input));
     }
     if let Some(output) = d.output_cost {
-        println!("Output:      ${:.2}", output);
+        println!("Output:      {}", usd(output));
     }
     if let Some(cache_read) = d.cache_read_cost {
-        println!("Cache Read:  ${:.2}", cache_read);
+        println!("Cache Read:  {}", usd(cache_read));
     }
     if let Some(cache_write) = d.cache_write_cost {
-        println!("Cache Write: ${:.2}", cache_write);
+        println!("Cache Write: {}", usd(cache_write));
     }
     if let Some(reasoning) = d.reasoning_cost {
-        println!("Thinking:    ${:.2}", reasoning);
+        println!("Thinking:    {}", usd(reasoning));
     }
     if let Some(audio_in) = d.input_audio_cost {
-        println!("Audio In:    ${:.2}", audio_in);
+        println!("Audio In:    {}", usd(audio_in));
     }
     if let Some(audio_out) = d.output_audio_cost {
-        println!("Audio Out:   ${:.2}", audio_out);
+        println!("Audio Out:   {}", usd(audio_out));
     }
     for t in &d.tiers {
         let threshold = t
@@ -879,10 +880,7 @@ fn print_detail(d: &ModelDetail) {
             .and_then(|ts| ts.size)
             .map(|s| format!("Over {}", crate::formatting::format_tokens(s)))
             .unwrap_or_else(|| "Tier".to_string());
-        let fmt = |v: Option<f64>| {
-            v.map(|x| format!("${:.2}", x))
-                .unwrap_or_else(|| "—".into())
-        };
+        let fmt = |v: Option<f64>| v.map(usd).unwrap_or_else(|| "—".into());
         println!(
             "{:<12} {} / {}",
             format!("{}:", threshold),

@@ -199,13 +199,12 @@ impl Model {
         }
     }
 
-    /// Compact cost string for list columns (rounded to 1 decimal place).
+    /// Compact cost string for list columns — tiered precision, trailing
+    /// fractional zeros trimmed (`$5`, `$2.5`, `$0.075`; see
+    /// `formatting::format_usd`).
     pub fn cost_short(value: Option<f64>) -> String {
         match value {
-            Some(v) if v >= 100.0 => format!("${:.0}", v),
-            Some(v) if v >= 1.0 => format!("${:.1}", v),
-            Some(v) if v >= 0.01 => format!("${:.2}", v),
-            Some(v) => format!("${:.3}", v),
+            Some(v) => formatting::format_usd(v),
             None => "\u{2014}".to_string(),
         }
     }

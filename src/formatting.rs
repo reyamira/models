@@ -123,6 +123,28 @@ pub(crate) fn parse_date_to_numeric(date_str: &str) -> Option<f64> {
     }
 }
 
+/// Format a dollar amount with tiered precision and no trailing fractional
+/// zeros: `150.0` → `"$150"`, `5.0` → `"$5"`, `2.50` → `"$2.5"`,
+/// `1.25` → `"$1.25"`, `0.075` → `"$0.075"`. A decimal digit only appears
+/// when it carries information — `$5.00` spends space on noise.
+pub(crate) fn format_usd(v: f64) -> String {
+    let s = if v >= 100.0 {
+        format!("{v:.0}")
+    } else if v >= 1.0 {
+        format!("{v:.2}")
+    } else {
+        // Sub-dollar prices carry signal in the third decimal ($0.075
+        // cache reads); the trim keeps $0.3 from becoming $0.300.
+        format!("{v:.3}")
+    };
+    let trimmed = if s.contains('.') {
+        s.trim_end_matches('0').trim_end_matches('.')
+    } else {
+        s.as_str()
+    };
+    format!("${trimmed}")
+}
+
 /// Compare two `Option<f64>` values. `None` sorts last (Greater).
 pub(crate) fn cmp_opt_f64(a: Option<f64>, b: Option<f64>) -> Ordering {
     match (a, b) {
@@ -147,6 +169,17 @@ mod tests {
     #[test]
     fn test_or_em_dash_none() {
         assert_eq!(or_em_dash(None::<String>), "\u{2014}");
+    }
+
+    #[test]
+    fn test_format_usd_trims_noise_zeros() {
+        assert_eq!(format_usd(150.0), "$150");
+        assert_eq!(format_usd(5.0), "$5");
+        assert_eq!(format_usd(2.5), "$2.5");
+        assert_eq!(format_usd(1.25), "$1.25");
+        assert_eq!(format_usd(0.3), "$0.3");
+        assert_eq!(format_usd(0.075), "$0.075");
+        assert_eq!(format_usd(0.0), "$0");
     }
 
     #[test]
