@@ -129,12 +129,13 @@ pub async fn run(catalog: crate::api::ModelsCatalog) -> Result<()> {
 
     // Create app BEFORE entering alternate screen
     let mut app = app::App::new(catalog.providers, agents_file.as_ref(), config);
-    app.models_app.lab_catalog = catalog.lab_catalog;
     app.models_app.flat_view = app.config.display.flat_models;
     // Rebuild with the real catalog + persisted view mode — App::new built the
     // initial groups with the default (empty) catalog.
     {
         let providers = app.providers.clone();
+        app.models_app
+            .set_lab_catalog(catalog.lab_catalog, &providers);
         app.models_app.update_filtered_models(&providers);
     }
 
@@ -688,7 +689,7 @@ fn run_app(
 
         // Drain `r`-triggered models.dev refresh results.
         while let Ok(result) = runtime.models_refresh_rx.try_recv() {
-            app.update(app::Message::ModelsRefreshed(result));
+            app.update(app::Message::ModelsRefreshed(result.map(Box::new)));
             last_status_time = Some(std::time::Instant::now());
         }
 

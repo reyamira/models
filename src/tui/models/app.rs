@@ -3,6 +3,11 @@ use ratatui::layout::Rect;
 use ratatui::widgets::ListState;
 
 use crate::data::{Model, Provider};
+use crate::labs::{
+    compact_model_id_fingerprint, full_model_id_fingerprint, identity_fingerprint,
+    model_id_fingerprint, outputs_are_disjoint, CanonicalResolutionKind, InferenceRejection,
+    ModelIdentity,
+};
 use crate::provider_category::{provider_category, ProviderCategory};
 use crate::tui::app::{App, Message};
 use crate::tui::mouse::{hit, row_at};
@@ -57,6 +62,58 @@ pub struct ModelEntry {
     pub id: String,
     pub model: Model,
     pub provider_id: String,
+    /// Projected from the complete catalog snapshot after filters are applied.
+    /// Peer provenance must never be recomputed from the visible subset.
+    pub identity: Option<ModelIdentityProvenance>,
+}
+
+/// Identity provenance for one provider offering inside a grouped row. Peer
+/// inference and canonical resolution are both snapshot-global.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ModelIdentityProvenance {
+    AuthoritativeRef,
+    AuthoritativeDirectId,
+    AuthoritativeScopedId,
+    InferredCanonical,
+    InferredQualifiedCanonical,
+    InferredPeer,
+    Unlinked(InferenceRejection),
+}
+
+impl ModelIdentityProvenance {
+    pub fn is_inferred(self) -> bool {
+        matches!(
+            self,
+            Self::InferredCanonical | Self::InferredQualifiedCanonical | Self::InferredPeer
+        )
+    }
+
+    pub fn is_authoritative(self) -> bool {
+        matches!(
+            self,
+            Self::AuthoritativeRef | Self::AuthoritativeDirectId | Self::AuthoritativeScopedId
+        )
+    }
+}
+
+impl From<CanonicalResolutionKind> for ModelIdentityProvenance {
+    fn from(kind: CanonicalResolutionKind) -> Self {
+        match kind {
+            CanonicalResolutionKind::AuthoritativeRef => Self::AuthoritativeRef,
+            CanonicalResolutionKind::AuthoritativeDirectId => Self::AuthoritativeDirectId,
+            CanonicalResolutionKind::AuthoritativeScopedId => Self::AuthoritativeScopedId,
+            CanonicalResolutionKind::InferredCanonical => Self::InferredCanonical,
+            CanonicalResolutionKind::InferredQualifiedCanonical => Self::InferredQualifiedCanonical,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct ResolvedGroupIdentity {
+    key: String,
+    name: String,
+    lab: Option<String>,
+    provenance: ModelIdentityProvenance,
 }
 
 pub struct ModelsApp {
@@ -73,6 +130,10 @@ pub struct ModelsApp {
     pub group_by_category: bool,
     pub provider_list_items: Vec<ProviderListItem>,
     filtered_models: Vec<ModelEntry>,
+    /// Complete-snapshot identity keyed by `(provider_id, model_id)`. Search,
+    /// filters, provider scope, and drill-down only project this stable result;
+    /// they never re-run peer conflict checks on a partial view.
+    identity_snapshot: std::collections::HashMap<(String, String), ResolvedGroupIdentity>,
     pub detail_scroll: ScrollOffset,
     /// Glossary popup (`i`) explaining the capability/pricing fields.
     pub show_glossary: bool,
@@ -88,7 +149,7 @@ pub struct ModelsApp {
     pub model_detail_area: Option<Rect>,
     /// Lab (canonical creator) resolver — set once at startup from
     /// models.dev's canonical registry; defaults to the curated-only table.
-    pub lab_catalog: crate::labs::LabCatalog,
+    lab_catalog: crate::labs::LabCatalog,
     /// `V` toggle: flat per-offering list instead of the grouped view when
     /// "All" is selected. Persisted via config by the caller.
     pub flat_view: bool,
@@ -127,7 +188,7 @@ pub enum ListMode {
 #[derive(Debug, Clone)]
 pub struct ModelGroup {
     /// Stable canonical/offering identity used for drilling and aggregation.
-    key: String,
+    pub(crate) key: String,
     pub name: String,
     /// Lab slug (via `crate::labs`), `None` when unresolved.
     pub lab: Option<String>,
@@ -150,6 +211,9 @@ pub struct ModelGroup {
     pub first_entry: usize,
     /// Indices of all members in `filtered_models`, list order.
     pub member_indices: Vec<usize>,
+    /// One entry per `member_indices` item, retained so grouped detail can
+    /// distinguish models.dev-authored identity from local inference.
+    pub member_provenance: Vec<ModelIdentityProvenance>,
 }
 
 impl ModelsApp {
@@ -173,6 +237,7 @@ impl ModelsApp {
             group_by_category: false,
             provider_list_items: Vec::new(),
             filtered_models: Vec::new(),
+            identity_snapshot: std::collections::HashMap::new(),
             detail_scroll: ScrollOffset::default(),
             show_glossary: false,
             glossary_scroll: ScrollOffset::default(),
@@ -198,8 +263,20 @@ impl ModelsApp {
         };
 
         app.update_provider_list(providers);
+        app.rebuild_identity_snapshot(providers);
         app.update_filtered_models(providers);
         app
+    }
+
+    /// Install the coherent canonical resolver for a new catalog snapshot and
+    /// rebuild every offering's identity before any UI filter is projected.
+    pub(crate) fn set_lab_catalog(
+        &mut self,
+        lab_catalog: crate::labs::LabCatalog,
+        providers: &[(String, Provider)],
+    ) {
+        self.lab_catalog = lab_catalog;
+        self.rebuild_identity_snapshot(providers);
     }
 
     pub fn is_all_selected(&self) -> bool {
@@ -383,6 +460,7 @@ impl ModelsApp {
                                 id: model_id.clone(),
                                 model: model.clone(),
                                 provider_id: provider_id.clone(),
+                                identity: None,
                             })
                         } else {
                             None
@@ -391,9 +469,13 @@ impl ModelsApp {
                 })
                 .collect();
 
-            // Push-in drill: restrict to the drilled group's offerings.
+            // Push-in drill: restrict to the stable snapshot identity, never a
+            // peer result recomputed from the filtered subset.
             if let Some(drill) = &self.drill_key {
-                entries.retain(|e| self.group_identity(e).0 == *drill);
+                entries.retain(|entry| {
+                    self.snapshot_identity(entry)
+                        .is_some_and(|identity| identity.key == *drill)
+                });
             }
             self.sort_entries(&mut entries);
             entries
@@ -413,6 +495,7 @@ impl ModelsApp {
                                 id: model_id.clone(),
                                 model: model.clone(),
                                 provider_id: provider_id.clone(),
+                                identity: None,
                             })
                         } else {
                             None
@@ -426,6 +509,18 @@ impl ModelsApp {
                 Vec::new()
             }
         };
+        let identities: Vec<_> = self
+            .filtered_models
+            .iter()
+            .map(|entry| {
+                self.snapshot_identity(entry)
+                    .expect("filtered offering must exist in identity snapshot")
+                    .provenance
+            })
+            .collect();
+        for (entry, identity) in self.filtered_models.iter_mut().zip(identities) {
+            entry.identity = Some(identity);
+        }
         self.rebuild_groups();
     }
 
@@ -445,8 +540,22 @@ impl ModelsApp {
             String,
             std::collections::HashSet<String>,
         > = std::collections::HashMap::new();
-        for (idx, e) in self.filtered_models.iter().enumerate() {
-            let (key, display_name, canonical_lab) = self.group_identity(e);
+        let identities: Vec<_> = self
+            .filtered_models
+            .iter()
+            .map(|entry| {
+                self.snapshot_identity(entry)
+                    .expect("grouped offering must exist in identity snapshot")
+                    .clone()
+            })
+            .collect();
+        for (idx, (e, identity)) in self.filtered_models.iter().zip(identities).enumerate() {
+            let ResolvedGroupIdentity {
+                key,
+                name: display_name,
+                lab: canonical_lab,
+                provenance,
+            } = identity;
             let g = map.entry(key.clone()).or_insert_with(|| {
                 order.push(key.clone());
                 ModelGroup {
@@ -469,10 +578,12 @@ impl ModelsApp {
                     max_release: None,
                     first_entry: idx,
                     member_indices: Vec::new(),
+                    member_provenance: Vec::new(),
                 }
             });
             g.offering_count += 1;
             g.member_indices.push(idx);
+            g.member_provenance.push(provenance);
             providers_seen
                 .entry(key)
                 .or_default()
@@ -695,30 +806,157 @@ impl ModelsApp {
 }
 
 impl ModelsApp {
-    /// Stable group identity, display name, and (when canonical) lab slug.
-    /// `model:` keys reproduce models.dev canonical identity; unresolved rows
-    /// get unique `offering:` keys and are never grouped by name or partial id.
-    fn group_identity(&self, e: &ModelEntry) -> (String, String, Option<String>) {
-        if let Some((canonical_id, canonical_name, lab)) =
-            self.lab_catalog.resolve_model(&e.provider_id, &e.id)
-        {
-            return (
-                format!("model:{canonical_id}"),
-                canonical_name.to_string(),
-                Some(lab.to_string()),
-            );
+    fn rebuild_identity_snapshot(&mut self, providers: &[(String, Provider)]) {
+        let entries: Vec<ModelEntry> = providers
+            .iter()
+            .flat_map(|(provider_id, provider)| {
+                provider.models.iter().map(|(model_id, model)| ModelEntry {
+                    id: model_id.clone(),
+                    model: model.clone(),
+                    provider_id: provider_id.clone(),
+                    identity: None,
+                })
+            })
+            .collect();
+        let identities = self.resolve_group_identities(&entries);
+        self.identity_snapshot = entries
+            .into_iter()
+            .zip(identities)
+            .map(|(entry, identity)| ((entry.provider_id, entry.id), identity))
+            .collect();
+    }
+
+    fn snapshot_identity(&self, entry: &ModelEntry) -> Option<&ResolvedGroupIdentity> {
+        self.identity_snapshot
+            .get(&(entry.provider_id.clone(), entry.id.clone()))
+    }
+
+    /// Resolve every entry as a set so conservative peer grouping can validate
+    /// whole buckets (never transitive pairwise unions). Canonical resolution
+    /// remains independently decided by `LabCatalog` first.
+    fn resolve_group_identities(&self, entries: &[ModelEntry]) -> Vec<ResolvedGroupIdentity> {
+        let mut identities: Vec<ResolvedGroupIdentity> = entries
+            .iter()
+            .map(|entry| {
+                match self.lab_catalog.resolve_model_identity(
+                    &entry.provider_id,
+                    &entry.id,
+                    &entry.model,
+                ) {
+                    ModelIdentity::Canonical(resolution) => ResolvedGroupIdentity {
+                        key: format!("model:{}", resolution.id),
+                        name: resolution.name.to_string(),
+                        lab: Some(resolution.lab.to_string()),
+                        provenance: resolution.kind.into(),
+                    },
+                    ModelIdentity::Unlinked(reason) => ResolvedGroupIdentity {
+                        key: format!("offering:{}/{}", entry.provider_id, entry.id),
+                        name: if entry.model.name.is_empty() {
+                            entry.id.clone()
+                        } else {
+                            entry.model.name.clone()
+                        },
+                        lab: None,
+                        provenance: ModelIdentityProvenance::Unlinked(reason),
+                    },
+                }
+            })
+            .collect();
+
+        // Stronger peer lane: the provider-independent leaf id agrees. This
+        // preserves the existing behavior for namespaced and bare ids.
+        self.apply_peer_groups(entries, &mut identities, "leaf", model_id_fingerprint);
+
+        // Weaker fallback, only for offerings still unlinked after the leaf
+        // lane: compare the complete id so provider-specific namespace
+        // serialization (`creator/model`, `creator-model`, `creator.model`)
+        // can agree. Keeping the lanes sequential prevents this fallback from
+        // splitting or transitively expanding a stronger peer group.
+        self.apply_peer_groups(entries, &mut identities, "full", full_model_id_fingerprint);
+
+        // Weakest fallback: remove separator boundaries from the complete id
+        // only after both token-preserving lanes fail. Name agreement and all
+        // bucket-level creator/modality blockers still apply.
+        self.apply_peer_groups(
+            entries,
+            &mut identities,
+            "compact",
+            compact_model_id_fingerprint,
+        );
+
+        identities
+    }
+
+    fn apply_peer_groups(
+        &self,
+        entries: &[ModelEntry],
+        identities: &mut [ResolvedGroupIdentity],
+        lane: &str,
+        id_fingerprint: fn(&str) -> String,
+    ) {
+        let mut peer_candidates: std::collections::HashMap<(String, String), Vec<usize>> =
+            std::collections::HashMap::new();
+        for (idx, (entry, identity)) in entries.iter().zip(identities.iter()).enumerate() {
+            if !matches!(identity.provenance, ModelIdentityProvenance::Unlinked(_)) {
+                continue;
+            }
+            let name = identity_fingerprint(&entry.model.name);
+            let id = id_fingerprint(&entry.id);
+            if !name.is_empty() && !id.is_empty() {
+                peer_candidates.entry((name, id)).or_default().push(idx);
+            }
         }
 
-        let display_name = if e.model.name.is_empty() {
-            e.id.clone()
-        } else {
-            e.model.name.clone()
-        };
-        (
-            format!("offering:{}/{}", e.provider_id, e.id),
-            display_name,
-            None,
-        )
+        for ((name_fingerprint, id_fingerprint), indices) in peer_candidates {
+            let providers: std::collections::HashSet<&str> = indices
+                .iter()
+                .map(|&idx| entries[idx].provider_id.as_str())
+                .collect();
+            if providers.len() < 2 {
+                continue;
+            }
+
+            let labs: std::collections::HashSet<&str> = indices
+                .iter()
+                .filter_map(|&idx| {
+                    let entry = &entries[idx];
+                    self.lab_catalog
+                        .independent_lab(&entry.provider_id, &entry.id)
+                })
+                .collect();
+            if labs.len() > 1 {
+                continue;
+            }
+
+            let outputs_conflict = indices.iter().enumerate().any(|(left_pos, &left_idx)| {
+                let left = entries[left_idx]
+                    .model
+                    .modalities
+                    .as_ref()
+                    .map(|modalities| modalities.output.as_slice())
+                    .unwrap_or_default();
+                indices.iter().skip(left_pos + 1).any(|&right_idx| {
+                    let right = entries[right_idx]
+                        .model
+                        .modalities
+                        .as_ref()
+                        .map(|modalities| modalities.output.as_slice())
+                        .unwrap_or_default();
+                    outputs_are_disjoint(left, right)
+                })
+            });
+            if outputs_conflict {
+                continue;
+            }
+
+            let key = format!("peer:{lane}:{name_fingerprint}|{id_fingerprint}");
+            let lab = labs.into_iter().next().map(String::from);
+            for idx in indices {
+                identities[idx].key.clone_from(&key);
+                identities[idx].lab.clone_from(&lab);
+                identities[idx].provenance = ModelIdentityProvenance::InferredPeer;
+            }
+        }
     }
 }
 
@@ -810,6 +1048,15 @@ impl ModelsApp {
 
     pub fn filtered_models(&self) -> &[ModelEntry] {
         &self.filtered_models
+    }
+
+    #[cfg(test)]
+    pub(crate) fn shadow_canonical_candidate<'a>(
+        &'a self,
+        entry: &ModelEntry,
+    ) -> Option<crate::labs::ShadowCanonicalCandidate<'a>> {
+        self.lab_catalog
+            .shadow_canonical_candidate(&entry.provider_id, &entry.id, &entry.model)
     }
 
     pub fn get_copy_full(&self) -> Option<String> {

@@ -589,6 +589,19 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
 
         let prefix = if is_selected { caret } else { "  " };
         let m = &entry.model;
+        let raw_name = if m.name.is_empty() {
+            &entry.id
+        } else {
+            &m.name
+        };
+        let display_name = if entry
+            .identity
+            .is_some_and(super::app::ModelIdentityProvenance::is_inferred)
+        {
+            format!("≈ {raw_name}")
+        } else {
+            raw_name.to_string()
+        };
 
         let (r_ch, r_color) = if m.reasoning {
             ("R", Color::Cyan)
@@ -625,14 +638,7 @@ fn draw_models(f: &mut Frame, area: Rect, app: &mut App) {
                     // panel), the name is the *reading* one. Names are
                     // shorter, curated upstream, and match what search
                     // matches. Id fallback for a hypothetical nameless model.
-                    truncate(
-                        if m.name.is_empty() {
-                            &entry.id
-                        } else {
-                            &m.name
-                        },
-                        name_width.saturating_sub(1)
-                    ),
+                    truncate(&display_name, name_width.saturating_sub(1)),
                     width = name_width
                 ),
                 style,
@@ -935,6 +941,17 @@ fn draw_grouped_list(f: &mut Frame, area: Rect, app: &mut App) {
             ("\u{00B7}", Color::DarkGray),
         );
         let (o_ch, o_color) = group_cap_char(g.open, ("O", Color::Green), ("C", Color::Red));
+        let peer_only = g.member_provenance.iter().all(|provenance| {
+            matches!(
+                provenance,
+                super::app::ModelIdentityProvenance::InferredPeer
+            )
+        });
+        let display_name = if peer_only {
+            format!("≈ {}", g.name)
+        } else {
+            g.name.clone()
+        };
 
         let mut row_spans: Vec<Span> = vec![
             Span::styled(prefix, style),
@@ -946,7 +963,7 @@ fn draw_grouped_list(f: &mut Frame, area: Rect, app: &mut App) {
             Span::styled(
                 format!(
                     "{:<width$}",
-                    truncate(&g.name, name_width.saturating_sub(1)),
+                    truncate(&display_name, name_width.saturating_sub(1)),
                     width = name_width
                 ),
                 style,
@@ -1053,12 +1070,18 @@ fn group_providers_section(app: &App, g: &ModelGroup, width: u16) -> Vec<Line<'s
         &format!("Providers ({})", g.provider_count),
     ));
     // Collect (provider display name, input, output, ctx) per member.
-    type OfferingRow = (String, Option<f64>, Option<f64>, Option<u64>);
+    type OfferingRow = (String, Option<f64>, Option<f64>, Option<u64>, bool);
     let mut rows: Vec<OfferingRow> = g
         .member_indices
         .iter()
-        .filter_map(|&i| app.models_app.filtered_models().get(i))
-        .map(|e| {
+        .enumerate()
+        .filter_map(|(member_pos, &i)| {
+            app.models_app
+                .filtered_models()
+                .get(i)
+                .map(|entry| (member_pos, entry))
+        })
+        .map(|(member_pos, e)| {
             let name = app
                 .providers
                 .iter()
@@ -1070,6 +1093,9 @@ fn group_providers_section(app: &App, g: &ModelGroup, width: u16) -> Vec<Line<'s
                 e.model.cost.as_ref().and_then(|c| c.input),
                 e.model.cost.as_ref().and_then(|c| c.output),
                 e.model.limit.as_ref().and_then(|l| l.context),
+                g.member_provenance
+                    .get(member_pos)
+                    .is_some_and(|provenance| provenance.is_inferred()),
             )
         })
         .collect();
@@ -1080,7 +1106,7 @@ fn group_providers_section(app: &App, g: &ModelGroup, width: u16) -> Vec<Line<'s
         (None, None) => a.0.cmp(&b.0),
     });
     let overflow = rows.len().saturating_sub(MAX_ROWS);
-    for (name, input, output, ctx) in rows.into_iter().take(MAX_ROWS) {
+    for (name, input, output, ctx, inferred) in rows.into_iter().take(MAX_ROWS) {
         let cost = format!(
             "{} / {}",
             crate::data::Model::cost_short(input),
@@ -1091,7 +1117,11 @@ fn group_providers_section(app: &App, g: &ModelGroup, width: u16) -> Vec<Line<'s
             .unwrap_or_else(|| EM_DASH.to_string());
         lines.push(Line::from(vec![
             Span::styled(
-                format!("  {:<18}", truncate(&name, 18)),
+                if inferred { "≈ " } else { "  " },
+                Style::default().fg(Color::DarkGray),
+            ),
+            Span::styled(
+                format!("{:<18}", truncate(&name, 18)),
                 Style::default().fg(Color::Gray),
             ),
             Span::styled(format!("{:>15}", cost), Style::default().fg(Color::White)),
@@ -1140,19 +1170,127 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
     // Grouped mode: identify the lab right under the id; the Providers
     // section lands after the description (before Capabilities).
     if app.models_app.list_mode() == ListMode::Grouped {
-        if let Some(lab) = app
-            .models_app
-            .current_group()
-            .and_then(|g| g.lab.as_deref())
-        {
+        if let Some(group) = app.models_app.current_group() {
+            if let Some(lab) = group.lab.as_deref() {
+                lines.push(Line::from(vec![
+                    Span::styled("Lab: ", Style::default().fg(label_color)),
+                    Span::styled(
+                        crate::labs::lab_display(lab),
+                        Style::default().fg(text_color),
+                    ),
+                ]));
+            }
+
+            let authoritative = group
+                .member_provenance
+                .iter()
+                .filter(|provenance| provenance.is_authoritative())
+                .count();
+            let inferred_canonical = group
+                .member_provenance
+                .iter()
+                .filter(|provenance| {
+                    matches!(
+                        provenance,
+                        super::app::ModelIdentityProvenance::InferredCanonical
+                    )
+                })
+                .count();
+            let inferred_qualified = group
+                .member_provenance
+                .iter()
+                .filter(|provenance| {
+                    matches!(
+                        provenance,
+                        super::app::ModelIdentityProvenance::InferredQualifiedCanonical
+                    )
+                })
+                .count();
+            let inferred_peer = group
+                .member_provenance
+                .iter()
+                .filter(|provenance| {
+                    matches!(
+                        provenance,
+                        super::app::ModelIdentityProvenance::InferredPeer
+                    )
+                })
+                .count();
+            let (identity, color) = if inferred_peer > 0 {
+                (
+                    "inferred peer group (not canonical)".to_string(),
+                    Color::DarkGray,
+                )
+            } else if inferred_canonical + inferred_qualified > 0 {
+                let inferred = inferred_canonical + inferred_qualified;
+                let qualified_note = if inferred_qualified > 0 {
+                    format!(" ({inferred_qualified} creator-qualified)")
+                } else {
+                    String::new()
+                };
+                (
+                    format!(
+                        "{} models.dev link{} + {} inferred{}",
+                        authoritative,
+                        if authoritative == 1 { "" } else { "s" },
+                        inferred,
+                        qualified_note
+                    ),
+                    Color::LightCyan,
+                )
+            } else if authoritative > 0 {
+                (
+                    format!(
+                        "models.dev authoritative ({} offering{})",
+                        authoritative,
+                        if authoritative == 1 { "" } else { "s" }
+                    ),
+                    Color::Gray,
+                )
+            } else {
+                let reason = group.member_provenance.iter().find_map(|provenance| {
+                    if let super::app::ModelIdentityProvenance::Unlinked(reason) = provenance {
+                        Some(reason.label())
+                    } else {
+                        None
+                    }
+                });
+                (
+                    format!("unlinked — {}", reason.unwrap_or("insufficient evidence")),
+                    Color::DarkGray,
+                )
+            };
             lines.push(Line::from(vec![
-                Span::styled("Lab: ", Style::default().fg(label_color)),
-                Span::styled(
-                    crate::labs::lab_display(lab),
-                    Style::default().fg(text_color),
-                ),
+                Span::styled("Identity: ", Style::default().fg(label_color)),
+                Span::styled(identity, Style::default().fg(color)),
             ]));
         }
+    } else if let Some(provenance) = entry.identity {
+        let (identity, color) = match provenance {
+            super::app::ModelIdentityProvenance::AuthoritativeRef
+            | super::app::ModelIdentityProvenance::AuthoritativeDirectId
+            | super::app::ModelIdentityProvenance::AuthoritativeScopedId => {
+                ("models.dev authoritative".to_string(), Color::Gray)
+            }
+            super::app::ModelIdentityProvenance::InferredCanonical => {
+                ("inferred canonical match".to_string(), Color::LightCyan)
+            }
+            super::app::ModelIdentityProvenance::InferredQualifiedCanonical => (
+                "inferred canonical match (creator-qualified)".to_string(),
+                Color::LightCyan,
+            ),
+            super::app::ModelIdentityProvenance::InferredPeer => (
+                "inferred peer group (not canonical)".to_string(),
+                Color::DarkGray,
+            ),
+            super::app::ModelIdentityProvenance::Unlinked(reason) => {
+                (format!("unlinked — {}", reason.label()), Color::DarkGray)
+            }
+        };
+        lines.push(Line::from(vec![
+            Span::styled("Identity: ", Style::default().fg(label_color)),
+            Span::styled(identity, Style::default().fg(color)),
+        ]));
     }
     // Provider is already shown in the Provider card directly above this panel
     // (always the selected model's provider), so it's omitted here to avoid
@@ -1585,7 +1723,7 @@ mod mouse_tests {
 
     use crate::data::ProvidersMap;
     use crate::tui::app::{App, Tab};
-    use crate::tui::models::{handle_models_mouse, Focus};
+    use crate::tui::models::{handle_models_mouse, Focus, ModelIdentityProvenance};
 
     /// Two providers; `alpha` has 30 dateless models `m00`..`m29` (so they sort
     /// by id ascending), `beta` has one.
@@ -1626,7 +1764,7 @@ mod mouse_tests {
         }"#;
         let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
         let mut app = App::new(map, None, None);
-        app.models_app.lab_catalog = crate::labs::LabCatalog::from_test_entries_with_refs(
+        let lab_catalog = crate::labs::LabCatalog::from_test_entries_with_refs(
             &[(
                 "anthropic/claude-opus-5",
                 "Claude Opus 5",
@@ -1644,6 +1782,8 @@ mod mouse_tests {
                 ("venice/claude-opus-5-fast", "anthropic/claude-opus-5"),
             ],
         );
+        app.models_app
+            .set_lab_catalog(lab_catalog, &app.providers.clone());
         app.models_app
             .update_filtered_models(&app.providers.clone());
         app.current_tab = Tab::Models;
@@ -1734,6 +1874,555 @@ mod mouse_tests {
         );
         assert_eq!(app.models_app.drill_name.as_deref(), Some("Claude Opus 5"));
         assert_eq!(app.models_app.filtered_models().len(), 4);
+    }
+
+    #[test]
+    fn inferred_grok_joins_authoritative_group_with_provenance() {
+        let json = r#"{
+            "xai": {"id":"xai","name":"xAI","models":{
+                "grok-4.5":{"id":"grok-4.5","name":"Grok 4.5","family":"grok"}
+            }},
+            "kenari": {"id":"kenari","name":"Kenari","models":{
+                "grok-4-5":{"id":"grok-4-5","name":"Grok 4.5","family":"grok"}
+            }},
+            "llmgateway": {"id":"llmgateway","name":"LLM Gateway","models":{
+                "grok-4-5":{"id":"grok-4-5","name":"Grok 4.5","family":"grok"}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let catalog_providers = map.clone();
+        let mut app = App::new(map, None, None);
+        let lab_catalog = crate::labs::LabCatalog::from_test_catalog_with_refs(
+            &[("xai/grok-4.5", "Grok 4.5", Some("grok"))],
+            &catalog_providers,
+            &[("kenari/grok-4-5", "xai/grok-4.5")],
+        );
+        app.models_app
+            .set_lab_catalog(lab_catalog, &app.providers.clone());
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+
+        assert_eq!(app.models_app.groups.len(), 1);
+        let group = &app.models_app.groups[0];
+        assert_eq!(group.name, "Grok 4.5");
+        assert_eq!(group.provider_count, 3);
+        assert_eq!(
+            group
+                .member_provenance
+                .iter()
+                .filter(|provenance| provenance.is_authoritative())
+                .count(),
+            2
+        );
+        assert_eq!(
+            group
+                .member_provenance
+                .iter()
+                .filter(|provenance| provenance.is_inferred())
+                .count(),
+            1
+        );
+        let text = render_to_text(&mut app, 150, 45);
+        assert!(text.contains("2 models.dev links + 1 inferred"));
+        assert!(text.contains("≈ LLM Gateway"));
+
+        let providers = app.providers.clone();
+        app.models_app.enter_selection(&providers);
+        let llm_gateway = app
+            .models_app
+            .filtered_models()
+            .iter()
+            .position(|entry| entry.provider_id == "llmgateway")
+            .expect("inferred offering in drill");
+        app.models_app.select_model_at_index(llm_gateway);
+        let text = render_to_text(&mut app, 150, 45);
+        assert!(text.contains("≈ Grok 4.5"));
+        assert!(text.contains("Identity: inferred canonical match"));
+    }
+
+    #[test]
+    fn creator_qualified_fable_joins_canonical_group_with_distinct_provenance() {
+        let json = r#"{
+            "anthropic": {"id":"anthropic","name":"Anthropic","models":{
+                "claude-fable-5":{"id":"claude-fable-5","name":"Claude Fable 5","modalities":{"output":["text"]}}
+            }},
+            "digitalocean": {"id":"digitalocean","name":"DigitalOcean","models":{
+                "anthropic-claude-fable-5":{"id":"anthropic-claude-fable-5","name":"Anthropic Claude Fable 5","modalities":{"output":["text"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let catalog_providers = map.clone();
+        let mut app = App::new(map, None, None);
+        let lab_catalog = crate::labs::LabCatalog::from_test_catalog_with_refs(
+            &[(
+                "anthropic/claude-fable-5",
+                "Claude Fable 5",
+                Some("claude-fable"),
+            )],
+            &catalog_providers,
+            &[("anthropic/claude-fable-5", "anthropic/claude-fable-5")],
+        );
+        app.models_app
+            .set_lab_catalog(lab_catalog, &app.providers.clone());
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+
+        assert_eq!(app.models_app.groups.len(), 1);
+        let group = &app.models_app.groups[0];
+        assert_eq!(group.provider_count, 2);
+        assert!(group.member_provenance.iter().any(|provenance| matches!(
+            provenance,
+            ModelIdentityProvenance::InferredQualifiedCanonical
+        )));
+        let text = render_to_text(&mut app, 200, 45);
+        assert!(text.contains("1 models.dev link + 1 inferred"));
+        assert!(text.contains("1 creator-qualified"));
+        assert!(text.contains("≈ DigitalOcean"));
+
+        let providers = app.providers.clone();
+        app.models_app.enter_selection(&providers);
+        let digitalocean = app
+            .models_app
+            .filtered_models()
+            .iter()
+            .position(|entry| entry.provider_id == "digitalocean")
+            .expect("creator-qualified offering in drill");
+        app.models_app.select_model_at_index(digitalocean);
+        let text = render_to_text(&mut app, 150, 45);
+        assert!(text.contains("Identity: inferred canonical match (creator-qualified)"));
+    }
+
+    #[test]
+    fn compatible_unlinked_offerings_form_peer_group_and_drill_together() {
+        let json = r#"{
+            "alpha": {"id":"alpha","name":"Alpha","models":{
+                "orphan-2.0":{"id":"orphan-2.0","name":"Orphan 2.0","modalities":{"output":["text"]}}
+            }},
+            "beta": {"id":"beta","name":"Beta","models":{
+                "orphan-2-0":{"id":"orphan-2-0","name":"Orphan 2.0","modalities":{"output":["text"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+
+        assert_eq!(app.models_app.groups.len(), 1);
+        let group = &app.models_app.groups[0];
+        assert_eq!(group.provider_count, 2);
+        assert!(group.member_provenance.iter().all(|provenance| matches!(
+            provenance,
+            crate::tui::models::app::ModelIdentityProvenance::InferredPeer
+        )));
+        let text = render_to_text(&mut app, 140, 40);
+        assert!(text.contains("≈ Orphan 2.0"));
+        assert!(text.contains("inferred peer group (not canonical)"));
+
+        let providers = app.providers.clone();
+        app.models_app.enter_selection(&providers);
+        assert_eq!(app.models_app.filtered_models().len(), 2);
+        let text = render_to_text(&mut app, 140, 40);
+        assert!(text.contains("≈ Orphan 2.0"));
+        assert!(text.contains("Identity: inferred peer group (not canonical)"));
+    }
+
+    #[test]
+    fn flattened_creator_namespace_forms_conservative_peer_groups() {
+        let json = r#"{
+            "openrouter": {"id":"openrouter","name":"OpenRouter","models":{
+                "aion-labs/aion-3.0":{"id":"aion-labs/aion-3.0","name":"Aion-3.0","modalities":{"output":["text"]}},
+                "aion-labs/aion-3.0-mini":{"id":"aion-labs/aion-3.0-mini","name":"Aion-3.0-Mini","modalities":{"output":["text"]}}
+            }},
+            "venice": {"id":"venice","name":"Venice AI","models":{
+                "aion-labs-aion-3-0":{"id":"aion-labs-aion-3-0","name":"Aion 3.0","modalities":{"output":["text"]}},
+                "aion-labs-aion-3-0-mini":{"id":"aion-labs-aion-3-0-mini","name":"Aion 3.0 Mini","modalities":{"output":["text"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+
+        assert_eq!(app.models_app.groups.len(), 2);
+        assert!(app.models_app.groups.iter().all(|group| {
+            group.provider_count == 2
+                && group.offering_count == 2
+                && group
+                    .member_provenance
+                    .iter()
+                    .all(|provenance| matches!(provenance, ModelIdentityProvenance::InferredPeer))
+        }));
+        let text = render_to_text(&mut app, 140, 40);
+        assert!(text.contains("≈ Aion 3.0"));
+        assert!(text.contains("≈ Aion 3.0 Mini"));
+    }
+
+    #[test]
+    fn full_id_fallback_does_not_erase_creator_tokens() {
+        let json = r#"{
+            "alpha": {"id":"alpha","name":"Alpha","models":{
+                "creator-a/orphan-2.0":{"id":"creator-a/orphan-2.0","name":"Orphan 2.0","modalities":{"output":["text"]}}
+            }},
+            "beta": {"id":"beta","name":"Beta","models":{
+                "creator-b-orphan-2-0":{"id":"creator-b-orphan-2-0","name":"Orphan 2.0","modalities":{"output":["text"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let app = App::new(map, None, None);
+
+        assert_eq!(app.models_app.groups.len(), 2);
+        assert!(app
+            .models_app
+            .groups
+            .iter()
+            .all(|group| group.provider_count == 1));
+    }
+
+    #[test]
+    fn compact_separator_fallback_preserves_matching_creator_tokens() {
+        let json = r#"{
+            "frogbot": {"id":"frogbot","name":"Frogbot","models":{
+                "zai-glm-5-1":{"id":"zai-glm-5-1","name":"Z.AI GLM-5.1","modalities":{"output":["text"]}}
+            }},
+            "kilo": {"id":"kilo","name":"Kilo Gateway","models":{
+                "z-ai/glm-5.1":{"id":"z-ai/glm-5.1","name":"Z.ai: GLM 5.1","modalities":{"output":["text"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let app = App::new(map, None, None);
+
+        assert_eq!(app.models_app.groups.len(), 1);
+        let group = &app.models_app.groups[0];
+        assert_eq!(group.provider_count, 2);
+        assert_eq!(group.offering_count, 2);
+        assert!(group
+            .member_provenance
+            .iter()
+            .all(|provenance| matches!(provenance, ModelIdentityProvenance::InferredPeer)));
+    }
+
+    #[test]
+    fn peer_grouping_rejects_creator_and_output_conflicts() {
+        let json = r#"{
+            "creator-a": {"id":"creator-a","name":"Creator A","models":{
+                "openai/orphan-2.0":{"id":"openai/orphan-2.0","name":"Orphan 2.0","modalities":{"output":["text"]}}
+            }},
+            "creator-b": {"id":"creator-b","name":"Creator B","models":{
+                "anthropic/orphan-2-0":{"id":"anthropic/orphan-2-0","name":"Orphan 2.0","modalities":{"output":["text"]}}
+            }},
+            "modality-a": {"id":"modality-a","name":"Modality A","models":{
+                "media-1.0":{"id":"media-1.0","name":"Media 1.0","modalities":{"output":["text"]}}
+            }},
+            "modality-b": {"id":"modality-b","name":"Modality B","models":{
+                "media-1-0":{"id":"media-1-0","name":"Media 1.0","modalities":{"output":["image"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+        let lab_catalog = crate::labs::LabCatalog::from_test_entries_with_refs(
+            &[
+                ("openai/dummy", "OpenAI Dummy", None),
+                ("anthropic/dummy", "Anthropic Dummy", None),
+            ],
+            &[],
+        );
+        app.models_app
+            .set_lab_catalog(lab_catalog, &app.providers.clone());
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+
+        assert_eq!(app.models_app.groups.len(), 4);
+        assert!(app
+            .models_app
+            .groups
+            .iter()
+            .all(|group| group.provider_count == 1));
+    }
+
+    #[test]
+    fn peer_conflict_cannot_be_filtered_away() {
+        let json = r#"{
+            "alpha": {"id":"alpha","name":"Alpha","models":{
+                "orphan-2.0":{"id":"orphan-2.0","name":"Orphan 2.0","reasoning":true,"modalities":{"output":["text"]}}
+            }},
+            "beta": {"id":"beta","name":"Beta","models":{
+                "orphan-2-0":{"id":"orphan-2-0","name":"Orphan 2.0","reasoning":true,"modalities":{"output":["text"]}}
+            }},
+            "gamma": {"id":"gamma","name":"Gamma","models":{
+                "orphan.2.0":{"id":"orphan.2.0","name":"Orphan 2.0","reasoning":false,"modalities":{"output":["image"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+
+        assert_eq!(app.models_app.groups.len(), 3);
+        app.models_app.filters.reasoning = true;
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+
+        assert_eq!(app.models_app.filtered_models().len(), 2);
+        assert_eq!(app.models_app.groups.len(), 2);
+        assert!(app
+            .models_app
+            .filtered_models()
+            .iter()
+            .all(|entry| matches!(entry.identity, Some(ModelIdentityProvenance::Unlinked(_)))));
+    }
+
+    #[test]
+    fn provider_scope_projects_snapshot_peer_provenance() {
+        let json = r#"{
+            "alpha": {"id":"alpha","name":"Alpha","models":{
+                "orphan-2.0":{"id":"orphan-2.0","name":"Orphan 2.0","modalities":{"output":["text"]}}
+            }},
+            "beta": {"id":"beta","name":"Beta","models":{
+                "orphan-2-0":{"id":"orphan-2-0","name":"Orphan 2.0","modalities":{"output":["text"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+        let alpha_picker_index = app
+            .models_app
+            .provider_list_items
+            .iter()
+            .position(|item| match item {
+                crate::tui::models::app::ProviderListItem::Provider(index, _) => {
+                    app.providers[*index].0 == "alpha"
+                }
+                _ => false,
+            })
+            .expect("alpha provider picker row");
+
+        app.models_app
+            .select_provider_at_index(alpha_picker_index, &app.providers.clone());
+
+        assert_eq!(app.models_app.filtered_models().len(), 1);
+        assert!(matches!(
+            app.models_app.filtered_models()[0].identity,
+            Some(ModelIdentityProvenance::InferredPeer)
+        ));
+        assert!(app.models_app.groups.is_empty());
+    }
+
+    /// Read-only live distribution receipt for the same snapshot the TUI
+    /// consumes. Kept separate from ordinary tests so CI never requires the
+    /// network; `mise run audit-model-identity` invokes it explicitly.
+    #[test]
+    #[ignore = "live models.dev grouping distribution audit"]
+    fn live_grouping_distribution_and_grok_consolidation() {
+        let catalog = crate::api::fetch_catalog().expect("fetch live catalog");
+        let mut app = App::new(catalog.providers, None, None);
+        app.models_app
+            .set_lab_catalog(catalog.lab_catalog, &app.providers.clone());
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+
+        let mut authoritative = 0usize;
+        let mut inferred_canonical = 0usize;
+        let mut inferred_qualified = 0usize;
+        let mut inferred_peer = 0usize;
+        let mut unlinked = 0usize;
+        let mut canonical_groups = 0usize;
+        let mut peer_groups = 0usize;
+        let mut unlinked_groups = 0usize;
+        for group in &app.models_app.groups {
+            let mut has_canonical = false;
+            let mut has_peer = false;
+            for provenance in &group.member_provenance {
+                match provenance {
+                    ModelIdentityProvenance::AuthoritativeRef
+                    | ModelIdentityProvenance::AuthoritativeDirectId
+                    | ModelIdentityProvenance::AuthoritativeScopedId => {
+                        authoritative += 1;
+                        has_canonical = true;
+                    }
+                    ModelIdentityProvenance::InferredCanonical => {
+                        inferred_canonical += 1;
+                        has_canonical = true;
+                    }
+                    ModelIdentityProvenance::InferredQualifiedCanonical => {
+                        inferred_qualified += 1;
+                        has_canonical = true;
+                    }
+                    ModelIdentityProvenance::InferredPeer => {
+                        inferred_peer += 1;
+                        has_peer = true;
+                    }
+                    ModelIdentityProvenance::Unlinked(_) => unlinked += 1,
+                }
+            }
+            if has_canonical {
+                canonical_groups += 1;
+            } else if has_peer {
+                peer_groups += 1;
+            } else {
+                unlinked_groups += 1;
+            }
+        }
+
+        println!(
+            "live grouping: {} rows = {canonical_groups} canonical + {peer_groups} peer + {unlinked_groups} unlinked; offerings = {authoritative} authoritative + {inferred_canonical} inferred canonical + {inferred_qualified} creator-qualified canonical + {inferred_peer} inferred peer + {unlinked} unlinked",
+            app.models_app.groups.len()
+        );
+
+        let mut shadow_exact_pair = 0usize;
+        let mut shadow_one_sided = 0usize;
+        let mut shadow_cross = 0usize;
+        let mut nemotron_cross = false;
+        for entry in app.models_app.filtered_models() {
+            let Some(candidate) = app.models_app.shadow_canonical_candidate(entry) else {
+                continue;
+            };
+            match candidate.kind {
+                crate::labs::ShadowCandidateKind::ExactAuthoritativePair => {
+                    shadow_exact_pair += 1;
+                }
+                crate::labs::ShadowCandidateKind::OneSidedCreatorQualified => {
+                    shadow_one_sided += 1;
+                }
+                crate::labs::ShadowCandidateKind::CrossAuthoritativeAliases => {
+                    shadow_cross += 1;
+                }
+            }
+            if entry.provider_id == "digitalocean"
+                && entry.id == "nemotron-3-ultra-550b"
+                && candidate.id == "nvidia/nemotron-3-ultra-550b-a55b"
+                && matches!(
+                    candidate.kind,
+                    crate::labs::ShadowCandidateKind::CrossAuthoritativeAliases
+                )
+            {
+                nemotron_cross = true;
+            }
+            println!(
+                "shadow {}: {}/{} ({}) -> {} / {} / {} [{} pair, {} name, {} id witnesses]",
+                candidate.kind.label(),
+                entry.provider_id,
+                entry.id,
+                entry.model.name,
+                candidate.id,
+                candidate.name,
+                candidate.lab,
+                candidate.pair_witnesses,
+                candidate.name_witnesses,
+                candidate.id_witnesses
+            );
+        }
+        println!(
+            "shadow candidates: {shadow_exact_pair} exact-pair + {shadow_one_sided} one-sided creator + {shadow_cross} cross-record"
+        );
+        assert!(
+            shadow_exact_pair + shadow_one_sided + shadow_cross > 0,
+            "live audit must exercise shadow candidate evidence"
+        );
+        assert!(
+            nemotron_cross,
+            "DigitalOcean Nemotron must remain unmerged but surface as a cross-record candidate"
+        );
+
+        for group in &app.models_app.groups {
+            let qualified_members: Vec<_> = group
+                .member_indices
+                .iter()
+                .zip(&group.member_provenance)
+                .filter_map(|(&index, provenance)| {
+                    matches!(
+                        provenance,
+                        ModelIdentityProvenance::InferredQualifiedCanonical
+                    )
+                    .then(|| {
+                        let entry = &app.models_app.filtered_models()[index];
+                        format!("{}/{}", entry.provider_id, entry.id)
+                    })
+                })
+                .collect();
+            if !qualified_members.is_empty() {
+                println!(
+                    "creator-qualified canonical: {} <- {}",
+                    group.name,
+                    qualified_members.join(", ")
+                );
+            }
+        }
+
+        for group in app
+            .models_app
+            .groups
+            .iter()
+            .filter(|group| group.key.starts_with("peer:compact:"))
+        {
+            println!(
+                "compact-id peer: {} = {} providers / {} offerings",
+                group.name, group.provider_count, group.offering_count
+            );
+        }
+
+        let grok_groups: Vec<_> = app
+            .models_app
+            .groups
+            .iter()
+            .filter(|group| group.name == "Grok 4.5")
+            .collect();
+        for group in &grok_groups {
+            println!(
+                "Grok 4.5 group: {} providers, {} offerings, provenance {:?}",
+                group.provider_count, group.offering_count, group.member_provenance
+            );
+        }
+        assert!(
+            grok_groups.iter().any(|group| {
+                group.provider_count >= 13
+                    && group.member_provenance.iter().any(|provenance| {
+                        matches!(provenance, ModelIdentityProvenance::InferredCanonical)
+                    })
+            }),
+            "Grok 4.5 must include the inferred LLM Gateway offering"
+        );
+
+        let fable_groups: Vec<_> = app
+            .models_app
+            .groups
+            .iter()
+            .filter(|group| group.name == "Claude Fable 5")
+            .collect();
+        for group in &fable_groups {
+            println!(
+                "Claude Fable 5 group: {} providers, {} offerings, provenance {:?}",
+                group.provider_count, group.offering_count, group.member_provenance
+            );
+        }
+        assert!(
+            fable_groups.iter().any(|group| {
+                group.provider_count >= 22
+                    && group.member_provenance.iter().any(|provenance| {
+                        matches!(
+                            provenance,
+                            ModelIdentityProvenance::InferredQualifiedCanonical
+                        )
+                    })
+            }),
+            "Claude Fable 5 must include creator-qualified DigitalOcean"
+        );
+
+        let aion_groups: Vec<_> = app
+            .models_app
+            .groups
+            .iter()
+            .filter(|group| group.name == "Aion 3.0" || group.name == "Aion 3.0 Mini")
+            .collect();
+        for group in &aion_groups {
+            println!(
+                "{} group: {} providers, {} offerings, provenance {:?}",
+                group.name, group.provider_count, group.offering_count, group.member_provenance
+            );
+        }
+        assert_eq!(
+            aion_groups.len(),
+            2,
+            "Aion 3.0 and Mini should each have one grouped row"
+        );
+        assert!(
+            aion_groups
+                .iter()
+                .all(|group| group.provider_count == 2 && group.offering_count == 2),
+            "each Aion row should contain OpenRouter and Venice"
+        );
     }
 
     #[test]

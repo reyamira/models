@@ -40,9 +40,10 @@ pub fn fetch_catalog() -> Result<ModelsCatalog> {
         .json()
         .context("Failed to parse catalog response")?;
 
+    let lab_catalog = LabCatalog::from_catalog(&catalog.models, &catalog.providers);
     Ok(ModelsCatalog {
         providers: catalog.providers,
-        lab_catalog: LabCatalog::from_canonical(&catalog.models),
+        lab_catalog,
     })
 }
 
@@ -75,9 +76,10 @@ mod tests {
             }"#,
         )
         .expect("valid catalog response");
+        let lab_catalog = LabCatalog::from_catalog(&response.models, &response.providers);
         let snapshot = ModelsCatalog {
             providers: response.providers,
-            lab_catalog: LabCatalog::from_canonical(&response.models),
+            lab_catalog,
         };
 
         assert_eq!(snapshot.providers.len(), 1);

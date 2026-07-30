@@ -105,6 +105,7 @@ csv = { version = "1", optional = true }
 # Terminal styling (used for dialoguer theme)
 console = "0.15"
 unicode-width = "0.2"
+unicode-normalization = "0.1"
 
 [profile.release]
 strip = true

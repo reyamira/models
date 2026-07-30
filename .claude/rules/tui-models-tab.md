@@ -25,7 +25,7 @@ Focus cycles two panels only: `Focus::Models ↔ Focus::Details`.
 
 | Mode | When | Rows |
 |------|------|------|
-| `Grouped` | All scope, no drill, `flat_view` off (**default**) | one per canonical model; unlinked offerings stay independent (`ModelGroup`) |
+| `Grouped` | All scope, no drill, `flat_view` off (**default**) | one per authoritative/inferred canonical model, conservative peer cluster, or remaining unlinked offering (`ModelGroup`) |
 | `Offerings` | `drill_key` is `Some` (Enter on a grouped row; `drill_name` is the breadcrumb only) | that group's flat offering rows |
 | `Flat` | provider-scoped, or the `V` toggle | flat per-offering rows |
 
@@ -82,8 +82,77 @@ Lab fallback remains exact name → paren-stripped name → family → id-prefix
 Canonical families need **≥2 models** to be trusted (Thinking Machines' lone
 "Inkling" claims family `ling`, which would mislabel InclusionAI's Ling line —
 guarded by a curated `ling → inclusionai` entry). `ModelsApp.lab_catalog` is
-assigned **after** `App::new`, so `tui::run` re-runs
-`update_filtered_models` — groups built at construction have no labs.
+installed **after** `App::new`; `set_lab_catalog` rebuilds the snapshot-wide
+identity map before `tui::run` projects the visible rows.
+
+The exact website resolver remains authoritative and is never overridden. For
+otherwise-unlinked offerings, `LabCatalog::resolve_model_identity` may infer a
+canonical target only when the normalized full name selects one canonical
+record, authoritatively resolved offerings with that name unanimously anchor
+the same target, and the leaf-id token fingerprint exactly matches the
+canonical id or a fingerprint already seen on one of those authoritative
+offerings. Unicode compatibility normalization lowercases, treats punctuation
+as separators, splits letter/number boundaries, and preserves `+` as the
+semantic `plus` token (`Command R` ≠ `Command R+`). Explicit creator namespace
+or output-modality conflicts block inference. Price, limits, capability flags,
+release-date metadata, and fuzzy similarity are never canonical evidence.
+
+If that anchor-backed lane cannot resolve the offering, a second canonical
+lane handles providers that flatten the creator namespace into both fields
+(for example `Anthropic Claude Fable 5` with
+`anthropic-claude-fable-5`). It constructs candidate pairs from each live
+canonical record: compact(`creator + canonical name`) plus compact(full
+canonical id). The provider's complete name and complete id must match the
+same pair, that pair must select exactly one canonical target, and the same
+creator/output-modality blockers still apply. Name-only matches, id-only
+matches, arbitrary prefix removal, and ambiguous compact collisions fail
+closed. This lane has its own `InferredQualifiedCanonical` provenance so it
+can be audited independently and automatically yields to an upstream exact
+`base_model` link when the embedded refs are refreshed.
+
+New canonical records and provider offerings in `catalog.json` participate in
+direct/scoped and creator-qualified matching on the next app launch because
+the indices are rebuilt from that coherent live snapshot. The exact
+`base_model` artifact is intentionally release-pinned, however: after upstream
+TOMLs change, `mise run refresh-model-refs` plus a new binary release is needed
+to absorb those exact links. Until then a new offering is canonically grouped
+only if one of the conservative live inference lanes proves it; otherwise it
+may form an explicitly non-canonical peer group or remain unlinked. This makes
+artifact refresh cadence an operational policy, not hidden runtime guessing.
+
+Still-unlinked offerings form a non-canonical peer group only when at least two
+providers share the exact normalized name and one of three sequential id
+fingerprints: token-preserving leaf id first, then token-preserving full id for
+flattened namespace spellings (`creator/model` vs `creator-model`), then a
+separator-compacted full id (`gpt-5.2` vs `gpt-52`). Each weaker lane considers
+only offerings left unlinked by the stronger lanes, so it cannot split or
+transitively expand an existing group. Every lane still requires a whole
+multi-provider bucket with no creator or pairwise output-modality conflict;
+`+` remains the semantic `plus` token even in the compact lane. Canonical and
+peer identity is resolved once across the complete catalog snapshot, before
+search, capability filters, or provider scope are applied. Filtering only
+projects that stable identity: it cannot hide a conflicting peer and thereby
+manufacture a group, or erase peer provenance when only one member is visible.
+
+Three broader rules are intentionally **shadow-only**: an exact normalized
+name + leaf-id pair observed on an authoritative offering; a creator-qualified
+canonical name combined with an authoritative id alias; and the intersection
+of a name alias and id alias learned from different authoritative offerings.
+They retain separate witness counts and pass the same creator/output blockers,
+but never change grouping or seed another match. The live snapshot contains
+real semantic variants (for example preview/free/instruct forms) in these
+candidate sets, so none is promoted wholesale and fuzzy similarity remains
+diagnostic-only. Collision and semantic-negative tests must stay fail-closed.
+
+Provenance is retained per offering; `≈` marks inferred members in the
+Providers section and flat/drilled lists, plus peer-only rows in the grouped
+list. Grouped detail states `N models.dev links + M inferred (Q
+creator-qualified)` or `inferred peer group (not canonical)`. `mise run
+audit-model-identity` performs a provider-level holdout: all explicit links and
+alias evidence from one provider are removed together, and recovered active or
+shadow targets are compared with its known links. It also prints the live
+grouping and shadow distributions plus Claude Fable 5/Grok 4.5/Aion and
+compact-id conformance receipts.
 
 ---
 

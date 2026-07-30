@@ -292,7 +292,7 @@ pub enum Message {
     /// Result of an `r`-triggered models.dev catalog refetch. `Some(snapshot)`
     /// => atomically replace providers + canonical registry and rebuild;
     /// `None` => keep current data and report a non-fatal failure.
-    ModelsRefreshed(Option<crate::api::ModelsCatalog>),
+    ModelsRefreshed(Option<Box<crate::api::ModelsCatalog>>),
     // `R` on Agents tab — re-trigger GitHub fetches for tracked agents.
     RefreshAgents,
     // `r` — re-fetch the active source (stale-while-revalidate). The fetch is
@@ -617,11 +617,12 @@ impl App {
                     .map(|group| group.name.clone());
 
                 self.providers = providers;
-                self.models_app.lab_catalog = snapshot.lab_catalog;
                 // Rebuild state (preserves search, filters, sort; resets
                 // selection to index 0 as a conservative fallback, then we
                 // try to restore by id below).
                 self.models_app.update_provider_list(&self.providers);
+                self.models_app
+                    .set_lab_catalog(snapshot.lab_catalog, &self.providers);
                 self.models_app.update_filtered_models(&self.providers);
 
                 // Attempt to restore the selected provider by id.
@@ -1587,7 +1588,7 @@ impl App {
                 // the runtime isn't accessible from update().
             }
             Message::ModelsRefreshed(result) => {
-                self.apply_models_refresh(result);
+                self.apply_models_refresh(result.map(|snapshot| *snapshot));
             }
             Message::RefreshAgents => {
                 // Mark tracked agents as Loading and increment the pending
@@ -2704,7 +2705,9 @@ mod tests {
         let mut app = App::new(initial, None, None);
 
         let refreshed = make_providers_map_with("openai", &["gpt-4", "gpt-4o", "gpt-4-mini"]);
-        app.update(Message::ModelsRefreshed(Some(models_catalog(refreshed))));
+        app.update(Message::ModelsRefreshed(Some(Box::new(models_catalog(
+            refreshed,
+        )))));
 
         // Provider list now reflects the new data.
         assert!(app.providers.iter().any(|(id, _)| id == "openai"));
@@ -2727,7 +2730,9 @@ mod tests {
         app.models_app.sort_order = SortOrder::Cost;
 
         let refreshed = make_providers_map_with("openai", &["gpt-4", "gpt-4o", "o3"]);
-        app.update(Message::ModelsRefreshed(Some(models_catalog(refreshed))));
+        app.update(Message::ModelsRefreshed(Some(Box::new(models_catalog(
+            refreshed,
+        )))));
 
         assert_eq!(app.models_app.search_query, "gpt-4");
         assert!(app.models_app.filters.reasoning);
@@ -2746,20 +2751,22 @@ mod tests {
         let mut app = App::new(providers.clone(), None, None);
         assert_eq!(app.models_app.groups[0].name, "Claude Opus 5 (EU)");
 
-        app.update(Message::ModelsRefreshed(Some(crate::api::ModelsCatalog {
-            providers,
-            lab_catalog: crate::labs::LabCatalog::from_test_entries_with_refs(
-                &[(
-                    "anthropic/claude-opus-5",
-                    "Claude Opus 5",
-                    Some("claude-opus"),
-                )],
-                &[(
-                    "amazon-bedrock/eu.anthropic.claude-opus-5",
-                    "anthropic/claude-opus-5",
-                )],
-            ),
-        })));
+        app.update(Message::ModelsRefreshed(Some(Box::new(
+            crate::api::ModelsCatalog {
+                providers,
+                lab_catalog: crate::labs::LabCatalog::from_test_entries_with_refs(
+                    &[(
+                        "anthropic/claude-opus-5",
+                        "Claude Opus 5",
+                        Some("claude-opus"),
+                    )],
+                    &[(
+                        "amazon-bedrock/eu.anthropic.claude-opus-5",
+                        "anthropic/claude-opus-5",
+                    )],
+                ),
+            },
+        ))));
 
         assert_eq!(app.models_app.groups[0].name, "Claude Opus 5");
         assert_eq!(app.models_app.groups[0].lab.as_deref(), Some("anthropic"));

@@ -26,6 +26,10 @@ run = "cargo clippy --all-features -- -D warnings"
 description = "Run tests"
 run = "cargo test --all-features"
 
+[tasks.audit-model-identity]
+description = "Run live provider-holdout identity and grouping-distribution audits"
+run = "cargo test --all-features live_ -- --ignored --nocapture"
+
 [tasks.run]
 description = "Run the TUI application"
 run = "cargo run"
