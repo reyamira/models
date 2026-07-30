@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-07-29T18:18:22.198601640+00:00",
+    "fetched_at": "2026-07-30T06:18:10.049793396+00:00",
     "verified": true
   },
   "metrics": [
@@ -60,6 +60,14 @@
       "short_label": "APEX"
     },
     {
+      "id": "gso",
+      "label": "GSO",
+      "kind": "percentage",
+      "group": "Agentic",
+      "last_updated": "2026-07-12",
+      "description": "Software performance engineering: the model rewrites real GitHub code to speed it up. Scored OPT@K (% of trials reaching at least 95% of the human speed-up); higher is better."
+    },
+    {
       "id": "posttrainbench",
       "label": "PostTrainBench",
       "kind": "percentage",
@@ -82,7 +90,7 @@
       "label": "WeirdML",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-07-09",
+      "last_updated": "2026-07-24",
       "description": "Unconventional machine-learning engineering tasks where the agent must write and run code to train a model on provided data, with several iterations allowed. Scored as accuracy on the held-out task; higher is better."
     },
     {
@@ -90,21 +98,21 @@
       "label": "Ale Bench",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-06-16"
+      "last_updated": "2026-07-24"
     },
     {
       "id": "blueprint_bench_2",
       "label": "Blueprint Bench 2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-09"
+      "last_updated": "2026-07-24"
     },
     {
       "id": "btf3",
       "label": "Btf3",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-09"
+      "last_updated": "2026-07-24"
     },
     {
       "id": "chess_puzzles",
@@ -134,6 +142,13 @@
       "label": "Deepswe",
       "kind": "percentage",
       "group": "Academic",
+      "last_updated": "2026-07-24"
+    },
+    {
+      "id": "enigma_eval",
+      "label": "Enigma Eval",
+      "kind": "percentage",
+      "group": "Academic",
       "last_updated": "2026-07-09"
     },
     {
@@ -148,7 +163,7 @@
       "label": "Frontierswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-09"
+      "last_updated": "2026-07-08"
     },
     {
       "id": "gpqa_diamond",
@@ -164,7 +179,14 @@
       "label": "Gbaeval",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-16"
+      "last_updated": "2026-07-24"
+    },
+    {
+      "id": "mystery_game_puzzles",
+      "label": "Mystery Game Puzzles",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-07-29"
     },
     {
       "id": "otis_mock_aime_2024_2025",
@@ -180,7 +202,7 @@
       "label": "Osworld 2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-06-01"
+      "last_updated": "2026-06-02"
     },
     {
       "id": "proofbench",
@@ -233,19 +255,22 @@
       "label": "Vending Bench 2",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-07-09"
+      "last_updated": "2026-07-24"
     }
   ],
   "models": [
     {
       "id": "claude-opus-5",
-      "name": "claude-opus-5_max",
+      "name": "claude-opus-5",
       "display_name": "claude-opus-5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-07-24",
-      "effort_level": "max",
       "scores": {
+        "ale_bench": {
+          "value": 2164.57,
+          "date": "2026-07-24"
+        },
         "apex_agents": {
           "value": 0.435,
           "date": "2026-07-24"
@@ -256,6 +281,14 @@
         },
         "arc_agi_2": {
           "value": 0.8833,
+          "date": "2026-07-24"
+        },
+        "blueprint_bench_2": {
+          "value": 0.30368763557483736,
+          "date": "2026-07-24"
+        },
+        "btf3": {
+          "value": 0.118,
           "date": "2026-07-24"
         },
         "chess_puzzles": {
@@ -270,6 +303,10 @@
           "value": 0.7000000000000001,
           "date": "2026-07-24"
         },
+        "deepswe": {
+          "value": 0.7364864864864865,
+          "date": "2026-07-24"
+        },
         "epoch_capabilities_index": {
           "value": 159.38,
           "date": "2026-07-24"
@@ -278,9 +315,17 @@
           "value": 0.534,
           "date": "2026-07-24"
         },
+        "gbaeval": {
+          "value": 0.7959852171423216,
+          "date": "2026-07-24"
+        },
         "gpqa_diamond": {
           "value": 0.9387626262626263,
           "date": "2026-07-24"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.59,
+          "date": "2026-07-25"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9888888888888889,
@@ -297,18 +342,101 @@
         "simpleqa_verified": {
           "value": 0.567,
           "date": "2026-07-24"
+        },
+        "vending_bench_2": {
+          "value": 11181.87333333333,
+          "date": "2026-07-24"
+        },
+        "weirdml": {
+          "value": 0.9178000000000001,
+          "date": "2026-07-24"
+        }
+      }
+    },
+    {
+      "id": "gemini-3.5-flash-lite",
+      "name": "gemini-3.5-flash-lite",
+      "display_name": "gemini-3.5-flash-lite",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
+      "release_date": "2026-07-21",
+      "scores": {
+        "ale_bench": {
+          "value": 765.27,
+          "date": "2026-07-21"
+        },
+        "critpt": {
+          "value": 0.0,
+          "date": "2026-07-21"
+        },
+        "proofbench": {
+          "value": 0.13,
+          "date": "2026-07-21"
+        },
+        "scicode": {
+          "value": 0.40856481481481505,
+          "date": "2026-07-21"
+        },
+        "weirdml": {
+          "value": 0.39,
+          "date": "2026-07-21"
+        }
+      }
+    },
+    {
+      "id": "gemini-3.6-flash",
+      "name": "gemini-3.6-flash",
+      "display_name": "gemini-3.6-flash",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
+      "release_date": "2026-07-21",
+      "scores": {
+        "ale_bench": {
+          "value": 715.52,
+          "date": "2026-07-21"
+        },
+        "blueprint_bench_2": {
+          "value": 0.31236442516268986,
+          "date": "2026-07-21"
+        },
+        "critpt": {
+          "value": 0.105714285714286,
+          "date": "2026-07-21"
+        },
+        "deepswe": {
+          "value": 0.4855875831485588,
+          "date": "2026-07-21"
+        },
+        "proofbench": {
+          "value": 0.36,
+          "date": "2026-07-21"
+        },
+        "scicode": {
+          "value": 0.52662037037037,
+          "date": "2026-07-21"
+        },
+        "weirdml": {
+          "value": 0.561,
+          "date": "2026-07-21"
         }
       }
     },
     {
       "id": "kimi-k3",
-      "name": "kimi-k3_max",
+      "name": "kimi-k3",
       "display_name": "kimi-k3",
       "creator": "moonshot",
       "creator_name": "Moonshot",
       "release_date": "2026-07-16",
-      "effort_level": "max",
       "scores": {
+        "ale_bench": {
+          "value": 1524.47,
+          "date": "2026-07-16"
+        },
+        "blueprint_bench_2": {
+          "value": 0.29501084598698485,
+          "date": "2026-07-16"
+        },
         "chess_puzzles": {
           "value": 0.39,
           "date": "2026-07-16"
@@ -317,16 +445,40 @@
           "value": 0.234,
           "date": "2026-07-16"
         },
+        "deepswe": {
+          "value": 0.6851441241685144,
+          "date": "2026-07-16"
+        },
         "epoch_capabilities_index": {
           "value": 155.59,
+          "date": "2026-07-16"
+        },
+        "frontiercode": {
+          "value": 0.44200000000000006,
+          "date": "2026-07-16"
+        },
+        "gbaeval": {
+          "value": 0.48346855379537595,
           "date": "2026-07-16"
         },
         "gpqa_diamond": {
           "value": 0.9311868686868687,
           "date": "2026-07-16"
         },
+        "mystery_game_puzzles": {
+          "value": 0.26,
+          "date": "2026-07-29"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9722222222222222,
+          "date": "2026-07-16"
+        },
+        "proofbench": {
+          "value": 0.7000000000000001,
+          "date": "2026-07-16"
+        },
+        "scicode": {
+          "value": 0.586805555555556,
           "date": "2026-07-16"
         },
         "simpleqa_verified": {
@@ -334,8 +486,34 @@
           "date": "2026-07-16"
         },
         "surface_evolver_bench": {
-          "value": 0.93,
+          "value": 0.9500000000000001,
           "date": "2026-07-16"
+        },
+        "weirdml": {
+          "value": 0.8257,
+          "date": "2026-07-16"
+        }
+      }
+    },
+    {
+      "id": "Inkling",
+      "name": "Inkling",
+      "display_name": "Inkling",
+      "creator": "thinking-machines",
+      "creator_name": "Thinking Machines",
+      "release_date": "2026-07-15",
+      "scores": {
+        "arc_agi": {
+          "value": 0.795,
+          "date": "2026-07-15"
+        },
+        "arc_agi_2": {
+          "value": 0.3652777777777778,
+          "date": "2026-07-15"
+        },
+        "frontiercode": {
+          "value": 0.14,
+          "date": "2026-07-15"
         }
       }
     },
@@ -347,6 +525,10 @@
       "creator_name": "OpenAI",
       "release_date": "2026-07-09",
       "scores": {
+        "ale_bench": {
+          "value": 1667.4,
+          "date": "2026-07-09"
+        },
         "arc_agi": {
           "value": 0.88,
           "date": "2026-07-09"
@@ -383,6 +565,10 @@
           "value": 0.9160353535353535,
           "date": "2026-07-09"
         },
+        "mystery_game_puzzles": {
+          "value": 0.21,
+          "date": "2026-07-28"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9833333333333333,
           "date": "2026-07-09"
@@ -410,6 +596,10 @@
         "vending_bench_2": {
           "value": 4094.7120000000004,
           "date": "2026-07-09"
+        },
+        "weirdml": {
+          "value": 0.6086,
+          "date": "2026-07-09"
         }
       }
     },
@@ -421,6 +611,14 @@
       "creator_name": "OpenAI",
       "release_date": "2026-07-09",
       "scores": {
+        "ale_bench": {
+          "value": 2176.88,
+          "date": "2026-07-09"
+        },
+        "apex_agents": {
+          "value": 0.37700000000000006,
+          "date": "2026-07-09"
+        },
         "arc_agi": {
           "value": 0.975,
           "date": "2026-07-09"
@@ -453,6 +651,10 @@
           "value": 0.7266666666666667,
           "date": "2026-07-09"
         },
+        "enigma_eval": {
+          "value": 0.3712,
+          "date": "2026-07-09"
+        },
         "epoch_capabilities_index": {
           "value": 161.72,
           "date": "2026-07-09"
@@ -461,9 +663,17 @@
           "value": 0.475,
           "date": "2026-07-09"
         },
+        "gbaeval": {
+          "value": 0.5259227864005247,
+          "date": "2026-07-09"
+        },
         "gpqa_diamond": {
           "value": 0.9349747474747475,
           "date": "2026-07-09"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.58,
+          "date": "2026-07-28"
         },
         "otis_mock_aime_2024_2025": {
           "value": 1.0,
@@ -507,12 +717,20 @@
       "creator_name": "OpenAI",
       "release_date": "2026-07-09",
       "scores": {
+        "apex_agents": {
+          "value": 0.4,
+          "date": "2026-07-09"
+        },
         "chess_puzzles": {
           "value": 0.64,
           "date": "2026-07-10"
         },
         "epoch_capabilities_index": {
           "value": 161.72,
+          "date": "2026-07-09"
+        },
+        "weirdml": {
+          "value": 0.8943000000000001,
           "date": "2026-07-09"
         }
       }
@@ -543,6 +761,10 @@
       "creator_name": "OpenAI",
       "release_date": "2026-07-09",
       "scores": {
+        "ale_bench": {
+          "value": 1951.42,
+          "date": "2026-07-09"
+        },
         "arc_agi": {
           "value": 0.965,
           "date": "2026-07-09"
@@ -579,6 +801,10 @@
           "value": 0.9330808080808081,
           "date": "2026-07-09"
         },
+        "mystery_game_puzzles": {
+          "value": 0.35,
+          "date": "2026-07-28"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9972222222222222,
           "date": "2026-07-09"
@@ -606,6 +832,10 @@
         "vending_bench_2": {
           "value": 7343.206,
           "date": "2026-07-09"
+        },
+        "weirdml": {
+          "value": 0.7827,
+          "date": "2026-07-09"
         }
       }
     },
@@ -617,6 +847,10 @@
       "creator_name": "Meta AI",
       "release_date": "2026-07-09",
       "scores": {
+        "apex_agents": {
+          "value": 0.419,
+          "date": "2026-07-09"
+        },
         "critpt": {
           "value": 0.151,
           "date": "2026-07-09"
@@ -625,8 +859,16 @@
           "value": 0.5331858407079646,
           "date": "2026-07-09"
         },
+        "gbaeval": {
+          "value": 0.07917257714954119,
+          "date": "2026-07-09"
+        },
         "proofbench": {
           "value": 0.39,
+          "date": "2026-07-09"
+        },
+        "scicode": {
+          "value": 0.582175925925926,
           "date": "2026-07-09"
         }
       }
@@ -639,6 +881,22 @@
       "creator_name": "xAI",
       "release_date": "2026-07-08",
       "scores": {
+        "ale_bench": {
+          "value": 1309.28,
+          "date": "2026-07-08"
+        },
+        "apex_agents": {
+          "value": 0.342,
+          "date": "2026-07-08"
+        },
+        "arc_agi": {
+          "value": 0.8717,
+          "date": "2026-07-08"
+        },
+        "arc_agi_2": {
+          "value": 0.5264,
+          "date": "2026-07-08"
+        },
         "blueprint_bench_2": {
           "value": 0.2733188720173536,
           "date": "2026-07-08"
@@ -647,12 +905,28 @@
           "value": 0.36,
           "date": "2026-07-08"
         },
+        "critpt": {
+          "value": 0.154285714285714,
+          "date": "2026-07-08"
+        },
+        "deepswe": {
+          "value": 0.5376106194690266,
+          "date": "2026-07-08"
+        },
         "epoch_capabilities_index": {
           "value": 153.61,
           "date": "2026-07-08"
         },
         "frontiercode": {
           "value": 0.424,
+          "date": "2026-07-08"
+        },
+        "frontierswe": {
+          "value": 0.78,
+          "date": "2026-07-08"
+        },
+        "gbaeval": {
+          "value": 0.6541267565853209,
           "date": "2026-07-08"
         },
         "gpqa_diamond": {
@@ -686,6 +960,24 @@
         "vending_bench_2": {
           "value": 3887.4259999999986,
           "date": "2026-07-08"
+        },
+        "weirdml": {
+          "value": 0.4643,
+          "date": "2026-07-08"
+        }
+      }
+    },
+    {
+      "id": "swe-1.7",
+      "name": "swe-1.7",
+      "display_name": "swe-1.7",
+      "creator": "cognition",
+      "creator_name": "Cognition",
+      "release_date": "2026-07-08",
+      "scores": {
+        "frontiercode": {
+          "value": 0.4233,
+          "date": "2026-07-08"
         }
       }
     },
@@ -697,6 +989,10 @@
       "creator_name": "Anthropic",
       "release_date": "2026-06-30",
       "scores": {
+        "ale_bench": {
+          "value": 1463.12,
+          "date": "2026-06-30"
+        },
         "btf3": {
           "value": 0.154,
           "date": "2026-06-30"
@@ -725,9 +1021,21 @@
           "value": 0.42699999999999994,
           "date": "2026-06-30"
         },
+        "gbaeval": {
+          "value": 0.6526299757455419,
+          "date": "2026-06-30"
+        },
         "gpqa_diamond": {
           "value": 0.9053030303030303,
           "date": "2026-07-01"
+        },
+        "gso": {
+          "value": 0.3725,
+          "date": "2026-07-12"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.35,
+          "date": "2026-07-28"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9472222222222222,
@@ -748,6 +1056,10 @@
         "simpleqa_verified": {
           "value": 0.25,
           "date": "2026-07-01"
+        },
+        "surface_evolver_bench": {
+          "value": 0.6,
+          "date": "2026-06-30"
         },
         "vending_bench_2": {
           "value": 6377.701666666665,
@@ -807,6 +1119,10 @@
           "value": 0.245,
           "date": "2026-06-16"
         },
+        "frontierswe": {
+          "value": 0.72,
+          "date": "2026-06-16"
+        },
         "gbaeval": {
           "value": 0.00017218231881747017,
           "date": "2026-06-16"
@@ -863,6 +1179,10 @@
       "scores": {
         "ale_bench": {
           "value": 886.23,
+          "date": "2026-06-12"
+        },
+        "apex_agents": {
+          "value": 0.276,
           "date": "2026-06-12"
         },
         "chess_puzzles": {
@@ -963,6 +1283,10 @@
           "value": 0.6991150442477876,
           "date": "2026-06-09"
         },
+        "enigma_eval": {
+          "value": 0.39280000000000004,
+          "date": "2026-06-09"
+        },
         "epoch_capabilities_index": {
           "value": 160.73,
           "date": "2026-06-09"
@@ -1012,7 +1336,7 @@
           "date": "2026-06-09"
         },
         "weirdml": {
-          "value": 0.8785,
+          "value": 0.9194,
           "date": "2026-06-09"
         }
       }
@@ -1044,6 +1368,32 @@
         "weirdml": {
           "value": 0.43450000000000005,
           "date": "2026-06-04"
+        }
+      }
+    },
+    {
+      "id": "qwen3.7-plus",
+      "name": "qwen3.7-plus",
+      "display_name": "qwen3.7-plus",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-06-02",
+      "scores": {
+        "critpt": {
+          "value": 0.0914285714285714,
+          "date": "2026-06-02"
+        },
+        "frontiercode": {
+          "value": 0.102,
+          "date": "2026-06-02"
+        },
+        "osworld_2": {
+          "value": 0.027999999999999997,
+          "date": "2026-06-02"
+        },
+        "scicode": {
+          "value": 0.454861111111111,
+          "date": "2026-06-02"
         }
       }
     },
@@ -1102,6 +1452,42 @@
       }
     },
     {
+      "id": "grok-build-0.1",
+      "name": "grok-build-0.1",
+      "display_name": "grok-build-0.1",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2026-05-29",
+      "scores": {
+        "gbaeval": {
+          "value": 0.023812535358844113,
+          "date": "2026-05-29"
+        },
+        "scicode": {
+          "value": 0.502314814814815,
+          "date": "2026-05-29"
+        }
+      }
+    },
+    {
+      "id": "step-3.7-flash",
+      "name": "step-3.7-flash",
+      "display_name": "step-3.7-flash",
+      "creator": "stepfun",
+      "creator_name": "StepFun",
+      "release_date": "2026-05-29",
+      "scores": {
+        "critpt": {
+          "value": 0.022857142857142902,
+          "date": "2026-05-29"
+        },
+        "scicode": {
+          "value": 0.4004629629629631,
+          "date": "2026-05-29"
+        }
+      }
+    },
+    {
       "id": "claude-opus-4-8",
       "name": "claude-opus-4-8",
       "display_name": "claude-opus-4-8",
@@ -1149,6 +1535,10 @@
           "value": 0.5897435897435898,
           "date": "2026-05-28"
         },
+        "enigma_eval": {
+          "value": 0.23510000000000003,
+          "date": "2026-05-28"
+        },
         "epoch_capabilities_index": {
           "value": 158.01,
           "date": "2026-05-28"
@@ -1176,6 +1566,14 @@
         "gpqa_diamond": {
           "value": 0.9103535353535354,
           "date": "2026-06-07"
+        },
+        "gso": {
+          "value": 0.4706,
+          "date": "2026-07-12"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.36,
+          "date": "2026-07-25"
         },
         "osworld_2": {
           "value": 0.20600000000000002,
@@ -1224,6 +1622,24 @@
       }
     },
     {
+      "id": "command-a-plus-05-2026",
+      "name": "command-a-plus-05-2026",
+      "display_name": "command-a-plus-05-2026",
+      "creator": "cohere",
+      "creator_name": "Cohere",
+      "release_date": "2026-05-20",
+      "scores": {
+        "critpt": {
+          "value": 0.00285714285714286,
+          "date": "2026-05-20"
+        },
+        "scicode": {
+          "value": 0.378472222222222,
+          "date": "2026-05-20"
+        }
+      }
+    },
+    {
       "id": "gemini-3.5-flash",
       "name": "gemini-3.5-flash",
       "display_name": "gemini-3.5-flash",
@@ -1263,6 +1679,14 @@
           "value": 0.498,
           "date": "2026-05-19"
         },
+        "deepswe": {
+          "value": 0.37389380530973454,
+          "date": "2026-05-19"
+        },
+        "enigma_eval": {
+          "value": 0.2541,
+          "date": "2026-05-19"
+        },
         "epoch_capabilities_index": {
           "value": 154.63,
           "date": "2026-05-19"
@@ -1283,6 +1707,10 @@
           "value": 0.928030303030303,
           "date": "2026-05-22"
         },
+        "mystery_game_puzzles": {
+          "value": 0.32,
+          "date": "2026-07-27"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9555555555555556,
           "date": "2026-05-25"
@@ -1302,6 +1730,10 @@
         "simpleqa_verified": {
           "value": 0.684,
           "date": "2026-05-27"
+        },
+        "surface_evolver_bench": {
+          "value": 0.58125,
+          "date": "2026-05-19"
         },
         "swe_bench_verified": {
           "value": 0.7933884297520661,
@@ -1349,6 +1781,10 @@
           "value": 0.9160353535353535,
           "date": "2026-06-12"
         },
+        "mystery_game_puzzles": {
+          "value": 0.32,
+          "date": "2026-07-28"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.95,
           "date": "2026-06-13"
@@ -1376,6 +1812,42 @@
       }
     },
     {
+      "id": "Composer 2.5",
+      "name": "Composer 2.5",
+      "display_name": "Composer 2.5",
+      "creator": "cursor",
+      "creator_name": "Cursor",
+      "release_date": "2026-05-18",
+      "scores": {
+        "frontiercode": {
+          "value": 0.256,
+          "date": "2026-05-18"
+        },
+        "frontierswe": {
+          "value": 0.38,
+          "date": "2026-05-18"
+        }
+      }
+    },
+    {
+      "id": "Ring-2.6-1T",
+      "name": "Ring-2.6-1T",
+      "display_name": "Ring-2.6-1T",
+      "creator": "ant-group",
+      "creator_name": "Ant Group",
+      "release_date": "2026-05-14",
+      "scores": {
+        "critpt": {
+          "value": 0.0371428571428571,
+          "date": "2026-05-14"
+        },
+        "scicode": {
+          "value": 0.423611111111111,
+          "date": "2026-05-14"
+        }
+      }
+    },
+    {
       "id": "gdm-ai-co-mathematician",
       "name": "gdm-ai-co-mathematician",
       "display_name": "gdm-ai-co-mathematician",
@@ -1386,6 +1858,90 @@
         "frontiermath_tier_4": {
           "value": 0.479,
           "date": "2026-05-08"
+        }
+      }
+    },
+    {
+      "id": "granite-4.1-30b",
+      "name": "granite-4.1-30b",
+      "display_name": "granite-4.1-30b",
+      "creator": "ibm",
+      "creator_name": "IBM",
+      "release_date": "2026-04-29",
+      "scores": {
+        "critpt": {
+          "value": 0.0,
+          "date": "2026-04-29"
+        },
+        "scicode": {
+          "value": 0.258101851851852,
+          "date": "2026-04-29"
+        }
+      }
+    },
+    {
+      "id": "laguna-m.1",
+      "name": "laguna-m.1",
+      "display_name": "laguna-m.1",
+      "creator": "poolside",
+      "creator_name": "Poolside",
+      "release_date": "2026-04-28",
+      "scores": {
+        "proofbench": {
+          "value": 0.0,
+          "date": "2026-04-28"
+        },
+        "surface_evolver_bench": {
+          "value": 0.15625,
+          "date": "2026-04-28"
+        }
+      }
+    },
+    {
+      "id": "laguna-xs.2",
+      "name": "laguna-xs.2",
+      "display_name": "laguna-xs.2",
+      "creator": "poolside",
+      "creator_name": "Poolside",
+      "release_date": "2026-04-28",
+      "scores": {
+        "proofbench": {
+          "value": 0.0,
+          "date": "2026-04-28"
+        }
+      }
+    },
+    {
+      "id": "mistral-medium-2604",
+      "name": "mistral-medium-2604",
+      "display_name": "mistral-medium-2604",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2026-04-28",
+      "scores": {
+        "ale_bench": {
+          "value": 763.98,
+          "date": "2026-04-28"
+        },
+        "critpt": {
+          "value": 0.0,
+          "date": "2026-04-28"
+        },
+        "proofbench": {
+          "value": 0.1,
+          "date": "2026-04-28"
+        },
+        "scicode": {
+          "value": 0.39583333333333304,
+          "date": "2026-04-28"
+        },
+        "surface_evolver_bench": {
+          "value": 0.26875,
+          "date": "2026-04-28"
+        },
+        "weirdml": {
+          "value": 0.43710000000000004,
+          "date": "2026-04-28"
         }
       }
     },
@@ -1599,6 +2155,14 @@
           "value": 0.9065656565656566,
           "date": "2026-05-05"
         },
+        "gso": {
+          "value": 0.402,
+          "date": "2026-04-27"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.56,
+          "date": "2026-07-24"
+        },
         "osworld_2": {
           "value": 0.13,
           "date": "2026-04-23"
@@ -1609,6 +2173,10 @@
         },
         "proofbench": {
           "value": 0.5,
+          "date": "2026-04-23"
+        },
+        "rli": {
+          "value": 0.0625,
           "date": "2026-04-23"
         },
         "scicode": {
@@ -1800,6 +2368,10 @@
           "value": 0.9078282828282829,
           "date": "2026-05-01"
         },
+        "mystery_game_puzzles": {
+          "value": 0.18,
+          "date": "2026-07-17"
+        },
         "osworld_2": {
           "value": 0.046,
           "date": "2026-04-20"
@@ -1897,6 +2469,10 @@
           "date": "2026-04-17"
         },
         "blueprint_bench_2": {
+          "value": 0.0,
+          "date": "2026-04-17"
+        },
+        "critpt": {
           "value": 0.0,
           "date": "2026-04-17"
         },
@@ -2025,6 +2601,14 @@
           "value": 0.9015151515151515,
           "date": "2026-04-17"
         },
+        "gso": {
+          "value": 0.4412,
+          "date": "2026-04-27"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.28,
+          "date": "2026-07-25"
+        },
         "osworld_2": {
           "value": 0.182,
           "date": "2026-04-16"
@@ -2064,6 +2648,20 @@
         "weirdml": {
           "value": 0.7640000000000001,
           "date": "2026-04-16"
+        }
+      }
+    },
+    {
+      "id": "gemini-robotics-er-1.6-preview",
+      "name": "gemini-robotics-er-1.6-preview",
+      "display_name": "gemini-robotics-er-1.6-preview",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-04-14",
+      "scores": {
+        "blueprint_bench_2": {
+          "value": 0.0,
+          "date": "2026-04-14"
         }
       }
     },
@@ -2222,6 +2820,20 @@
       }
     },
     {
+      "id": "swe-1.6",
+      "name": "swe-1.6",
+      "display_name": "swe-1.6",
+      "creator": "cognition",
+      "creator_name": "Cognition",
+      "release_date": "2026-04-07",
+      "scores": {
+        "frontiercode": {
+          "value": 0.094,
+          "date": "2026-04-07"
+        }
+      }
+    },
+    {
       "id": "gemma-4-26b-a4b",
       "name": "gemma-4-26b-a4b",
       "display_name": "gemma-4-26b-a4b",
@@ -2282,6 +2894,28 @@
         "weirdml": {
           "value": 0.5226,
           "date": "2026-04-02"
+        }
+      }
+    },
+    {
+      "id": "trinity-large-thinking",
+      "name": "trinity-large-thinking",
+      "display_name": "trinity-large-thinking",
+      "creator": "arcee-ai",
+      "creator_name": "Arcee AI",
+      "release_date": "2026-04-01",
+      "scores": {
+        "critpt": {
+          "value": 0.00857142857142857,
+          "date": "2026-04-01"
+        },
+        "scicode": {
+          "value": 0.361111111111111,
+          "date": "2026-04-01"
+        },
+        "surface_evolver_bench": {
+          "value": 0.15625,
+          "date": "2026-04-01"
         }
       }
     },
@@ -2526,6 +3160,38 @@
       }
     },
     {
+      "id": "mistral-small-2603",
+      "name": "mistral-small-2603",
+      "display_name": "mistral-small-2603",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2026-03-16",
+      "scores": {
+        "ale_bench": {
+          "value": 497.62,
+          "date": "2026-03-16"
+        }
+      }
+    },
+    {
+      "id": "nemotron-3-super",
+      "name": "nemotron-3-super",
+      "display_name": "nemotron-3-super",
+      "creator": "nvidia",
+      "creator_name": "NVIDIA",
+      "release_date": "2026-03-11",
+      "scores": {
+        "ale_bench": {
+          "value": 213.9,
+          "date": "2026-03-11"
+        },
+        "scicode": {
+          "value": 0.35995370370370405,
+          "date": "2026-03-11"
+        }
+      }
+    },
+    {
       "id": "gpt-5.4-2026-03-05",
       "name": "gpt-5.4-2026-03-05",
       "display_name": "gpt-5.4-2026-03-05",
@@ -2565,6 +3231,10 @@
           "value": 0.5176991150442478,
           "date": "2026-03-05"
         },
+        "enigma_eval": {
+          "value": 0.15960000000000002,
+          "date": "2026-03-05"
+        },
         "epoch_capabilities_index": {
           "value": 156.1,
           "date": "2026-03-05"
@@ -2588,6 +3258,14 @@
         "gpqa_diamond": {
           "value": 0.933,
           "date": "2026-03-06"
+        },
+        "gso": {
+          "value": 0.31370000000000003,
+          "date": "2026-03-10"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.37,
+          "date": "2026-07-24"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9777777777777777,
@@ -2645,6 +3323,10 @@
         },
         "critpt": {
           "value": 0.3,
+          "date": "2026-03-05"
+        },
+        "enigma_eval": {
+          "value": 0.2382,
           "date": "2026-03-05"
         },
         "epoch_capabilities_index": {
@@ -2709,6 +3391,10 @@
         },
         "critpt": {
           "value": 0.0114285714285714,
+          "date": "2026-03-03"
+        },
+        "enigma_eval": {
+          "value": 0.0304,
           "date": "2026-03-03"
         },
         "epoch_capabilities_index": {
@@ -2851,6 +3537,10 @@
           "value": 0.11751662971175167,
           "date": "2026-02-19"
         },
+        "enigma_eval": {
+          "value": 0.19760000000000003,
+          "date": "2026-02-19"
+        },
         "epoch_capabilities_index": {
           "value": 154.9,
           "date": "2026-02-19"
@@ -2874,6 +3564,14 @@
         "gpqa_diamond": {
           "value": 0.941,
           "date": "2026-02-20"
+        },
+        "gso": {
+          "value": 0.2255,
+          "date": "2026-03-09"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.34,
+          "date": "2026-07-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.956,
@@ -3317,6 +4015,10 @@
           "value": 0.17,
           "date": "2026-02-06"
         },
+        "enigma_eval": {
+          "value": 0.076,
+          "date": "2026-02-05"
+        },
         "epoch_capabilities_index": {
           "value": 155.37,
           "date": "2026-02-05"
@@ -3340,6 +4042,14 @@
         "gpqa_diamond": {
           "value": 0.9053030303030303,
           "date": "2026-02-06"
+        },
+        "gso": {
+          "value": 0.412,
+          "date": "2026-04-27"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.25,
+          "date": "2026-07-25"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9444444444444444,
@@ -3392,7 +4102,7 @@
           "date": "2026-02-05"
         },
         "apex_agents": {
-          "value": 0.317,
+          "value": 0.318,
           "date": "2026-02-05"
         },
         "epoch_capabilities_index": {
@@ -3425,6 +4135,14 @@
       "creator_name": "",
       "release_date": "2026-02-02",
       "scores": {
+        "critpt": {
+          "value": 0.0,
+          "date": "2026-02-02"
+        },
+        "scicode": {
+          "value": 0.322916666666667,
+          "date": "2026-02-02"
+        },
         "weirdml": {
           "value": 0.344,
           "date": "2026-02-02"
@@ -3497,6 +4215,10 @@
           "value": 0.319,
           "date": "2026-01-27"
         },
+        "enigma_eval": {
+          "value": 0.0338,
+          "date": "2026-01-27"
+        },
         "epoch_capabilities_index": {
           "value": 148.26,
           "date": "2026-01-27"
@@ -3523,6 +4245,24 @@
         },
         "weirdml": {
           "value": 0.456,
+          "date": "2026-01-27"
+        }
+      }
+    },
+    {
+      "id": "solar-pro-3",
+      "name": "solar-pro-3",
+      "display_name": "solar-pro-3",
+      "creator": "upstage",
+      "creator_name": "Upstage",
+      "release_date": "2026-01-27",
+      "scores": {
+        "critpt": {
+          "value": 0.0,
+          "date": "2026-01-27"
+        },
+        "scicode": {
+          "value": 0.246527777777778,
           "date": "2026-01-27"
         }
       }
@@ -3709,6 +4449,10 @@
           "value": 0.8320707070707071,
           "date": "2025-12-17"
         },
+        "gso": {
+          "value": 0.098,
+          "date": "2025-12-17"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9277777777777778,
           "date": "2025-12-17"
@@ -3767,6 +4511,10 @@
           "value": 0.49,
           "date": "2025-12-15"
         },
+        "enigma_eval": {
+          "value": 0.1039,
+          "date": "2025-12-11"
+        },
         "epoch_capabilities_index": {
           "value": 153.72,
           "date": "2025-12-11"
@@ -3782,6 +4530,10 @@
         "gpqa_diamond": {
           "value": 0.914,
           "date": "2025-12-13"
+        },
+        "gso": {
+          "value": 0.274,
+          "date": "2025-12-11"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9611111111111111,
@@ -3862,6 +4614,64 @@
         "frontiermath_tier_4": {
           "value": 0.313,
           "date": "2025-12-24"
+        }
+      }
+    },
+    {
+      "id": "devstral-small-2512",
+      "name": "devstral-small-2512",
+      "display_name": "devstral-small-2512",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2025-12-09",
+      "scores": {
+        "critpt": {
+          "value": 0.0,
+          "date": "2025-12-09"
+        },
+        "scicode": {
+          "value": 0.288194444444444,
+          "date": "2025-12-09"
+        }
+      }
+    },
+    {
+      "id": "mistral-large-2512",
+      "name": "mistral-large-2512",
+      "display_name": "mistral-large-2512",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2025-12-02",
+      "scores": {
+        "ale_bench": {
+          "value": 264.7,
+          "date": "2025-12-02"
+        },
+        "critpt": {
+          "value": 0.0,
+          "date": "2025-12-02"
+        },
+        "scicode": {
+          "value": 0.362268518518519,
+          "date": "2025-12-02"
+        }
+      }
+    },
+    {
+      "id": "nova-2.0-pro-preview",
+      "name": "nova-2.0-pro-preview",
+      "display_name": "nova-2.0-pro-preview",
+      "creator": "amazon",
+      "creator_name": "Amazon",
+      "release_date": "2025-12-02",
+      "scores": {
+        "critpt": {
+          "value": 0.0,
+          "date": "2025-12-02"
+        },
+        "scicode": {
+          "value": 0.42708333333333304,
+          "date": "2025-12-02"
         }
       }
     },
@@ -4019,6 +4829,10 @@
           "value": 0.12,
           "date": "2025-12-08"
         },
+        "enigma_eval": {
+          "value": 0.1191,
+          "date": "2025-11-24"
+        },
         "epoch_capabilities_index": {
           "value": 149.55,
           "date": "2025-11-24"
@@ -4034,6 +4848,14 @@
         "gpqa_diamond": {
           "value": 0.860479797979798,
           "date": "2025-11-24"
+        },
+        "gso": {
+          "value": 0.265,
+          "date": "2025-11-24"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.22,
+          "date": "2026-07-25"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8611111111111112,
@@ -4070,6 +4892,20 @@
         "weirdml": {
           "value": 0.637,
           "date": "2025-11-24"
+        }
+      }
+    },
+    {
+      "id": "cogito-671b-v2.1",
+      "name": "cogito-671b-v2.1",
+      "display_name": "cogito-671b-v2.1",
+      "creator": "deep-cogito",
+      "creator_name": "Deep Cogito",
+      "release_date": "2025-11-19",
+      "scores": {
+        "scicode": {
+          "value": 0.409722222222222,
+          "date": "2025-11-19"
         }
       }
     },
@@ -4171,6 +5007,10 @@
           "value": 0.069,
           "date": "2025-11-18"
         },
+        "enigma_eval": {
+          "value": 0.18239999999999998,
+          "date": "2025-11-18"
+        },
         "epoch_capabilities_index": {
           "value": 153.27,
           "date": "2025-11-18"
@@ -4186,6 +5026,10 @@
         "gpqa_diamond": {
           "value": 0.9261363636363636,
           "date": "2025-11-19"
+        },
+        "gso": {
+          "value": 0.186,
+          "date": "2025-11-18"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9138888888888889,
@@ -4226,6 +5070,20 @@
       }
     },
     {
+      "id": "grok-4-1",
+      "name": "grok-4-1",
+      "display_name": "grok-4-1",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2025-11-17",
+      "scores": {
+        "apex_agents": {
+          "value": 0.128,
+          "date": "2025-11-17"
+        }
+      }
+    },
+    {
       "id": "gpt-5.1-2025-11-13",
       "name": "gpt-5.1-2025-11-13",
       "display_name": "gpt-5.1-2025-11-13",
@@ -4257,6 +5115,10 @@
           "value": 0.0485714285714286,
           "date": "2025-11-13"
         },
+        "enigma_eval": {
+          "value": 0.11230000000000001,
+          "date": "2025-11-13"
+        },
         "epoch_capabilities_index": {
           "value": 149.73,
           "date": "2025-11-13"
@@ -4272,6 +5134,10 @@
         "gpqa_diamond": {
           "value": 0.8762626262626263,
           "date": "2025-11-13"
+        },
+        "gso": {
+          "value": 0.1373,
+          "date": "2025-12-18"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8861111111111111,
@@ -4507,6 +5373,10 @@
           "value": 0.1833,
           "date": "2025-10-07"
         },
+        "enigma_eval": {
+          "value": 0.1875,
+          "date": "2025-10-07"
+        },
         "epoch_capabilities_index": {
           "value": 150.42,
           "date": "2025-10-07"
@@ -4638,6 +5508,10 @@
           "value": 0.0114285714285714,
           "date": "2025-09-29"
         },
+        "enigma_eval": {
+          "value": 0.059966,
+          "date": "2025-09-29"
+        },
         "epoch_capabilities_index": {
           "value": 146.76,
           "date": "2025-09-29"
@@ -4653,6 +5527,14 @@
         "gpqa_diamond": {
           "value": 0.8232323232323232,
           "date": "2025-10-28"
+        },
+        "gso": {
+          "value": 0.1471,
+          "date": "2025-10-10"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.17,
+          "date": "2026-07-25"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.7777777777777778,
@@ -4793,6 +5675,42 @@
       }
     },
     {
+      "id": "magistral-medium-2509",
+      "name": "magistral-medium-2509",
+      "display_name": "magistral-medium-2509",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2025-09-18",
+      "scores": {
+        "critpt": {
+          "value": 0.00285714285714286,
+          "date": "2025-09-18"
+        },
+        "scicode": {
+          "value": 0.392361111111111,
+          "date": "2025-09-18"
+        }
+      }
+    },
+    {
+      "id": "magistral-small-2509",
+      "name": "magistral-small-2509",
+      "display_name": "magistral-small-2509",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2025-09-18",
+      "scores": {
+        "critpt": {
+          "value": 0.00285714285714286,
+          "date": "2025-09-18"
+        },
+        "scicode": {
+          "value": 0.351851851851852,
+          "date": "2025-09-18"
+        }
+      }
+    },
+    {
       "id": "gpt-5-codex",
       "name": "gpt-5-codex",
       "display_name": "gpt-5-codex",
@@ -4801,7 +5719,7 @@
       "release_date": "2025-09-15",
       "scores": {
         "apex_agents": {
-          "value": 0.2,
+          "value": 0.201,
           "date": "2025-09-15"
         },
         "weirdml": {
@@ -4905,6 +5823,10 @@
           "value": 0.0,
           "date": "2025-08-12"
         },
+        "scicode": {
+          "value": 0.3379629629629631,
+          "date": "2025-08-12"
+        },
         "weirdml": {
           "value": 0.3313,
           "date": "2025-08-12"
@@ -4943,6 +5865,10 @@
           "value": 0.126,
           "date": "2025-08-07"
         },
+        "enigma_eval": {
+          "value": 0.10470000000000002,
+          "date": "2025-08-07"
+        },
         "epoch_capabilities_index": {
           "value": 150.0,
           "date": "2025-08-07"
@@ -4958,6 +5884,10 @@
         "gpqa_diamond": {
           "value": 0.8617424242424242,
           "date": "2025-10-29"
+        },
+        "gso": {
+          "value": 0.069,
+          "date": "2025-08-07"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9138888888888889,
@@ -5011,6 +5941,14 @@
         },
         "arc_agi_2": {
           "value": 0.0444,
+          "date": "2025-08-07"
+        },
+        "critpt": {
+          "value": 0.0,
+          "date": "2025-08-07"
+        },
+        "enigma_eval": {
+          "value": 0.08192600000000001,
           "date": "2025-08-07"
         },
         "epoch_capabilities_index": {
@@ -5147,6 +6085,10 @@
           "value": 0.07,
           "date": "2026-07-20"
         },
+        "enigma_eval": {
+          "value": 0.07179100000000001,
+          "date": "2025-08-05"
+        },
         "epoch_capabilities_index": {
           "value": 144.22,
           "date": "2025-08-05"
@@ -5162,6 +6104,10 @@
         "gpqa_diamond": {
           "value": 0.7727272727272727,
           "date": "2025-08-05"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.21,
+          "date": "2026-07-25"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.6888888888888889,
@@ -5341,6 +6287,10 @@
           "value": 461.45,
           "date": "2025-07-31"
         },
+        "gso": {
+          "value": 0.049,
+          "date": "2025-07-31"
+        },
         "weirdml": {
           "value": 0.4117,
           "date": "2025-07-31"
@@ -5469,13 +6419,35 @@
       "creator_name": "Alibaba",
       "release_date": "2025-07-25",
       "scores": {
+        "critpt": {
+          "value": 0.0,
+          "date": "2025-07-25"
+        },
         "epoch_capabilities_index": {
           "value": 144.77,
+          "date": "2025-07-25"
+        },
+        "scicode": {
+          "value": 0.423611111111111,
           "date": "2025-07-25"
         },
         "weirdml": {
           "value": 0.387,
           "date": "2025-07-25"
+        }
+      }
+    },
+    {
+      "id": "GLM-4.5-Air",
+      "name": "GLM-4.5-Air",
+      "display_name": "GLM-4.5-Air",
+      "creator": "z-ai-zhipu-ai",
+      "creator_name": "Z.ai (Zhipu AI)",
+      "release_date": "2025-07-20",
+      "scores": {
+        "gso": {
+          "value": 0.0294,
+          "date": "2025-08-26"
         }
       }
     },
@@ -5489,6 +6461,10 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 140.45,
+          "date": "2025-07-12"
+        },
+        "gso": {
+          "value": 0.049,
           "date": "2025-07-12"
         },
         "simplebench": {
@@ -5618,6 +6594,24 @@
       }
     },
     {
+      "id": "mistral-small-2506",
+      "name": "mistral-small-2506",
+      "display_name": "mistral-small-2506",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2025-06-20",
+      "scores": {
+        "critpt": {
+          "value": 0.0,
+          "date": "2025-06-20"
+        },
+        "scicode": {
+          "value": 0.263888888888889,
+          "date": "2025-06-20"
+        }
+      }
+    },
+    {
       "id": "gemini-2.5-flash",
       "name": "gemini-2.5-flash",
       "display_name": "gemini-2.5-flash",
@@ -5740,6 +6734,10 @@
           "value": 0.8529040404040404,
           "date": "2025-11-16"
         },
+        "gso": {
+          "value": 0.039,
+          "date": "2025-06-17"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.8416666666666667,
           "date": "2025-11-16"
@@ -5775,7 +6773,7 @@
       "release_date": "2025-06-10",
       "scores": {
         "arc_agi": {
-          "value": 0.0591,
+          "value": 0.061,
           "date": "2025-06-10"
         },
         "arc_agi_2": {
@@ -5856,6 +6854,10 @@
           "value": 0.0,
           "date": "2025-06-05"
         },
+        "enigma_eval": {
+          "value": 0.055700000000000006,
+          "date": "2025-06-05"
+        },
         "epoch_capabilities_index": {
           "value": 146.07,
           "date": "2025-06-05"
@@ -5871,6 +6873,10 @@
         "gpqa_diamond": {
           "value": 0.8484848484848485,
           "date": "2025-06-05"
+        },
+        "gso": {
+          "value": 0.0392,
+          "date": "2025-10-10"
         },
         "rli": {
           "value": 0.0083,
@@ -5962,6 +6968,10 @@
           "value": 0.003,
           "date": "2025-05-22"
         },
+        "enigma_eval": {
+          "value": 0.055700000000000006,
+          "date": "2025-05-22"
+        },
         "epoch_capabilities_index": {
           "value": 142.93,
           "date": "2025-05-22"
@@ -5976,6 +6986,10 @@
         },
         "gpqa_diamond": {
           "value": 0.7626262626262627,
+          "date": "2025-05-22"
+        },
+        "gso": {
+          "value": 0.069,
           "date": "2025-05-22"
         },
         "otis_mock_aime_2024_2025": {
@@ -6024,6 +7038,10 @@
           "value": 0.00285714285714286,
           "date": "2025-05-22"
         },
+        "enigma_eval": {
+          "value": 0.031200000000000002,
+          "date": "2025-05-22"
+        },
         "epoch_capabilities_index": {
           "value": 142.18,
           "date": "2025-05-22"
@@ -6038,6 +7056,10 @@
         },
         "gpqa_diamond": {
           "value": 0.7828282828282829,
+          "date": "2025-05-22"
+        },
+        "gso": {
+          "value": 0.049,
           "date": "2025-05-22"
         },
         "otis_mock_aime_2024_2025": {
@@ -6072,6 +7094,10 @@
         },
         "arc_agi_2": {
           "value": 0.025400000000000002,
+          "date": "2025-05-20"
+        },
+        "enigma_eval": {
+          "value": 0.027000000000000003,
           "date": "2025-05-20"
         },
         "epoch_capabilities_index": {
@@ -6140,6 +7166,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-05-06",
       "scores": {
+        "enigma_eval": {
+          "value": 0.0236,
+          "date": "2025-05-06"
+        },
         "epoch_capabilities_index": {
           "value": 142.86,
           "date": "2025-05-06"
@@ -6336,6 +7366,10 @@
           "value": 0.013999999999999999,
           "date": "2025-04-16"
         },
+        "enigma_eval": {
+          "value": 0.1309,
+          "date": "2025-04-16"
+        },
         "epoch_capabilities_index": {
           "value": 147.06,
           "date": "2025-04-16"
@@ -6350,6 +7384,10 @@
         },
         "gpqa_diamond": {
           "value": 0.8181818181818182,
+          "date": "2025-04-16"
+        },
+        "gso": {
+          "value": 0.088,
           "date": "2025-04-16"
         },
         "otis_mock_aime_2024_2025": {
@@ -6402,6 +7440,10 @@
           "value": 0.006,
           "date": "2025-04-16"
         },
+        "enigma_eval": {
+          "value": 0.09210000000000002,
+          "date": "2025-04-16"
+        },
         "epoch_capabilities_index": {
           "value": 146.54,
           "date": "2025-04-16"
@@ -6416,6 +7458,10 @@
         },
         "gpqa_diamond": {
           "value": 0.7960858585858586,
+          "date": "2025-04-16"
+        },
+        "gso": {
+          "value": 0.036,
           "date": "2025-04-16"
         },
         "otis_mock_aime_2024_2025": {
@@ -6454,6 +7500,10 @@
         },
         "arc_agi_2": {
           "value": 0.0042,
+          "date": "2025-04-14"
+        },
+        "enigma_eval": {
+          "value": 0.0217,
           "date": "2025-04-14"
         },
         "epoch_capabilities_index": {
@@ -6754,6 +7804,10 @@
           "value": 0.0,
           "date": "2025-04-05"
         },
+        "enigma_eval": {
+          "value": 0.0058,
+          "date": "2025-04-05"
+        },
         "epoch_capabilities_index": {
           "value": 133.03,
           "date": "2025-04-05"
@@ -6874,6 +7928,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-03-25",
       "scores": {
+        "enigma_eval": {
+          "value": 0.0414,
+          "date": "2025-03-25"
+        },
         "epoch_capabilities_index": {
           "value": 144.86,
           "date": "2025-03-25"
@@ -6942,15 +8000,18 @@
     },
     {
       "id": "o1-pro-2025-03-19",
-      "name": "o1-pro-2025-03-19_low",
+      "name": "o1-pro-2025-03-19",
       "display_name": "o1-pro-2025-03-19",
       "creator": "openai",
       "creator_name": "OpenAI",
       "release_date": "2025-03-19",
-      "effort_level": "low",
       "scores": {
         "arc_agi": {
           "value": 0.233,
+          "date": "2025-03-19"
+        },
+        "enigma_eval": {
+          "value": 0.061399999999999996,
           "date": "2025-03-19"
         }
       }
@@ -6978,6 +8039,28 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.058333333333333334,
           "date": "2025-03-18"
+        },
+        "scicode": {
+          "value": 0.265046296296296,
+          "date": "2025-03-17"
+        }
+      }
+    },
+    {
+      "id": "gemma-3-12b-it",
+      "name": "gemma-3-12b-it",
+      "display_name": "gemma-3-12b-it",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
+      "release_date": "2025-03-12",
+      "scores": {
+        "critpt": {
+          "value": 0.0,
+          "date": "2025-03-12"
+        },
+        "scicode": {
+          "value": 0.173611111111111,
+          "date": "2025-03-12"
         }
       }
     },
@@ -7026,6 +8109,24 @@
       }
     },
     {
+      "id": "Phi-4-mini-instruct",
+      "name": "Phi-4-mini-instruct",
+      "display_name": "Phi-4-mini-instruct",
+      "creator": "microsoft",
+      "creator_name": "Microsoft",
+      "release_date": "2025-02-27",
+      "scores": {
+        "critpt": {
+          "value": 0.0,
+          "date": "2025-02-27"
+        },
+        "scicode": {
+          "value": 0.107638888888889,
+          "date": "2025-02-27"
+        }
+      }
+    },
+    {
       "id": "gpt-4.5-preview-2025-02-27",
       "name": "gpt-4.5-preview-2025-02-27",
       "display_name": "gpt-4.5-preview-2025-02-27",
@@ -7039,6 +8140,10 @@
         },
         "arc_agi_2": {
           "value": 0.008,
+          "date": "2025-02-27"
+        },
+        "enigma_eval": {
+          "value": 0.0318,
           "date": "2025-02-27"
         },
         "epoch_capabilities_index": {
@@ -7079,6 +8184,10 @@
           "value": 0.009,
           "date": "2025-02-24"
         },
+        "enigma_eval": {
+          "value": 0.042300000000000004,
+          "date": "2025-02-24"
+        },
         "epoch_capabilities_index": {
           "value": 141.71,
           "date": "2025-02-24"
@@ -7090,6 +8199,10 @@
         "gpqa_diamond": {
           "value": 0.7850378787878788,
           "date": "2025-05-26"
+        },
+        "gso": {
+          "value": 0.038,
+          "date": "2025-02-24"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.5777777777777777,
@@ -7147,6 +8260,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-02-05",
       "scores": {
+        "enigma_eval": {
+          "value": 0.0063,
+          "date": "2025-02-05"
+        },
         "epoch_capabilities_index": {
           "value": 135.78,
           "date": "2025-02-05"
@@ -7161,6 +8278,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-02-05",
       "scores": {
+        "enigma_eval": {
+          "value": 0.0069,
+          "date": "2025-02-05"
+        },
         "epoch_capabilities_index": {
           "value": 135.61,
           "date": "2025-02-05"
@@ -7206,6 +8327,10 @@
         "gpqa_diamond": {
           "value": 0.7702020202020202,
           "date": "2025-02-13"
+        },
+        "gso": {
+          "value": 0.013000000000000001,
+          "date": "2025-05-30"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.7694444444444445,
@@ -7305,6 +8430,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-01-21",
       "scores": {
+        "enigma_eval": {
+          "value": 0.011000000000000001,
+          "date": "2025-01-21"
+        },
         "epoch_capabilities_index": {
           "value": 136.24,
           "date": "2025-01-21"
@@ -7443,6 +8572,10 @@
           "value": 0.15833333333333333,
           "date": "2025-02-25"
         },
+        "scicode": {
+          "value": 0.354166666666667,
+          "date": "2024-12-26"
+        },
         "simplebench": {
           "value": 0.189,
           "date": "2024-12-26"
@@ -7482,6 +8615,10 @@
         "chess_puzzles": {
           "value": 0.07,
           "date": "2026-07-15"
+        },
+        "enigma_eval": {
+          "value": 0.0565,
+          "date": "2024-12-17"
         },
         "epoch_capabilities_index": {
           "value": 142.71,
@@ -7591,6 +8728,10 @@
       "creator_name": "Meta AI",
       "release_date": "2024-12-06",
       "scores": {
+        "critpt": {
+          "value": 0.0,
+          "date": "2024-12-06"
+        },
         "epoch_capabilities_index": {
           "value": 127.48,
           "date": "2024-12-06"
@@ -7602,6 +8743,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.05138888888888889,
           "date": "2025-02-25"
+        },
+        "scicode": {
+          "value": 0.260416666666667,
+          "date": "2024-12-06"
         },
         "simplebench": {
           "value": 0.199,
@@ -7701,6 +8846,10 @@
           "value": 0.0,
           "date": "2024-11-20"
         },
+        "enigma_eval": {
+          "value": 0.008,
+          "date": "2024-11-20"
+        },
         "epoch_capabilities_index": {
           "value": 129.27,
           "date": "2024-11-20"
@@ -7712,6 +8861,10 @@
         "gpqa_diamond": {
           "value": 0.4788510101010101,
           "date": "2025-02-05"
+        },
+        "gso": {
+          "value": 0.0,
+          "date": "2024-11-20"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.0625,
@@ -7750,6 +8903,20 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.07777777777777778,
           "date": "2025-02-25"
+        }
+      }
+    },
+    {
+      "id": "pixtral-large-2411",
+      "name": "pixtral-large-2411",
+      "display_name": "pixtral-large-2411",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2024-11-18",
+      "scores": {
+        "enigma_eval": {
+          "value": 0.0084,
+          "date": "2024-11-18"
         }
       }
     },
@@ -7821,6 +8988,10 @@
       "creator_name": "Anthropic",
       "release_date": "2024-10-22",
       "scores": {
+        "enigma_eval": {
+          "value": 0.0091,
+          "date": "2024-10-22"
+        },
         "epoch_capabilities_index": {
           "value": 134.28,
           "date": "2024-10-22"
@@ -7836,6 +9007,10 @@
         "gpqa_diamond": {
           "value": 0.553030303030303,
           "date": "2025-01-27"
+        },
+        "gso": {
+          "value": 0.046,
+          "date": "2024-10-22"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.08472222222222223,
@@ -7905,6 +9080,10 @@
       "creator_name": "Meta AI",
       "release_date": "2024-09-24",
       "scores": {
+        "enigma_eval": {
+          "value": 0.0038,
+          "date": "2024-09-24"
+        },
         "epoch_capabilities_index": {
           "value": 125.7,
           "date": "2024-09-24"
@@ -8989,6 +10168,10 @@
           "value": 0.05,
           "date": "2026-07-15"
         },
+        "enigma_eval": {
+          "value": 0.008199999999999999,
+          "date": "2024-02-29"
+        },
         "epoch_capabilities_index": {
           "value": 126.91,
           "date": "2024-02-29"
@@ -10070,6 +11253,12 @@
         "ale_bench": {
           "value": 785.58
         },
+        "critpt": {
+          "value": 0.00848979591836735
+        },
+        "scicode": {
+          "value": 0.38657407407407407
+        },
         "weirdml": {
           "value": 0.43200000000000005
         }
@@ -10115,8 +11304,14 @@
         "ale_bench": {
           "value": 513.95
         },
+        "critpt": {
+          "value": 0.0371428571428571
+        },
         "proofbench": {
           "value": 0.16
+        },
+        "scicode": {
+          "value": 0.430555555555556
         }
       }
     },
