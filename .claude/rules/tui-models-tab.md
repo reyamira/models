@@ -128,31 +128,57 @@ separator-compacted full id (`gpt-5.2` vs `gpt-52`). Each weaker lane considers
 only offerings left unlinked by the stronger lanes, so it cannot split or
 transitively expand an existing group. Every lane still requires a whole
 multi-provider bucket with no creator or pairwise output-modality conflict;
-`+` remains the semantic `plus` token even in the compact lane. Canonical and
+`+` remains the semantic `plus` token even in the compact lane. A final
+name-relaxation pass then attaches a still-unlinked offering to an existing
+peer bucket whose members all spell its exact leaf id, but only when the bucket
+carries an unambiguous lab and every name-token difference is provably
+non-identity: creator attribution (the bucket lab's slug/display tokens plus
+the generic `ai` suffix — never family names, which are version-line
+vocabulary), namespace spelling from the offering's own id path (`TEE/…`,
+`meta-llama/…`), or a token the shared leaf id itself already carries
+(`instruct`/`it` echoes). Semantic tokens from nowhere — dates, `preview`,
+`thinking`, sizes — refuse; more than one neutral-compatible bucket refuses;
+joiners still pass the creator/output blockers. `independent_lab` treats an
+unrecognized id-namespace prefix as attribution away from the provider (no
+provider-id fallback), so a lab-named provider serving another lab's model
+(`nvidia/qwen/…`) no longer manufactures a creator conflict. Canonical and
 peer identity is resolved once across the complete catalog snapshot, before
 search, capability filters, or provider scope are applied. Filtering only
 projects that stable identity: it cannot hide a conflicting peer and thereby
 manufacture a group, or erase peer provenance when only one member is visible.
 
-Three broader rules are intentionally **shadow-only**: an exact normalized
-name + leaf-id pair observed on an authoritative offering; a creator-qualified
-canonical name combined with an authoritative id alias; and the intersection
-of a name alias and id alias learned from different authoritative offerings.
-They retain separate witness counts and pass the same creator/output blockers,
-but never change grouping or seed another match. The live snapshot contains
-real semantic variants (for example preview/free/instruct forms) in these
-candidate sets, so none is promoted wholesale and fuzzy similarity remains
-diagnostic-only. Collision and semantic-negative tests must stay fail-closed.
+Four final deterministic reconciliation lanes run after the anchor-backed and
+dual creator-qualified lanes: an exact normalized name + leaf-id pair observed
+on an authoritative offering; a creator-qualified canonical name combined with
+a unique authoritative id alias; and agreeing name and id aliases learned from
+different authoritative offerings; or an exact token-preserving complete id
+observed for one authoritative target, provided any canonical or authoritative
+name evidence is absent or agrees with that target. Each lane's required
+evidence must select the same unique canonical target. The indexes are seeded
+only by authoritative models.dev records, inferred results never seed another
+match, prior ambiguity or conflict remains terminal, and the existing
+creator/output blockers still apply. Alias collisions and unseen semantic
+suffixes therefore fail closed; fuzzy similarity, prefix stripping, family
+guessing, and model-specific exceptions do not participate in canonical
+grouping. Semantic variants merge only when models.dev has explicitly linked
+that provider form to the base model elsewhere in the snapshot or pinned ref
+artifact.
 
 Provenance is retained per offering; `≈` marks inferred members in the
 Providers section and flat/drilled lists, plus peer-only rows in the grouped
-list. Grouped detail states `N models.dev links + M inferred (Q
-creator-qualified)` or `inferred peer group (not canonical)`. `mise run
+list. Grouped detail states `N models.dev links + M inferred`, with separate
+creator-qualified, exact-pair, one-sided creator, and cross-alias counts, or
+full-id alias counts, or `inferred peer group (not canonical)`. `mise run
 audit-model-identity` performs a provider-level holdout: all explicit links and
-alias evidence from one provider are removed together, and recovered active or
-shadow targets are compared with its known links. It also prints the live
-grouping and shadow distributions plus Claude Fable 5/Grok 4.5/Aion and
-compact-id conformance receipts.
+alias evidence from one provider are removed together, and recovered active
+targets are compared with its known links. It also prints the live grouping
+and reconciliation distribution plus Claude Fable 5/Grok 4.5/Aion/Nemotron
+and compact-id conformance receipts, and a residual near-miss report
+(`live_residual_near_miss_report`) enumerating the same-name / same-leaf-id
+seams and ranked fuzzy candidates (token diffs, blocker evaluation, rejection
+reasons) among still-peer/unlinked rows — diagnostic only: fuzzy similarity
+proposes candidates for human review or upstream `base_model` PRs; it never
+merges rows.
 
 ---
 

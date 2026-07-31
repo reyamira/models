@@ -12,14 +12,19 @@
 //! 3. `provider_id/model_id`, when it is a canonical id
 //! 4. otherwise unlinked
 //!
-//! For offerings left unlinked by those authoritative tiers, two deliberately
+//! For offerings left unlinked by those authoritative tiers, deliberately
 //! narrow resolvers may infer canonical identity. The first requires a unique
 //! normalized canonical name, unanimous authoritative targets for that name,
 //! and an exact token fingerprint already observed for that target. The second
 //! reconciles provider records that qualify both name and id with the creator
 //! (`Anthropic Claude Fable 5` / `anthropic-claude-fable-5`) when that dual key
-//! selects exactly one canonical target. Neither inference lane overrides an
-//! authoritative result.
+//! selects exactly one canonical target. Four final reconciliation lanes use
+//! exact, uniquely targeted evidence learned only from authoritative provider
+//! records: a matching name/id pair, a creator-qualified name plus id alias,
+//! agreeing name and id aliases observed on separate records, or a complete id
+//! alias whose target does not contradict canonical or authoritative name
+//! evidence. No inferred result seeds another match, and no inference lane
+//! overrides an authoritative result.
 //!
 //! Lab tiers (`resolve`), in order:
 //!
@@ -73,6 +78,10 @@ pub enum CanonicalResolutionKind {
     AuthoritativeScopedId,
     InferredCanonical,
     InferredQualifiedCanonical,
+    InferredExactPairCanonical,
+    InferredOneSidedCreatorCanonical,
+    InferredCrossAliasCanonical,
+    InferredFullIdCanonical,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -83,6 +92,7 @@ pub enum InferenceRejection {
     AmbiguousQualifiedIdentity,
     NoAuthoritativeNameAnchor,
     ConflictingAuthoritativeNameAnchors,
+    ConflictingCanonicalName,
     UnseenIdFingerprint,
     CreatorConflict,
     DisjointOutputModalities,
@@ -97,6 +107,7 @@ impl InferenceRejection {
             Self::AmbiguousQualifiedIdentity => "ambiguous creator-qualified identity",
             Self::NoAuthoritativeNameAnchor => "no authoritative name anchor",
             Self::ConflictingAuthoritativeNameAnchors => "conflicting name anchors",
+            Self::ConflictingCanonicalName => "canonical name conflicts with id alias",
             Self::UnseenIdFingerprint => "unseen model-id fingerprint",
             Self::CreatorConflict => "creator conflict",
             Self::DisjointOutputModalities => "output-modality conflict",
@@ -118,38 +129,17 @@ pub enum ModelIdentity<'a> {
     Unlinked(InferenceRejection),
 }
 
-/// Audit-only canonical candidate lanes. These never alter grouping; they
-/// preserve distinct evidence classes so each can be evaluated before any
-/// future activation decision.
-#[cfg(test)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ShadowCandidateKind {
-    ExactAuthoritativePair,
-    OneSidedCreatorQualified,
-    CrossAuthoritativeAliases,
-}
-
-#[cfg(test)]
-impl ShadowCandidateKind {
-    pub fn label(self) -> &'static str {
-        match self {
-            Self::ExactAuthoritativePair => "exact authoritative pair",
-            Self::OneSidedCreatorQualified => "one-sided creator qualification",
-            Self::CrossAuthoritativeAliases => "cross-record authoritative aliases",
-        }
-    }
-}
-
 #[cfg(test)]
 #[derive(Debug, Clone, Copy)]
-pub struct ShadowCanonicalCandidate<'a> {
+pub struct ReconciliationEvidence<'a> {
     pub id: &'a str,
     pub name: &'a str,
     pub lab: &'a str,
-    pub kind: ShadowCandidateKind,
+    pub kind: CanonicalResolutionKind,
     pub pair_witnesses: usize,
     pub name_witnesses: usize,
     pub id_witnesses: usize,
+    pub full_id_witnesses: usize,
 }
 
 /// Families → lab slugs for model lines the canonical registry doesn't
@@ -244,19 +234,18 @@ pub struct LabCatalog {
     /// Both components use the separator-compacted semantic fingerprint; the
     /// target must still be unique at resolution time.
     qualified_identity_candidates: HashMap<(String, String), HashSet<String>>,
-    /// Creator-qualified canonical display name -> canonical targets. Kept
-    /// separate from the dual-field production lane for audit-only one-sided
-    /// qualification candidates.
-    #[cfg(test)]
+    /// Creator-qualified canonical display name -> canonical targets, kept
+    /// separate from the dual-field lane for one-sided qualification.
     qualified_name_candidates: HashMap<String, HashSet<String>>,
     /// Exact provider-observed leaf-id fingerprint -> authoritative targets.
     /// Unlike `canonical_id_fingerprints`, this is never seeded from the
     /// canonical registry itself.
-    #[cfg(test)]
     authoritative_id_targets: HashMap<String, HashSet<String>>,
     /// Exact provider-observed `(name, leaf id)` pair -> authoritative targets.
-    #[cfg(test)]
     authoritative_pair_targets: HashMap<(String, String), HashSet<String>>,
+    /// Exact token-preserving complete model-id fingerprint -> authoritative
+    /// targets. Unlike the leaf-id map, this retains creator namespaces.
+    authoritative_full_id_targets: HashMap<String, HashSet<String>>,
     /// Provider witnesses for each authoritative alias edge. Provider count is
     /// not assumed to mean source independence, but is retained for audit.
     #[cfg(test)]
@@ -265,6 +254,8 @@ pub struct LabCatalog {
     authoritative_id_witnesses: HashMap<(String, String), HashSet<String>>,
     #[cfg(test)]
     authoritative_pair_witnesses: HashMap<(String, String, String), HashSet<String>>,
+    #[cfg(test)]
+    authoritative_full_id_witnesses: HashMap<(String, String), HashSet<String>>,
 }
 
 impl LabCatalog {
@@ -346,7 +337,6 @@ impl LabCatalog {
                         let qualified_name =
                             compact_identity_fingerprint(&format!("{creator} {}", m.name));
                         if !qualified_name.is_empty() {
-                            #[cfg(test)]
                             cat.qualified_name_candidates
                                 .entry(qualified_name.clone())
                                 .or_default()
@@ -403,19 +393,27 @@ impl LabCatalog {
         // inference layer. Exact models.dev resolution works without them, so
         // older unit helpers can still construct a canonical-only catalog.
         if let Some(providers) = providers {
-            let anchors: Vec<(String, String, String, String)> = providers
+            let anchors: Vec<(String, String, String, String, String)> = providers
                 .iter()
                 .flat_map(|(provider_id, provider)| {
                     provider.models.iter().filter_map(|(model_id, model)| {
                         let resolution = cat.resolve_authoritative(provider_id, model_id)?;
                         let name = identity_fingerprint(&model.name);
                         let id = model_id_fingerprint(model_id);
-                        (!name.is_empty() && !id.is_empty())
-                            .then(|| (provider_id.clone(), name, resolution.id.to_string(), id))
+                        let full_id = full_model_id_fingerprint(model_id);
+                        (!name.is_empty() && !id.is_empty() && !full_id.is_empty()).then(|| {
+                            (
+                                provider_id.clone(),
+                                name,
+                                resolution.id.to_string(),
+                                id,
+                                full_id,
+                            )
+                        })
                     })
                 })
                 .collect();
-            for (_provider_id, name, canonical_id, id_fingerprint) in anchors {
+            for (_provider_id, name, canonical_id, id_fingerprint, full_id_fingerprint) in anchors {
                 cat.authoritative_name_targets
                     .entry(name.clone())
                     .or_default()
@@ -424,16 +422,20 @@ impl LabCatalog {
                     .entry(canonical_id.clone())
                     .or_default()
                     .insert(id_fingerprint.clone());
+                cat.authoritative_id_targets
+                    .entry(id_fingerprint.clone())
+                    .or_default()
+                    .insert(canonical_id.clone());
+                cat.authoritative_pair_targets
+                    .entry((name.clone(), id_fingerprint.clone()))
+                    .or_default()
+                    .insert(canonical_id.clone());
+                cat.authoritative_full_id_targets
+                    .entry(full_id_fingerprint.clone())
+                    .or_default()
+                    .insert(canonical_id.clone());
                 #[cfg(test)]
                 {
-                    cat.authoritative_id_targets
-                        .entry(id_fingerprint.clone())
-                        .or_default()
-                        .insert(canonical_id.clone());
-                    cat.authoritative_pair_targets
-                        .entry((name.clone(), id_fingerprint.clone()))
-                        .or_default()
-                        .insert(canonical_id.clone());
                     cat.authoritative_name_witnesses
                         .entry((name.clone(), canonical_id.clone()))
                         .or_default()
@@ -443,7 +445,11 @@ impl LabCatalog {
                         .or_default()
                         .insert(_provider_id.clone());
                     cat.authoritative_pair_witnesses
-                        .entry((name, id_fingerprint, canonical_id))
+                        .entry((name, id_fingerprint, canonical_id.clone()))
+                        .or_default()
+                        .insert(_provider_id.clone());
+                    cat.authoritative_full_id_witnesses
+                        .entry((full_id_fingerprint, canonical_id))
                         .or_default()
                         .insert(_provider_id);
                 }
@@ -557,30 +563,42 @@ impl LabCatalog {
                 match self.resolve_qualified_inference(provider_id, model_id, model) {
                     Some(Ok(resolution)) => ModelIdentity::Canonical(resolution),
                     Some(Err(qualified_rejection)) => ModelIdentity::Unlinked(qualified_rejection),
-                    None => ModelIdentity::Unlinked(anchored_rejection),
+                    None => {
+                        // Reconciliation may fill a missing evidence tier, but
+                        // it must never bypass an earlier ambiguity or conflict.
+                        if matches!(
+                            anchored_rejection,
+                            InferenceRejection::NoCanonicalName
+                                | InferenceRejection::NoAuthoritativeNameAnchor
+                                | InferenceRejection::UnseenIdFingerprint
+                        ) {
+                            match self.resolve_reconciliation_inference(
+                                provider_id,
+                                model_id,
+                                model,
+                            ) {
+                                Some(Ok(resolution)) => ModelIdentity::Canonical(resolution),
+                                Some(Err(rejection)) => ModelIdentity::Unlinked(rejection),
+                                None => ModelIdentity::Unlinked(anchored_rejection),
+                            }
+                        } else {
+                            ModelIdentity::Unlinked(anchored_rejection)
+                        }
+                    }
                 }
             }
         }
     }
 
-    /// Return the strongest audit-only canonical candidate for an offering
-    /// that remains unresolved by every active canonical lane. Candidate
-    /// evidence is derived exclusively from authoritatively resolved provider
-    /// offerings; this method never mutates identity or seeds another match.
-    #[cfg(test)]
-    pub fn shadow_canonical_candidate<'a>(
+    /// Resolve the strongest exact reconciliation lane. All indexes are built
+    /// exclusively from authoritative provider records, so inferred results
+    /// can never seed or transitively expand another match.
+    fn resolve_reconciliation_inference<'a>(
         &'a self,
         provider_id: &str,
         model_id: &str,
         model: &Model,
-    ) -> Option<ShadowCanonicalCandidate<'a>> {
-        if matches!(
-            self.resolve_model_identity(provider_id, model_id, model),
-            ModelIdentity::Canonical(_)
-        ) {
-            return None;
-        }
-
+    ) -> Option<Result<CanonicalResolution<'a>, InferenceRejection>> {
         let name = identity_fingerprint(&model.name);
         let id = model_id_fingerprint(model_id);
         if name.is_empty() || id.is_empty() {
@@ -591,13 +609,13 @@ impl LabCatalog {
             self.authoritative_pair_targets
                 .get(&(name.clone(), id.clone())),
         ) {
-            return self.build_shadow_candidate(
+            return Some(self.finish_inferred_resolution(
                 provider_id,
                 model_id,
                 model,
                 target,
-                ShadowCandidateKind::ExactAuthoritativePair,
-            );
+                CanonicalResolutionKind::InferredExactPairCanonical,
+            ));
         }
 
         let qualified_name = compact_identity_fingerprint(&model.name);
@@ -606,13 +624,13 @@ impl LabCatalog {
             unique_target(self.authoritative_id_targets.get(&id)),
         ) {
             if name_target == id_target {
-                return self.build_shadow_candidate(
+                return Some(self.finish_inferred_resolution(
                     provider_id,
                     model_id,
                     model,
                     name_target,
-                    ShadowCandidateKind::OneSidedCreatorQualified,
-                );
+                    CanonicalResolutionKind::InferredOneSidedCreatorCanonical,
+                ));
             }
         }
 
@@ -621,57 +639,100 @@ impl LabCatalog {
             unique_target(self.authoritative_id_targets.get(&id)),
         ) {
             if name_target == id_target {
-                return self.build_shadow_candidate(
+                return Some(self.finish_inferred_resolution(
                     provider_id,
                     model_id,
                     model,
                     name_target,
-                    ShadowCandidateKind::CrossAuthoritativeAliases,
-                );
+                    CanonicalResolutionKind::InferredCrossAliasCanonical,
+                ));
             }
+        }
+
+        let full_id = full_model_id_fingerprint(model_id);
+        if let Some(target) = unique_target(self.authoritative_full_id_targets.get(&full_id)) {
+            if self
+                .authoritative_name_targets
+                .get(&name)
+                .is_some_and(|targets| targets.len() != 1 || !targets.contains(target))
+            {
+                return Some(Err(InferenceRejection::ConflictingAuthoritativeNameAnchors));
+            }
+            if self
+                .canonical_name_candidates
+                .get(&name)
+                .is_some_and(|targets| !targets.contains(target))
+            {
+                return Some(Err(InferenceRejection::ConflictingCanonicalName));
+            }
+            return Some(self.finish_inferred_resolution(
+                provider_id,
+                model_id,
+                model,
+                target,
+                CanonicalResolutionKind::InferredFullIdCanonical,
+            ));
         }
 
         None
     }
 
+    /// Audit receipt for an offering resolved by one of the four final exact
+    /// reconciliation lanes. Witness counts remain test-only diagnostics and
+    /// do not participate in identity decisions.
     #[cfg(test)]
-    fn build_shadow_candidate<'a>(
+    pub fn reconciliation_evidence<'a>(
         &'a self,
         provider_id: &str,
         model_id: &str,
         model: &Model,
-        candidate_id: &str,
-        kind: ShadowCandidateKind,
-    ) -> Option<ShadowCanonicalCandidate<'a>> {
-        let target = self
-            .validate_inferred_target(provider_id, model_id, model, candidate_id)
-            .ok()?;
+    ) -> Option<ReconciliationEvidence<'a>> {
+        let ModelIdentity::Canonical(resolution) =
+            self.resolve_model_identity(provider_id, model_id, model)
+        else {
+            return None;
+        };
+        if !matches!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredExactPairCanonical
+                | CanonicalResolutionKind::InferredOneSidedCreatorCanonical
+                | CanonicalResolutionKind::InferredCrossAliasCanonical
+                | CanonicalResolutionKind::InferredFullIdCanonical
+        ) {
+            return None;
+        }
         let name_fingerprint = identity_fingerprint(&model.name);
         let id_fingerprint = model_id_fingerprint(model_id);
+        let full_id_fingerprint = full_model_id_fingerprint(model_id);
         let pair_witnesses = self
             .authoritative_pair_witnesses
             .get(&(
                 name_fingerprint.to_string(),
                 id_fingerprint.to_string(),
-                target.id.clone(),
+                resolution.id.to_string(),
             ))
             .map_or(0, HashSet::len);
         let name_witnesses = self
             .authoritative_name_witnesses
-            .get(&(name_fingerprint.to_string(), target.id.clone()))
+            .get(&(name_fingerprint.to_string(), resolution.id.to_string()))
             .map_or(0, HashSet::len);
         let id_witnesses = self
             .authoritative_id_witnesses
-            .get(&(id_fingerprint.to_string(), target.id.clone()))
+            .get(&(id_fingerprint.to_string(), resolution.id.to_string()))
             .map_or(0, HashSet::len);
-        Some(ShadowCanonicalCandidate {
-            id: target.id.as_str(),
-            name: target.name.as_str(),
-            lab: target.lab.as_str(),
-            kind,
+        let full_id_witnesses = self
+            .authoritative_full_id_witnesses
+            .get(&(full_id_fingerprint.to_string(), resolution.id.to_string()))
+            .map_or(0, HashSet::len);
+        Some(ReconciliationEvidence {
+            id: resolution.id,
+            name: resolution.name,
+            lab: resolution.lab,
+            kind: resolution.kind,
             pair_witnesses,
             name_witnesses,
             id_witnesses,
+            full_id_witnesses,
         })
     }
 
@@ -803,17 +864,37 @@ impl LabCatalog {
     /// model id, or an origin-like provider id that is itself a known lab.
     /// Name/family presentation fallbacks are deliberately excluded because
     /// they are not independent evidence for an identity merge.
+    ///
+    /// A namespace prefix that is *not* a recognized lab still attributes the
+    /// model away from the serving provider (`nvidia/qwen/qwen3-…` is Qwen's
+    /// model served by NVIDIA), so it must not fall through to the
+    /// provider-id heuristic — that fallback wrongly claimed the provider as
+    /// creator and blocked otherwise-exact identity matches.
     pub fn independent_lab<'a>(
         &'a self,
         provider_id: &'a str,
         model_id: &'a str,
     ) -> Option<&'a str> {
         if let Some((prefix, _)) = model_id.split_once('/') {
-            if self.lab_slugs.contains(prefix) {
-                return Some(prefix);
-            }
+            return self.lab_slugs.contains(prefix).then_some(prefix);
         }
         self.lab_slugs.contains(provider_id).then_some(provider_id)
+    }
+
+    /// Presentation tokens that spell this lab's identity: slug tokens,
+    /// display-name tokens, and the generic corporate suffix "ai". Used by the
+    /// peer name-relaxation lane to recognize that a name difference such as
+    /// `Meta: Llama 3.2 3B Instruct` vs `Llama 3.2 3B Instruct` is creator
+    /// attribution, not model identity. Family names are deliberately
+    /// excluded — families are version-line names (`claude-opus`), and
+    /// treating their tokens as neutral could erase a real variant.
+    pub(crate) fn creator_alias_tokens(&self, lab: &str) -> HashSet<String> {
+        let mut tokens = HashSet::new();
+        for source in [lab.to_string(), lab_display(lab)] {
+            tokens.extend(fingerprint_tokens(&identity_fingerprint(&source)));
+        }
+        tokens.insert("ai".to_string());
+        tokens
     }
 
     #[cfg(test)]
@@ -943,6 +1024,15 @@ fn compact_identity_fingerprint(raw: &str) -> String {
     identity_fingerprint(raw).replace('/', "")
 }
 
+/// The token set of a fingerprint produced by `identity_fingerprint`.
+pub(crate) fn fingerprint_tokens(fingerprint: &str) -> HashSet<String> {
+    fingerprint
+        .split('/')
+        .filter(|token| !token.is_empty())
+        .map(str::to_string)
+        .collect()
+}
+
 pub(crate) fn outputs_are_disjoint(left: &[String], right: &[String]) -> bool {
     !left.is_empty()
         && !right.is_empty()
@@ -953,7 +1043,6 @@ pub(crate) fn outputs_are_disjoint(left: &[String], right: &[String]) -> bool {
         })
 }
 
-#[cfg(test)]
 fn unique_target(candidates: Option<&HashSet<String>>) -> Option<&str> {
     let candidates = candidates?;
     (candidates.len() == 1).then(|| candidates.iter().next().expect("one candidate").as_str())
@@ -1340,7 +1429,7 @@ mod tests {
     }
 
     #[test]
-    fn shadow_exact_pair_requires_provider_observed_pair() {
+    fn exact_pair_reconciliation_requires_provider_observed_pair() {
         let providers = providers(
             r#"{
                 "anchor":{"id":"anchor","name":"Anchor","models":{
@@ -1358,22 +1447,26 @@ mod tests {
         );
         let model = provider_model(&providers, "candidate", "alias-5");
 
-        assert!(matches!(
-            cat.resolve_model_identity("candidate", "alias-5", model),
-            ModelIdentity::Unlinked(_)
-        ));
-        let shadow = cat
-            .shadow_canonical_candidate("candidate", "alias-5", model)
-            .expect("exact pair shadow candidate");
-        assert_eq!(shadow.id, "creator/canonical-5");
-        assert_eq!(shadow.kind, ShadowCandidateKind::ExactAuthoritativePair);
-        assert_eq!(shadow.pair_witnesses, 1);
-        assert_eq!(shadow.name_witnesses, 1);
-        assert_eq!(shadow.id_witnesses, 1);
+        let ModelIdentity::Canonical(resolution) =
+            cat.resolve_model_identity("candidate", "alias-5", model)
+        else {
+            panic!("exact authoritative pair should reconcile");
+        };
+        assert_eq!(resolution.id, "creator/canonical-5");
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredExactPairCanonical
+        );
+        let evidence = cat
+            .reconciliation_evidence("candidate", "alias-5", model)
+            .expect("exact pair evidence");
+        assert_eq!(evidence.pair_witnesses, 1);
+        assert_eq!(evidence.name_witnesses, 1);
+        assert_eq!(evidence.id_witnesses, 1);
     }
 
     #[test]
-    fn shadow_one_sided_creator_qualification_is_not_an_active_merge() {
+    fn one_sided_creator_qualification_reconciles_exact_id_alias() {
         let providers = providers(
             r#"{
                 "openai":{"id":"openai","name":"OpenAI","models":{
@@ -1391,21 +1484,25 @@ mod tests {
         );
         let model = provider_model(&providers, "helicone", "gpt-5");
 
-        assert!(matches!(
-            cat.resolve_model_identity("helicone", "gpt-5", model),
-            ModelIdentity::Unlinked(_)
-        ));
-        let shadow = cat
-            .shadow_canonical_candidate("helicone", "gpt-5", model)
-            .expect("one-sided creator shadow candidate");
-        assert_eq!(shadow.id, "openai/gpt-5");
-        assert_eq!(shadow.kind, ShadowCandidateKind::OneSidedCreatorQualified);
-        assert_eq!(shadow.pair_witnesses, 0);
-        assert_eq!(shadow.id_witnesses, 1);
+        let ModelIdentity::Canonical(resolution) =
+            cat.resolve_model_identity("helicone", "gpt-5", model)
+        else {
+            panic!("one-sided creator qualification should reconcile");
+        };
+        assert_eq!(resolution.id, "openai/gpt-5");
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredOneSidedCreatorCanonical
+        );
+        let evidence = cat
+            .reconciliation_evidence("helicone", "gpt-5", model)
+            .expect("one-sided creator evidence");
+        assert_eq!(evidence.pair_witnesses, 0);
+        assert_eq!(evidence.id_witnesses, 1);
     }
 
     #[test]
-    fn shadow_cross_aliases_surface_nemotron_without_merging() {
+    fn cross_aliases_reconcile_nemotron() {
         let providers = providers(
             r#"{
                 "wandb":{"id":"wandb","name":"W&B","models":{
@@ -1430,22 +1527,169 @@ mod tests {
         );
         let model = provider_model(&providers, "digitalocean", "nemotron-3-ultra-550b");
 
-        assert!(matches!(
-            cat.resolve_model_identity("digitalocean", "nemotron-3-ultra-550b", model),
-            ModelIdentity::Unlinked(_)
-        ));
-        let shadow = cat
-            .shadow_canonical_candidate("digitalocean", "nemotron-3-ultra-550b", model)
-            .expect("cross-record shadow candidate");
-        assert_eq!(shadow.id, target);
-        assert_eq!(shadow.kind, ShadowCandidateKind::CrossAuthoritativeAliases);
-        assert_eq!(shadow.pair_witnesses, 0);
-        assert_eq!(shadow.name_witnesses, 1);
-        assert_eq!(shadow.id_witnesses, 1);
+        let ModelIdentity::Canonical(resolution) =
+            cat.resolve_model_identity("digitalocean", "nemotron-3-ultra-550b", model)
+        else {
+            panic!("cross-record aliases should reconcile Nemotron");
+        };
+        assert_eq!(resolution.id, target);
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredCrossAliasCanonical
+        );
+        let evidence = cat
+            .reconciliation_evidence("digitalocean", "nemotron-3-ultra-550b", model)
+            .expect("cross-record evidence");
+        assert_eq!(evidence.pair_witnesses, 0);
+        assert_eq!(evidence.name_witnesses, 1);
+        assert_eq!(evidence.id_witnesses, 1);
     }
 
     #[test]
-    fn shadow_alias_collisions_fail_closed() {
+    fn full_id_alias_reconciles_different_provider_display_name() {
+        let providers = providers(
+            r#"{
+                "google":{"id":"google","name":"Google","models":{
+                    "gemini-3.1-flash-image-preview":{"id":"gemini-3.1-flash-image-preview","name":"Nano Banana 2","modalities":{"output":["image"]}}
+                }},
+                "candidate":{"id":"candidate","name":"Candidate","models":{
+                    "gemini-3.1-flash-image-preview":{"id":"gemini-3.1-flash-image-preview","name":"Gemini 3.1 Flash Image Preview","modalities":{"output":["image"]}}
+                }}
+            }"#,
+        );
+        let target = "google/gemini-3.1-flash-image-preview";
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[(target, "Nano Banana 2", None)],
+            &providers,
+            &[],
+        );
+        let model = provider_model(&providers, "candidate", "gemini-3.1-flash-image-preview");
+
+        let ModelIdentity::Canonical(resolution) =
+            cat.resolve_model_identity("candidate", "gemini-3.1-flash-image-preview", model)
+        else {
+            panic!("complete authoritative id alias should reconcile");
+        };
+        assert_eq!(resolution.id, target);
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredFullIdCanonical
+        );
+        let evidence = cat
+            .reconciliation_evidence("candidate", "gemini-3.1-flash-image-preview", model)
+            .expect("full-id evidence");
+        assert_eq!(evidence.full_id_witnesses, 1);
+    }
+
+    #[test]
+    fn full_id_alias_cannot_override_authoritative_name_conflict() {
+        let providers = providers(
+            r#"{
+                "id-anchor":{"id":"id-anchor","name":"ID Anchor","models":{
+                    "anthropic/claude-sonnet-4":{"id":"anthropic/claude-sonnet-4","name":"Alias Four"}
+                }},
+                "name-anchor":{"id":"name-anchor","name":"Name Anchor","models":{
+                    "dated-alias":{"id":"dated-alias","name":"Claude Sonnet 4.5"}
+                }},
+                "candidate":{"id":"candidate","name":"Candidate","models":{
+                    "anthropic/claude-sonnet-4":{"id":"anthropic/claude-sonnet-4","name":"Claude Sonnet 4.5"}
+                }}
+            }"#,
+        );
+        let base = "anthropic/claude-sonnet-4-0";
+        let dated = "anthropic/claude-sonnet-4-5-20250929";
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                (base, "Claude Sonnet 4", Some("claude-sonnet")),
+                (dated, "Claude Sonnet 4.5", Some("claude-sonnet")),
+            ],
+            &providers,
+            &[
+                ("id-anchor/anthropic/claude-sonnet-4", base),
+                ("name-anchor/dated-alias", dated),
+            ],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "candidate",
+                "anthropic/claude-sonnet-4",
+                provider_model(&providers, "candidate", "anthropic/claude-sonnet-4")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::ConflictingAuthoritativeNameAnchors)
+        ));
+    }
+
+    #[test]
+    fn full_id_alias_cannot_override_canonical_name_conflict() {
+        let providers = providers(
+            r#"{
+                "anchor":{"id":"anchor","name":"Anchor","models":{
+                    "shared/model":{"id":"shared/model","name":"Provider Alias"}
+                }},
+                "candidate":{"id":"candidate","name":"Candidate","models":{
+                    "shared/model":{"id":"shared/model","name":"Canonical B"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("creator/model-a", "Canonical A", None),
+                ("creator/model-b", "Canonical B", None),
+            ],
+            &providers,
+            &[("anchor/shared/model", "creator/model-a")],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "candidate",
+                "shared/model",
+                provider_model(&providers, "candidate", "shared/model")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::ConflictingCanonicalName)
+        ));
+    }
+
+    #[test]
+    fn colliding_full_id_aliases_fail_closed() {
+        let providers = providers(
+            r#"{
+                "alpha":{"id":"alpha","name":"Alpha","models":{
+                    "shared/model":{"id":"shared/model","name":"Alpha Alias"}
+                }},
+                "beta":{"id":"beta","name":"Beta","models":{
+                    "shared/model":{"id":"shared/model","name":"Beta Alias"}
+                }},
+                "candidate":{"id":"candidate","name":"Candidate","models":{
+                    "shared/model":{"id":"shared/model","name":"Unknown Alias"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("creator-a/model-a", "Model A", None),
+                ("creator-b/model-b", "Model B", None),
+            ],
+            &providers,
+            &[
+                ("alpha/shared/model", "creator-a/model-a"),
+                ("beta/shared/model", "creator-b/model-b"),
+            ],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "candidate",
+                "shared/model",
+                provider_model(&providers, "candidate", "shared/model")
+            ),
+            ModelIdentity::Unlinked(_)
+        ));
+    }
+
+    #[test]
+    fn reconciliation_alias_collisions_fail_closed() {
         let providers = providers(
             r#"{
                 "alpha":{"id":"alpha","name":"Alpha","models":{
@@ -1472,13 +1716,14 @@ mod tests {
         );
         let model = provider_model(&providers, "candidate", "shared");
 
-        assert!(cat
-            .shadow_canonical_candidate("candidate", "shared", model)
-            .is_none());
+        assert!(matches!(
+            cat.resolve_model_identity("candidate", "shared", model),
+            ModelIdentity::Unlinked(_)
+        ));
     }
 
     #[test]
-    fn semantic_preview_cross_match_remains_shadow_only() {
+    fn semantic_preview_cross_match_uses_models_dev_base_semantics() {
         let providers = providers(
             r#"{
                 "name-anchor":{"id":"name-anchor","name":"Name Anchor","models":{
@@ -1503,15 +1748,15 @@ mod tests {
         );
         let model = provider_model(&providers, "candidate", "gemini-3-pro");
 
-        assert!(matches!(
-            cat.resolve_model_identity("candidate", "gemini-3-pro", model),
-            ModelIdentity::Unlinked(_)
-        ));
+        let ModelIdentity::Canonical(resolution) =
+            cat.resolve_model_identity("candidate", "gemini-3-pro", model)
+        else {
+            panic!("models.dev aliases should reconcile the preview canonical");
+        };
+        assert_eq!(resolution.id, target);
         assert_eq!(
-            cat.shadow_canonical_candidate("candidate", "gemini-3-pro", model)
-                .expect("review-only preview candidate")
-                .kind,
-            ShadowCandidateKind::CrossAuthoritativeAliases
+            resolution.kind,
+            CanonicalResolutionKind::InferredCrossAliasCanonical
         );
     }
 
@@ -1670,7 +1915,7 @@ mod tests {
     /// Live, explicitly-invoked audit: hold out one provider at a time by
     /// removing all of its embedded `base_model` edges *and* all of its
     /// offerings from the alias indexes. The remaining providers must recover
-    /// only correct active or shadow targets for the held-out explicit edges.
+    /// only correct active targets for the held-out explicit edges.
     /// Ordinary `mise run test` never depends on the network.
     #[test]
     #[ignore = "live models.dev provider-holdout conformance audit"]
@@ -1700,12 +1945,12 @@ mod tests {
         let mut exact = 0usize;
         let mut inferred = 0usize;
         let mut inferred_qualified = 0usize;
-        let mut shadow_exact_pair = 0usize;
-        let mut shadow_one_sided = 0usize;
-        let mut shadow_cross = 0usize;
+        let mut inferred_exact_pair = 0usize;
+        let mut inferred_one_sided = 0usize;
+        let mut inferred_cross = 0usize;
+        let mut inferred_full_id = 0usize;
         let mut exact_conflicts = Vec::new();
         let mut active_wrong = Vec::new();
-        let mut shadow_wrong = Vec::new();
 
         for held_out_provider in held_out_providers {
             let Some(held_out_models) = snapshot.providers.get(held_out_provider) else {
@@ -1766,7 +2011,43 @@ mod tests {
                                 active_wrong.push(format!(
                                         "{offering_key}: inferred-qualified {} but explicit target is {expected_target}",
                                         resolution.id
-                                    ));
+                                ));
+                            }
+                        }
+                        CanonicalResolutionKind::InferredExactPairCanonical => {
+                            inferred_exact_pair += 1;
+                            if resolution.id != expected_target {
+                                active_wrong.push(format!(
+                                    "{offering_key}: exact-pair inferred {} but explicit target is {expected_target}",
+                                    resolution.id
+                                ));
+                            }
+                        }
+                        CanonicalResolutionKind::InferredOneSidedCreatorCanonical => {
+                            inferred_one_sided += 1;
+                            if resolution.id != expected_target {
+                                active_wrong.push(format!(
+                                    "{offering_key}: one-sided creator inferred {} but explicit target is {expected_target}",
+                                    resolution.id
+                                ));
+                            }
+                        }
+                        CanonicalResolutionKind::InferredCrossAliasCanonical => {
+                            inferred_cross += 1;
+                            if resolution.id != expected_target {
+                                active_wrong.push(format!(
+                                    "{offering_key}: cross-alias inferred {} but explicit target is {expected_target}",
+                                    resolution.id
+                                ));
+                            }
+                        }
+                        CanonicalResolutionKind::InferredFullIdCanonical => {
+                            inferred_full_id += 1;
+                            if resolution.id != expected_target {
+                                active_wrong.push(format!(
+                                    "{offering_key}: full-id inferred {} but explicit target is {expected_target}",
+                                    resolution.id
+                                ));
                             }
                         }
                         CanonicalResolutionKind::AuthoritativeDirectId
@@ -1783,39 +2064,15 @@ mod tests {
                             panic!("held-out provider retained an explicit ref: {offering_key}")
                         }
                     },
-                    ModelIdentity::Unlinked(_) => {
-                        let Some(candidate) =
-                            masked.shadow_canonical_candidate(held_out_provider, model_id, model)
-                        else {
-                            continue;
-                        };
-                        match candidate.kind {
-                            ShadowCandidateKind::ExactAuthoritativePair => {
-                                shadow_exact_pair += 1;
-                            }
-                            ShadowCandidateKind::OneSidedCreatorQualified => {
-                                shadow_one_sided += 1;
-                            }
-                            ShadowCandidateKind::CrossAuthoritativeAliases => {
-                                shadow_cross += 1;
-                            }
-                        }
-                        if candidate.id != expected_target {
-                            shadow_wrong.push(format!(
-                                "{offering_key}: shadowed {} but explicit target is {expected_target}",
-                                candidate.id
-                            ));
-                        }
-                    }
+                    ModelIdentity::Unlinked(_) => {}
                 }
             }
         }
 
         println!(
-            "provider-holdout audit: {audited} current explicit refs; active = {exact} exact ({} conflicts where the held-out explicit ref is more specific) + {inferred} anchored + {inferred_qualified} creator-qualified, {} wrong inferred; shadow = {shadow_exact_pair} exact-pair + {shadow_one_sided} one-sided creator + {shadow_cross} cross-record, {} wrong",
+            "provider-holdout audit: {audited} current explicit refs; active = {exact} exact ({} conflicts where the held-out explicit ref is more specific) + {inferred} anchored + {inferred_qualified} dual creator + {inferred_exact_pair} exact-pair + {inferred_one_sided} one-sided creator + {inferred_cross} cross-alias + {inferred_full_id} full-id, {} wrong inferred",
             exact_conflicts.len(),
-            active_wrong.len(),
-            shadow_wrong.len()
+            active_wrong.len()
         );
         for conflict in exact_conflicts {
             println!("held-out exact conflict: {conflict}");
@@ -1825,19 +2082,37 @@ mod tests {
             "provider holdout must exercise active inferred canonical matches"
         );
         assert!(
-            shadow_exact_pair + shadow_one_sided + shadow_cross > 0,
-            "provider holdout must exercise shadow candidate matches"
+            inferred_exact_pair + inferred_one_sided + inferred_cross + inferred_full_id > 0,
+            "provider holdout must exercise exact reconciliation matches"
         );
         assert!(
             active_wrong.is_empty(),
             "wrong active targets:\n{}",
             active_wrong.join("\n")
         );
-        assert!(
-            shadow_wrong.is_empty(),
-            "wrong shadow targets:\n{}",
-            shadow_wrong.join("\n")
-        );
+    }
+
+    #[test]
+    fn independent_lab_ignores_provider_fallback_for_foreign_namespace() {
+        let cat = LabCatalog::from_canonical(&canon(&[("nvidia/foo-1", "Foo 1", None)]));
+        // A namespaced id attributes the model away from the provider — even
+        // when the provider id is itself a lab, "qwen/…" is not NVIDIA's.
+        assert_eq!(cat.independent_lab("nvidia", "qwen/bar-2"), None);
+        // A recognized namespace still wins; bare ids keep the provider
+        // fallback.
+        assert_eq!(cat.independent_lab("vultr", "nvidia/bar-2"), Some("nvidia"));
+        assert_eq!(cat.independent_lab("nvidia", "bar-2"), Some("nvidia"));
+    }
+
+    #[test]
+    fn creator_alias_tokens_cover_slug_display_and_ai_only() {
+        let cat = LabCatalog::from_canonical(&canon(&[("moonshotai/kimi-x9", "Kimi X9", None)]));
+        let tokens = cat.creator_alias_tokens("moonshotai");
+        for expected in ["moonshotai", "moonshot", "ai"] {
+            assert!(tokens.contains(expected), "missing token {expected}");
+        }
+        // Family/brand names are version-line vocabulary, never neutral.
+        assert!(!tokens.contains("kimi"));
     }
 
     #[test]

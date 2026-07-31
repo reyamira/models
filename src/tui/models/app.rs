@@ -4,9 +4,9 @@ use ratatui::widgets::ListState;
 
 use crate::data::{Model, Provider};
 use crate::labs::{
-    compact_model_id_fingerprint, full_model_id_fingerprint, identity_fingerprint,
-    model_id_fingerprint, outputs_are_disjoint, CanonicalResolutionKind, InferenceRejection,
-    ModelIdentity,
+    compact_model_id_fingerprint, fingerprint_tokens, full_model_id_fingerprint,
+    identity_fingerprint, model_id_fingerprint, outputs_are_disjoint, CanonicalResolutionKind,
+    InferenceRejection, ModelIdentity,
 };
 use crate::provider_category::{provider_category, ProviderCategory};
 use crate::tui::app::{App, Message};
@@ -76,6 +76,10 @@ pub enum ModelIdentityProvenance {
     AuthoritativeScopedId,
     InferredCanonical,
     InferredQualifiedCanonical,
+    InferredExactPairCanonical,
+    InferredOneSidedCreatorCanonical,
+    InferredCrossAliasCanonical,
+    InferredFullIdCanonical,
     InferredPeer,
     Unlinked(InferenceRejection),
 }
@@ -84,7 +88,13 @@ impl ModelIdentityProvenance {
     pub fn is_inferred(self) -> bool {
         matches!(
             self,
-            Self::InferredCanonical | Self::InferredQualifiedCanonical | Self::InferredPeer
+            Self::InferredCanonical
+                | Self::InferredQualifiedCanonical
+                | Self::InferredExactPairCanonical
+                | Self::InferredOneSidedCreatorCanonical
+                | Self::InferredCrossAliasCanonical
+                | Self::InferredFullIdCanonical
+                | Self::InferredPeer
         )
     }
 
@@ -104,6 +114,14 @@ impl From<CanonicalResolutionKind> for ModelIdentityProvenance {
             CanonicalResolutionKind::AuthoritativeScopedId => Self::AuthoritativeScopedId,
             CanonicalResolutionKind::InferredCanonical => Self::InferredCanonical,
             CanonicalResolutionKind::InferredQualifiedCanonical => Self::InferredQualifiedCanonical,
+            CanonicalResolutionKind::InferredExactPairCanonical => Self::InferredExactPairCanonical,
+            CanonicalResolutionKind::InferredOneSidedCreatorCanonical => {
+                Self::InferredOneSidedCreatorCanonical
+            }
+            CanonicalResolutionKind::InferredCrossAliasCanonical => {
+                Self::InferredCrossAliasCanonical
+            }
+            CanonicalResolutionKind::InferredFullIdCanonical => Self::InferredFullIdCanonical,
         }
     }
 }
@@ -884,7 +902,152 @@ impl ModelsApp {
             compact_model_id_fingerprint,
         );
 
+        // Final relaxation: attach a still-unlinked offering to an existing
+        // peer bucket that already agrees on its exact leaf id, when every
+        // name-token difference is provably non-identity: creator attribution
+        // (the bucket lab's slug/display tokens), namespace spelling from the
+        // offering's own id path, or a token the shared leaf id itself
+        // carries (an id-echo like "instruct"/"it" cannot distinguish
+        // offerings whose complete leaf ids are identical). Semantic tokens
+        // from nowhere — dates, "preview", "thinking", sizes — keep the
+        // offering out.
+        self.apply_peer_name_relaxation(entries, &mut identities);
+
         identities
+    }
+
+    fn apply_peer_name_relaxation(
+        &self,
+        entries: &[ModelEntry],
+        identities: &mut [ResolvedGroupIdentity],
+    ) {
+        struct Bucket {
+            key: String,
+            display_name: String,
+            lab: String,
+            name_tokens: std::collections::HashSet<String>,
+            member_indices: Vec<usize>,
+        }
+
+        let mut groups: std::collections::HashMap<String, Vec<usize>> =
+            std::collections::HashMap::new();
+        for (idx, identity) in identities.iter().enumerate() {
+            if matches!(identity.provenance, ModelIdentityProvenance::InferredPeer) {
+                groups.entry(identity.key.clone()).or_default().push(idx);
+            }
+        }
+
+        // Only buckets whose members all spell one exact leaf id are anchors,
+        // and only when the bucket carries an unambiguous creator — without a
+        // lab there is no creator vocabulary, and provider-branded pseudo
+        // models ("Pioneer Auto") must not attract each other.
+        let mut buckets_by_leaf: std::collections::HashMap<String, Vec<Bucket>> =
+            std::collections::HashMap::new();
+        for (key, member_indices) in groups {
+            let mut leafs = member_indices
+                .iter()
+                .map(|&idx| model_id_fingerprint(&entries[idx].id));
+            let leaf = leafs.next().expect("peer bucket has members");
+            if leaf.is_empty() || !leafs.all(|other| other == leaf) {
+                continue;
+            }
+            let Some(lab) = identities[member_indices[0]].lab.clone() else {
+                continue;
+            };
+            let name_tokens = fingerprint_tokens(&identity_fingerprint(
+                &entries[member_indices[0]].model.name,
+            ));
+            if name_tokens.is_empty() {
+                continue;
+            }
+            buckets_by_leaf.entry(leaf).or_default().push(Bucket {
+                key,
+                display_name: identities[member_indices[0]].name.clone(),
+                lab,
+                name_tokens,
+                member_indices,
+            });
+        }
+
+        let entry_outputs = |idx: usize| -> &[String] {
+            entries[idx]
+                .model
+                .modalities
+                .as_ref()
+                .map(|modalities| modalities.output.as_slice())
+                .unwrap_or_default()
+        };
+
+        let mut admitted: std::collections::HashMap<String, Vec<usize>> =
+            std::collections::HashMap::new();
+        let mut assignments: Vec<(usize, String, usize)> = Vec::new();
+        for (idx, identity) in identities.iter().enumerate() {
+            if !matches!(identity.provenance, ModelIdentityProvenance::Unlinked(_)) {
+                continue;
+            }
+            let entry = &entries[idx];
+            let leaf = model_id_fingerprint(&entry.id);
+            let Some(buckets) = buckets_by_leaf.get(&leaf) else {
+                continue;
+            };
+            let name_tokens = fingerprint_tokens(&identity_fingerprint(&entry.model.name));
+            if name_tokens.is_empty() {
+                continue;
+            }
+            let leaf_tokens = fingerprint_tokens(&leaf);
+            let namespace_tokens: std::collections::HashSet<String> = entry
+                .id
+                .rsplit_once('/')
+                .map(|(namespace, _)| fingerprint_tokens(&identity_fingerprint(namespace)))
+                .unwrap_or_default();
+
+            let matching: Vec<usize> = buckets
+                .iter()
+                .enumerate()
+                .filter(|(_, bucket)| {
+                    let vocabulary = self.lab_catalog.creator_alias_tokens(&bucket.lab);
+                    let neutral =
+                        |token: &String| leaf_tokens.contains(token) || vocabulary.contains(token);
+                    bucket.name_tokens.difference(&name_tokens).all(&neutral)
+                        && name_tokens
+                            .difference(&bucket.name_tokens)
+                            .all(|token| neutral(token) || namespace_tokens.contains(token))
+                })
+                .map(|(position, _)| position)
+                .collect();
+            // More than one neutral-compatible bucket is ambiguity — refuse.
+            let [position] = matching[..] else {
+                continue;
+            };
+            let bucket = &buckets[position];
+
+            if self
+                .lab_catalog
+                .independent_lab(&entry.provider_id, &entry.id)
+                .is_some_and(|lab| lab != bucket.lab)
+            {
+                continue;
+            }
+            let peers_conflict = bucket
+                .member_indices
+                .iter()
+                .chain(admitted.get(&bucket.key).into_iter().flatten())
+                .any(|&member| outputs_are_disjoint(entry_outputs(idx), entry_outputs(member)));
+            if peers_conflict {
+                continue;
+            }
+
+            admitted.entry(bucket.key.clone()).or_default().push(idx);
+            assignments.push((idx, leaf, position));
+        }
+
+        for (idx, leaf, position) in assignments {
+            let bucket = &buckets_by_leaf[&leaf][position];
+            identities[idx].key.clone_from(&bucket.key);
+            identities[idx].name.clone_from(&bucket.display_name);
+            identities[idx].lab = Some(bucket.lab.clone());
+            identities[idx].provenance = ModelIdentityProvenance::InferredPeer;
+        }
     }
 
     fn apply_peer_groups(
@@ -1051,12 +1214,12 @@ impl ModelsApp {
     }
 
     #[cfg(test)]
-    pub(crate) fn shadow_canonical_candidate<'a>(
+    pub(crate) fn reconciliation_evidence<'a>(
         &'a self,
         entry: &ModelEntry,
-    ) -> Option<crate::labs::ShadowCanonicalCandidate<'a>> {
+    ) -> Option<crate::labs::ReconciliationEvidence<'a>> {
         self.lab_catalog
-            .shadow_canonical_candidate(&entry.provider_id, &entry.id, &entry.model)
+            .reconciliation_evidence(&entry.provider_id, &entry.id, &entry.model)
     }
 
     pub fn get_copy_full(&self) -> Option<String> {

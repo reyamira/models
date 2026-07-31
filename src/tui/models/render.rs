@@ -1206,6 +1206,46 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
                     )
                 })
                 .count();
+            let inferred_exact_pair = group
+                .member_provenance
+                .iter()
+                .filter(|provenance| {
+                    matches!(
+                        provenance,
+                        super::app::ModelIdentityProvenance::InferredExactPairCanonical
+                    )
+                })
+                .count();
+            let inferred_one_sided = group
+                .member_provenance
+                .iter()
+                .filter(|provenance| {
+                    matches!(
+                        provenance,
+                        super::app::ModelIdentityProvenance::InferredOneSidedCreatorCanonical
+                    )
+                })
+                .count();
+            let inferred_cross = group
+                .member_provenance
+                .iter()
+                .filter(|provenance| {
+                    matches!(
+                        provenance,
+                        super::app::ModelIdentityProvenance::InferredCrossAliasCanonical
+                    )
+                })
+                .count();
+            let inferred_full_id = group
+                .member_provenance
+                .iter()
+                .filter(|provenance| {
+                    matches!(
+                        provenance,
+                        super::app::ModelIdentityProvenance::InferredFullIdCanonical
+                    )
+                })
+                .count();
             let inferred_peer = group
                 .member_provenance
                 .iter()
@@ -1221,12 +1261,36 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
                     "inferred peer group (not canonical)".to_string(),
                     Color::DarkGray,
                 )
-            } else if inferred_canonical + inferred_qualified > 0 {
-                let inferred = inferred_canonical + inferred_qualified;
-                let qualified_note = if inferred_qualified > 0 {
-                    format!(" ({inferred_qualified} creator-qualified)")
-                } else {
+            } else if inferred_canonical
+                + inferred_qualified
+                + inferred_exact_pair
+                + inferred_one_sided
+                + inferred_cross
+                + inferred_full_id
+                > 0
+            {
+                let inferred = inferred_canonical
+                    + inferred_qualified
+                    + inferred_exact_pair
+                    + inferred_one_sided
+                    + inferred_cross
+                    + inferred_full_id;
+                let mut notes = Vec::new();
+                for (count, label) in [
+                    (inferred_qualified, "creator-qualified"),
+                    (inferred_exact_pair, "exact-pair"),
+                    (inferred_one_sided, "one-sided creator"),
+                    (inferred_cross, "cross-alias"),
+                    (inferred_full_id, "full-id alias"),
+                ] {
+                    if count > 0 {
+                        notes.push(format!("{count} {label}"));
+                    }
+                }
+                let reconciliation_note = if notes.is_empty() {
                     String::new()
+                } else {
+                    format!(" ({})", notes.join(", "))
                 };
                 (
                     format!(
@@ -1234,7 +1298,7 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
                         authoritative,
                         if authoritative == 1 { "" } else { "s" },
                         inferred,
-                        qualified_note
+                        reconciliation_note
                     ),
                     Color::LightCyan,
                 )
@@ -1277,6 +1341,22 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
             }
             super::app::ModelIdentityProvenance::InferredQualifiedCanonical => (
                 "inferred canonical match (creator-qualified)".to_string(),
+                Color::LightCyan,
+            ),
+            super::app::ModelIdentityProvenance::InferredExactPairCanonical => (
+                "inferred canonical match (exact authoritative pair)".to_string(),
+                Color::LightCyan,
+            ),
+            super::app::ModelIdentityProvenance::InferredOneSidedCreatorCanonical => (
+                "inferred canonical match (one-sided creator)".to_string(),
+                Color::LightCyan,
+            ),
+            super::app::ModelIdentityProvenance::InferredCrossAliasCanonical => (
+                "inferred canonical match (cross-alias)".to_string(),
+                Color::LightCyan,
+            ),
+            super::app::ModelIdentityProvenance::InferredFullIdCanonical => (
+                "inferred canonical match (full-id alias)".to_string(),
                 Color::LightCyan,
             ),
             super::app::ModelIdentityProvenance::InferredPeer => (
@@ -1993,6 +2073,110 @@ mod mouse_tests {
     }
 
     #[test]
+    fn cross_alias_nemotron_joins_canonical_group_with_distinct_provenance() {
+        let json = r#"{
+            "wandb":{"id":"wandb","name":"W&B","models":{
+                "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B":{"id":"nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B","name":"Nemotron 3 Ultra","modalities":{"output":["text"]}}
+            }},
+            "llmgateway":{"id":"llmgateway","name":"LLM Gateway","models":{
+                "nemotron-3-ultra-550b":{"id":"nemotron-3-ultra-550b","name":"Nemotron 3 Ultra 550B A55B","modalities":{"output":["text"]}}
+            }},
+            "digitalocean":{"id":"digitalocean","name":"DigitalOcean","models":{
+                "nemotron-3-ultra-550b":{"id":"nemotron-3-ultra-550b","name":"Nemotron 3 Ultra","modalities":{"output":["text"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let catalog_providers = map.clone();
+        let mut app = App::new(map, None, None);
+        let target = "nvidia/nemotron-3-ultra-550b-a55b";
+        let lab_catalog = crate::labs::LabCatalog::from_test_catalog_with_refs(
+            &[(target, "Nemotron 3 Ultra 550B A55B", Some("nemotron"))],
+            &catalog_providers,
+            &[
+                ("wandb/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B", target),
+                ("llmgateway/nemotron-3-ultra-550b", target),
+            ],
+        );
+        app.models_app
+            .set_lab_catalog(lab_catalog, &app.providers.clone());
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+
+        assert_eq!(app.models_app.groups.len(), 1);
+        let group = &app.models_app.groups[0];
+        assert_eq!(group.name, "Nemotron 3 Ultra 550B A55B");
+        assert_eq!(group.provider_count, 3);
+        assert!(group.member_provenance.iter().any(|provenance| matches!(
+            provenance,
+            ModelIdentityProvenance::InferredCrossAliasCanonical
+        )));
+        let text = render_to_text(&mut app, 180, 45);
+        assert!(text.contains("2 models.dev links + 1 inferred (1 cross-alias)"));
+        assert!(text.contains("≈ DigitalOcean"));
+
+        let providers = app.providers.clone();
+        app.models_app.enter_selection(&providers);
+        let digitalocean = app
+            .models_app
+            .filtered_models()
+            .iter()
+            .position(|entry| entry.provider_id == "digitalocean")
+            .expect("cross-alias offering in drill");
+        app.models_app.select_model_at_index(digitalocean);
+        let text = render_to_text(&mut app, 160, 45);
+        assert!(text.contains("Identity: inferred canonical match (cross-alias)"));
+    }
+
+    #[test]
+    fn full_id_alias_joins_canonical_group_with_distinct_provenance() {
+        let json = r#"{
+            "google":{"id":"google","name":"Google","models":{
+                "gemini-3.1-flash-image-preview":{"id":"gemini-3.1-flash-image-preview","name":"Nano Banana 2","modalities":{"output":["image"]}}
+            }},
+            "candidate":{"id":"candidate","name":"Candidate","models":{
+                "gemini-3.1-flash-image-preview":{"id":"gemini-3.1-flash-image-preview","name":"Gemini 3.1 Flash Image Preview","modalities":{"output":["image"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let catalog_providers = map.clone();
+        let mut app = App::new(map, None, None);
+        let target = "google/gemini-3.1-flash-image-preview";
+        let lab_catalog = crate::labs::LabCatalog::from_test_catalog_with_refs(
+            &[(target, "Nano Banana 2", None)],
+            &catalog_providers,
+            &[],
+        );
+        app.models_app
+            .set_lab_catalog(lab_catalog, &app.providers.clone());
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+
+        assert_eq!(app.models_app.groups.len(), 1);
+        let group = &app.models_app.groups[0];
+        assert_eq!(group.name, "Nano Banana 2");
+        assert_eq!(group.provider_count, 2);
+        assert!(group.member_provenance.iter().any(|provenance| matches!(
+            provenance,
+            ModelIdentityProvenance::InferredFullIdCanonical
+        )));
+        let text = render_to_text(&mut app, 180, 45);
+        assert!(text.contains("1 models.dev link + 1 inferred (1 full-id alias)"));
+        assert!(text.contains("≈ Candidate"));
+
+        let providers = app.providers.clone();
+        app.models_app.enter_selection(&providers);
+        let candidate = app
+            .models_app
+            .filtered_models()
+            .iter()
+            .position(|entry| entry.provider_id == "candidate")
+            .expect("full-id offering in drill");
+        app.models_app.select_model_at_index(candidate);
+        let text = render_to_text(&mut app, 160, 45);
+        assert!(text.contains("Identity: inferred canonical match (full-id alias)"));
+    }
+
+    #[test]
     fn compatible_unlinked_offerings_form_peer_group_and_drill_together() {
         let json = r#"{
             "alpha": {"id":"alpha","name":"Alpha","models":{
@@ -2200,6 +2384,110 @@ mod mouse_tests {
         assert!(app.models_app.groups.is_empty());
     }
 
+    /// The relaxed peer lane: an unlinked offering whose exact leaf id
+    /// matches an existing peer bucket joins it when its name differs only by
+    /// creator attribution, its own id-namespace spelling, or tokens the
+    /// shared leaf id already carries. Semantic tokens from nowhere refuse.
+    #[test]
+    fn relaxed_peer_lane_joins_attributed_spellings_and_refuses_semantics() {
+        let json = r#"{
+            "alpha": {"id":"alpha","name":"Alpha","models":{
+                "meta-llama/llama-9-3b-instruct":{"id":"meta-llama/llama-9-3b-instruct","name":"Llama 9 3B Instruct","modalities":{"output":["text"]}}
+            }},
+            "beta": {"id":"beta","name":"Beta","models":{
+                "meta/llama-9-3b-instruct":{"id":"meta/llama-9-3b-instruct","name":"Llama 9 3B Instruct","modalities":{"output":["text"]}}
+            }},
+            "gamma": {"id":"gamma","name":"Gamma","models":{
+                "meta-llama/llama-9-3b-instruct":{"id":"meta-llama/llama-9-3b-instruct","name":"Meta: Llama 9 3B Instruct","modalities":{"output":["text"]}}
+            }},
+            "zeta": {"id":"zeta","name":"Zeta","models":{
+                "TEE/llama-9-3b-instruct":{"id":"TEE/llama-9-3b-instruct","name":"Llama 9 3B Instruct TEE","modalities":{"output":["text"]}}
+            }},
+            "delta": {"id":"delta","name":"Delta","models":{
+                "meta-llama/llama-9-3b-instruct":{"id":"meta-llama/llama-9-3b-instruct","name":"Llama 9 3B Instruct Preview","modalities":{"output":["text"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+        let catalog = crate::labs::LabCatalog::from_test_entries_with_refs(
+            &[("meta/llama-0-0b", "Llama 0 0B", Some("llama"))],
+            &[],
+        );
+        app.models_app
+            .set_lab_catalog(catalog, &app.providers.clone());
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+
+        // alpha+beta form the exact bucket; gamma (creator-attributed name)
+        // and zeta (own TEE namespace echoed in the name) relax into it;
+        // delta's "Preview" is semantic and stays a singleton.
+        assert_eq!(app.models_app.groups.len(), 2);
+        let peer_group = app
+            .models_app
+            .groups
+            .iter()
+            .find(|group| group.key.starts_with("peer:"))
+            .expect("relaxed peer group");
+        assert_eq!(peer_group.provider_count, 4);
+        assert_eq!(peer_group.offering_count, 4);
+        let delta = app
+            .models_app
+            .filtered_models()
+            .iter()
+            .find(|entry| entry.provider_id == "delta")
+            .expect("delta entry");
+        assert!(matches!(
+            delta.identity,
+            Some(ModelIdentityProvenance::Unlinked(_))
+        ));
+    }
+
+    /// Two neutral-compatible buckets sharing one leaf id are ambiguity —
+    /// the joiner must stay out rather than pick one.
+    #[test]
+    fn relaxed_peer_lane_fails_closed_on_ambiguous_buckets() {
+        let json = r#"{
+            "p1": {"id":"p1","name":"P1","models":{
+                "acme/z-a-b":{"id":"acme/z-a-b","name":"Z A"}
+            }},
+            "p2": {"id":"p2","name":"P2","models":{
+                "acme/z-a-b":{"id":"acme/z-a-b","name":"Z A"}
+            }},
+            "p3": {"id":"p3","name":"P3","models":{
+                "acme/z-a-b":{"id":"acme/z-a-b","name":"Z B"}
+            }},
+            "p4": {"id":"p4","name":"P4","models":{
+                "acme/z-a-b":{"id":"acme/z-a-b","name":"Z B"}
+            }},
+            "p5": {"id":"p5","name":"P5","models":{
+                "acme/z-a-b":{"id":"acme/z-a-b","name":"Z"}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let mut app = App::new(map, None, None);
+        let catalog = crate::labs::LabCatalog::from_test_entries_with_refs(
+            &[("acme/other-model", "Other Model", None)],
+            &[],
+        );
+        app.models_app
+            .set_lab_catalog(catalog, &app.providers.clone());
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+
+        // Two 2-provider peer groups plus the refused "Z" singleton.
+        assert_eq!(app.models_app.groups.len(), 3);
+        let p5 = app
+            .models_app
+            .filtered_models()
+            .iter()
+            .find(|entry| entry.provider_id == "p5")
+            .expect("p5 entry");
+        assert!(matches!(
+            p5.identity,
+            Some(ModelIdentityProvenance::Unlinked(_))
+        ));
+    }
+
     /// Read-only live distribution receipt for the same snapshot the TUI
     /// consumes. Kept separate from ordinary tests so CI never requires the
     /// network; `mise run audit-model-identity` invokes it explicitly.
@@ -2216,6 +2504,10 @@ mod mouse_tests {
         let mut authoritative = 0usize;
         let mut inferred_canonical = 0usize;
         let mut inferred_qualified = 0usize;
+        let mut inferred_exact_pair = 0usize;
+        let mut inferred_one_sided = 0usize;
+        let mut inferred_cross = 0usize;
+        let mut inferred_full_id = 0usize;
         let mut inferred_peer = 0usize;
         let mut unlinked = 0usize;
         let mut canonical_groups = 0usize;
@@ -2240,6 +2532,22 @@ mod mouse_tests {
                         inferred_qualified += 1;
                         has_canonical = true;
                     }
+                    ModelIdentityProvenance::InferredExactPairCanonical => {
+                        inferred_exact_pair += 1;
+                        has_canonical = true;
+                    }
+                    ModelIdentityProvenance::InferredOneSidedCreatorCanonical => {
+                        inferred_one_sided += 1;
+                        has_canonical = true;
+                    }
+                    ModelIdentityProvenance::InferredCrossAliasCanonical => {
+                        inferred_cross += 1;
+                        has_canonical = true;
+                    }
+                    ModelIdentityProvenance::InferredFullIdCanonical => {
+                        inferred_full_id += 1;
+                        has_canonical = true;
+                    }
                     ModelIdentityProvenance::InferredPeer => {
                         inferred_peer += 1;
                         has_peer = true;
@@ -2257,63 +2565,86 @@ mod mouse_tests {
         }
 
         println!(
-            "live grouping: {} rows = {canonical_groups} canonical + {peer_groups} peer + {unlinked_groups} unlinked; offerings = {authoritative} authoritative + {inferred_canonical} inferred canonical + {inferred_qualified} creator-qualified canonical + {inferred_peer} inferred peer + {unlinked} unlinked",
+            "live grouping: {} rows = {canonical_groups} canonical + {peer_groups} peer + {unlinked_groups} unlinked; offerings = {authoritative} authoritative + {inferred_canonical} anchored + {inferred_qualified} dual creator + {inferred_exact_pair} exact-pair + {inferred_one_sided} one-sided creator + {inferred_cross} cross-alias + {inferred_full_id} full-id + {inferred_peer} peer + {unlinked} unlinked",
             app.models_app.groups.len()
         );
 
-        let mut shadow_exact_pair = 0usize;
-        let mut shadow_one_sided = 0usize;
-        let mut shadow_cross = 0usize;
         let mut nemotron_cross = false;
         for entry in app.models_app.filtered_models() {
-            let Some(candidate) = app.models_app.shadow_canonical_candidate(entry) else {
+            let Some(evidence) = app.models_app.reconciliation_evidence(entry) else {
                 continue;
             };
-            match candidate.kind {
-                crate::labs::ShadowCandidateKind::ExactAuthoritativePair => {
-                    shadow_exact_pair += 1;
-                }
-                crate::labs::ShadowCandidateKind::OneSidedCreatorQualified => {
-                    shadow_one_sided += 1;
-                }
-                crate::labs::ShadowCandidateKind::CrossAuthoritativeAliases => {
-                    shadow_cross += 1;
-                }
-            }
             if entry.provider_id == "digitalocean"
                 && entry.id == "nemotron-3-ultra-550b"
-                && candidate.id == "nvidia/nemotron-3-ultra-550b-a55b"
+                && evidence.id == "nvidia/nemotron-3-ultra-550b-a55b"
                 && matches!(
-                    candidate.kind,
-                    crate::labs::ShadowCandidateKind::CrossAuthoritativeAliases
+                    evidence.kind,
+                    crate::labs::CanonicalResolutionKind::InferredCrossAliasCanonical
                 )
             {
                 nemotron_cross = true;
             }
             println!(
-                "shadow {}: {}/{} ({}) -> {} / {} / {} [{} pair, {} name, {} id witnesses]",
-                candidate.kind.label(),
+                "reconciled {:?}: {}/{} ({}) -> {} / {} / {} [{} pair, {} name, {} leaf-id, {} full-id witnesses]",
+                evidence.kind,
                 entry.provider_id,
                 entry.id,
                 entry.model.name,
-                candidate.id,
-                candidate.name,
-                candidate.lab,
-                candidate.pair_witnesses,
-                candidate.name_witnesses,
-                candidate.id_witnesses
+                evidence.id,
+                evidence.name,
+                evidence.lab,
+                evidence.pair_witnesses,
+                evidence.name_witnesses,
+                evidence.id_witnesses,
+                evidence.full_id_witnesses
             );
         }
         println!(
-            "shadow candidates: {shadow_exact_pair} exact-pair + {shadow_one_sided} one-sided creator + {shadow_cross} cross-record"
+            "active reconciliation: {inferred_exact_pair} exact-pair + {inferred_one_sided} one-sided creator + {inferred_cross} cross-alias + {inferred_full_id} full-id"
         );
         assert!(
-            shadow_exact_pair + shadow_one_sided + shadow_cross > 0,
-            "live audit must exercise shadow candidate evidence"
+            inferred_exact_pair + inferred_one_sided + inferred_cross + inferred_full_id > 0,
+            "live audit must exercise active reconciliation"
         );
         assert!(
             nemotron_cross,
-            "DigitalOcean Nemotron must remain unmerged but surface as a cross-record candidate"
+            "DigitalOcean Nemotron must join its canonical group through cross-alias evidence"
+        );
+
+        let nemotron_groups: Vec<_> = app
+            .models_app
+            .groups
+            .iter()
+            .filter(|group| group.name == "Nemotron 3 Ultra 550B A55B")
+            .collect();
+        assert_eq!(
+            nemotron_groups.len(),
+            1,
+            "Nemotron 3 Ultra must have one canonical grouped row"
+        );
+        let nemotron_group = nemotron_groups[0];
+        let has_digitalocean_cross_alias = nemotron_group
+            .member_indices
+            .iter()
+            .zip(&nemotron_group.member_provenance)
+            .any(|(&index, provenance)| {
+                let entry = &app.models_app.filtered_models()[index];
+                entry.provider_id == "digitalocean"
+                    && entry.id == "nemotron-3-ultra-550b"
+                    && matches!(
+                        provenance,
+                        ModelIdentityProvenance::InferredCrossAliasCanonical
+                    )
+            });
+        println!(
+            "Nemotron 3 Ultra group: {} providers, {} offerings, provenance {:?}",
+            nemotron_group.provider_count,
+            nemotron_group.offering_count,
+            nemotron_group.member_provenance
+        );
+        assert!(
+            has_digitalocean_cross_alias,
+            "the canonical Nemotron group must contain the DigitalOcean cross-alias offering"
         );
 
         for group in &app.models_app.groups {
@@ -2679,5 +3010,578 @@ mod mouse_tests {
         assert!(!header.contains("Input"));
         assert!(!header.contains("Output"));
         assert!(!header.contains("Context"));
+    }
+
+    /// Read-only live near-miss report over the residual rows (peer groups +
+    /// unlinked singletons) left behind by every active identity lane. Fuzzy
+    /// similarity here only PROPOSES candidates for human review or upstream
+    /// models.dev `base_model` contributions — nothing in this report merges
+    /// rows, and the resolver never consumes its output.
+    ///
+    /// Sections:
+    ///   1. same-name seam — residual rows sharing a normalized display name
+    ///      across different groups (their ids disagree beyond every lane)
+    ///   2. same-id seam — residual rows sharing a normalized leaf id across
+    ///      different groups (their names disagree)
+    ///   3. canonical near-misses — the best-scoring fuzzy candidate per
+    ///      residual group against the canonical registry
+    ///   4. residual near-misses — high-similarity cross-provider residual
+    ///      pairs that no lane grouped
+    #[test]
+    #[ignore = "live models.dev residual near-miss candidate report"]
+    fn live_residual_near_miss_report() {
+        use std::collections::{BTreeMap, BTreeSet, HashMap};
+
+        use crate::labs::{identity_fingerprint, model_id_fingerprint, outputs_are_disjoint};
+        use crate::tui::models::app::ModelEntry;
+
+        const BUCKET_CAP: usize = 40;
+        const CANDIDATE_CAP: usize = 60;
+        const CANDIDATE_SCORE_FLOOR: f64 = 0.55;
+        const PAIR_SCORE_FLOOR: f64 = 0.62;
+
+        fn toks(fp: &str) -> BTreeSet<String> {
+            fp.split('/')
+                .filter(|t| !t.is_empty())
+                .map(str::to_string)
+                .collect()
+        }
+
+        fn jaccard(a: &BTreeSet<String>, b: &BTreeSet<String>) -> f64 {
+            let union = a.union(b).count();
+            if union == 0 {
+                return 0.0;
+            }
+            a.intersection(b).count() as f64 / union as f64
+        }
+
+        fn only_in(a: &BTreeSet<String>, b: &BTreeSet<String>) -> String {
+            let extra: Vec<&str> = a.difference(b).map(String::as_str).collect();
+            if extra.is_empty() {
+                "-".into()
+            } else {
+                extra.join("+")
+            }
+        }
+
+        fn jaro_winkler(a: &str, b: &str) -> f64 {
+            let a: Vec<char> = a.chars().collect();
+            let b: Vec<char> = b.chars().collect();
+            if a.is_empty() && b.is_empty() {
+                return 1.0;
+            }
+            if a.is_empty() || b.is_empty() {
+                return 0.0;
+            }
+            let window = (a.len().max(b.len()) / 2).saturating_sub(1);
+            let mut b_used = vec![false; b.len()];
+            let mut a_matches = Vec::new();
+            for (i, ca) in a.iter().enumerate() {
+                let lo = i.saturating_sub(window);
+                let hi = (i + window + 1).min(b.len());
+                for (j, used) in b_used.iter_mut().enumerate().take(hi).skip(lo) {
+                    if !*used && b[j] == *ca {
+                        *used = true;
+                        a_matches.push((j, *ca));
+                        break;
+                    }
+                }
+            }
+            if a_matches.is_empty() {
+                return 0.0;
+            }
+            let m = a_matches.len() as f64;
+            let mut b_matches: Vec<(usize, char)> = a_matches.clone();
+            b_matches.sort_by_key(|(j, _)| *j);
+            let transpositions = a_matches
+                .iter()
+                .zip(&b_matches)
+                .filter(|((_, ca), (_, cb))| ca != cb)
+                .count() as f64
+                / 2.0;
+            let jaro = (m / a.len() as f64 + m / b.len() as f64 + (m - transpositions) / m) / 3.0;
+            let prefix = a
+                .iter()
+                .zip(&b)
+                .take(4)
+                .take_while(|(ca, cb)| ca == cb)
+                .count() as f64;
+            jaro + prefix * 0.1 * (1.0 - jaro)
+        }
+
+        #[derive(serde::Deserialize)]
+        struct ReadCanonical {
+            #[serde(default)]
+            name: String,
+            #[serde(default)]
+            modalities: Option<crate::data::Modalities>,
+        }
+        #[derive(serde::Deserialize)]
+        struct ReadCatalog {
+            providers: ProvidersMap,
+            models: HashMap<String, ReadCanonical>,
+        }
+        #[derive(serde::Deserialize)]
+        struct LabsView {
+            providers: ProvidersMap,
+            models: HashMap<String, crate::labs::CanonicalModel>,
+        }
+
+        // One body, deserialized twice, so every view shares one coherent
+        // snapshot (catalog.json is a moving target).
+        let body = reqwest::blocking::get("https://models.dev/catalog.json")
+            .expect("fetch live catalog")
+            .text()
+            .expect("read live catalog body");
+        let read: ReadCatalog = serde_json::from_str(&body).expect("parse read view");
+        let labs_view: LabsView = serde_json::from_str(&body).expect("parse labs view");
+        let probe = crate::labs::LabCatalog::from_catalog(&labs_view.models, &labs_view.providers);
+        let app_catalog =
+            crate::labs::LabCatalog::from_catalog(&labs_view.models, &labs_view.providers);
+
+        let mut app = App::new(read.providers.clone(), None, None);
+        let providers = app.providers.clone();
+        app.models_app.set_lab_catalog(app_catalog, &providers);
+        app.models_app.update_filtered_models(&providers);
+
+        let entries = app.models_app.filtered_models();
+        let mut group_key_of: HashMap<usize, &str> = HashMap::new();
+        for group in &app.models_app.groups {
+            for &idx in &group.member_indices {
+                group_key_of.insert(idx, group.key.as_str());
+            }
+        }
+        let residual: Vec<usize> = entries
+            .iter()
+            .enumerate()
+            .filter(|(_, entry)| {
+                matches!(
+                    entry.identity,
+                    Some(
+                        ModelIdentityProvenance::InferredPeer
+                            | ModelIdentityProvenance::Unlinked(_)
+                    )
+                )
+            })
+            .map(|(idx, _)| idx)
+            .collect();
+        assert!(!residual.is_empty(), "audit needs residual rows to profile");
+
+        let rejection = |entry: &ModelEntry| match &entry.identity {
+            Some(ModelIdentityProvenance::Unlinked(reason)) => reason.label(),
+            Some(ModelIdentityProvenance::InferredPeer) => "peer-grouped",
+            _ => "?",
+        };
+
+        struct Canon {
+            id: String,
+            name: String,
+            lab: String,
+            name_toks: BTreeSet<String>,
+            leaf_toks: BTreeSet<String>,
+            outputs: Vec<String>,
+        }
+        let canon: Vec<Canon> = read
+            .models
+            .iter()
+            .filter(|(_, m)| !m.name.is_empty())
+            .map(|(cid, m)| Canon {
+                id: cid.clone(),
+                name: m.name.clone(),
+                lab: cid.split('/').next().unwrap_or_default().to_string(),
+                name_toks: toks(&identity_fingerprint(&m.name)),
+                leaf_toks: toks(&model_id_fingerprint(cid)),
+                outputs: m
+                    .modalities
+                    .as_ref()
+                    .map(|modalities| modalities.output.clone())
+                    .unwrap_or_default(),
+            })
+            .collect();
+        let mut canon_by_name_fp: HashMap<String, Vec<usize>> = HashMap::new();
+        let mut canon_by_leaf_fp: HashMap<String, Vec<usize>> = HashMap::new();
+        for (idx, c) in canon.iter().enumerate() {
+            canon_by_name_fp
+                .entry(identity_fingerprint(&c.name))
+                .or_default()
+                .push(idx);
+            canon_by_leaf_fp
+                .entry(model_id_fingerprint(&c.id))
+                .or_default()
+                .push(idx);
+        }
+
+        let entry_outputs = |idx: usize| -> &[String] {
+            entries[idx]
+                .model
+                .modalities
+                .as_ref()
+                .map(|modalities| modalities.output.as_slice())
+                .unwrap_or_default()
+        };
+        let bucket_blockers = |idxs: &[usize]| -> String {
+            let creators: BTreeSet<&str> = idxs
+                .iter()
+                .filter_map(|&i| probe.independent_lab(&entries[i].provider_id, &entries[i].id))
+                .collect();
+            let outputs_conflict = idxs.iter().enumerate().any(|(pos, &left)| {
+                idxs.iter()
+                    .skip(pos + 1)
+                    .any(|&right| outputs_are_disjoint(entry_outputs(left), entry_outputs(right)))
+            });
+            format!(
+                "creators={{{}}} outputs-conflict={}",
+                creators.into_iter().collect::<Vec<_>>().join(","),
+                if outputs_conflict { "YES" } else { "no" }
+            )
+        };
+
+        // ---- Section 1: same normalized name, different groups -------------
+        let mut by_name: BTreeMap<String, Vec<usize>> = BTreeMap::new();
+        for &idx in &residual {
+            let fp = identity_fingerprint(&entries[idx].model.name);
+            if !fp.is_empty() {
+                by_name.entry(fp).or_default().push(idx);
+            }
+        }
+        let mut same_name: Vec<(&String, &Vec<usize>)> = by_name
+            .iter()
+            .filter(|(_, idxs)| {
+                let groups: BTreeSet<&str> = idxs.iter().map(|i| group_key_of[i]).collect();
+                let provs: BTreeSet<&str> = idxs
+                    .iter()
+                    .map(|&i| entries[i].provider_id.as_str())
+                    .collect();
+                groups.len() >= 2 && provs.len() >= 2
+            })
+            .collect();
+        same_name.sort_by_key(|(fp, idxs)| (std::cmp::Reverse(idxs.len()), (*fp).clone()));
+        let same_name_offerings: usize = same_name.iter().map(|(_, idxs)| idxs.len()).sum();
+        println!(
+            "== seam 1: same name / different ids — {} buckets, {} offerings ==",
+            same_name.len(),
+            same_name_offerings
+        );
+        for (fp, idxs) in same_name.iter().take(BUCKET_CAP) {
+            let display = &entries[idxs[0]].model.name;
+            let canon_matches: Vec<&str> = canon_by_name_fp
+                .get(*fp)
+                .map(|c| c.iter().map(|&ci| canon[ci].id.as_str()).collect())
+                .unwrap_or_default();
+            let common: BTreeSet<String> = idxs
+                .iter()
+                .map(|&i| toks(&model_id_fingerprint(&entries[i].id)))
+                .reduce(|acc, t| acc.intersection(&t).cloned().collect())
+                .unwrap_or_default();
+            println!(
+                "[name] \"{display}\" — {} offerings / {} groups; canonical name-match: {}; {}",
+                idxs.len(),
+                idxs.iter()
+                    .map(|i| group_key_of[i])
+                    .collect::<BTreeSet<_>>()
+                    .len(),
+                if canon_matches.is_empty() {
+                    "none".to_string()
+                } else {
+                    canon_matches.join(", ")
+                },
+                bucket_blockers(idxs)
+            );
+            for &idx in idxs.iter() {
+                let entry = &entries[idx];
+                let leaf = toks(&model_id_fingerprint(&entry.id));
+                println!(
+                    "    {}/{}  distinct-id-tokens=[{}]  ({})",
+                    entry.provider_id,
+                    entry.id,
+                    only_in(&leaf, &common),
+                    rejection(entry)
+                );
+            }
+        }
+        if same_name.len() > BUCKET_CAP {
+            println!(
+                "(+{} more same-name buckets suppressed)",
+                same_name.len() - BUCKET_CAP
+            );
+        }
+
+        // ---- Section 2: same normalized leaf id, different groups ----------
+        let mut by_leaf: BTreeMap<String, Vec<usize>> = BTreeMap::new();
+        for &idx in &residual {
+            let fp = model_id_fingerprint(&entries[idx].id);
+            if !fp.is_empty() {
+                by_leaf.entry(fp).or_default().push(idx);
+            }
+        }
+        let mut same_id: Vec<(&String, &Vec<usize>)> = by_leaf
+            .iter()
+            .filter(|(_, idxs)| {
+                let groups: BTreeSet<&str> = idxs.iter().map(|i| group_key_of[i]).collect();
+                let provs: BTreeSet<&str> = idxs
+                    .iter()
+                    .map(|&i| entries[i].provider_id.as_str())
+                    .collect();
+                groups.len() >= 2 && provs.len() >= 2
+            })
+            .collect();
+        same_id.sort_by_key(|(fp, idxs)| (std::cmp::Reverse(idxs.len()), (*fp).clone()));
+        let same_id_offerings: usize = same_id.iter().map(|(_, idxs)| idxs.len()).sum();
+        println!(
+            "== seam 2: same leaf id / different names — {} buckets, {} offerings ==",
+            same_id.len(),
+            same_id_offerings
+        );
+        for (fp, idxs) in same_id.iter().take(BUCKET_CAP) {
+            let canon_matches: Vec<&str> = canon_by_leaf_fp
+                .get(*fp)
+                .map(|c| c.iter().map(|&ci| canon[ci].id.as_str()).collect())
+                .unwrap_or_default();
+            let common: BTreeSet<String> = idxs
+                .iter()
+                .map(|&i| toks(&identity_fingerprint(&entries[i].model.name)))
+                .reduce(|acc, t| acc.intersection(&t).cloned().collect())
+                .unwrap_or_default();
+            println!(
+                "[id] {fp} — {} offerings / {} groups; canonical id-match: {}; {}",
+                idxs.len(),
+                idxs.iter()
+                    .map(|i| group_key_of[i])
+                    .collect::<BTreeSet<_>>()
+                    .len(),
+                if canon_matches.is_empty() {
+                    "none".to_string()
+                } else {
+                    canon_matches.join(", ")
+                },
+                bucket_blockers(idxs)
+            );
+            for &idx in idxs.iter() {
+                let entry = &entries[idx];
+                let name = toks(&identity_fingerprint(&entry.model.name));
+                println!(
+                    "    {}/{} \"{}\"  distinct-name-tokens=[{}]  ({})",
+                    entry.provider_id,
+                    entry.id,
+                    entry.model.name,
+                    only_in(&name, &common),
+                    rejection(entry)
+                );
+            }
+        }
+        if same_id.len() > BUCKET_CAP {
+            println!(
+                "(+{} more same-id buckets suppressed)",
+                same_id.len() - BUCKET_CAP
+            );
+        }
+
+        // ---- Residual group representatives for the fuzzy sections ---------
+        struct Rep {
+            idx: usize,
+            name_fp: String,
+            leaf_fp: String,
+            name_toks: BTreeSet<String>,
+            leaf_toks: BTreeSet<String>,
+            providers: BTreeSet<String>,
+        }
+        let mut rep_members: BTreeMap<&str, Vec<usize>> = BTreeMap::new();
+        for &idx in &residual {
+            rep_members.entry(group_key_of[&idx]).or_default().push(idx);
+        }
+        let reps: Vec<Rep> = rep_members
+            .values()
+            .map(|idxs| {
+                let idx = idxs[0];
+                let name_fp = identity_fingerprint(&entries[idx].model.name);
+                let leaf_fp = model_id_fingerprint(&entries[idx].id);
+                Rep {
+                    idx,
+                    name_toks: toks(&name_fp),
+                    leaf_toks: toks(&leaf_fp),
+                    name_fp,
+                    leaf_fp,
+                    providers: idxs
+                        .iter()
+                        .map(|&i| entries[i].provider_id.clone())
+                        .collect(),
+                }
+            })
+            .collect();
+
+        // ---- Section 3: best fuzzy canonical candidate per residual group --
+        struct CanonCandidate {
+            score: f64,
+            rep_idx: usize,
+            canon_idx: usize,
+            name_extra_res: String,
+            name_extra_canon: String,
+            id_extra_res: String,
+            id_extra_canon: String,
+            blockers: String,
+        }
+        let mut canon_candidates: Vec<CanonCandidate> = Vec::new();
+        for rep in &reps {
+            let entry = &entries[rep.idx];
+            let name_str = rep.name_fp.replace('/', " ");
+            let mut best: Option<CanonCandidate> = None;
+            for (canon_idx, c) in canon.iter().enumerate() {
+                let jn = jaccard(&rep.name_toks, &c.name_toks);
+                if jn < 0.34 {
+                    continue;
+                }
+                let ji = jaccard(&rep.leaf_toks, &c.leaf_toks);
+                let jw = jaro_winkler(&name_str, &identity_fingerprint(&c.name).replace('/', " "));
+                let score = 0.45 * jn + 0.35 * ji + 0.20 * jw;
+                if score < CANDIDATE_SCORE_FLOOR && (jn - 1.0).abs() > f64::EPSILON {
+                    continue;
+                }
+                if best.as_ref().is_some_and(|b| b.score >= score) {
+                    continue;
+                }
+                let creator_conflict = probe
+                    .independent_lab(&entry.provider_id, &entry.id)
+                    .is_some_and(|lab| lab != c.lab);
+                let output_conflict = outputs_are_disjoint(entry_outputs(rep.idx), &c.outputs);
+                let mut blockers = Vec::new();
+                if creator_conflict {
+                    blockers.push("CREATOR");
+                }
+                if output_conflict {
+                    blockers.push("OUTPUTS");
+                }
+                best = Some(CanonCandidate {
+                    score,
+                    rep_idx: rep.idx,
+                    canon_idx,
+                    name_extra_res: only_in(&rep.name_toks, &c.name_toks),
+                    name_extra_canon: only_in(&c.name_toks, &rep.name_toks),
+                    id_extra_res: only_in(&rep.leaf_toks, &c.leaf_toks),
+                    id_extra_canon: only_in(&c.leaf_toks, &rep.leaf_toks),
+                    blockers: if blockers.is_empty() {
+                        "-".into()
+                    } else {
+                        blockers.join("+")
+                    },
+                });
+            }
+            if let Some(candidate) = best {
+                canon_candidates.push(candidate);
+            }
+        }
+        canon_candidates.sort_by(|a, b| {
+            b.score
+                .partial_cmp(&a.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+        println!(
+            "== fuzzy 3: residual -> canonical candidates — {} scored ==",
+            canon_candidates.len()
+        );
+        for candidate in canon_candidates.iter().take(CANDIDATE_CAP) {
+            let entry = &entries[candidate.rep_idx];
+            let c = &canon[candidate.canon_idx];
+            println!(
+                "{:.3}  {}/{} \"{}\" -> {} \"{}\"  name±[res:{} canon:{}] id±[res:{} canon:{}] blockers[{}] ({})",
+                candidate.score,
+                entry.provider_id,
+                entry.id,
+                entry.model.name,
+                c.id,
+                c.name,
+                candidate.name_extra_res,
+                candidate.name_extra_canon,
+                candidate.id_extra_res,
+                candidate.id_extra_canon,
+                candidate.blockers,
+                rejection(entry)
+            );
+        }
+        if canon_candidates.len() > CANDIDATE_CAP {
+            println!(
+                "(+{} more canonical candidates suppressed)",
+                canon_candidates.len() - CANDIDATE_CAP
+            );
+        }
+
+        // ---- Section 4: high-similarity residual pairs no lane grouped -----
+        let mut token_index: HashMap<&str, Vec<usize>> = HashMap::new();
+        for (rep_pos, rep) in reps.iter().enumerate() {
+            for token in &rep.name_toks {
+                token_index.entry(token.as_str()).or_default().push(rep_pos);
+            }
+        }
+        let mut pair_candidates: BTreeMap<(usize, usize), f64> = BTreeMap::new();
+        for positions in token_index.values() {
+            for (left_pos, &left) in positions.iter().enumerate() {
+                for &right in positions.iter().skip(left_pos + 1) {
+                    let (a, b) = (&reps[left.min(right)], &reps[right.max(left)]);
+                    let key = (left.min(right), right.max(left));
+                    if pair_candidates.contains_key(&key) {
+                        continue;
+                    }
+                    // Same-name and same-id buckets are seams 1/2; a pair
+                    // sharing one single-provider origin can never peer-group.
+                    if a.name_fp == b.name_fp
+                        || a.leaf_fp == b.leaf_fp
+                        || (a.providers.len() == 1 && a.providers == b.providers)
+                    {
+                        continue;
+                    }
+                    let jn = jaccard(&a.name_toks, &b.name_toks);
+                    if jn < 0.5 {
+                        continue;
+                    }
+                    let ji = jaccard(&a.leaf_toks, &b.leaf_toks);
+                    let jw =
+                        jaro_winkler(&a.name_fp.replace('/', " "), &b.name_fp.replace('/', " "));
+                    let score = 0.45 * jn + 0.35 * ji + 0.20 * jw;
+                    if score >= PAIR_SCORE_FLOOR {
+                        pair_candidates.insert(key, score);
+                    }
+                }
+            }
+        }
+        let mut pairs: Vec<((usize, usize), f64)> = pair_candidates.into_iter().collect();
+        pairs.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        println!(
+            "== fuzzy 4: residual pair candidates — {} scored ==",
+            pairs.len()
+        );
+        for ((left, right), score) in pairs.iter().take(CANDIDATE_CAP) {
+            let a = &entries[reps[*left].idx];
+            let b = &entries[reps[*right].idx];
+            println!(
+                "{score:.3}  {}/{} \"{}\"  <->  {}/{} \"{}\"  name±[l:{} r:{}] id±[l:{} r:{}]",
+                a.provider_id,
+                a.id,
+                a.model.name,
+                b.provider_id,
+                b.id,
+                b.model.name,
+                only_in(&reps[*left].name_toks, &reps[*right].name_toks),
+                only_in(&reps[*right].name_toks, &reps[*left].name_toks),
+                only_in(&reps[*left].leaf_toks, &reps[*right].leaf_toks),
+                only_in(&reps[*right].leaf_toks, &reps[*left].leaf_toks),
+            );
+        }
+        if pairs.len() > CANDIDATE_CAP {
+            println!(
+                "(+{} more pair candidates suppressed)",
+                pairs.len() - CANDIDATE_CAP
+            );
+        }
+
+        println!(
+            "near-miss summary: {} residual offerings in {} groups; seam1 {} buckets/{} offerings; seam2 {} buckets/{} offerings; {} canonical candidates; {} pair candidates",
+            residual.len(),
+            reps.len(),
+            same_name.len(),
+            same_name_offerings,
+            same_id.len(),
+            same_id_offerings,
+            canon_candidates.len(),
+            pairs.len()
+        );
     }
 }
