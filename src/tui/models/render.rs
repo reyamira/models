@@ -1246,6 +1246,26 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
                     )
                 })
                 .count();
+            let inferred_self_anchor = group
+                .member_provenance
+                .iter()
+                .filter(|provenance| {
+                    matches!(
+                        provenance,
+                        super::app::ModelIdentityProvenance::InferredSelfAnchorCanonical
+                    )
+                })
+                .count();
+            let inferred_creator_prefixed = group
+                .member_provenance
+                .iter()
+                .filter(|provenance| {
+                    matches!(
+                        provenance,
+                        super::app::ModelIdentityProvenance::InferredCreatorPrefixedCanonical
+                    )
+                })
+                .count();
             let inferred_peer = group
                 .member_provenance
                 .iter()
@@ -1267,6 +1287,8 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
                 + inferred_one_sided
                 + inferred_cross
                 + inferred_full_id
+                + inferred_self_anchor
+                + inferred_creator_prefixed
                 > 0
             {
                 let inferred = inferred_canonical
@@ -1274,7 +1296,9 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
                     + inferred_exact_pair
                     + inferred_one_sided
                     + inferred_cross
-                    + inferred_full_id;
+                    + inferred_full_id
+                    + inferred_self_anchor
+                    + inferred_creator_prefixed;
                 let mut notes = Vec::new();
                 for (count, label) in [
                     (inferred_qualified, "creator-qualified"),
@@ -1282,6 +1306,8 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
                     (inferred_one_sided, "one-sided creator"),
                     (inferred_cross, "cross-alias"),
                     (inferred_full_id, "full-id alias"),
+                    (inferred_self_anchor, "self-anchor"),
+                    (inferred_creator_prefixed, "creator-prefixed id"),
                 ] {
                     if count > 0 {
                         notes.push(format!("{count} {label}"));
@@ -1357,6 +1383,14 @@ fn model_detail_lines(app: &App, width: u16) -> Vec<Line<'static>> {
             ),
             super::app::ModelIdentityProvenance::InferredFullIdCanonical => (
                 "inferred canonical match (full-id alias)".to_string(),
+                Color::LightCyan,
+            ),
+            super::app::ModelIdentityProvenance::InferredSelfAnchorCanonical => (
+                "inferred canonical match (canonical self-anchor)".to_string(),
+                Color::LightCyan,
+            ),
+            super::app::ModelIdentityProvenance::InferredCreatorPrefixedCanonical => (
+                "inferred canonical match (creator-prefixed id)".to_string(),
                 Color::LightCyan,
             ),
             super::app::ModelIdentityProvenance::InferredPeer => (
@@ -2177,6 +2211,103 @@ mod mouse_tests {
     }
 
     #[test]
+    fn self_anchor_member_renders_as_inferred() {
+        let json = r#"{
+            "sap-ai-core":{"id":"sap-ai-core","name":"SAP AI Core","models":{
+                "anthropic--claude-3.7-sonnet":{"id":"anthropic--claude-3.7-sonnet","name":"Anthropic Claude 3.7 Sonnet","modalities":{"output":["text"]}}
+            }},
+            "abacus":{"id":"abacus","name":"Abacus","models":{
+                "claude-3-7-sonnet-20250219":{"id":"claude-3-7-sonnet-20250219","name":"Claude Sonnet 3.7","modalities":{"output":["text"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let catalog_providers = map.clone();
+        let mut app = App::new(map, None, None);
+        let target = "anthropic/claude-3-7-sonnet-20250219";
+        let lab_catalog = crate::labs::LabCatalog::from_test_catalog_with_refs(
+            &[(target, "Claude Sonnet 3.7", Some("claude-sonnet"))],
+            &catalog_providers,
+            &[("sap-ai-core/anthropic--claude-3.7-sonnet", target)],
+        );
+        app.models_app
+            .set_lab_catalog(lab_catalog, &app.providers.clone());
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+
+        assert_eq!(app.models_app.groups.len(), 1);
+        let group = &app.models_app.groups[0];
+        assert_eq!(group.name, "Claude Sonnet 3.7");
+        assert_eq!(group.provider_count, 2);
+        assert!(group.member_provenance.iter().any(|provenance| matches!(
+            provenance,
+            ModelIdentityProvenance::InferredSelfAnchorCanonical
+        )));
+        let text = render_to_text(&mut app, 180, 45);
+        assert!(text.contains("1 models.dev link + 1 inferred (1 self-anchor)"));
+        assert!(text.contains("≈ Abacus"));
+
+        let providers = app.providers.clone();
+        app.models_app.enter_selection(&providers);
+        let member = app
+            .models_app
+            .filtered_models()
+            .iter()
+            .position(|entry| entry.provider_id == "abacus")
+            .expect("self-anchored offering in drill");
+        app.models_app.select_model_at_index(member);
+        let text = render_to_text(&mut app, 160, 45);
+        assert!(text.contains("Identity: inferred canonical match (canonical self-anchor)"));
+    }
+
+    #[test]
+    fn creator_prefixed_member_renders_as_inferred() {
+        let json = r#"{
+            "alibaba":{"id":"alibaba","name":"Alibaba","models":{
+                "qwen3-32b":{"id":"qwen3-32b","name":"Qwen3 32B","modalities":{"output":["text"]}}
+            }},
+            "digitalocean":{"id":"digitalocean","name":"DigitalOcean","models":{
+                "alibaba-qwen3-32b":{"id":"alibaba-qwen3-32b","name":"Qwen3-32B","modalities":{"output":["text"]}}
+            }}
+        }"#;
+        let map: ProvidersMap = serde_json::from_str(json).expect("valid providers json");
+        let catalog_providers = map.clone();
+        let mut app = App::new(map, None, None);
+        let lab_catalog = crate::labs::LabCatalog::from_test_catalog_with_refs(
+            &[("alibaba/qwen3-32b", "Qwen3 32B", None)],
+            &catalog_providers,
+            &[],
+        );
+        app.models_app
+            .set_lab_catalog(lab_catalog, &app.providers.clone());
+        app.models_app
+            .update_filtered_models(&app.providers.clone());
+
+        assert_eq!(app.models_app.groups.len(), 1);
+        let group = &app.models_app.groups[0];
+        assert_eq!(group.name, "Qwen3 32B");
+        assert_eq!(group.provider_count, 2);
+        assert!(group.member_provenance.iter().any(|provenance| matches!(
+            provenance,
+            ModelIdentityProvenance::InferredCreatorPrefixedCanonical
+        )));
+        let text = render_to_text(&mut app, 180, 45);
+        assert!(text.contains("1 models.dev link + 1 inferred (1 creator-prefixed id)"));
+        assert!(text.contains("≈ DigitalOcean"));
+
+        let providers = app.providers.clone();
+        app.models_app.enter_selection(&providers);
+        let member = app
+            .models_app
+            .filtered_models()
+            .iter()
+            .position(|entry| entry.provider_id == "digitalocean")
+            .expect("creator-prefixed offering in drill");
+        app.models_app.select_model_at_index(member);
+        let text = render_to_text(&mut app, 160, 45);
+        assert!(text.contains("Identity: inferred canonical match (creator-prefixed id)"));
+    }
+
+    #[test]
     fn compatible_unlinked_offerings_form_peer_group_and_drill_together() {
         let json = r#"{
             "alpha": {"id":"alpha","name":"Alpha","models":{
@@ -2508,6 +2639,10 @@ mod mouse_tests {
         let mut inferred_one_sided = 0usize;
         let mut inferred_cross = 0usize;
         let mut inferred_full_id = 0usize;
+        let mut inferred_self_anchor = 0usize;
+        let mut inferred_creator_prefixed = 0usize;
+        let mut creator_prefixed_leaf_key = 0usize;
+        let mut creator_prefixed_full_key = 0usize;
         let mut inferred_peer = 0usize;
         let mut unlinked = 0usize;
         let mut canonical_groups = 0usize;
@@ -2548,6 +2683,14 @@ mod mouse_tests {
                         inferred_full_id += 1;
                         has_canonical = true;
                     }
+                    ModelIdentityProvenance::InferredSelfAnchorCanonical => {
+                        inferred_self_anchor += 1;
+                        has_canonical = true;
+                    }
+                    ModelIdentityProvenance::InferredCreatorPrefixedCanonical => {
+                        inferred_creator_prefixed += 1;
+                        has_canonical = true;
+                    }
                     ModelIdentityProvenance::InferredPeer => {
                         inferred_peer += 1;
                         has_peer = true;
@@ -2565,7 +2708,7 @@ mod mouse_tests {
         }
 
         println!(
-            "live grouping: {} rows = {canonical_groups} canonical + {peer_groups} peer + {unlinked_groups} unlinked; offerings = {authoritative} authoritative + {inferred_canonical} anchored + {inferred_qualified} dual creator + {inferred_exact_pair} exact-pair + {inferred_one_sided} one-sided creator + {inferred_cross} cross-alias + {inferred_full_id} full-id + {inferred_peer} peer + {unlinked} unlinked",
+            "live grouping: {} rows = {canonical_groups} canonical + {peer_groups} peer + {unlinked_groups} unlinked; offerings = {authoritative} authoritative + {inferred_canonical} anchored + {inferred_qualified} dual creator + {inferred_exact_pair} exact-pair + {inferred_one_sided} one-sided creator + {inferred_cross} cross-alias + {inferred_full_id} full-id + {inferred_self_anchor} self-anchor + {inferred_creator_prefixed} creator-prefixed + {inferred_peer} peer + {unlinked} unlinked",
             app.models_app.groups.len()
         );
 
@@ -2584,9 +2727,18 @@ mod mouse_tests {
             {
                 nemotron_cross = true;
             }
+            match evidence.creator_prefixed_key {
+                Some("leaf") => creator_prefixed_leaf_key += 1,
+                Some(_) => creator_prefixed_full_key += 1,
+                None => {}
+            }
             println!(
-                "reconciled {:?}: {}/{} ({}) -> {} / {} / {} [{} pair, {} name, {} leaf-id, {} full-id witnesses]",
+                "reconciled {:?}{}: {}/{} ({}) -> {} / {} / {} [{} pair, {} name, {} leaf-id, {} full-id witnesses]",
                 evidence.kind,
+                evidence
+                    .creator_prefixed_key
+                    .map(|branch| format!(" [{branch} key]"))
+                    .unwrap_or_default(),
                 entry.provider_id,
                 entry.id,
                 entry.model.name,
@@ -2599,8 +2751,10 @@ mod mouse_tests {
                 evidence.full_id_witnesses
             );
         }
+        // The creator-prefixed lane's full-id key branch had no live firing
+        // when it shipped; its own counter makes a first one visible.
         println!(
-            "active reconciliation: {inferred_exact_pair} exact-pair + {inferred_one_sided} one-sided creator + {inferred_cross} cross-alias + {inferred_full_id} full-id"
+            "active reconciliation: {inferred_exact_pair} exact-pair + {inferred_one_sided} one-sided creator + {inferred_cross} cross-alias + {inferred_full_id} full-id + {inferred_creator_prefixed} creator-prefixed ({creator_prefixed_leaf_key} leaf key, {creator_prefixed_full_key} full key)"
         );
         assert!(
             inferred_exact_pair + inferred_one_sided + inferred_cross + inferred_full_id > 0,

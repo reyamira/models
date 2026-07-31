@@ -80,6 +80,8 @@ pub enum ModelIdentityProvenance {
     InferredOneSidedCreatorCanonical,
     InferredCrossAliasCanonical,
     InferredFullIdCanonical,
+    InferredSelfAnchorCanonical,
+    InferredCreatorPrefixedCanonical,
     InferredPeer,
     Unlinked(InferenceRejection),
 }
@@ -94,6 +96,8 @@ impl ModelIdentityProvenance {
                 | Self::InferredOneSidedCreatorCanonical
                 | Self::InferredCrossAliasCanonical
                 | Self::InferredFullIdCanonical
+                | Self::InferredSelfAnchorCanonical
+                | Self::InferredCreatorPrefixedCanonical
                 | Self::InferredPeer
         )
     }
@@ -122,6 +126,12 @@ impl From<CanonicalResolutionKind> for ModelIdentityProvenance {
                 Self::InferredCrossAliasCanonical
             }
             CanonicalResolutionKind::InferredFullIdCanonical => Self::InferredFullIdCanonical,
+            CanonicalResolutionKind::InferredSelfAnchorCanonical => {
+                Self::InferredSelfAnchorCanonical
+            }
+            CanonicalResolutionKind::InferredCreatorPrefixedCanonical => {
+                Self::InferredCreatorPrefixedCanonical
+            }
         }
     }
 }

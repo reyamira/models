@@ -18,12 +18,18 @@
 //! and an exact token fingerprint already observed for that target. The second
 //! reconciles provider records that qualify both name and id with the creator
 //! (`Anthropic Claude Fable 5` / `anthropic-claude-fable-5`) when that dual key
-//! selects exactly one canonical target. Four final reconciliation lanes use
+//! selects exactly one canonical target. Four reconciliation lanes then use
 //! exact, uniquely targeted evidence learned only from authoritative provider
 //! records: a matching name/id pair, a creator-qualified name plus id alias,
 //! agreeing name and id aliases observed on separate records, or a complete id
 //! alias whose target does not contradict canonical or authoritative name
-//! evidence. No inferred result seeds another match, and no inference lane
+//! evidence. A canonical self-anchor lane then covers offerings models.dev has
+//! never anchored at all: the registry's own name and leaf id must select the
+//! same single record, and no authoritative alias may point anywhere else. A
+//! final creator-prefixed-id lane mirrors the one-sided creator lane from the
+//! id side — the id must spell the target's own lab tokens followed by its
+//! canonical leaf id, and the plain display name must independently select the
+//! same record. No inferred result seeds another match, and no inference lane
 //! overrides an authoritative result.
 //!
 //! Lab tiers (`resolve`), in order:
@@ -40,7 +46,7 @@
 //! anchors; compatible leftovers may be grouped separately as explicitly
 //! non-canonical peers by the Models view.
 
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use serde::Deserialize;
 use unicode_normalization::UnicodeNormalization;
@@ -82,6 +88,8 @@ pub enum CanonicalResolutionKind {
     InferredOneSidedCreatorCanonical,
     InferredCrossAliasCanonical,
     InferredFullIdCanonical,
+    InferredSelfAnchorCanonical,
+    InferredCreatorPrefixedCanonical,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -90,6 +98,7 @@ pub enum InferenceRejection {
     NoCanonicalName,
     AmbiguousCanonicalName,
     AmbiguousQualifiedIdentity,
+    AmbiguousCreatorPrefixedId,
     NoAuthoritativeNameAnchor,
     ConflictingAuthoritativeNameAnchors,
     ConflictingCanonicalName,
@@ -105,6 +114,7 @@ impl InferenceRejection {
             Self::NoCanonicalName => "no canonical name match",
             Self::AmbiguousCanonicalName => "ambiguous canonical name",
             Self::AmbiguousQualifiedIdentity => "ambiguous creator-qualified identity",
+            Self::AmbiguousCreatorPrefixedId => "ambiguous creator-prefixed id",
             Self::NoAuthoritativeNameAnchor => "no authoritative name anchor",
             Self::ConflictingAuthoritativeNameAnchors => "conflicting name anchors",
             Self::ConflictingCanonicalName => "canonical name conflicts with id alias",
@@ -140,6 +150,10 @@ pub struct ReconciliationEvidence<'a> {
     pub name_witnesses: usize,
     pub id_witnesses: usize,
     pub full_id_witnesses: usize,
+    /// `"leaf"` / `"full"` for a creator-prefixed resolution, `None` otherwise.
+    /// The full-id branch had no live firing when the lane shipped; the audit
+    /// prints the branch so a first one is visible.
+    pub creator_prefixed_key: Option<&'static str>,
 }
 
 /// Families → lab slugs for model lines the canonical registry doesn't
@@ -230,6 +244,24 @@ pub struct LabCatalog {
     /// Canonical id -> exact normalized leaf-id fingerprints observed on the
     /// canonical record or on authoritatively linked provider offerings.
     canonical_id_fingerprints: HashMap<String, HashSet<String>>,
+    /// Normalized canonical leaf-id fingerprint -> every canonical id whose own
+    /// leaf id spells it. Seeded exclusively from the canonical registry — a
+    /// provider alias must never widen this key set, or the self-anchor lane's
+    /// uniqueness guard would inherit provider spelling collisions. Gated on a
+    /// named record like every sibling index (the registry has none without a
+    /// name; an unnamed twin could not be selected by name anyway).
+    canonical_leaf_id_candidates: HashMap<String, HashSet<String>>,
+    /// Creator-prefixed canonical id fingerprint -> every canonical id it
+    /// spells. Keys are `P(lab)` tokens followed by the record's own canonical
+    /// leaf-id tokens (see `creator_prefixes` for the pinned prefix rule),
+    /// joined token-preserving and order-sensitive — never the compacted
+    /// fingerprint the dual creator-qualified lane uses, and never a
+    /// string-prefix test. Seeded exclusively from the canonical registry, so a
+    /// provider spelling (least of all an inferred one) can never widen it.
+    /// Measured on the live registry 2026-07-31: 581 keys, 0 internal
+    /// collisions and none against canonical or observed authoritative leaf
+    /// ids.
+    creator_prefixed_id_candidates: HashMap<String, HashSet<String>>,
     /// `(creator-qualified display name, full model id)` -> canonical targets.
     /// Both components use the separator-compacted semantic fingerprint; the
     /// target must still be unique at resolution time.
@@ -329,7 +361,17 @@ impl LabCatalog {
                     cat.canonical_id_fingerprints
                         .entry(cid.clone())
                         .or_default()
-                        .insert(id_fingerprint);
+                        .insert(id_fingerprint.clone());
+                    cat.canonical_leaf_id_candidates
+                        .entry(id_fingerprint.clone())
+                        .or_default()
+                        .insert(cid.clone());
+                    for prefix in creator_prefixes(lab) {
+                        cat.creator_prefixed_id_candidates
+                            .entry(format!("{prefix}/{id_fingerprint}"))
+                            .or_default()
+                            .insert(cid.clone());
+                    }
                 }
                 let full_id_fingerprint = compact_model_id_fingerprint(cid);
                 if !full_id_fingerprint.is_empty() {
@@ -590,9 +632,10 @@ impl LabCatalog {
         }
     }
 
-    /// Resolve the strongest exact reconciliation lane. All indexes are built
-    /// exclusively from authoritative provider records, so inferred results
-    /// can never seed or transitively expand another match.
+    /// Resolve the strongest exact reconciliation lane. Every alias index is
+    /// built exclusively from authoritative provider records (the last two
+    /// lanes' key indexes solely from the canonical registry), so inferred
+    /// results can never seed or transitively expand another match.
     fn resolve_reconciliation_inference<'a>(
         &'a self,
         provider_id: &str,
@@ -674,12 +717,167 @@ impl LabCatalog {
             ));
         }
 
+        if let Some(resolution) =
+            self.resolve_self_anchor_inference(provider_id, model_id, model, &name, &id, &full_id)
+        {
+            return Some(resolution);
+        }
+
+        self.resolve_creator_prefixed_inference(provider_id, model_id, model, &name, &id, &full_id)
+    }
+
+    /// Canonical self-anchor. Last resort, and the only lane whose evidence
+    /// is entirely registry-derived: the offering's name selects one
+    /// canonical record and its leaf id spells that same record's own leaf
+    /// id. Registry self-agreement is NOT a substitute for a provider
+    /// anchor — `moonshotai/kimi-k2.7-code-highspeed` is a canonical record
+    /// whose name and leaf id both match an offering upstream links to the
+    /// *base* `moonshotai/kimi-k2.7-code`. Anchor vacuity is therefore the
+    /// primary guard: the lane may only claim names models.dev has never
+    /// anchored, and any authoritative id alias pointing elsewhere refuses.
+    ///
+    /// Two conditions are measurably redundant today and are kept explicit
+    /// anyway. `own_leaf_id` is entailed by `unique_canonical_leaf` because
+    /// the leaf index is keyed by each record's own fingerprint — it must
+    /// survive any change to that keying. `anchor_vacant` is currently
+    /// unreachable as the sole refuser: the caller only admits
+    /// `NoCanonicalName`/`NoAuthoritativeNameAnchor`/`UnseenIdFingerprint`,
+    /// and the first two are excluded here by the name lookup while the
+    /// third cannot coexist with `own_leaf_id`. The id-alias conditions
+    /// carry the contradicted-variant refusal; none of the three may be
+    /// dropped on the grounds that another currently covers it.
+    ///
+    /// Separated from `resolve_reconciliation_inference` only so the
+    /// leave-one-out gate can evaluate this contract without the earlier
+    /// lanes preempting it; the caller's ordering is unchanged.
+    fn resolve_self_anchor_inference<'a>(
+        &'a self,
+        provider_id: &str,
+        model_id: &str,
+        model: &Model,
+        name: &str,
+        id: &str,
+        full_id: &str,
+    ) -> Option<Result<CanonicalResolution<'a>, InferenceRejection>> {
+        let candidate_id = unique_target(self.canonical_name_candidates.get(name))?;
+        let anchor_vacant = !self.authoritative_name_targets.contains_key(name);
+        let own_leaf_id = model_id_fingerprint(candidate_id) == id;
+        let unique_canonical_leaf =
+            unique_target(self.canonical_leaf_id_candidates.get(id)) == Some(candidate_id);
+        let id_alias_agrees = |aliases: &HashMap<String, HashSet<String>>, key: &str| {
+            aliases
+                .get(key)
+                .is_none_or(|targets| targets.len() == 1 && targets.contains(candidate_id))
+        };
+        (anchor_vacant
+            && own_leaf_id
+            && unique_canonical_leaf
+            && id_alias_agrees(&self.authoritative_id_targets, id)
+            && id_alias_agrees(&self.authoritative_full_id_targets, full_id))
+        .then(|| {
+            self.finish_inferred_resolution(
+                provider_id,
+                model_id,
+                model,
+                candidate_id,
+                CanonicalResolutionKind::InferredSelfAnchorCanonical,
+            )
+        })
+    }
+
+    /// Creator-prefixed id with a plain display name. Mirror of the
+    /// one-sided creator lane, which qualifies the *name* instead: here the
+    /// id must spell the target's own lab tokens followed by the target's
+    /// canonical leaf id, and the name must independently select the same
+    /// record. A provider self-prefix (`databricks-`) or a junk prefix
+    /// (`deep-`) is excluded by construction — the consumed tokens have to
+    /// spell the target's lab, so a wrong target generally fails the key,
+    /// whereas a self-prefix is compatible with every possible target and
+    /// carries no evidence at all.
+    ///
+    /// Registry name uniqueness is the entire correctness barrier on the
+    /// three index keys whose upstream disposition is split
+    /// (`anthropic/claude/opus/4/1`, `anthropic/claude/sonnet/4/5`,
+    /// `deepseek/deepseek/r/1`): there the undated id selects the rolling
+    /// record while models.dev links the dated snapshot. It must never be
+    /// relaxed — a canonical name's trailing "(latest)" is precisely what
+    /// separates a rolling record from its dated twin, so stripping it (or
+    /// accepting an id-only match) would systematically prefer the wrong
+    /// release.
+    ///
+    /// Separated from `resolve_reconciliation_inference` only so the
+    /// leave-one-out gate can evaluate this contract without the earlier
+    /// lanes preempting it; the caller's ordering is unchanged.
+    fn resolve_creator_prefixed_inference<'a>(
+        &'a self,
+        provider_id: &str,
+        model_id: &str,
+        model: &Model,
+        name: &str,
+        id: &str,
+        full_id: &str,
+    ) -> Option<Result<CanonicalResolution<'a>, InferenceRejection>> {
+        let leaf_candidates = self.creator_prefixed_id_candidates.get(id);
+        let full_candidates = self.creator_prefixed_id_candidates.get(full_id);
+        if leaf_candidates.is_some()
+            && full_candidates.is_some()
+            && leaf_candidates != full_candidates
+        {
+            return Some(Err(InferenceRejection::AmbiguousCreatorPrefixedId));
+        }
+        if let Some(candidate_id) = unique_target(leaf_candidates.or(full_candidates)) {
+            match self.canonical_name_candidates.get(name) {
+                Some(targets) if targets.len() == 1 && targets.contains(candidate_id) => {
+                    if self
+                        .authoritative_name_targets
+                        .get(name)
+                        .is_some_and(|targets| {
+                            targets.len() != 1 || !targets.contains(candidate_id)
+                        })
+                    {
+                        return Some(Err(InferenceRejection::ConflictingAuthoritativeNameAnchors));
+                    }
+                    // `unique_target` declines rather than errors on an
+                    // ambiguous alias set, so the cross-alias and complete-id
+                    // lanes fall through silently and control reaches a lane
+                    // whose own key evidence is registry-derived. The id-side
+                    // conflict check therefore has to run here.
+                    let id_alias_agrees = |aliases: &HashMap<String, HashSet<String>>,
+                                           key: &str| {
+                        aliases.get(key).is_none_or(|targets| {
+                            targets.len() == 1 && targets.contains(candidate_id)
+                        })
+                    };
+                    if id_alias_agrees(&self.authoritative_id_targets, id)
+                        && id_alias_agrees(&self.authoritative_full_id_targets, full_id)
+                    {
+                        return Some(self.finish_inferred_resolution(
+                            provider_id,
+                            model_id,
+                            model,
+                            candidate_id,
+                            CanonicalResolutionKind::InferredCreatorPrefixedCanonical,
+                        ));
+                    }
+                }
+                // An id-only match must never resolve: that would degrade the
+                // lane into a complete-id lane keyed on registry spelling.
+                None => {}
+                Some(_) => return Some(Err(InferenceRejection::ConflictingCanonicalName)),
+            }
+        }
+
         None
     }
 
-    /// Audit receipt for an offering resolved by one of the four final exact
+    /// Audit receipt for an offering resolved by one of the five final
     /// reconciliation lanes. Witness counts remain test-only diagnostics and
-    /// do not participate in identity decisions.
+    /// do not participate in identity decisions. A self-anchor row reports
+    /// zero *name* witnesses by construction (C3 anchor vacuity), but its
+    /// id-side witnesses may be nonzero — C6/C6b accept an authoritative
+    /// alias that agrees with the target, and one of the lane's live
+    /// recoveries carries exactly such a leaf-id witness. Do not tighten
+    /// C6 to `is_none()` on the assumption agreement cannot happen.
     #[cfg(test)]
     pub fn reconciliation_evidence<'a>(
         &'a self,
@@ -698,6 +896,8 @@ impl LabCatalog {
                 | CanonicalResolutionKind::InferredOneSidedCreatorCanonical
                 | CanonicalResolutionKind::InferredCrossAliasCanonical
                 | CanonicalResolutionKind::InferredFullIdCanonical
+                | CanonicalResolutionKind::InferredSelfAnchorCanonical
+                | CanonicalResolutionKind::InferredCreatorPrefixedCanonical
         ) {
             return None;
         }
@@ -733,6 +933,20 @@ impl LabCatalog {
             name_witnesses,
             id_witnesses,
             full_id_witnesses,
+            creator_prefixed_key: matches!(
+                resolution.kind,
+                CanonicalResolutionKind::InferredCreatorPrefixedCanonical
+            )
+            .then(|| {
+                if self
+                    .creator_prefixed_id_candidates
+                    .contains_key(&id_fingerprint)
+                {
+                    "leaf"
+                } else {
+                    "full"
+                }
+            }),
         })
     }
 
@@ -1022,6 +1236,29 @@ pub(crate) fn compact_model_id_fingerprint(model_id: &str) -> String {
 
 fn compact_identity_fingerprint(raw: &str) -> String {
     identity_fingerprint(raw).replace('/', "")
+}
+
+/// Pinned prefix rule `P(lab)` for `creator_prefixed_id_candidates`: the lab's
+/// slug fingerprint and its display-name fingerprint, each additionally
+/// extended by **one** trailing `ai` token when its last token is not already
+/// literally `ai` (`moonshotai` also yields `moonshotai/ai`; `moonshot/ai` and
+/// `z/ai` are left alone). Last-token equality, never a string `ends_with`:
+/// the two readings differ by 83 keys on the live registry, and this is the
+/// 581-key one. Family names and provider ids are deliberately absent — only
+/// tokens that spell the target's own lab are falsifiable evidence.
+fn creator_prefixes(lab: &str) -> BTreeSet<String> {
+    let mut prefixes = BTreeSet::new();
+    for source in [lab.to_string(), lab_display(lab)] {
+        let fingerprint = identity_fingerprint(&source);
+        if fingerprint.is_empty() {
+            continue;
+        }
+        if fingerprint.rsplit('/').next() != Some("ai") {
+            prefixes.insert(format!("{fingerprint}/ai"));
+        }
+        prefixes.insert(fingerprint);
+    }
+    prefixes
 }
 
 /// The token set of a fingerprint produced by `identity_fingerprint`.
@@ -1409,15 +1646,32 @@ mod tests {
             Some(&providers),
         );
 
-        for (provider, id) in [
-            ("name-only", "other-claude-fable-5"),
-            ("id-only", "anthropic-claude-fable-5"),
-        ] {
-            assert!(matches!(
-                cat.resolve_model_identity(provider, id, provider_model(&providers, provider, id)),
-                ModelIdentity::Unlinked(_)
-            ));
-        }
+        // Creator attribution in the name alone leaves the id unqualified and
+        // the offering unlinked.
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "name-only",
+                "other-claude-fable-5",
+                provider_model(&providers, "name-only", "other-claude-fable-5")
+            ),
+            ModelIdentity::Unlinked(_)
+        ));
+        // Creator attribution in the id alone still fails the dual lane; the
+        // later creator-prefixed lane claims it on its own evidence (the id
+        // spells the target's lab plus its canonical leaf id, and the plain
+        // name independently selects that same record).
+        let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+            "id-only",
+            "anthropic-claude-fable-5",
+            provider_model(&providers, "id-only", "anthropic-claude-fable-5"),
+        ) else {
+            panic!("creator-prefixed id with a plain name should resolve");
+        };
+        assert_eq!(resolution.id, "anthropic/claude-fable-5");
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredCreatorPrefixedCanonical
+        );
         assert!(matches!(
             cat.resolve_model_identity(
                 "modality",
@@ -1860,6 +2114,1348 @@ mod tests {
         ));
     }
 
+    /// LANE A (canonical self-anchor) — an offering models.dev has never
+    /// anchored under any spelling. The registry alone selects the target.
+    #[test]
+    fn self_anchor_resolves_with_no_provider_evidence_at_all() {
+        let providers = providers(
+            r#"{
+                "llmgateway":{"id":"llmgateway","name":"LLM Gateway","models":{
+                    "llama-4-scout-17b-instruct":{"id":"llama-4-scout-17b-instruct","name":"Llama 4 Scout 17B Instruct"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[(
+                "meta/llama-4-scout-17b-instruct",
+                "Llama 4 Scout 17B Instruct",
+                None,
+            )],
+            &providers,
+            &[],
+        );
+
+        let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+            "llmgateway",
+            "llama-4-scout-17b-instruct",
+            provider_model(&providers, "llmgateway", "llama-4-scout-17b-instruct"),
+        ) else {
+            panic!("registry name + own leaf id should self-anchor");
+        };
+        assert_eq!(resolution.id, "meta/llama-4-scout-17b-instruct");
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredSelfAnchorCanonical
+        );
+    }
+
+    /// C3 asks only that *this name* carries no anchor. An authoritative link
+    /// filed under a different display name leaves the name vacuous.
+    #[test]
+    fn self_anchor_resolves_when_the_only_anchor_spells_the_name_differently() {
+        let providers = providers(
+            r#"{
+                "sap-ai-core":{"id":"sap-ai-core","name":"SAP AI Core","models":{
+                    "anthropic--claude-3.7-sonnet":{"id":"anthropic--claude-3.7-sonnet","name":"Anthropic Claude 3.7 Sonnet"}
+                }},
+                "abacus":{"id":"abacus","name":"Abacus","models":{
+                    "claude-3-7-sonnet-20250219":{"id":"claude-3-7-sonnet-20250219","name":"Claude Sonnet 3.7"}
+                }}
+            }"#,
+        );
+        let target = "anthropic/claude-3-7-sonnet-20250219";
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[(target, "Claude Sonnet 3.7", Some("claude-sonnet"))],
+            &providers,
+            &[("sap-ai-core/anthropic--claude-3.7-sonnet", target)],
+        );
+
+        let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+            "abacus",
+            "claude-3-7-sonnet-20250219",
+            provider_model(&providers, "abacus", "claude-3-7-sonnet-20250219"),
+        ) else {
+            panic!("a differently-spelled anchor must not block the name");
+        };
+        assert_eq!(resolution.id, target);
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredSelfAnchorCanonical
+        );
+    }
+
+    /// The worst case, taken from upstream: `moonshotai/kimi-k2.7-code-highspeed`
+    /// is a canonical record whose name *and* leaf id both match an offering
+    /// models.dev links to the base `moonshotai/kimi-k2.7-code`. Registry
+    /// self-agreement is real here and still wrong — only the anchor evidence
+    /// separates them, so the lane must refuse whenever any authoritative
+    /// alias for that offering points at the base.
+    #[test]
+    fn self_anchor_refuses_variant_canonical_contradicted_by_upstream() {
+        let base = "moonshotai/kimi-k2.7-code";
+        let variant = "moonshotai/kimi-k2.7-code-highspeed";
+        let canonical = &[
+            (base, "Kimi K2.7 Code", Some("kimi-k2")),
+            (variant, "Kimi K2.7 Code Highspeed", Some("kimi-k2")),
+        ];
+
+        // (a) upstream's own spelling: the anchor shares the offering's display
+        // name, so the anchored lane is terminal before reconciliation runs.
+        let same_name = providers(
+            r#"{
+                "moonshotai":{"id":"moonshotai","name":"Moonshot AI","models":{
+                    "kimi-k2.7-code-highspeed":{"id":"kimi-k2.7-code-highspeed","name":"Kimi K2.7 Code Highspeed"}
+                }},
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "kimi-k2.7-code-highspeed":{"id":"kimi-k2.7-code-highspeed","name":"Kimi K2.7 Code Highspeed"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            canonical,
+            &same_name,
+            &[("moonshotai/kimi-k2.7-code-highspeed", base)],
+        );
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "kimi-k2.7-code-highspeed",
+                provider_model(&same_name, "gateway", "kimi-k2.7-code-highspeed")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::ConflictingAuthoritativeNameAnchors)
+        ));
+
+        // (b) the anchor names the model differently and the candidate keeps a
+        // namespace, so the name is vacuous and the complete-id lane declines:
+        // control reaches this lane, and the leaf-id alias refuses it.
+        let renamed_anchor = providers(
+            r#"{
+                "moonshotai":{"id":"moonshotai","name":"Moonshot AI","models":{
+                    "kimi-k2.7-code-highspeed":{"id":"kimi-k2.7-code-highspeed","name":"Kimi K2.7 Code (High Speed)"}
+                }},
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "moonshot/kimi-k2.7-code-highspeed":{"id":"moonshot/kimi-k2.7-code-highspeed","name":"Kimi K2.7 Code Highspeed"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            canonical,
+            &renamed_anchor,
+            &[("moonshotai/kimi-k2.7-code-highspeed", base)],
+        );
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "moonshot/kimi-k2.7-code-highspeed",
+                provider_model(
+                    &renamed_anchor,
+                    "gateway",
+                    "moonshot/kimi-k2.7-code-highspeed"
+                )
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+
+        // (c) control: drop the contradicting upstream link and the same
+        // offering self-anchors on the variant record. The refusal above is
+        // caused by upstream evidence, not by the fixture's shape.
+        let cat = LabCatalog::from_test_catalog_with_refs(canonical, &renamed_anchor, &[]);
+        let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+            "gateway",
+            "moonshot/kimi-k2.7-code-highspeed",
+            provider_model(
+                &renamed_anchor,
+                "gateway",
+                "moonshot/kimi-k2.7-code-highspeed",
+            ),
+        ) else {
+            panic!("without the contradicting anchor the variant self-anchors");
+        };
+        assert_eq!(resolution.id, variant);
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredSelfAnchorCanonical
+        );
+    }
+
+    /// A rolling provider alias is not the dated snapshot it points at: the
+    /// canonical record's own leaf id still carries the date.
+    #[test]
+    fn self_anchor_refuses_rolling_alias_of_a_dated_snapshot() {
+        let providers = providers(
+            r#"{
+                "opencode":{"id":"opencode","name":"OpenCode","models":{
+                    "claude-3-5-haiku":{"id":"claude-3-5-haiku","name":"Claude Haiku 3.5"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[(
+                "anthropic/claude-3-5-haiku-20241022",
+                "Claude Haiku 3.5",
+                Some("claude-haiku"),
+            )],
+            &providers,
+            &[],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "opencode",
+                "claude-3-5-haiku",
+                provider_model(&providers, "opencode", "claude-3-5-haiku")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+    }
+
+    /// Leaf-id fingerprints are order-sensitive; a reordered id is not the
+    /// canonical record's own leaf id even when every token survives.
+    #[test]
+    fn self_anchor_refuses_reordered_id_tokens() {
+        let providers = providers(
+            r#"{
+                "poe":{"id":"poe","name":"Poe","models":{
+                    "anthropic/claude-sonnet-3.7":{"id":"anthropic/claude-sonnet-3.7","name":"Claude Sonnet 3.7"}
+                }}
+            }"#,
+        );
+        for canonical_id in [
+            "anthropic/claude-3-7-sonnet-20250219",
+            // Same token multiset as the offering, different order only.
+            "anthropic/claude-3-7-sonnet",
+        ] {
+            let cat = LabCatalog::from_test_catalog_with_refs(
+                &[(canonical_id, "Claude Sonnet 3.7", Some("claude-sonnet"))],
+                &providers,
+                &[],
+            );
+            assert!(
+                matches!(
+                    cat.resolve_model_identity(
+                        "poe",
+                        "anthropic/claude-sonnet-3.7",
+                        provider_model(&providers, "poe", "anthropic/claude-sonnet-3.7")
+                    ),
+                    ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+                ),
+                "reordered id must not self-anchor onto {canonical_id}"
+            );
+        }
+    }
+
+    /// C4 compares against the canonical record's OWN leaf id, never the broad
+    /// `canonical_id_fingerprints` set — that set also absorbs provider alias
+    /// spellings, which would make the lane accept an alias as identity.
+    #[test]
+    fn self_anchor_requires_the_canonical_records_own_leaf_id() {
+        let providers = providers(
+            r#"{
+                "sap-ai-core":{"id":"sap-ai-core","name":"SAP AI Core","models":{
+                    "anthropic--claude-3.7-sonnet":{"id":"anthropic--claude-3.7-sonnet","name":"Anthropic Claude 3.7 Sonnet"}
+                }},
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "sap/anthropic--claude-3.7-sonnet":{"id":"sap/anthropic--claude-3.7-sonnet","name":"Claude Sonnet 3.7"}
+                }}
+            }"#,
+        );
+        let target = "anthropic/claude-3-7-sonnet-20250219";
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[(target, "Claude Sonnet 3.7", Some("claude-sonnet"))],
+            &providers,
+            &[("sap-ai-core/anthropic--claude-3.7-sonnet", target)],
+        );
+
+        // Premise: the anchor did seed the alias into the broad fingerprint set,
+        // so a membership test would have accepted this offering.
+        assert!(cat
+            .canonical_id_fingerprints
+            .get(target)
+            .is_some_and(|fingerprints| fingerprints
+                .contains(&identity_fingerprint("anthropic--claude-3.7-sonnet"))));
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "sap/anthropic--claude-3.7-sonnet",
+                provider_model(&providers, "gateway", "sap/anthropic--claude-3.7-sonnet")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+    }
+
+    /// C2: a display name two canonical records share selects nothing.
+    #[test]
+    fn self_anchor_refuses_preview_and_ga_sharing_one_name() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "nano-banana-pro":{"id":"nano-banana-pro","name":"Nano Banana Pro"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("google/nano-banana-pro", "Nano Banana Pro", Some("gemini")),
+                (
+                    "google/nano-banana-pro-preview",
+                    "Nano Banana Pro",
+                    Some("gemini"),
+                ),
+            ],
+            &providers,
+            &[],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "nano-banana-pro",
+                provider_model(&providers, "gateway", "nano-banana-pro")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::AmbiguousCanonicalName)
+        ));
+    }
+
+    /// A semantic suffix the registry never spells is a different model, even
+    /// with no anchor anywhere to contradict it.
+    #[test]
+    fn self_anchor_refuses_unseen_semantic_suffix() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "gpt-5-2-pro":{"id":"gpt-5-2-pro","name":"GPT-5.2"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[("openai/gpt-5.2", "GPT-5.2", Some("gpt"))],
+            &providers,
+            &[],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "gpt-5-2-pro",
+                provider_model(&providers, "gateway", "gpt-5-2-pro")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+    }
+
+    /// C5: two canonical records spelling one leaf id make the leaf useless as
+    /// a cross-creator guard, so the lane declines.
+    #[test]
+    fn self_anchor_refuses_colliding_canonical_leaf_ids() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "model-x":{"id":"model-x","name":"Alpha Model X"}
+                }}
+            }"#,
+        );
+        let colliding = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("creator-a/model-x", "Alpha Model X", None),
+                ("creator-b/model-x", "Beta Model X", None),
+            ],
+            &providers,
+            &[],
+        );
+        assert!(matches!(
+            colliding.resolve_model_identity(
+                "gateway",
+                "model-x",
+                provider_model(&providers, "gateway", "model-x")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+
+        // Control: the collision is the only difference.
+        let unique = LabCatalog::from_test_catalog_with_refs(
+            &[("creator-a/model-x", "Alpha Model X", None)],
+            &providers,
+            &[],
+        );
+        let ModelIdentity::Canonical(resolution) = unique.resolve_model_identity(
+            "gateway",
+            "model-x",
+            provider_model(&providers, "gateway", "model-x"),
+        ) else {
+            panic!("an uncontested canonical leaf id should self-anchor");
+        };
+        assert_eq!(resolution.id, "creator-a/model-x");
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredSelfAnchorCanonical
+        );
+    }
+
+    /// C6: models.dev filed this leaf-id spelling under a different target.
+    #[test]
+    fn self_anchor_refuses_when_an_authoritative_id_alias_points_elsewhere() {
+        let providers = providers(
+            r#"{
+                "venice":{"id":"venice","name":"Venice","models":{
+                    "openai/gpt-5.2":{"id":"openai/gpt-5.2","name":"Venice GPT 5.2 Pro"}
+                }},
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "gpt-5-2":{"id":"gpt-5-2","name":"GPT-5.2"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("openai/gpt-5.2", "GPT-5.2", Some("gpt")),
+                ("openai/gpt-5.2-pro", "GPT-5.2 Pro", Some("gpt")),
+            ],
+            &providers,
+            &[("venice/openai/gpt-5.2", "openai/gpt-5.2-pro")],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "gpt-5-2",
+                provider_model(&providers, "gateway", "gpt-5-2")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+    }
+
+    /// C6b: a complete-id spelling with two authoritative targets makes the
+    /// complete-id lane decline (not error), so this lane must run the id-side
+    /// conflict check itself instead of inheriting one.
+    #[test]
+    fn self_anchor_refuses_when_an_authoritative_full_id_alias_points_elsewhere() {
+        let providers = providers(
+            r#"{
+                "alpha":{"id":"alpha","name":"Alpha","models":{
+                    "gpt/oss-120b":{"id":"gpt/oss-120b","name":"Alpha Alias"}
+                }},
+                "beta":{"id":"beta","name":"Beta","models":{
+                    "gpt/oss-120-b":{"id":"gpt/oss-120-b","name":"Beta Alias"}
+                }},
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "gpt-oss-120b":{"id":"gpt-oss-120b","name":"GPT OSS 120B"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("openai/gpt-oss-120b", "GPT OSS 120B", None),
+                ("creator-a/model-a", "Model A", None),
+                ("creator-b/model-b", "Model B", None),
+            ],
+            &providers,
+            &[
+                ("alpha/gpt/oss-120b", "creator-a/model-a"),
+                ("beta/gpt/oss-120-b", "creator-b/model-b"),
+            ],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "gpt-oss-120b",
+                provider_model(&providers, "gateway", "gpt-oss-120b")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+    }
+
+    /// C7: the shared creator and output-modality blockers still apply.
+    #[test]
+    fn self_anchor_respects_creator_and_output_blockers() {
+        let foreign_lab = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "nvidia/llama-4-scout-17b-instruct":{"id":"nvidia/llama-4-scout-17b-instruct","name":"Llama 4 Scout 17B Instruct"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                (
+                    "meta/llama-4-scout-17b-instruct",
+                    "Llama 4 Scout 17B Instruct",
+                    None,
+                ),
+                ("nvidia/nemotron-3", "Nemotron 3", None),
+            ],
+            &foreign_lab,
+            &[],
+        );
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "nvidia/llama-4-scout-17b-instruct",
+                provider_model(&foreign_lab, "gateway", "nvidia/llama-4-scout-17b-instruct")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::CreatorConflict)
+        ));
+
+        let image_providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "nano-banana-3":{"id":"nano-banana-3","name":"Nano Banana 3","modalities":{"output":["image"]}}
+                }}
+            }"#,
+        );
+        let canonical: HashMap<String, CanonicalModel> = serde_json::from_str(
+            r#"{
+                "google/nano-banana-3": {
+                    "name":"Nano Banana 3",
+                    "modalities":{"output":["text"]}
+                }
+            }"#,
+        )
+        .expect("valid canonical json");
+        let cat = LabCatalog::from_canonical_and_refs(
+            &canonical,
+            BTreeMap::new(),
+            Some(&image_providers),
+        );
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "nano-banana-3",
+                provider_model(&image_providers, "gateway", "nano-banana-3")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::DisjointOutputModalities)
+        ));
+    }
+
+    /// Placement lock: the lane is last, so an earlier reconciliation lane
+    /// keeps both the target and its own provenance even where every
+    /// self-anchor condition also holds.
+    #[test]
+    fn self_anchor_never_preempts_an_earlier_lane() {
+        let anchored = providers(
+            r#"{
+                "google":{"id":"google","name":"Google","models":{
+                    "gemini-3.1-flash-image-preview":{"id":"gemini-3.1-flash-image-preview","name":"Nano Banana 2","modalities":{"output":["image"]}}
+                }},
+                "candidate":{"id":"candidate","name":"Candidate","models":{
+                    "gemini-3.1-flash-image-preview":{"id":"gemini-3.1-flash-image-preview","name":"Gemini 3.1 Flash Image Preview","modalities":{"output":["image"]}}
+                }}
+            }"#,
+        );
+        let target = "google/gemini-3.1-flash-image-preview";
+        let entries = &[(target, "Gemini 3.1 Flash Image Preview", None)][..];
+        let cat = LabCatalog::from_test_catalog_with_refs(entries, &anchored, &[]);
+        let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+            "candidate",
+            "gemini-3.1-flash-image-preview",
+            provider_model(&anchored, "candidate", "gemini-3.1-flash-image-preview"),
+        ) else {
+            panic!("the complete-id lane should resolve this offering");
+        };
+        assert_eq!(resolution.id, target);
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredFullIdCanonical
+        );
+
+        // Without the authoritative offering the very same row self-anchors —
+        // proving the lane was eligible and simply ran later.
+        let solo = providers(
+            r#"{
+                "candidate":{"id":"candidate","name":"Candidate","models":{
+                    "gemini-3.1-flash-image-preview":{"id":"gemini-3.1-flash-image-preview","name":"Gemini 3.1 Flash Image Preview","modalities":{"output":["image"]}}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(entries, &solo, &[]);
+        let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+            "candidate",
+            "gemini-3.1-flash-image-preview",
+            provider_model(&solo, "candidate", "gemini-3.1-flash-image-preview"),
+        ) else {
+            panic!("self-anchor should resolve the unanchored row");
+        };
+        assert_eq!(resolution.id, target);
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredSelfAnchorCanonical
+        );
+    }
+
+    /// LANE B (creator-prefixed id) — the live `digitalocean/alibaba-qwen3-32b`
+    /// row. The id spells Alibaba's lab tokens plus the canonical leaf id while
+    /// the display name is plain, the mirror image of the one-sided creator
+    /// lane.
+    #[test]
+    fn creator_prefixed_id_with_plain_name_infers_canonical() {
+        let providers = providers(
+            r#"{
+                "digitalocean":{"id":"digitalocean","name":"DigitalOcean","models":{
+                    "alibaba-qwen3-32b":{"id":"alibaba-qwen3-32b","name":"Qwen3-32B"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[("alibaba/qwen3-32b", "Qwen3 32B", None)],
+            &providers,
+            &[],
+        );
+
+        let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+            "digitalocean",
+            "alibaba-qwen3-32b",
+            provider_model(&providers, "digitalocean", "alibaba-qwen3-32b"),
+        ) else {
+            panic!("creator-prefixed id with a plain name should resolve");
+        };
+        assert_eq!(resolution.id, "alibaba/qwen3-32b");
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredCreatorPrefixedCanonical
+        );
+    }
+
+    /// Both lab spellings are keys, and the `ai` extension covers the corporate
+    /// suffix providers add or drop (`z-ai-`, `moonshot-ai-`).
+    #[test]
+    fn creator_prefix_accepts_display_and_ai_spellings() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "z-ai-glm-5-turbo":{"id":"z-ai-glm-5-turbo","name":"GLM-5-Turbo"},
+                    "moonshot-ai-kimi-k2.6":{"id":"moonshot-ai-kimi-k2.6","name":"Kimi K2.6"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("zhipuai/glm-5-turbo", "GLM-5-Turbo", None),
+                ("moonshotai/kimi-k2.6", "Kimi K2.6", None),
+            ],
+            &providers,
+            &[],
+        );
+
+        for (model_id, expected) in [
+            ("z-ai-glm-5-turbo", "zhipuai/glm-5-turbo"),
+            ("moonshot-ai-kimi-k2.6", "moonshotai/kimi-k2.6"),
+        ] {
+            let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+                "gateway",
+                model_id,
+                provider_model(&providers, "gateway", model_id),
+            ) else {
+                panic!("{model_id} should resolve through its creator prefix");
+            };
+            assert_eq!(resolution.id, expected);
+            assert_eq!(
+                resolution.kind,
+                CanonicalResolutionKind::InferredCreatorPrefixedCanonical
+            );
+        }
+    }
+
+    /// A path-spelled namespace leaves the leaf id bare, so only the complete
+    /// id carries the creator. The second lab spelling the same canonical leaf
+    /// id is what keeps the self-anchor lane out — and is exactly the collision
+    /// a lab-qualified key resolves.
+    #[test]
+    fn path_namespace_display_spelling_uses_the_full_id_key() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "z-ai/glm-5-turbo":{"id":"z-ai/glm-5-turbo","name":"GLM-5-Turbo"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("zhipuai/glm-5-turbo", "GLM-5-Turbo", None),
+                ("meituan/glm-5-turbo", "Meituan GLM 5 Turbo", None),
+            ],
+            &providers,
+            &[],
+        );
+
+        let model = provider_model(&providers, "gateway", "z-ai/glm-5-turbo");
+        let ModelIdentity::Canonical(resolution) =
+            cat.resolve_model_identity("gateway", "z-ai/glm-5-turbo", model)
+        else {
+            panic!("the complete id spells the creator prefix");
+        };
+        assert_eq!(resolution.id, "zhipuai/glm-5-turbo");
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredCreatorPrefixedCanonical
+        );
+        let evidence = cat
+            .reconciliation_evidence("gateway", "z-ai/glm-5-turbo", model)
+            .expect("creator-prefixed receipt");
+        assert_eq!(evidence.creator_prefixed_key, Some("full"));
+    }
+
+    /// Pins the `ai`-extension reading of `P(lab)`. The live registry's 581-key
+    /// count cannot be asserted offline and would rot as the registry grows, so
+    /// pin the rule structurally instead: a slug whose last token is not `ai`
+    /// is extended, an already-`ai`-terminated display spelling is not. A
+    /// string `ends_with("ai")` reading would drop both `*/ai/*` keys below.
+    #[test]
+    fn creator_prefixed_index_key_rule_is_pinned() {
+        let cat = LabCatalog::from_test_entries_with_refs(
+            &[
+                ("moonshotai/kimi-k2.6", "Kimi K2.6", None),
+                ("openai/gpt-5.2", "GPT-5.2", None),
+            ],
+            &[],
+        );
+
+        let keys: BTreeSet<&str> = cat
+            .creator_prefixed_id_candidates
+            .keys()
+            .map(String::as_str)
+            .collect();
+        assert_eq!(
+            keys,
+            BTreeSet::from([
+                // slug "moonshotai" — last token is not `ai`, so extended.
+                "moonshotai/kimi/k/2/6",
+                "moonshotai/ai/kimi/k/2/6",
+                // display "Moonshot AI" — already `ai`-terminated, left alone.
+                "moonshot/ai/kimi/k/2/6",
+                // slug and display "OpenAI" fingerprint identically.
+                "openai/gpt/5/2",
+                "openai/ai/gpt/5/2",
+            ])
+        );
+    }
+
+    /// A provider self-prefix is compatible with every possible target and adds
+    /// no evidence, so it is excluded by construction: only tokens spelling the
+    /// target's own lab produce a key.
+    #[test]
+    fn provider_self_prefix_is_not_creator_evidence() {
+        let providers = providers(
+            r#"{
+                "databricks":{"id":"databricks","name":"Databricks","models":{
+                    "databricks-gpt-oss-120b":{"id":"databricks-gpt-oss-120b","name":"GPT OSS 120B"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[("openai/gpt-oss-120b", "GPT OSS 120B", None)],
+            &providers,
+            &[],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "databricks",
+                "databricks-gpt-oss-120b",
+                provider_model(&providers, "databricks", "databricks-gpt-oss-120b")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+    }
+
+    /// Junk prefixes fail a fortiori — token `deep` is not token `deepseek`.
+    #[test]
+    fn unknown_prefix_token_refuses() {
+        let providers = providers(
+            r#"{
+                "aihubmix":{"id":"aihubmix","name":"AiHubMix","models":{
+                    "deep-deepseek-v4-flash":{"id":"deep-deepseek-v4-flash","name":"DeepSeek V4 Flash"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[("deepseek/deepseek-v4-flash", "DeepSeek V4 Flash", None)],
+            &providers,
+            &[],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "aihubmix",
+                "deep-deepseek-v4-flash",
+                provider_model(&providers, "aihubmix", "deep-deepseek-v4-flash")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+    }
+
+    /// A creator prefix is falsifiable: spelling the wrong lab produces no key
+    /// at all, and the right prefix under a foreign creator namespace still
+    /// meets the shared creator blocker.
+    #[test]
+    fn creator_prefix_of_a_different_lab_refuses() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "openai-qwen3-32b":{"id":"openai-qwen3-32b","name":"Qwen3-32B"},
+                    "nvidia/alibaba-qwen3-32b":{"id":"nvidia/alibaba-qwen3-32b","name":"Qwen3-32B"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("alibaba/qwen3-32b", "Qwen3 32B", None),
+                ("nvidia/nemotron-3", "Nemotron 3", None),
+                ("openai/gpt-5.2", "GPT-5.2", None),
+            ],
+            &providers,
+            &[],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "openai-qwen3-32b",
+                provider_model(&providers, "gateway", "openai-qwen3-32b")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "nvidia/alibaba-qwen3-32b",
+                provider_model(&providers, "gateway", "nvidia/alibaba-qwen3-32b")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::CreatorConflict)
+        ));
+    }
+
+    /// The key consumes the prefix and the canonical leaf id exactly; a
+    /// semantic token beyond it is a different model.
+    #[test]
+    fn semantic_suffix_after_canonical_leaf_refuses() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "alibaba-qwen3-32b-thinking":{"id":"alibaba-qwen3-32b-thinking","name":"Qwen3-32B"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[("alibaba/qwen3-32b", "Qwen3 32B", None)],
+            &providers,
+            &[],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "alibaba-qwen3-32b-thinking",
+                provider_model(&providers, "gateway", "alibaba-qwen3-32b-thinking")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+    }
+
+    /// `+` stays the semantic token `plus` on both sides of the key, so the two
+    /// Command R records never trade places — and a `plus` id under the plain
+    /// name is refused by the name channel rather than resolved by the id.
+    #[test]
+    fn plus_token_is_preserved() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "cohere-command-r":{"id":"cohere-command-r","name":"Command R"},
+                    "cohere-command-r+":{"id":"cohere-command-r+","name":"Command R+"},
+                    "cohere-command-r-plus":{"id":"cohere-command-r-plus","name":"Command R"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("cohere/command-r", "Command R", None),
+                ("cohere/command-r-plus", "Command R+", None),
+            ],
+            &providers,
+            &[],
+        );
+
+        for (model_id, expected) in [
+            ("cohere-command-r", "cohere/command-r"),
+            ("cohere-command-r+", "cohere/command-r-plus"),
+        ] {
+            let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+                "gateway",
+                model_id,
+                provider_model(&providers, "gateway", model_id),
+            ) else {
+                panic!("{model_id} should resolve to its own record");
+            };
+            assert_eq!(resolution.id, expected);
+        }
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "cohere-command-r-plus",
+                provider_model(&providers, "gateway", "cohere-command-r-plus")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::ConflictingCanonicalName)
+        ));
+    }
+
+    /// The registry attaches the **plain** name to the **dated** record and
+    /// "… (latest)" to the rolling one, so an undated creator-prefixed id
+    /// selecting the rolling record is contradicted by its own display name.
+    /// Dated and rolling are separate rows per the product contract.
+    #[test]
+    fn dated_rolling_name_conflict_fails_closed() {
+        let providers = providers(
+            r#"{
+                "fastrouter":{"id":"fastrouter","name":"FastRouter","models":{
+                    "anthropic/claude-opus-4.1":{"id":"anthropic/claude-opus-4.1","name":"Claude Opus 4.1"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                (
+                    "anthropic/claude-opus-4-1",
+                    "Claude Opus 4.1 (latest)",
+                    None,
+                ),
+                (
+                    "anthropic/claude-opus-4-1-20250805",
+                    "Claude Opus 4.1",
+                    None,
+                ),
+            ],
+            &providers,
+            &[],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "fastrouter",
+                "anthropic/claude-opus-4.1",
+                provider_model(&providers, "fastrouter", "anthropic/claude-opus-4.1")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::ConflictingCanonicalName)
+        ));
+    }
+
+    /// The four measured counterexamples where the creator-prefixed index
+    /// disagrees with upstream. `fastrouter/anthropic/claude-opus-4.1` reaches
+    /// the lane and C5 refuses it. The other three spell a literal canonical id
+    /// (`anthropic/claude-opus-4-1`, `anthropic/claude-sonnet-4-5`,
+    /// `deepseek/deepseek-r1`), so models.dev's own authoritative tiers claim
+    /// them before any inference runs — the assertion there is that the
+    /// explicit ref wins, plus the same evidence in a spelling the lane can
+    /// actually see.
+    #[test]
+    fn creator_prefixed_measured_counterexamples_fail_closed() {
+        let canonical = &[
+            (
+                "anthropic/claude-opus-4-1",
+                "Claude Opus 4.1 (latest)",
+                None,
+            ),
+            (
+                "anthropic/claude-opus-4-1-20250805",
+                "Claude Opus 4.1",
+                None,
+            ),
+            (
+                "anthropic/claude-sonnet-4-5",
+                "Claude Sonnet 4.5 (latest)",
+                None,
+            ),
+            (
+                "anthropic/claude-sonnet-4-5-20250929",
+                "Claude Sonnet 4.5",
+                None,
+            ),
+            ("deepseek/deepseek-r1", "DeepSeek-R1", None),
+            ("deepseek/deepseek-reasoner", "DeepSeek Reasoner", None),
+        ][..];
+
+        // (a) The two rows whose id is a literal canonical id. The pinned ref
+        // is the only thing keeping them off the rolling / `-r1` record — the
+        // direct-id tier below shows what happens without it.
+        let literal = providers(
+            r#"{
+                "requesty":{"id":"requesty","name":"Requesty","models":{
+                    "anthropic/claude-opus-4-1":{"id":"anthropic/claude-opus-4-1","name":"Claude Opus 4.1"},
+                    "anthropic/claude-sonnet-4-5":{"id":"anthropic/claude-sonnet-4-5","name":"Claude Sonnet 4.5"}
+                }},
+                "anyapi":{"id":"anyapi","name":"AnyAPI","models":{
+                    "deepseek/deepseek-r1":{"id":"deepseek/deepseek-r1","name":"DeepSeek Reasoner"}
+                }}
+            }"#,
+        );
+        let refs = &[
+            (
+                "requesty/anthropic/claude-opus-4-1",
+                "anthropic/claude-opus-4-1-20250805",
+            ),
+            (
+                "requesty/anthropic/claude-sonnet-4-5",
+                "anthropic/claude-sonnet-4-5-20250929",
+            ),
+            ("anyapi/deepseek/deepseek-r1", "deepseek/deepseek-reasoner"),
+        ][..];
+        let cat = LabCatalog::from_test_catalog_with_refs(canonical, &literal, refs);
+        for (provider, model_id, expected) in [
+            (
+                "requesty",
+                "anthropic/claude-opus-4-1",
+                "anthropic/claude-opus-4-1-20250805",
+            ),
+            (
+                "requesty",
+                "anthropic/claude-sonnet-4-5",
+                "anthropic/claude-sonnet-4-5-20250929",
+            ),
+            (
+                "anyapi",
+                "deepseek/deepseek-r1",
+                "deepseek/deepseek-reasoner",
+            ),
+        ] {
+            let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+                provider,
+                model_id,
+                provider_model(&literal, provider, model_id),
+            ) else {
+                panic!("{provider}/{model_id} carries an explicit ref");
+            };
+            assert_eq!(resolution.id, expected);
+            assert_eq!(resolution.kind, CanonicalResolutionKind::AuthoritativeRef);
+        }
+
+        // Drop the refs and models.dev's own direct-id tier — which this
+        // resolver mirrors exactly — claims the rolling record. That is an
+        // argument for refreshing the pinned artifact, not something an
+        // inference lane may second-guess.
+        let unpinned = LabCatalog::from_test_catalog_with_refs(canonical, &literal, &[]);
+        let ModelIdentity::Canonical(resolution) = unpinned.resolve_model_identity(
+            "requesty",
+            "anthropic/claude-opus-4-1",
+            provider_model(&literal, "requesty", "anthropic/claude-opus-4-1"),
+        ) else {
+            panic!("a literal canonical id always resolves");
+        };
+        assert_eq!(resolution.id, "anthropic/claude-opus-4-1");
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::AuthoritativeDirectId
+        );
+
+        // (b) The same evidence in spellings the lane can actually see. Only
+        // `fastrouter/anthropic/claude-opus-4.1` is a live catalog row; the
+        // other two are synthetic re-spellings of the live rows above, since a
+        // literal canonical id never reaches inference. The id selects the
+        // rolling / `-r1` record, the plain display name selects the dated /
+        // reasoner record, and the name channel refuses.
+        let lane_visible = providers(
+            r#"{
+                "fastrouter":{"id":"fastrouter","name":"FastRouter","models":{
+                    "anthropic/claude-opus-4.1":{"id":"anthropic/claude-opus-4.1","name":"Claude Opus 4.1"}
+                }},
+                "requesty":{"id":"requesty","name":"Requesty","models":{
+                    "anthropic/claude-sonnet-4.5":{"id":"anthropic/claude-sonnet-4.5","name":"Claude Sonnet 4.5"}
+                }},
+                "anyapi":{"id":"anyapi","name":"AnyAPI","models":{
+                    "deepseek-deepseek-r1":{"id":"deepseek-deepseek-r1","name":"DeepSeek Reasoner"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(canonical, &lane_visible, &[]);
+        for (provider, model_id) in [
+            ("fastrouter", "anthropic/claude-opus-4.1"),
+            ("requesty", "anthropic/claude-sonnet-4.5"),
+            ("anyapi", "deepseek-deepseek-r1"),
+        ] {
+            assert!(
+                matches!(
+                    cat.resolve_model_identity(
+                        provider,
+                        model_id,
+                        provider_model(&lane_visible, provider, model_id)
+                    ),
+                    ModelIdentity::Unlinked(InferenceRejection::ConflictingCanonicalName)
+                ),
+                "{provider}/{model_id} must fail closed on the name channel"
+            );
+        }
+    }
+
+    /// C5 is mandatory: without a canonical name selecting the same record the
+    /// lane falls through rather than degrading into a complete-id lane.
+    #[test]
+    fn id_only_match_never_resolves() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "alibaba-qwen3-32b":{"id":"alibaba-qwen3-32b","name":"Gateway Turbo 32B"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[("alibaba/qwen3-32b", "Qwen3 32B", None)],
+            &providers,
+            &[],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "alibaba-qwen3-32b",
+                provider_model(&providers, "gateway", "alibaba-qwen3-32b")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoCanonicalName)
+        ));
+    }
+
+    /// Ambiguity raised by an earlier tier stays terminal — the caller never
+    /// admits `AmbiguousCanonicalName` to reconciliation, so a unique key here
+    /// cannot reopen it.
+    #[test]
+    fn prior_canonical_name_ambiguity_stays_terminal() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "alibaba-qwen3-32b":{"id":"alibaba-qwen3-32b","name":"Qwen3-32B"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("alibaba/qwen3-32b", "Qwen3 32B", None),
+                ("alibaba/qwen3-32b-preview", "Qwen3 32B", None),
+            ],
+            &providers,
+            &[],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "alibaba-qwen3-32b",
+                provider_model(&providers, "gateway", "alibaba-qwen3-32b")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::AmbiguousCanonicalName)
+        ));
+    }
+
+    /// Two canonical records spelling one creator-prefixed key make the key
+    /// useless as evidence, so the lane declines.
+    #[test]
+    fn colliding_creator_prefixed_keys_fail_closed() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "moonshot-ai-kimi-k2":{"id":"moonshot-ai-kimi-k2","name":"Kimi K2"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("moonshotai/kimi-k2", "Kimi K2", None),
+                ("moonshot/ai-kimi-k2", "Moonshot AI Kimi K2", None),
+            ],
+            &providers,
+            &[],
+        );
+
+        // Premise: the display spelling of one lab collides with the other's
+        // slug plus a leading `ai` token.
+        assert_eq!(
+            cat.creator_prefixed_id_candidates
+                .get("moonshot/ai/kimi/k/2")
+                .map_or(0, HashSet::len),
+            2
+        );
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "moonshot-ai-kimi-k2",
+                provider_model(&providers, "gateway", "moonshot-ai-kimi-k2")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+    }
+
+    /// C3: leaf and complete id are both keys and disagree — terminal, because
+    /// picking either would be arbitrary.
+    #[test]
+    fn ambiguous_creator_prefixed_leaf_and_full_keys_fail_closed() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "openai/moonshot-ai-kimi-k2":{"id":"openai/moonshot-ai-kimi-k2","name":"Gateway Kimi"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("moonshotai/kimi-k2", "Kimi K2", None),
+                ("openai/moonshot-ai-kimi-k-2", "OpenAI Moonshot Kimi", None),
+            ],
+            &providers,
+            &[],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "openai/moonshot-ai-kimi-k2",
+                provider_model(&providers, "gateway", "openai/moonshot-ai-kimi-k2")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::AmbiguousCreatorPrefixedId)
+        ));
+    }
+
+    /// C6. Currently entailed by the anchored lane, which is terminal on a
+    /// conflicting name anchor before reconciliation runs; kept explicit so the
+    /// guard survives any reordering.
+    #[test]
+    fn authoritative_name_anchor_conflict_blocks() {
+        let providers = providers(
+            r#"{
+                "anchor":{"id":"anchor","name":"Anchor","models":{
+                    "house-blend":{"id":"house-blend","name":"Qwen3-32B"}
+                }},
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "alibaba-qwen3-32b":{"id":"alibaba-qwen3-32b","name":"Qwen3-32B"}
+                }}
+            }"#,
+        );
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            &[
+                ("alibaba/qwen3-32b", "Qwen3 32B", None),
+                ("openai/gpt-5.2", "GPT-5.2", None),
+            ],
+            &providers,
+            &[("anchor/house-blend", "openai/gpt-5.2")],
+        );
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "alibaba-qwen3-32b",
+                provider_model(&providers, "gateway", "alibaba-qwen3-32b")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::ConflictingAuthoritativeNameAnchors)
+        ));
+    }
+
+    /// C6-id: models.dev filed this leaf-id spelling under a different target.
+    /// The cross-alias and complete-id lanes decline rather than error on an
+    /// ambiguous alias set, so the check has to run in this lane.
+    #[test]
+    fn authoritative_id_anchor_conflict_blocks() {
+        let providers = providers(
+            r#"{
+                "anchor":{"id":"anchor","name":"Anchor","models":{
+                    "alibaba-qwen3-32b":{"id":"alibaba-qwen3-32b","name":"Other Thing"}
+                }},
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "foo/alibaba-qwen3-32b":{"id":"foo/alibaba-qwen3-32b","name":"Qwen3-32B"}
+                }}
+            }"#,
+        );
+        let entries = &[
+            ("alibaba/qwen3-32b", "Qwen3 32B", None),
+            ("openai/gpt-5.2", "Other Thing", None),
+        ][..];
+        let cat = LabCatalog::from_test_catalog_with_refs(
+            entries,
+            &providers,
+            &[("anchor/alibaba-qwen3-32b", "openai/gpt-5.2")],
+        );
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "foo/alibaba-qwen3-32b",
+                provider_model(&providers, "gateway", "foo/alibaba-qwen3-32b")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::NoAuthoritativeNameAnchor)
+        ));
+
+        // Control: the contradicting alias is the only difference.
+        let cat = LabCatalog::from_test_catalog_with_refs(entries, &providers, &[]);
+        let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+            "gateway",
+            "foo/alibaba-qwen3-32b",
+            provider_model(&providers, "gateway", "foo/alibaba-qwen3-32b"),
+        ) else {
+            panic!("without the contradicting alias the key resolves");
+        };
+        assert_eq!(resolution.id, "alibaba/qwen3-32b");
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredCreatorPrefixedCanonical
+        );
+    }
+
+    /// C7: the shared output-modality blocker still applies.
+    #[test]
+    fn output_modality_conflict_blocks() {
+        let providers = providers(
+            r#"{
+                "gateway":{"id":"gateway","name":"Gateway","models":{
+                    "google-nano-banana-3":{"id":"google-nano-banana-3","name":"Nano Banana 3","modalities":{"output":["image"]}}
+                }}
+            }"#,
+        );
+        let canonical: HashMap<String, CanonicalModel> = serde_json::from_str(
+            r#"{
+                "google/nano-banana-3": {
+                    "name":"Nano Banana 3",
+                    "modalities":{"output":["text"]}
+                }
+            }"#,
+        )
+        .expect("valid canonical json");
+        let cat =
+            LabCatalog::from_canonical_and_refs(&canonical, BTreeMap::new(), Some(&providers));
+
+        assert!(matches!(
+            cat.resolve_model_identity(
+                "gateway",
+                "google-nano-banana-3",
+                provider_model(&providers, "gateway", "google-nano-banana-3")
+            ),
+            ModelIdentity::Unlinked(InferenceRejection::DisjointOutputModalities)
+        ));
+    }
+
+    /// The index is built from the canonical registry alone, so a provider
+    /// spelling — least of all an inferred one — can never widen it.
+    #[test]
+    fn inferred_result_never_seeds_the_index() {
+        let providers = providers(
+            r#"{
+                "digitalocean":{"id":"digitalocean","name":"DigitalOcean","models":{
+                    "alibaba-qwen3-32b":{"id":"alibaba-qwen3-32b","name":"Qwen3-32B"}
+                }}
+            }"#,
+        );
+        let entries = &[("alibaba/qwen3-32b", "Qwen3 32B", None)][..];
+        let cat = LabCatalog::from_test_catalog_with_refs(entries, &providers, &[]);
+
+        // Premise: this snapshot really does resolve an offering by inference.
+        let ModelIdentity::Canonical(resolution) = cat.resolve_model_identity(
+            "digitalocean",
+            "alibaba-qwen3-32b",
+            provider_model(&providers, "digitalocean", "alibaba-qwen3-32b"),
+        ) else {
+            panic!("fixture must exercise the lane");
+        };
+        assert_eq!(
+            resolution.kind,
+            CanonicalResolutionKind::InferredCreatorPrefixedCanonical
+        );
+        let registry_only = LabCatalog::from_test_entries_with_refs(entries, &[]);
+        assert_eq!(
+            cat.creator_prefixed_id_candidates,
+            registry_only.creator_prefixed_id_candidates
+        );
+    }
+
     #[test]
     fn unseen_semantic_suffix_never_merges_into_base_model() {
         let providers = providers(
@@ -1949,6 +3545,8 @@ mod tests {
         let mut inferred_one_sided = 0usize;
         let mut inferred_cross = 0usize;
         let mut inferred_full_id = 0usize;
+        let mut inferred_self_anchor = 0usize;
+        let mut inferred_creator_prefixed = 0usize;
         let mut exact_conflicts = Vec::new();
         let mut active_wrong = Vec::new();
 
@@ -2050,6 +3648,24 @@ mod tests {
                                 ));
                             }
                         }
+                        CanonicalResolutionKind::InferredSelfAnchorCanonical => {
+                            inferred_self_anchor += 1;
+                            if resolution.id != expected_target {
+                                active_wrong.push(format!(
+                                    "{offering_key}: self-anchor inferred {} but explicit target is {expected_target}",
+                                    resolution.id
+                                ));
+                            }
+                        }
+                        CanonicalResolutionKind::InferredCreatorPrefixedCanonical => {
+                            inferred_creator_prefixed += 1;
+                            if resolution.id != expected_target {
+                                active_wrong.push(format!(
+                                    "{offering_key}: creator-prefixed inferred {} but explicit target is {expected_target}",
+                                    resolution.id
+                                ));
+                            }
+                        }
                         CanonicalResolutionKind::AuthoritativeDirectId
                         | CanonicalResolutionKind::AuthoritativeScopedId => {
                             exact += 1;
@@ -2070,9 +3686,21 @@ mod tests {
         }
 
         println!(
-            "provider-holdout audit: {audited} current explicit refs; active = {exact} exact ({} conflicts where the held-out explicit ref is more specific) + {inferred} anchored + {inferred_qualified} dual creator + {inferred_exact_pair} exact-pair + {inferred_one_sided} one-sided creator + {inferred_cross} cross-alias + {inferred_full_id} full-id, {} wrong inferred",
+            "provider-holdout audit: {audited} current explicit refs; active = {exact} exact ({} conflicts where the held-out explicit ref is more specific) + {inferred} anchored + {inferred_qualified} dual creator + {inferred_exact_pair} exact-pair + {inferred_one_sided} one-sided creator + {inferred_cross} cross-alias + {inferred_full_id} full-id + {inferred_self_anchor} self-anchor + {inferred_creator_prefixed} creator-prefixed, {} wrong inferred",
             exact_conflicts.len(),
             active_wrong.len()
+        );
+        // Receipt, never an assertion — the canonical registry grows.
+        let registry_only =
+            LabCatalog::from_canonical_and_refs(&snapshot.models, BTreeMap::new(), None);
+        println!(
+            "creator-prefixed index: {} keys, {} colliding",
+            registry_only.creator_prefixed_id_candidates.len(),
+            registry_only
+                .creator_prefixed_id_candidates
+                .values()
+                .filter(|targets| targets.len() > 1)
+                .count()
         );
         for conflict in exact_conflicts {
             println!("held-out exact conflict: {conflict}");
@@ -2085,11 +3713,225 @@ mod tests {
             inferred_exact_pair + inferred_one_sided + inferred_cross + inferred_full_id > 0,
             "provider holdout must exercise exact reconciliation matches"
         );
+        // The self-anchor and creator-prefixed lanes are registry-seeded, so
+        // their indexes survive the holdout intact and this audit yields no
+        // signal for either (the creator-prefixed lane was measured to fire
+        // zero times under it) — the leave-one-out gate in the synthesis report
+        // is their validation. Their counters are printed, never asserted.
         assert!(
             active_wrong.is_empty(),
             "wrong active targets:\n{}",
             active_wrong.join("\n")
         );
+    }
+
+    /// Live, explicitly-invoked leave-one-out gate for the two registry-seeded
+    /// lanes. The provider holdout above cannot validate them: their key
+    /// indexes (`canonical_leaf_id_candidates`, `creator_prefixed_id_candidates`)
+    /// are seeded from the canonical registry alone, so holding a provider out
+    /// leaves both intact while the earlier reconciliation lanes — which do
+    /// consume the surviving providers' anchors — resolve the offering first.
+    /// Both lanes fire zero times there; that count is printed here as the
+    /// receipt explaining why this gate exists rather than as its result.
+    ///
+    /// The gate evaluates each lane's own evidence contract directly, against a
+    /// catalog rebuilt with the held-out provider's contribution to every
+    /// authoritative alias index removed. Masking is provider-level (the
+    /// synthesis report measured the per-offering variant identical), so a
+    /// held-out offering's name, leaf-id, pair and complete-id anchors are all
+    /// absent together. Lane firings are not a partition: direct evaluation
+    /// shows every offering to both lanes, and neither lane's precondition of
+    /// an earlier-lane rejection is applied — applying it is exactly what
+    /// drives the resolver-gated count to zero.
+    #[test]
+    #[ignore = "live models.dev leave-one-out gate for the registry-seeded lanes"]
+    fn live_leave_one_out_gate_for_registry_seeded_lanes() {
+        #[derive(Deserialize)]
+        struct LiveCatalog {
+            providers: ProvidersMap,
+            models: HashMap<String, CanonicalModel>,
+        }
+
+        let snapshot: LiveCatalog = reqwest::blocking::get("https://models.dev/catalog.json")
+            .expect("fetch live catalog")
+            .json()
+            .expect("parse live catalog");
+        let artifact: BaseModelRefsFile = serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/data/models-dev-base-model-refs.json"
+        )))
+        .expect("parse embedded refs");
+
+        let held_out_providers: std::collections::BTreeSet<_> = artifact
+            .refs
+            .keys()
+            .filter_map(|offering| offering.split_once('/').map(|(provider, _)| provider))
+            .collect();
+        let mut audited = 0usize;
+        let mut self_anchor_fired = 0usize;
+        // Structurally zero today — the self-anchor lane falls through rather
+        // than refusing terminally. Counted anyway so a future terminal
+        // rejection shows up in the audit line instead of being swallowed.
+        let mut self_anchor_refused = 0usize;
+        let mut creator_prefixed_fired = 0usize;
+        let mut creator_prefixed_refused = 0usize;
+        let mut creator_prefixed_leaf_key = 0usize;
+        let mut creator_prefixed_full_key = 0usize;
+        let mut creator_prefixed_guarded = 0usize;
+        let mut creator_prefixed_unguarded = 0usize;
+        let mut resolver_self_anchor = 0usize;
+        let mut resolver_creator_prefixed = 0usize;
+        let mut wrong = Vec::new();
+
+        for held_out_provider in held_out_providers {
+            let Some(held_out_models) = snapshot.providers.get(held_out_provider) else {
+                continue;
+            };
+            let training_providers: ProvidersMap = snapshot
+                .providers
+                .iter()
+                .filter(|(provider, _)| provider.as_str() != held_out_provider)
+                .map(|(provider, value)| (provider.clone(), value.clone()))
+                .collect();
+            let masked_refs = artifact
+                .refs
+                .iter()
+                .filter(|(offering, _)| {
+                    offering
+                        .split_once('/')
+                        .is_none_or(|(provider, _)| provider != held_out_provider)
+                })
+                .map(|(offering, target)| (offering.clone(), target.clone()))
+                .collect();
+            let masked = LabCatalog::from_canonical_and_refs(
+                &snapshot.models,
+                masked_refs,
+                Some(&training_providers),
+            );
+
+            for (offering_key, expected_target) in artifact.refs.iter().filter(|(offering, _)| {
+                offering
+                    .split_once('/')
+                    .is_some_and(|(provider, _)| provider == held_out_provider)
+            }) {
+                if !snapshot.models.contains_key(expected_target) {
+                    continue;
+                }
+                let Some((_, model_id)) = offering_key.split_once('/') else {
+                    continue;
+                };
+                let Some(model) = held_out_models.models.get(model_id) else {
+                    continue;
+                };
+                let name = identity_fingerprint(&model.name);
+                let id = model_id_fingerprint(model_id);
+                // The caller's own precondition — an offering with no usable
+                // name or leaf id never reaches either lane.
+                if name.is_empty() || id.is_empty() {
+                    continue;
+                }
+                let full_id = full_model_id_fingerprint(model_id);
+                audited += 1;
+
+                match masked.resolve_model_identity(held_out_provider, model_id, model) {
+                    ModelIdentity::Canonical(resolution) => match resolution.kind {
+                        CanonicalResolutionKind::InferredSelfAnchorCanonical => {
+                            resolver_self_anchor += 1;
+                            if resolution.id != expected_target {
+                                wrong.push(format!(
+                                    "{offering_key}: resolver self-anchor {} but explicit target is {expected_target}",
+                                    resolution.id
+                                ));
+                            }
+                        }
+                        CanonicalResolutionKind::InferredCreatorPrefixedCanonical => {
+                            resolver_creator_prefixed += 1;
+                            if resolution.id != expected_target {
+                                wrong.push(format!(
+                                    "{offering_key}: resolver creator-prefixed {} but explicit target is {expected_target}",
+                                    resolution.id
+                                ));
+                            }
+                        }
+                        _ => {}
+                    },
+                    ModelIdentity::Unlinked(_) => {}
+                }
+
+                match masked.resolve_self_anchor_inference(
+                    held_out_provider,
+                    model_id,
+                    model,
+                    &name,
+                    &id,
+                    &full_id,
+                ) {
+                    Some(Ok(resolution)) => {
+                        self_anchor_fired += 1;
+                        if resolution.id != expected_target {
+                            wrong.push(format!(
+                                "{offering_key}: self-anchor inferred {} but explicit target is {expected_target}",
+                                resolution.id
+                            ));
+                        }
+                    }
+                    Some(Err(_)) => self_anchor_refused += 1,
+                    None => {}
+                }
+
+                match masked.resolve_creator_prefixed_inference(
+                    held_out_provider,
+                    model_id,
+                    model,
+                    &name,
+                    &id,
+                    &full_id,
+                ) {
+                    Some(Ok(resolution)) => {
+                        creator_prefixed_fired += 1;
+                        if masked.creator_prefixed_id_candidates.contains_key(&id) {
+                            creator_prefixed_leaf_key += 1;
+                        } else {
+                            creator_prefixed_full_key += 1;
+                        }
+                        // The creator blocker is inert wherever the offering
+                        // attributes no independent lab; there the key's own
+                        // lab tokens are the only creator evidence.
+                        if masked
+                            .independent_lab(held_out_provider, model_id)
+                            .is_some()
+                        {
+                            creator_prefixed_guarded += 1;
+                        } else {
+                            creator_prefixed_unguarded += 1;
+                        }
+                        if resolution.id != expected_target {
+                            wrong.push(format!(
+                                "{offering_key}: creator-prefixed inferred {} but explicit target is {expected_target}",
+                                resolution.id
+                            ));
+                        }
+                    }
+                    Some(Err(_)) => creator_prefixed_refused += 1,
+                    None => {}
+                }
+            }
+        }
+
+        println!(
+            "leave-one-out gate: {audited} held-out explicit refs; self-anchor {self_anchor_fired} fired / {self_anchor_refused} refused (no terminal refusal exists in this lane); creator-prefixed {creator_prefixed_fired} fired ({creator_prefixed_leaf_key} leaf key, {creator_prefixed_full_key} full key; {creator_prefixed_guarded} guarded, {creator_prefixed_unguarded} unguarded) / {creator_prefixed_refused} refused; {} wrong"
+        , wrong.len());
+        // Receipt for why this gate replaces the provider holdout, never an
+        // assertion — an earlier lane resolving these offerings first is the
+        // designed behavior, not a failure.
+        println!(
+            "same offerings through the full resolver: {resolver_self_anchor} self-anchor + {resolver_creator_prefixed} creator-prefixed"
+        );
+        assert!(
+            self_anchor_fired + creator_prefixed_fired > 0,
+            "leave-one-out gate must exercise both registry-seeded lanes"
+        );
+        assert!(wrong.is_empty(), "wrong targets:\n{}", wrong.join("\n"));
     }
 
     #[test]

@@ -164,11 +164,51 @@ grouping. Semantic variants merge only when models.dev has explicitly linked
 that provider form to the base model elsewhere in the snapshot or pinned ref
 artifact.
 
+A final canonical self-anchor lane covers offerings models.dev has never
+anchored under any spelling: the normalized name must select exactly one
+canonical record, the leaf id must equal that record's **own** leaf-id
+fingerprint (never mere membership in the broader fingerprint set, which also
+absorbs provider alias spellings), that leaf must be unique across a
+registry-only leaf index, and no authoritative leaf-id or complete-id alias may
+point anywhere but that record. Anchor vacuity is the primary guard — the
+registry agreeing with itself is not evidence, because upstream links
+`kimi-k2.7-code-highspeed` to the base `kimi-k2.7-code` even though a canonical
+record matches that offering's name and leaf id exactly. Because C3 keys on the
+name, an anchor spelling the name differently leaves it vacuous; the id-side
+conditions carry the refusal there. This lane runs last, so any earlier lane
+keeps both the target and its own provenance. Live effect: 2 rows
+(`abacus/claude-3-7-sonnet-20250219`, `llmgateway/llama-4-scout-17b-instruct`),
+both also covered by upstream PRs — it is a fail-closed backstop for future
+snapshots, not a coverage mechanism.
+
+A creator-prefixed-id lane runs last of all, mirroring the one-sided creator
+lane from the id side. Its registry-only index keys each canonical record under
+`P(lab)` followed by that record's own canonical leaf-id tokens, joined
+token-preserving and order-sensitive — never a string-prefix test. `P(lab)` is
+the lab slug's fingerprint and its display-name fingerprint, each additionally
+extended by **one** trailing `ai` token when its last token is not already
+literally `ai` (last-token equality, not `ends_with`; the two readings differ by
+83 keys, and this is the 581-key one — measured 2026-07-31 with zero internal
+collisions). Provider self-prefixes (`databricks-`) and junk prefixes (`deep-`)
+are excluded by construction: only tokens spelling the target's own lab are
+falsifiable. The leaf-id key is preferred, the complete-id key covers
+path-spelled namespaces (`z-ai/glm-5-turbo`), and a leaf and complete key that
+disagree are terminal (`ambiguous creator-prefixed id`). Registry name
+uniqueness is the entire correctness barrier — the plain display name must
+select exactly that record — and it is what refuses the four measured
+counterexamples where the id selects the rolling record while models.dev links
+the dated snapshot; a canonical name's trailing `(latest)` is exactly the token
+separating a rolling record from its dated twin, so it is never stripped. An
+authoritative name, leaf-id or complete-id alias pointing elsewhere blocks.
+Live effect: 1 row (`digitalocean/alibaba-qwen3-32b`), also covered by an
+upstream PR; the complete-id key branch has no live firing yet and carries its
+own audit counter so a first one is visible.
+
 Provenance is retained per offering; `≈` marks inferred members in the
 Providers section and flat/drilled lists, plus peer-only rows in the grouped
 list. Grouped detail states `N models.dev links + M inferred`, with separate
 creator-qualified, exact-pair, one-sided creator, and cross-alias counts, or
-full-id alias counts, or `inferred peer group (not canonical)`. `mise run
+full-id alias, self-anchor or creator-prefixed-id counts, or `inferred peer group (not canonical)`. `mise run
 audit-model-identity` performs a provider-level holdout: all explicit links and
 alias evidence from one provider are removed together, and recovered active
 targets are compared with its known links. It also prints the live grouping
