@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-07-31T05:47:48.620390165+00:00",
+    "fetched_at": "2026-07-31T08:47:51.651160231+00:00",
     "verified": true
   },
   "metrics": [
@@ -2646,9 +2646,6 @@
         "math_index": {
           "value": 87.7
         },
-        "mmlu_pro": {
-          "value": 0.862
-        },
         "output_tps": {
           "value": 124.458
         },
@@ -4601,6 +4598,43 @@
         },
         "ttft": {
           "value": 1.113
+        }
+      }
+    },
+    {
+      "id": "deepseek-v4-flash-ga",
+      "name": "DeepSeek V4 Flash 0731",
+      "display_name": "DeepSeek V4 Flash 0731",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2026-07-31",
+      "scores": {
+        "coding_index": {
+          "value": 69.1
+        },
+        "gpqa": {
+          "value": 0.908
+        },
+        "hle": {
+          "value": 0.368
+        },
+        "intelligence_index": {
+          "value": 49.9
+        },
+        "lcr": {
+          "value": 0.656666666666667
+        },
+        "price_blended": {
+          "value": 0.175
+        },
+        "price_input": {
+          "value": 0.14
+        },
+        "price_output": {
+          "value": 0.28
+        },
+        "scicode": {
+          "value": 0.499
         }
       }
     },
@@ -20647,9 +20681,6 @@
         "math_index": {
           "value": 74.3
         },
-        "mmlu_pro": {
-          "value": 0.842
-        },
         "price_blended": {
           "value": 6.0
         },
@@ -26669,9 +26700,6 @@
         },
         "math_index": {
           "value": 95.0
-        },
-        "mmlu_pro": {
-          "value": 0.856
         },
         "price_blended": {
           "value": 1.0
