@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-08-02T18:17:40.827327637+00:00",
+    "fetched_at": "2026-08-03T06:17:41.795841992+00:00",
     "verified": true
   },
   "metrics": [
@@ -252,6 +252,33 @@
     }
   ],
   "models": [
+    {
+      "id": "deepseek-v4-flash-0731",
+      "name": "deepseek-v4-flash-0731_max",
+      "display_name": "deepseek-v4-flash-0731",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2026-07-31",
+      "effort_level": "max",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.33,
+          "date": "2026-08-02"
+        },
+        "gpqa_diamond": {
+          "value": 0.9103535353535354,
+          "date": "2026-08-02"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9444444444444444,
+          "date": "2026-08-02"
+        },
+        "simpleqa_verified": {
+          "value": 0.3466933867735471,
+          "date": "2026-08-02"
+        }
+      }
+    },
     {
       "id": "claude-opus-5",
       "name": "claude-opus-5",
