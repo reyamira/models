@@ -36,7 +36,21 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -m "chore: snapshot jsDelivr CDN stats"
-          # The benchmark bot also pushes to main; rebase to avoid a racey reject.
-          for i in 1 2 3; do
-            git pull --rebase --autostash && git push && break || sleep 5
+          # The benchmark bot also pushes to main; rebase to avoid a racey reject,
+          # aborting any half-finished rebase so the next attempt starts clean.
+          pushed=false
+          for _ in 1 2 3; do
+            if git pull --rebase --autostash && git push; then
+              pushed=true
+              break
+            fi
+            git rebase --abort 2>/dev/null || true
+            sleep 5
           done
+          # Fail loudly instead of reporting green on a snapshot that never
+          # shipped. The trailing-30-day upsert self-heals a missed day, but only
+          # if persistent misses are visible rather than hidden behind a check.
+          if [ "$pushed" != true ]; then
+            echo "::error::failed to push stats snapshot after 3 rebase attempts"
+            exit 1
+          fi
