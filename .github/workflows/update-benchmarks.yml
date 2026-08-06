@@ -19,6 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history so the rebase-before-push in the commit step (vs the
+          # stats-snapshot bot, which also pushes to main) isn't fighting a
+          # shallow clone. Same reason as snapshot-stats.yml.
+          fetch-depth: 0
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -199,7 +204,25 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -m "chore: update benchmark data"
-          git push
+          # snapshot-stats.yml also pushes to main, and its daily cron can land in
+          # the same :17 minute as this run — a bare push then loses the race with
+          # a non-fast-forward reject (observed 2026-08-06 11:17 UTC). Rebase and
+          # retry, aborting any half-finished rebase so the next attempt is clean.
+          pushed=false
+          for _ in 1 2 3; do
+            if git pull --rebase --autostash && git push; then
+              pushed=true
+              break
+            fi
+            git rebase --abort 2>/dev/null || true
+            sleep 5
+          done
+          # Fail loudly when every attempt is rejected: a swallowed push would
+          # report green while leaving the CDN un-purged and the data unshipped.
+          if [ "$pushed" != true ]; then
+            echo "::error::failed to push benchmark data after 3 rebase attempts"
+            exit 1
+          fi
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Purge jsDelivr cache
