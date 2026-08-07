@@ -1004,10 +1004,7 @@ pub fn handle_agents_mouse(
     app: &mut crate::tui::app::App,
     ev: crossterm::event::MouseEvent,
 ) -> Option<crate::tui::app::Message> {
-    let agents_app = match app.agents_app {
-        Some(ref mut a) => a,
-        None => return None,
-    };
+    let agents_app = app.agents_app.as_mut()?;
 
     match ev.kind {
         MouseEventKind::Down(MouseButton::Left) => {
