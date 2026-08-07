@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-08-07T06:17:58.962492214+00:00",
+    "fetched_at": "2026-08-07T18:17:37.398921705+00:00",
     "verified": true
   },
   "metrics": [
@@ -330,6 +330,28 @@
         "weirdml": {
           "value": 0.6296,
           "date": "2026-07-31"
+        }
+      }
+    },
+    {
+      "id": "qwen3.7-flash",
+      "name": "qwen3.7-flash",
+      "display_name": "qwen3.7-flash",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-07-27",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.23,
+          "date": "2026-08-07"
+        },
+        "gpqa_diamond": {
+          "value": 0.8232323232323232,
+          "date": "2026-08-07"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.8666666666666667,
+          "date": "2026-08-07"
         }
       }
     },
@@ -1615,6 +1637,14 @@
           "value": 0.102,
           "date": "2026-06-02"
         },
+        "gpqa_diamond": {
+          "value": 0.8787878787878788,
+          "date": "2026-08-07"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9333333333333333,
+          "date": "2026-08-07"
+        },
         "scicode": {
           "value": 0.454861111111111,
           "date": "2026-06-02"
@@ -1982,8 +2012,8 @@
           "date": "2026-05-19"
         },
         "chess_puzzles": {
-          "value": 0.22,
-          "date": "2026-06-13"
+          "value": 0.19,
+          "date": "2026-08-07"
         },
         "critpt": {
           "value": 0.134285714285714,
@@ -1998,8 +2028,8 @@
           "date": "2026-05-19"
         },
         "gpqa_diamond": {
-          "value": 0.9160353535353535,
-          "date": "2026-06-12"
+          "value": 0.9090909090909091,
+          "date": "2026-08-07"
         },
         "mystery_game_puzzles": {
           "value": 0.32,
@@ -2300,8 +2330,8 @@
           "date": "2026-04-24"
         },
         "gpqa_diamond": {
-          "value": 0.8964646464646465,
-          "date": "2026-06-16"
+          "value": 0.9090909090909091,
+          "date": "2026-08-06"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9666666666666667,
@@ -2563,6 +2593,28 @@
         "simpleqa_verified": {
           "value": 0.645,
           "date": "2026-04-24"
+        }
+      }
+    },
+    {
+      "id": "qwen3.6-27b",
+      "name": "qwen3.6-27b",
+      "display_name": "qwen3.6-27b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-04-22",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.22,
+          "date": "2026-08-07"
+        },
+        "gpqa_diamond": {
+          "value": 0.8585858585858586,
+          "date": "2026-08-07"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9111111111111111,
+          "date": "2026-08-07"
         }
       }
     },
@@ -2936,7 +2988,7 @@
           "date": "2026-04-14"
         },
         "gpqa_diamond": {
-          "value": 0.8383838383838383,
+          "value": 0.8484848484848485,
           "date": "2026-08-07"
         },
         "otis_mock_aime_2024_2025": {
@@ -4156,6 +4208,28 @@
         "vending_bench_2": {
           "value": 0.5440000000000417,
           "date": "2026-02-16"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-397b-a17b",
+      "name": "qwen3.5-397b-a17b",
+      "display_name": "qwen3.5-397b-a17b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-02-13",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.13,
+          "date": "2026-08-07"
+        },
+        "gpqa_diamond": {
+          "value": 0.8636363636363636,
+          "date": "2026-08-07"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.8888888888888888,
+          "date": "2026-08-07"
         }
       }
     },
@@ -6580,6 +6654,14 @@
           "value": 0.0142857142857143,
           "date": "2025-08-05"
         },
+        "gpqa_diamond": {
+          "value": 0.4595959595959596,
+          "date": "2026-08-06"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.5388888888888889,
+          "date": "2026-08-07"
+        },
         "scicode": {
           "value": 0.34375,
           "date": "2025-08-05"
@@ -7178,12 +7260,12 @@
           "date": "2025-06-10"
         },
         "gpqa_diamond": {
-          "value": 0.4842171717171717,
-          "date": "2025-06-10"
+          "value": 0.5606060606060606,
+          "date": "2026-08-06"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.3,
-          "date": "2025-06-10"
+          "date": "2026-08-06"
         }
       }
     },
@@ -8451,6 +8533,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-03-12",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-06"
+        },
         "critpt": {
           "value": 0.0,
           "date": "2025-03-12"
@@ -8460,12 +8546,12 @@
           "date": "2025-03-12"
         },
         "gpqa_diamond": {
-          "value": 0.48863636363636365,
-          "date": "2025-03-13"
+          "value": 0.4393939393939394,
+          "date": "2026-08-06"
         },
         "otis_mock_aime_2024_2025": {
-          "value": 0.19722222222222222,
-          "date": "2025-03-13"
+          "value": 0.2222222222222222,
+          "date": "2026-08-06"
         },
         "scicode": {
           "value": 0.211805555555556,
