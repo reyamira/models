@@ -575,8 +575,12 @@ mod tests {
         assert_eq!(file.source.id, "epoch");
         assert!(file.source.verified);
         // Metric set drifts with the 60-day prune window; assert a plausible band.
+        // Upper bound raised 30 -> 40 on 2026-08-06: the committed file reached 31
+        // as Epoch added benchmarks upstream. Checked the 31 before widening --
+        // all distinct, properly grouped ids, so this is real growth rather than
+        // the transform duplicating rows, which is what the band exists to catch.
         assert!(
-            (8..=30).contains(&file.metrics.len()),
+            (8..=40).contains(&file.metrics.len()),
             "epoch metric count {} outside expected band",
             file.metrics.len()
         );
