@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-08-10T06:18:07.202252685+00:00",
+    "fetched_at": "2026-08-10T18:18:30.375593275+00:00",
     "verified": true
   },
   "metrics": [
@@ -152,7 +152,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-07",
+      "last_updated": "2026-08-10",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -162,6 +162,13 @@
       "kind": "percentage",
       "group": "Academic",
       "last_updated": "2026-07-24"
+    },
+    {
+      "id": "mirrorcode",
+      "label": "Mirrorcode",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-08-10"
     },
     {
       "id": "mystery_game_puzzles",
@@ -175,7 +182,7 @@
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-07",
+      "last_updated": "2026-08-10",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -852,6 +859,10 @@
           "value": 0.9349747474747475,
           "date": "2026-07-09"
         },
+        "mirrorcode": {
+          "value": 0.2,
+          "date": "2026-08-10"
+        },
         "mystery_game_puzzles": {
           "value": 0.58,
           "date": "2026-07-28"
@@ -1511,6 +1522,10 @@
         "gpqa_diamond": {
           "value": 0.8585858585858586,
           "date": "2026-08-06"
+        },
+        "mirrorcode": {
+          "value": 0.638888888888889,
+          "date": "2026-08-10"
         },
         "mystery_game_puzzles": {
           "value": 0.52,
@@ -2371,6 +2386,10 @@
         "gso": {
           "value": 0.402,
           "date": "2026-04-27"
+        },
+        "mirrorcode": {
+          "value": 0.1,
+          "date": "2026-08-10"
         },
         "mystery_game_puzzles": {
           "value": 0.56,
@@ -3438,6 +3457,10 @@
           "value": 0.31370000000000003,
           "date": "2026-03-10"
         },
+        "mirrorcode": {
+          "value": 0.15555555555555556,
+          "date": "2026-08-10"
+        },
         "mystery_game_puzzles": {
           "value": 0.37,
           "date": "2026-07-24"
@@ -3735,6 +3758,10 @@
         "gso": {
           "value": 0.2255,
           "date": "2026-03-09"
+        },
+        "mirrorcode": {
+          "value": 0.08888888888888888,
+          "date": "2026-08-10"
         },
         "mystery_game_puzzles": {
           "value": 0.34,
