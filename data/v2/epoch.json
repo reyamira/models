@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-08-10T18:18:30.375593275+00:00",
+    "fetched_at": "2026-08-11T06:18:19.476726210+00:00",
     "verified": true
   },
   "metrics": [
@@ -101,7 +101,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-07",
+      "last_updated": "2026-08-10",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -1649,6 +1649,10 @@
           "value": 640.02,
           "date": "2026-06-01"
         },
+        "chess_puzzles": {
+          "value": 0.14,
+          "date": "2026-08-10"
+        },
         "critpt": {
           "value": 0.0371428571428571,
           "date": "2026-06-01"
@@ -1664,6 +1668,14 @@
         "gbaeval": {
           "value": 0.009136320401503086,
           "date": "2026-06-01"
+        },
+        "gpqa_diamond": {
+          "value": 0.9090909090909091,
+          "date": "2026-08-10"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.7111111111111111,
+          "date": "2026-08-10"
         },
         "proofbench": {
           "value": 0.19,
@@ -2964,8 +2976,8 @@
           "date": "2026-04-07"
         },
         "chess_puzzles": {
-          "value": 0.18,
-          "date": "2026-05-07"
+          "value": 0.19,
+          "date": "2026-08-10"
         },
         "critpt": {
           "value": 0.0457142857142857,
@@ -2984,12 +2996,12 @@
           "date": "2026-04-07"
         },
         "gpqa_diamond": {
-          "value": 0.8547979797979798,
-          "date": "2026-05-06"
+          "value": 0.898989898989899,
+          "date": "2026-08-10"
         },
         "otis_mock_aime_2024_2025": {
-          "value": 0.9222222222222223,
-          "date": "2026-05-07"
+          "value": 0.9333333333333333,
+          "date": "2026-08-10"
         },
         "proofbench": {
           "value": 0.22222000000000003,
