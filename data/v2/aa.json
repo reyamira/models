@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-08-13T00:18:09.092526978+00:00",
+    "fetched_at": "2026-08-13T00:48:16.418282816+00:00",
     "verified": true
   },
   "metrics": [
@@ -4532,6 +4532,45 @@
         },
         "terminalbench_hard": {
           "value": 0.340909090909091
+        }
+      }
+    },
+    {
+      "id": "deepseek-v4-pro-0813",
+      "name": "DeepSeek V4 Pro 0813 (Reasoning, Max Effort)",
+      "display_name": "DeepSeek V4 Pro 0813",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2026-08-13",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
+      "scores": {
+        "coding_index": {
+          "value": 68.8
+        },
+        "gpqa": {
+          "value": 0.928
+        },
+        "hle": {
+          "value": 0.393
+        },
+        "intelligence_index": {
+          "value": 53.0
+        },
+        "lcr": {
+          "value": 0.753333333333333
+        },
+        "price_blended": {
+          "value": 0.544
+        },
+        "price_input": {
+          "value": 0.435
+        },
+        "price_output": {
+          "value": 0.87
+        },
+        "scicode": {
+          "value": 0.492
         }
       }
     },
