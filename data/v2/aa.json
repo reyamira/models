@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-08-13T19:18:04.223870925+00:00",
+    "fetched_at": "2026-08-13T20:18:15.259256568+00:00",
     "verified": true
   },
   "metrics": [
@@ -13292,6 +13292,43 @@
         },
         "ttft": {
           "value": 1.033
+        }
+      }
+    },
+    {
+      "id": "qwen3-8-2-4t-a95b",
+      "name": "Qwen3.8 2.4T A95B",
+      "display_name": "Qwen3.8 2.4T A95B",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-08-12",
+      "scores": {
+        "coding_index": {
+          "value": 71.9
+        },
+        "gpqa": {
+          "value": 0.935
+        },
+        "hle": {
+          "value": 0.424
+        },
+        "intelligence_index": {
+          "value": 57.7
+        },
+        "lcr": {
+          "value": 0.753333333333333
+        },
+        "price_blended": {
+          "value": 3.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 6.0
+        },
+        "scicode": {
+          "value": 0.516
         }
       }
     },
