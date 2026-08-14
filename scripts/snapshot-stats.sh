@@ -5,9 +5,13 @@ set -euo pipefail
 #
 # The app has no telemetry. It fetches the v2 benchmark source files fresh from
 # jsDelivr on every launch, so per-file daily CDN hits are the closest proxy we
-# have to daily app launches (`/data/v2/aa.json` is the cleanest per-launch
-# proxy now that v2 is the live path; `/data/benchmarks.json` is still fetched
-# by older released binaries).
+# have to daily app launches.
+#
+# Read the MEDIAN of /data/v2/{arena,epoch,llmstats}.json — NOT aa.json. Since
+# 2026-07 something external polls aa.json in bursts (3,614 hits on 2026-07-30
+# against arena's 104) while the other three stay flat, so it no longer tracks
+# launches. The median also survives a second file being adopted the same way.
+# /data/benchmarks.json is the retired v1 lane, still fetched by pre-v2 binaries.
 #
 # jsDelivr's API only serves a rolling ~30-day daily window per file, so we
 # upsert each run into data/stats/jsdelivr-history.json to retain history
@@ -16,8 +20,9 @@ set -euo pipefail
 # least every ~25 days (the daily cron leaves a wide margin).
 #
 # Caveat: jsDelivr per-package stats are aggregate-only (no per-IP / country /
-# user-agent breakdown), so these counts include the maintainer's own launches.
-# See data/stats/README.md for how to subtract self-traffic.
+# user-agent breakdown), so these counts include the maintainer's own launches
+# and there is no way to subtract them. The self-ping sentinel that used to try
+# was retired 2026-08-14 — see data/stats/README.md.
 
 OUT="data/stats/jsdelivr-history.json"
 # The /files sub-resource requires a version ref; @main is the branch the app
@@ -47,7 +52,7 @@ else
   existing='{"days":{}}'
 fi
 
-note="Daily jsDelivr CDN hits per data file = proxy for app launches (the app fetches v2 sources fresh from jsDelivr on every run; it has no telemetry). Recent days keep revising as the rolling window updates. Counts include the maintainer's own launches — see data/stats/README.md to subtract self-traffic."
+note="Daily jsDelivr CDN hits per data file = proxy for app launches (the app fetches v2 sources fresh from jsDelivr on every run; it has no telemetry). Read the median of /data/v2/{arena,epoch,llmstats}.json — NOT aa.json, which external traffic has polled in bursts since 2026-07. Recent days keep revising as the rolling window updates. Counts include the maintainer's own launches and cannot be separated from them. See data/stats/README.md."
 
 # Merge: API days override stored days (recent counts revise upward through the
 # day); days older than the API window are preserved. Sort keys for a stable,

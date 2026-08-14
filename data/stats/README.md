@@ -14,32 +14,55 @@ have to daily app launches**.
 {
   "note": "...",
   "days": {
-    "2026-06-13": {
-      "/data/v2/aa.json": 37,        // cleanest per-launch proxy (post-v2)
-      "/data/v2/arena.json": 36,
-      "/data/v2/epoch.json": 35,
-      "/data/v2/llmstats.json": 32,
-      "/data/benchmarks.json": 413   // legacy lane — older released binaries
+    "2026-08-12": {
+      "/data/v2/aa.json": 107,        // contaminated — do NOT use, see below
+      "/data/v2/arena.json": 83,      // }
+      "/data/v2/epoch.json": 85,      // }- read the MEDIAN of these three
+      "/data/v2/llmstats.json": 84,   // }
+      "/data/benchmarks.json": 47     // retired v1 lane — pre-v2 binaries
     }
   }
 }
 ```
 
-- Each launch fetches **all four** v2 sources, so any one of `aa/arena/epoch/llmstats`
-  approximates launches. `aa.json` is the most stable reference.
-- `data/benchmarks.json` is fetched only by **pre-v2 released binaries** (frozen
-  legacy lane). It will decay as users upgrade.
+- Each launch fetches **all four** v2 sources, so any one of them approximates
+  launches. Read the **median of `arena` / `epoch` / `llmstats`** — one file can
+  pick up non-launch traffic on its own (see below), and a median of three
+  survives that happening again.
+- `data/benchmarks.json` is the retired v1 lane, fetched only by **pre-v2
+  released binaries**. See the sunset note in the project `CLAUDE.md`.
 - Spikes around a release date or a `data/v2/*` commit are mostly the
-  **data-bot + jsDelivr purge**, not humans — discount them.
-- **External scraper spikes isolated to `benchmarks.json`** are a distinct case:
-  if `benchmarks.json` jumps while the four `data/v2/*` files stay flat, it is
-  **not** a bot/purge artifact (the same bot runs commit + purge the v2 files
-  too, so a purge spike would move them in lockstep). It is external traffic on
-  the legacy file — discount it for the sunset decision; it does not reflect real
-  pre-v2 launches. Observed 2026-06-13/14: `benchmarks.json` ~40→~410/day while
-  `aa.json` held at 37–80. Because jsDelivr stats are aggregate-only (see below),
-  the source of such a spike is not attributable from the CDN data — judge it by
-  the v2-relative shape, not the raw count.
+  **data-bot + jsDelivr purge**, not humans — discount them. A purge spike moves
+  all four v2 files in lockstep; that lockstep is what distinguishes it from the
+  single-file case below.
+
+## `aa.json` is contaminated — don't use it as the proxy
+
+Until 2026-08-14 this file recommended `/data/v2/aa.json` as "the most stable
+reference." That is now backwards. Since early July, something external polls
+aa.json in isolated bursts while the other three v2 files stay flat:
+
+| day | aa | arena | ratio |
+|---|---|---|---|
+| 2026-07-30 | 3614 | 104 | 34.8× |
+| 2026-08-02 | 1298 | 93 | 14.0× |
+| 2026-07-31 | 826 | 81 | 10.2× |
+| 2026-07-03 | 436 | 116 | 3.8× |
+
+Median aa/arena ratio across 90 days is 1.05, but 13 days exceed 1.25× and four
+exceed 3×; 87% of the ~6,600 excess hits fall on those four days. It is **not**
+maintainer traffic — mean ratio on days with local commits (2.09) is
+indistinguishable from quiet days (2.12), and the four biggest spikes landed on
+days with zero commits. `benchmarks.json` stayed flat throughout, so it is not a
+bot/purge artifact either (those move every file at once).
+
+The likely explanation is a downstream consumer treating aa.json as a public
+dataset — it is the richest of the four and refreshes every 30 minutes. jsDelivr
+stats are aggregate-only, so this is not attributable and does not need to be:
+just read a file that isn't being scraped.
+
+Note the in-app `r` refresh re-fetches **only the active source**, which defaults
+to AA. That is a second, first-party reason aa.json runs hotter than the rest.
 
 ## Why a snapshot (vs. just querying the API)
 
@@ -53,44 +76,31 @@ jsDelivr only serves a **rolling ~30-day** daily window per file. The snapshot
 **Stats lag ~2 days.** jsDelivr's daily numbers trail real time by roughly two
 days, and the most recent day or two keep **revising upward** as the window
 fills. So the latest day in this archive is always partial — read trends from
-days that are 2+ days old, and don't conclude "the ping isn't working" by
-checking minutes after a launch.
+days that are 2+ days old.
 
-## Filtering maintainer (self) traffic
+## What this archive cannot tell you
 
-jsDelivr per-package stats are **aggregate-only** — no per-IP, country, or
-user-agent breakdown — so these counts **include the maintainer's own launches**.
-You cannot subtract yourself from the CDN data directly.
+- **Launches, not people.** One user launching four times and four users
+  launching once are identical here. No uniques, no retention, no new-vs-
+  returning.
+- **Not your own traffic, separately.** jsDelivr per-package stats are
+  aggregate-only — no per-IP, country, or user-agent breakdown — so these counts
+  include the maintainer's own launches with no way to subtract them.
 
-To get a clean "other users" signal **without leaving the fresh `@main` data
-pool**, the snapshot also tracks any file committed under `data/stats/` (it
-captures every `/data/` path automatically). The `data/stats/self-ping` sentinel
-is fetched **only by the maintainer's own launches**, so it lands in its own
-bucket:
+### The self-ping sentinel (retired 2026-08-14)
 
-```
-other-user launches ≈ /data/v2/aa.json hits − data/stats/self-ping hits   (per day)
-```
+A `data/stats/self-ping` file used to be fetched by a shell wrapper on the
+maintainer's machine, so that `other users ≈ aa.json − self-ping` could estimate
+external launches. It was retired because both halves were unsound: the minuend
+was the contaminated aa.json, and the sentinel only fired for launches made
+through the wrapped interactive `models` command — development launches via
+`cargo run` or `./target/release/models` (including the release visuals pass)
+fetch the data files without pinging, so the maintainer's own traffic counted as
+users. A separate question — whether jsDelivr counts repeated identical sentinel
+requests as distinct hits at all — was never resolved.
 
-The ping is fired by a shell wrapper on the maintainer's machine
-(`~/.config/fish/functions/models.fish`): each `models` launch background-curls
-the sentinel before starting the app. No app code ships, and data freshness is
-untouched — the app still fetches the v2 sources from `@main` exactly as before.
-
-Notes:
-
-- The sentinel only counts launches made through the wrapped `models` command on
-  machines where the wrapper is installed (re-add it on each dev machine).
-- It starts counting only **after `self-ping` is live on `@main`** (committed +
-  jsDelivr cache warm). Pings before that 404 harmlessly and are not counted.
-- **The subtraction assumes ~1 `aa.json` fetch per launch.** The in-app `r`
-  refresh re-fetches the active source, so a session with refreshes adds
-  `aa.json` hits without matching pings → slight *under*-subtraction. Fine for a
-  proxy; just don't read it as exact.
-- **Pending verification:** this relies on jsDelivr counting each sentinel curl
-  as a distinct hit (not edge-cache-deduping repeats). If a maintainer's repeated
-  pings collapse to ~1/day in `/files`, switch the wrapper to a cache-busting
-  query (`?_=<random>` — stats still attribute to `self-ping`, but each request
-  is forced distinct). Verify before trusting the subtraction.
-- Crudest fallback if the wrapper is ever absent: subtract your own rough daily
-  launch count from the trend by hand.
+The sentinel file and the shell wrapper that fetched it are both gone. The
+`self-ping` rows already in `jsdelivr-history.json` are kept as historical data —
+they are not a metric, so don't build on them. Any future attempt at this needs
+the sentinel fired from the same code path as the launch it marks, not from a
+shell alias.

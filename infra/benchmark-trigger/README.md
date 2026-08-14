@@ -16,7 +16,7 @@ Cloudflare Workers cron triggers fire reliably (sub-minute precision), so we
 use one to invoke `workflow_dispatch` from outside the GitHub Actions
 scheduler entirely.
 
-The workflow is idempotent — `git diff --quiet data/benchmarks.json && exit 0`
+The workflow is idempotent — a `git diff --cached --quiet` check over `data/v2/`
 short-circuits if no data changed — so any duplicate invocation (e.g., a
 re-armed schedule plus this worker firing close together) costs an API call
 and nothing else.
