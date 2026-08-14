@@ -99,7 +99,8 @@ fetch the data files without pinging, so the maintainer's own traffic counted as
 users. A separate question — whether jsDelivr counts repeated identical sentinel
 requests as distinct hits at all — was never resolved.
 
-The `self-ping` rows already in `jsdelivr-history.json` are kept as historical
-data. They are not a metric; don't build on them. Any future attempt at this
-needs the sentinel fired from the same code path as the launch it marks, not
-from a shell alias.
+The sentinel file and the shell wrapper that fetched it are both gone. The
+`self-ping` rows already in `jsdelivr-history.json` are kept as historical data —
+they are not a metric, so don't build on them. Any future attempt at this needs
+the sentinel fired from the same code path as the launch it marks, not from a
+shell alias.
