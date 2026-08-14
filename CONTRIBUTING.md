@@ -52,7 +52,8 @@ nix flake check
 ## Data Directory
 
 - **`data/agents.json`** — curated catalog of AI coding agents. Contributions welcome! Adding a new agent here requires no Rust knowledge or build tools.
-- **`data/benchmarks.json`** — auto-generated from the Artificial Analysis API every 30 minutes. Do not edit manually.
+- **`data/v2/*.json`** — auto-generated from the Artificial Analysis, Epoch AI, Arena, and LLM Stats upstreams every 30 minutes. Do not edit manually.
+- **`data/benchmarks.json`** — the retired v1 lane (frozen 2026-08-14). Nothing regenerates it; it stays in place only so pre-v2 released binaries keep getting a valid response. Do not edit or revive it.
 
 See [Custom Agents](docs/custom-agents.md) for the agent entry format.
 

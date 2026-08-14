@@ -31,8 +31,8 @@ export const CRATES_URL = `https://crates.io/crates/${CRATE_NAME}`;
 // --- Local data files ---
 
 // Sum of model rows across the four v2 benchmark sources (aa, epoch, arena,
-// llmstats). The legacy data/benchmarks.json is the frozen single-source lane
-// for released binaries — not representative of the tab anymore.
+// llmstats). The v1 data/benchmarks.json lane was retired 2026-08-14 and is
+// frozen in place for pre-v2 released binaries — never count it here.
 const BENCHMARK_SOURCE_IDS = ["aa", "epoch", "arena", "llmstats"] as const;
 export const BENCHMARK_SOURCE_COUNT = BENCHMARK_SOURCE_IDS.length;
 export const BENCHMARK_COUNT = BENCHMARK_SOURCE_IDS.reduce((total, id) => {
