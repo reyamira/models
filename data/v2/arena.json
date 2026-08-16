@@ -3,7 +3,7 @@
     "id": "arena",
     "name": "Arena",
     "url": "https://arena.ai",
-    "fetched_at": "2026-08-15T18:18:14.437593323+00:00",
+    "fetched_at": "2026-08-16T18:18:11.528833444+00:00",
     "verified": true
   },
   "metrics": [
@@ -58,22 +58,6 @@
   ],
   "models": [
     {
-      "id": "kat-coder-pro-v1",
-      "name": "KAT-Coder-Pro-V1",
-      "display_name": "KAT-Coder-Pro-V1",
-      "creator": "",
-      "creator_name": "",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1255.0,
-          "date": "2026-08-15",
-          "ci": 20.0,
-          "votes": 1459
-        }
-      }
-    },
-    {
       "id": "api-gpt-4o-search",
       "name": "api-gpt-4o-search",
       "display_name": "api-gpt-4o-search",
@@ -86,22 +70,6 @@
           "date": "2026-07-21",
           "ci": 11.0,
           "votes": 3437
-        }
-      }
-    },
-    {
-      "id": "chatgpt-4o-latest-20250326",
-      "name": "chatgpt-4o-latest-20250326",
-      "display_name": "chatgpt-4o-latest-20250326",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1241.0,
-          "date": "2026-08-06",
-          "ci": 6.0,
-          "votes": 23210
         }
       }
     },
@@ -153,33 +121,11 @@
       "creator_name": "Anthropic",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1326.0,
-          "date": "2026-08-15",
-          "ci": 5.0,
-          "votes": 26061
-        },
         "elo_document": {
           "value": 1423.0,
           "date": "2026-07-26",
           "ci": 6.0,
           "votes": 30937
-        }
-      }
-    },
-    {
-      "id": "claude-opus-4-1-20250805",
-      "name": "claude-opus-4-1-20250805",
-      "display_name": "claude-opus-4-1-20250805",
-      "creator": "anthropic",
-      "creator_name": "Anthropic",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1389.0,
-          "date": "2026-08-15",
-          "ci": 11.0,
-          "votes": 6786
         }
       }
     },
@@ -436,12 +382,6 @@
           "date": "2026-07-21",
           "ci": 6.0,
           "votes": 48610
-        },
-        "elo_vision": {
-          "value": 1280.0,
-          "date": "2026-08-06",
-          "ci": 8.0,
-          "votes": 11571
         }
       }
     },
@@ -559,33 +499,11 @@
       "creator_name": "Anthropic",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1386.0,
-          "date": "2026-08-15",
-          "ci": 7.0,
-          "votes": 15198
-        },
         "elo_document": {
           "value": 1446.0,
           "date": "2026-07-26",
           "ci": 7.0,
           "votes": 28634
-        }
-      }
-    },
-    {
-      "id": "claude-sonnet-4-5-20250929-high-32k",
-      "name": "claude-sonnet-4-5-20250929-high-32k",
-      "display_name": "claude-sonnet-4-5-20250929-high-32k",
-      "creator": "anthropic",
-      "creator_name": "Anthropic",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1392.0,
-          "date": "2026-08-15",
-          "ci": 8.0,
-          "votes": 12800
         }
       }
     },
@@ -624,12 +542,6 @@
           "date": "2026-07-26",
           "ci": 6.0,
           "votes": 54427
-        },
-        "elo_vision": {
-          "value": 1275.0,
-          "date": "2026-08-06",
-          "ci": 7.0,
-          "votes": 24997
         }
       }
     },
@@ -668,12 +580,6 @@
           "date": "2026-07-26",
           "ci": 10.0,
           "votes": 3601
-        },
-        "elo_vision": {
-          "value": 1273.0,
-          "date": "2026-08-06",
-          "ci": 9.0,
-          "votes": 6116
         }
       }
     },
@@ -694,55 +600,6 @@
       }
     },
     {
-      "id": "deepseek-v3.2",
-      "name": "deepseek-v3.2",
-      "display_name": "deepseek-v3.2",
-      "creator": "deepseek",
-      "creator_name": "DeepSeek",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1325.0,
-          "date": "2026-08-15",
-          "ci": 8.0,
-          "votes": 8984
-        }
-      }
-    },
-    {
-      "id": "deepseek-v3.2-exp",
-      "name": "deepseek-v3.2-exp",
-      "display_name": "deepseek-v3.2-exp",
-      "creator": "deepseek",
-      "creator_name": "DeepSeek",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1272.0,
-          "date": "2026-08-15",
-          "ci": 14.0,
-          "votes": 3871
-        }
-      }
-    },
-    {
-      "id": "deepseek-v3.2-thinking",
-      "name": "deepseek-v3.2-thinking",
-      "display_name": "deepseek-v3.2-thinking",
-      "creator": "deepseek",
-      "creator_name": "DeepSeek",
-      "reasoning_status": "Reasoning",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1360.0,
-          "date": "2026-08-15",
-          "ci": 9.0,
-          "votes": 6654
-        }
-      }
-    },
-    {
       "id": "deepseek-v4-flash-high",
       "name": "deepseek-v4-flash-high",
       "display_name": "deepseek-v4-flash-high",
@@ -755,22 +612,6 @@
           "date": "2026-08-15",
           "ci": 12.0,
           "votes": 2936
-        }
-      }
-    },
-    {
-      "id": "deepseek-v4-flash-high-preview",
-      "name": "deepseek-v4-flash-high-preview",
-      "display_name": "deepseek-v4-flash-high-preview",
-      "creator": "deepseek",
-      "creator_name": "DeepSeek",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1431.0,
-          "date": "2026-08-15",
-          "ci": 7.0,
-          "votes": 9493
         }
       }
     },
@@ -823,38 +664,6 @@
       }
     },
     {
-      "id": "devstral-2",
-      "name": "devstral-2",
-      "display_name": "devstral-2",
-      "creator": "mistral",
-      "creator_name": "Mistral",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1193.0,
-          "date": "2026-08-15",
-          "ci": 21.0,
-          "votes": 1144
-        }
-      }
-    },
-    {
-      "id": "devstral-medium-2507",
-      "name": "devstral-medium-2507",
-      "display_name": "devstral-medium-2507",
-      "creator": "mistral",
-      "creator_name": "Mistral",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1080.0,
-          "date": "2026-08-15",
-          "ci": 31.0,
-          "votes": 831
-        }
-      }
-    },
-    {
       "id": "diffbot-small-xl",
       "name": "diffbot-small-xl",
       "display_name": "diffbot-small-xl",
@@ -867,22 +676,6 @@
           "date": "2026-07-21",
           "ci": 8.0,
           "votes": 6433
-        }
-      }
-    },
-    {
-      "id": "dola-seed-2.0-pro",
-      "name": "dola-seed-2.0-pro",
-      "display_name": "dola-seed-2.0-pro",
-      "creator": "bytedance",
-      "creator_name": "Bytedance",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1258.0,
-          "date": "2026-08-06",
-          "ci": 8.0,
-          "votes": 10254
         }
       }
     },
@@ -910,23 +703,11 @@
       "creator_name": "Google",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1226.0,
-          "date": "2026-08-15",
-          "ci": 16.0,
-          "votes": 2676
-        },
         "elo_document": {
           "value": 1421.0,
           "date": "2026-07-26",
           "ci": 6.0,
           "votes": 24963
-        },
-        "elo_vision": {
-          "value": 1246.0,
-          "date": "2026-08-06",
-          "ci": 5.0,
-          "votes": 88429
         }
       }
     },
@@ -965,35 +746,6 @@
           "date": "2026-07-26",
           "ci": 9.0,
           "votes": 7173
-        },
-        "elo_vision": {
-          "value": 1271.0,
-          "date": "2026-08-06",
-          "ci": 6.0,
-          "votes": 35759
-        }
-      }
-    },
-    {
-      "id": "gemini-3-flash-(thinking-minimal)",
-      "name": "gemini-3-flash (thinking-minimal)",
-      "display_name": "gemini-3-flash",
-      "creator": "google",
-      "creator_name": "Google",
-      "reasoning_status": "Reasoning",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1383.0,
-          "date": "2026-08-15",
-          "ci": 5.0,
-          "votes": 20940
-        },
-        "elo_vision": {
-          "value": 1259.0,
-          "date": "2026-08-06",
-          "ci": 6.0,
-          "votes": 34207
         }
       }
     },
@@ -1021,12 +773,6 @@
       "creator_name": "Google",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1438.0,
-          "date": "2026-08-15",
-          "ci": 9.0,
-          "votes": 13585
-        },
         "elo_document": {
           "value": 1433.0,
           "date": "2026-07-26",
@@ -1060,22 +806,6 @@
           "date": "2026-07-21",
           "ci": 5.0,
           "votes": 37255
-        }
-      }
-    },
-    {
-      "id": "gemini-3.1-flash-lite-preview",
-      "name": "gemini-3.1-flash-lite-preview",
-      "display_name": "gemini-3.1-flash-lite-preview",
-      "creator": "google",
-      "creator_name": "Google",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1254.0,
-          "date": "2026-08-15",
-          "ci": 7.0,
-          "votes": 13663
         }
       }
     },
@@ -1120,12 +850,6 @@
           "date": "2026-08-12",
           "ci": 3.0,
           "votes": 95107
-        },
-        "elo_vision": {
-          "value": 1277.0,
-          "date": "2026-08-06",
-          "ci": 6.0,
-          "votes": 36893
         }
       }
     },
@@ -1176,12 +900,6 @@
           "date": "2026-08-15",
           "ci": 43.0,
           "votes": 228
-        },
-        "elo_vision": {
-          "value": 1260.0,
-          "date": "2026-08-06",
-          "ci": 18.0,
-          "votes": 1207
         }
       }
     },
@@ -1264,28 +982,6 @@
       }
     },
     {
-      "id": "gemma-4-26b-a4b",
-      "name": "gemma-4-26b-a4b",
-      "display_name": "gemma-4-26b-a4b",
-      "creator": "google",
-      "creator_name": "Google",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1362.0,
-          "date": "2026-08-15",
-          "ci": 17.0,
-          "votes": 1443
-        },
-        "elo_vision": {
-          "value": 1240.0,
-          "date": "2026-08-06",
-          "ci": 7.0,
-          "votes": 22246
-        }
-      }
-    },
-    {
       "id": "gemma-4-31b",
       "name": "gemma-4-31b",
       "display_name": "gemma-4-31b",
@@ -1293,71 +989,11 @@
       "creator_name": "Google",
       "open_weights": true,
       "scores": {
-        "elo_code": {
-          "value": 1364.0,
-          "date": "2026-08-15",
-          "ci": 8.0,
-          "votes": 8588
-        },
         "elo_document": {
           "value": 1424.0,
           "date": "2026-07-26",
           "ci": 8.0,
           "votes": 10577
-        },
-        "elo_vision": {
-          "value": 1256.0,
-          "date": "2026-08-06",
-          "ci": 7.0,
-          "votes": 32461
-        }
-      }
-    },
-    {
-      "id": "glm-4.6",
-      "name": "glm-4.6",
-      "display_name": "glm-4.6",
-      "creator": "z.ai",
-      "creator_name": "Z.ai",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1340.0,
-          "date": "2026-08-15",
-          "ci": 11.0,
-          "votes": 6607
-        }
-      }
-    },
-    {
-      "id": "glm-4.7",
-      "name": "glm-4.7",
-      "display_name": "glm-4.7",
-      "creator": "z.ai",
-      "creator_name": "Z.ai",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1434.0,
-          "date": "2026-08-15",
-          "ci": 12.0,
-          "votes": 3814
-        }
-      }
-    },
-    {
-      "id": "glm-5",
-      "name": "glm-5",
-      "display_name": "glm-5",
-      "creator": "z.ai",
-      "creator_name": "Z.ai",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1436.0,
-          "date": "2026-08-15",
-          "ci": 8.0,
-          "votes": 7065
         }
       }
     },
@@ -1401,33 +1037,11 @@
       "creator_name": "Z.ai",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1400.0,
-          "date": "2026-08-15",
-          "ci": 14.0,
-          "votes": 2181
-        },
         "elo_document": {
           "value": 1417.0,
           "date": "2026-07-26",
           "ci": 10.0,
           "votes": 4894
-        }
-      }
-    },
-    {
-      "id": "gpt-5-medium",
-      "name": "gpt-5-medium",
-      "display_name": "gpt-5-medium",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1419.0,
-          "date": "2026-08-15",
-          "ci": 16.0,
-          "votes": 3040
         }
       }
     },
@@ -1455,87 +1069,11 @@
       "creator_name": "OpenAI",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1341.0,
-          "date": "2026-08-15",
-          "ci": 9.0,
-          "votes": 10344
-        },
         "elo_document": {
           "value": 1401.0,
           "date": "2026-07-26",
           "ci": 9.0,
           "votes": 8220
-        },
-        "elo_vision": {
-          "value": 1238.0,
-          "date": "2026-08-06",
-          "ci": 8.0,
-          "votes": 10016
-        }
-      }
-    },
-    {
-      "id": "gpt-5.1-codex",
-      "name": "gpt-5.1-codex",
-      "display_name": "gpt-5.1-codex",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1336.0,
-          "date": "2026-08-15",
-          "ci": 12.0,
-          "votes": 4870
-        }
-      }
-    },
-    {
-      "id": "gpt-5.1-codex-mini",
-      "name": "gpt-5.1-codex-mini",
-      "display_name": "gpt-5.1-codex-mini",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1244.0,
-          "date": "2026-08-15",
-          "ci": 22.0,
-          "votes": 1133
-        }
-      }
-    },
-    {
-      "id": "gpt-5.1-high",
-      "name": "gpt-5.1-high",
-      "display_name": "gpt-5.1-high",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1250.0,
-          "date": "2026-08-06",
-          "ci": 8.0,
-          "votes": 9165
-        }
-      }
-    },
-    {
-      "id": "gpt-5.1-medium",
-      "name": "gpt-5.1-medium",
-      "display_name": "gpt-5.1-medium",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1391.0,
-          "date": "2026-08-15",
-          "ci": 12.0,
-          "votes": 4755
         }
       }
     },
@@ -1563,49 +1101,11 @@
       "creator_name": "OpenAI",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1418.0,
-          "date": "2026-08-15",
-          "ci": 23.0,
-          "votes": 1057
-        },
         "elo_document": {
           "value": 1400.0,
           "date": "2026-07-26",
           "ci": 6.0,
           "votes": 28068
-        }
-      }
-    },
-    {
-      "id": "gpt-5.2-chat-latest-20260210",
-      "name": "gpt-5.2-chat-latest-20260210",
-      "display_name": "gpt-5.2-chat-latest-20260210",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_vision": {
-          "value": 1278.0,
-          "date": "2026-08-06",
-          "ci": 7.0,
-          "votes": 15373
-        }
-      }
-    },
-    {
-      "id": "gpt-5.2-codex",
-      "name": "gpt-5.2-codex",
-      "display_name": "gpt-5.2-codex",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1338.0,
-          "date": "2026-08-15",
-          "ci": 9.0,
-          "votes": 6423
         }
       }
     },
@@ -1622,12 +1122,6 @@
           "date": "2026-07-26",
           "ci": 10.0,
           "votes": 7073
-        },
-        "elo_vision": {
-          "value": 1244.0,
-          "date": "2026-08-06",
-          "ci": 6.0,
-          "votes": 17866
         }
       }
     },
@@ -1665,23 +1159,6 @@
       }
     },
     {
-      "id": "gpt-5.3-codex-(codex-harness)",
-      "name": "gpt-5.3-codex (codex-harness)",
-      "display_name": "gpt-5.3-codex",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "variant_tag": "codex-harness",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1369.0,
-          "date": "2026-08-15",
-          "ci": 12.0,
-          "votes": 3504
-        }
-      }
-    },
-    {
       "id": "gpt-5.4",
       "name": "gpt-5.4",
       "display_name": "gpt-5.4",
@@ -1689,12 +1166,6 @@
       "creator_name": "OpenAI",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1390.0,
-          "date": "2026-08-15",
-          "ci": 15.0,
-          "votes": 1751
-        },
         "elo_document": {
           "value": 1470.0,
           "date": "2026-07-26",
@@ -1756,28 +1227,6 @@
           "date": "2026-08-15",
           "ci": 19.0,
           "votes": 1318
-        }
-      }
-    },
-    {
-      "id": "gpt-5.4-mini-high",
-      "name": "gpt-5.4-mini-high",
-      "display_name": "gpt-5.4-mini-high",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1397.0,
-          "date": "2026-08-15",
-          "ci": 7.0,
-          "votes": 11290
-        },
-        "elo_vision": {
-          "value": 1253.0,
-          "date": "2026-08-06",
-          "ci": 7.0,
-          "votes": 23433
         }
       }
     },
@@ -1894,12 +1343,6 @@
           "date": "2026-07-26",
           "ci": 8.0,
           "votes": 8442
-        },
-        "elo_vision": {
-          "value": 1278.0,
-          "date": "2026-08-06",
-          "ci": 9.0,
-          "votes": 7224
         }
       }
     },
@@ -1949,12 +1392,6 @@
           "date": "2026-07-26",
           "ci": 13.0,
           "votes": 1888
-        },
-        "elo_vision": {
-          "value": 1249.0,
-          "date": "2026-08-06",
-          "ci": 12.0,
-          "votes": 3259
         }
       }
     },
@@ -1994,12 +1431,6 @@
           "date": "2026-08-12",
           "ci": 6.0,
           "votes": 15558
-        },
-        "elo_vision": {
-          "value": 1280.0,
-          "date": "2026-08-06",
-          "ci": 11.0,
-          "votes": 3353
         }
       }
     },
@@ -2033,12 +1464,6 @@
           "date": "2026-07-26",
           "ci": 13.0,
           "votes": 1969
-        },
-        "elo_vision": {
-          "value": 1270.0,
-          "date": "2026-08-06",
-          "ci": 12.0,
-          "votes": 3235
         }
       }
     },
@@ -2060,39 +1485,6 @@
       }
     },
     {
-      "id": "granite-4.1-8b",
-      "name": "granite-4.1-8b",
-      "display_name": "granite-4.1-8b",
-      "creator": "ibm",
-      "creator_name": "IBM",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1192.0,
-          "date": "2026-08-15",
-          "ci": 19.0,
-          "votes": 1708
-        }
-      }
-    },
-    {
-      "id": "grok-4-1-fast-reasoning",
-      "name": "grok-4-1-fast-reasoning",
-      "display_name": "grok-4-1-fast-reasoning",
-      "creator": "spacexai",
-      "creator_name": "SpaceXAI",
-      "reasoning_status": "Reasoning",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1240.0,
-          "date": "2026-08-15",
-          "ci": 11.0,
-          "votes": 5331
-        }
-      }
-    },
-    {
       "id": "grok-4-1-fast-search",
       "name": "grok-4-1-fast-search",
       "display_name": "grok-4-1-fast-search",
@@ -2105,23 +1497,6 @@
           "date": "2026-07-21",
           "ci": 5.0,
           "votes": 81860
-        }
-      }
-    },
-    {
-      "id": "grok-4-fast-reasoning",
-      "name": "grok-4-fast-reasoning",
-      "display_name": "grok-4-fast-reasoning",
-      "creator": "spacexai",
-      "creator_name": "SpaceXAI",
-      "reasoning_status": "Reasoning",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1161.0,
-          "date": "2026-08-15",
-          "ci": 28.0,
-          "votes": 732
         }
       }
     },
@@ -2158,23 +1533,6 @@
       }
     },
     {
-      "id": "grok-4.1-thinking",
-      "name": "grok-4.1-thinking",
-      "display_name": "grok-4.1-thinking",
-      "creator": "spacexai",
-      "creator_name": "SpaceXAI",
-      "reasoning_status": "Reasoning",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1210.0,
-          "date": "2026-08-15",
-          "ci": 25.0,
-          "votes": 948
-        }
-      }
-    },
-    {
       "id": "grok-4.20-beta-0309-reasoning",
       "name": "grok-4.20-beta-0309-reasoning",
       "display_name": "grok-4.20-beta-0309-reasoning",
@@ -2183,23 +1541,11 @@
       "reasoning_status": "Reasoning",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1374.0,
-          "date": "2026-08-15",
-          "ci": 6.0,
-          "votes": 14587
-        },
         "elo_document": {
           "value": 1414.0,
           "date": "2026-07-26",
           "ci": 7.0,
           "votes": 18666
-        },
-        "elo_vision": {
-          "value": 1255.0,
-          "date": "2026-08-06",
-          "ci": 6.0,
-          "votes": 24509
         }
       }
     },
@@ -2232,12 +1578,6 @@
           "date": "2026-07-21",
           "ci": 5.0,
           "votes": 87118
-        },
-        "elo_vision": {
-          "value": 1252.0,
-          "date": "2026-08-06",
-          "ci": 7.0,
-          "votes": 22353
         }
       }
     },
@@ -2249,23 +1589,11 @@
       "creator_name": "SpaceXAI",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1354.0,
-          "date": "2026-08-15",
-          "ci": 7.0,
-          "votes": 12269
-        },
         "elo_search": {
           "value": 1163.0,
           "date": "2026-07-21",
           "ci": 5.0,
           "votes": 68373
-        },
-        "elo_vision": {
-          "value": 1244.0,
-          "date": "2026-08-06",
-          "ci": 7.0,
-          "votes": 18132
         }
       }
     },
@@ -2314,37 +1642,6 @@
       }
     },
     {
-      "id": "grok-code-fast-1",
-      "name": "grok-code-fast-1",
-      "display_name": "grok-code-fast-1",
-      "creator": "spacexai",
-      "creator_name": "SpaceXAI",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1164.0,
-          "date": "2026-08-15",
-          "ci": 28.0,
-          "votes": 783
-        }
-      }
-    },
-    {
-      "id": "hunyuan-hy3-preview",
-      "name": "hunyuan-hy3-preview",
-      "display_name": "hunyuan-hy3-preview",
-      "creator": "tencent",
-      "creator_name": "Tencent",
-      "scores": {
-        "elo_code": {
-          "value": 1356.0,
-          "date": "2026-08-15",
-          "ci": 18.0,
-          "votes": 1394
-        }
-      }
-    },
-    {
       "id": "hy3",
       "name": "hy3",
       "display_name": "hy3",
@@ -2361,55 +1658,6 @@
       }
     },
     {
-      "id": "inkling",
-      "name": "inkling",
-      "display_name": "inkling",
-      "creator": "thinky",
-      "creator_name": "Thinky",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1405.0,
-          "date": "2026-08-15",
-          "ci": 8.0,
-          "votes": 6463
-        }
-      }
-    },
-    {
-      "id": "kimi-k2-thinking-turbo",
-      "name": "kimi-k2-thinking-turbo",
-      "display_name": "kimi-k2-thinking-turbo",
-      "creator": "moonshot",
-      "creator_name": "Moonshot",
-      "reasoning_status": "Reasoning",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1323.0,
-          "date": "2026-08-15",
-          "ci": 7.0,
-          "votes": 12670
-        }
-      }
-    },
-    {
-      "id": "kimi-k2.5-instant",
-      "name": "kimi-k2.5-instant",
-      "display_name": "kimi-k2.5-instant",
-      "creator": "moonshot",
-      "creator_name": "Moonshot",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1405.0,
-          "date": "2026-08-15",
-          "ci": 12.0,
-          "votes": 3107
-        }
-      }
-    },
-    {
       "id": "kimi-k2.5-thinking",
       "name": "kimi-k2.5-thinking",
       "display_name": "kimi-k2.5-thinking",
@@ -2418,23 +1666,11 @@
       "reasoning_status": "Reasoning",
       "open_weights": true,
       "scores": {
-        "elo_code": {
-          "value": 1436.0,
-          "date": "2026-08-15",
-          "ci": 5.0,
-          "votes": 17819
-        },
         "elo_document": {
           "value": 1429.0,
           "date": "2026-07-26",
           "ci": 7.0,
           "votes": 19891
-        },
-        "elo_vision": {
-          "value": 1249.0,
-          "date": "2026-08-06",
-          "ci": 6.0,
-          "votes": 26123
         }
       }
     },
@@ -2457,12 +1693,6 @@
           "date": "2026-07-26",
           "ci": 8.0,
           "votes": 11181
-        },
-        "elo_vision": {
-          "value": 1263.0,
-          "date": "2026-08-06",
-          "ci": 7.0,
-          "votes": 15386
         }
       }
     },
@@ -2488,7 +1718,7 @@
       "display_name": "kimi-k3-max",
       "creator": "moonshot",
       "creator_name": "Moonshot",
-      "open_weights": false,
+      "open_weights": true,
       "scores": {
         "elo_code": {
           "value": 1674.0,
@@ -2505,104 +1735,6 @@
       }
     },
     {
-      "id": "laguna-m.1",
-      "name": "laguna-m.1",
-      "display_name": "laguna-m.1",
-      "creator": "poolside",
-      "creator_name": "Poolside",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1347.0,
-          "date": "2026-08-15",
-          "ci": 10.0,
-          "votes": 5056
-        }
-      }
-    },
-    {
-      "id": "laguna-xs.2",
-      "name": "laguna-xs.2",
-      "display_name": "laguna-xs.2",
-      "creator": "poolside",
-      "creator_name": "Poolside",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1303.0,
-          "date": "2026-08-15",
-          "ci": 11.0,
-          "votes": 3933
-        }
-      }
-    },
-    {
-      "id": "mercury-2",
-      "name": "mercury-2",
-      "display_name": "mercury-2",
-      "creator": "inception-ai",
-      "creator_name": "Inception AI",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1166.0,
-          "date": "2026-08-15",
-          "ci": 25.0,
-          "votes": 908
-        }
-      }
-    },
-    {
-      "id": "mimo-v2-flash-(non-thinking)",
-      "name": "mimo-v2-flash (non-thinking)",
-      "display_name": "mimo-v2-flash",
-      "creator": "xiaomi",
-      "creator_name": "Xiaomi",
-      "reasoning_status": "Reasoning",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1330.0,
-          "date": "2026-08-15",
-          "ci": 10.0,
-          "votes": 5416
-        }
-      }
-    },
-    {
-      "id": "mimo-v2-flash-(thinking)",
-      "name": "mimo-v2-flash (thinking)",
-      "display_name": "mimo-v2-flash",
-      "creator": "xiaomi",
-      "creator_name": "Xiaomi",
-      "reasoning_status": "Reasoning",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1292.0,
-          "date": "2026-08-15",
-          "ci": 17.0,
-          "votes": 1661
-        }
-      }
-    },
-    {
-      "id": "mimo-v2-pro",
-      "name": "mimo-v2-pro",
-      "display_name": "mimo-v2-pro",
-      "creator": "xiaomi",
-      "creator_name": "Xiaomi",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1434.0,
-          "date": "2026-08-15",
-          "ci": 8.0,
-          "votes": 6975
-        }
-      }
-    },
-    {
       "id": "mimo-v2.5",
       "name": "mimo-v2.5",
       "display_name": "mimo-v2.5",
@@ -2615,12 +1747,6 @@
           "date": "2026-08-15",
           "ci": 7.0,
           "votes": 12261
-        },
-        "elo_vision": {
-          "value": 1238.0,
-          "date": "2026-08-06",
-          "ci": 7.0,
-          "votes": 20781
         }
       }
     },
@@ -2637,70 +1763,6 @@
           "date": "2026-08-15",
           "ci": 6.0,
           "votes": 13299
-        }
-      }
-    },
-    {
-      "id": "minimax-m2",
-      "name": "minimax-m2",
-      "display_name": "minimax-m2",
-      "creator": "minimax",
-      "creator_name": "MiniMax",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1297.0,
-          "date": "2026-08-15",
-          "ci": 11.0,
-          "votes": 6534
-        }
-      }
-    },
-    {
-      "id": "minimax-m2.1-preview",
-      "name": "minimax-m2.1-preview",
-      "display_name": "minimax-m2.1-preview",
-      "creator": "minimax",
-      "creator_name": "MiniMax",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1387.0,
-          "date": "2026-08-15",
-          "ci": 10.0,
-          "votes": 7293
-        }
-      }
-    },
-    {
-      "id": "minimax-m2.5",
-      "name": "minimax-m2.5",
-      "display_name": "minimax-m2.5",
-      "creator": "minimax",
-      "creator_name": "MiniMax",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1384.0,
-          "date": "2026-08-15",
-          "ci": 8.0,
-          "votes": 7219
-        }
-      }
-    },
-    {
-      "id": "minimax-m2.7",
-      "name": "minimax-m2.7",
-      "display_name": "minimax-m2.7",
-      "creator": "minimax",
-      "creator_name": "MiniMax",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1397.0,
-          "date": "2026-08-15",
-          "ci": 6.0,
-          "votes": 13625
         }
       }
     },
@@ -2723,60 +1785,6 @@
           "date": "2026-07-26",
           "ci": 8.0,
           "votes": 6263
-        },
-        "elo_vision": {
-          "value": 1240.0,
-          "date": "2026-08-06",
-          "ci": 8.0,
-          "votes": 10984
-        }
-      }
-    },
-    {
-      "id": "mistral-large-3",
-      "name": "mistral-large-3",
-      "display_name": "mistral-large-3",
-      "creator": "mistral",
-      "creator_name": "Mistral",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1230.0,
-          "date": "2026-08-15",
-          "ci": 26.0,
-          "votes": 815
-        }
-      }
-    },
-    {
-      "id": "mistral-medium-3.5",
-      "name": "mistral-medium-3.5",
-      "display_name": "mistral-medium-3.5",
-      "creator": "mistral",
-      "creator_name": "Mistral",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1265.0,
-          "date": "2026-08-15",
-          "ci": 15.0,
-          "votes": 2154
-        }
-      }
-    },
-    {
-      "id": "muse-glimmer",
-      "name": "muse-glimmer",
-      "display_name": "muse-glimmer",
-      "creator": "meta",
-      "creator_name": "Meta",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1359.0,
-          "date": "2026-08-15",
-          "ci": 16.0,
-          "votes": 1506
         }
       }
     },
@@ -2922,108 +1930,6 @@
       }
     },
     {
-      "id": "qwen3-coder-480b-a35b-instruct",
-      "name": "qwen3-coder-480b-a35b-instruct",
-      "display_name": "qwen3-coder-480b-a35b-instruct",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1273.0,
-          "date": "2026-08-15",
-          "ci": 8.0,
-          "votes": 12292
-        }
-      }
-    },
-    {
-      "id": "qwen3.5-122b-a10b",
-      "name": "qwen3.5-122b-a10b",
-      "display_name": "qwen3.5-122b-a10b",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1358.0,
-          "date": "2026-08-15",
-          "ci": 8.0,
-          "votes": 7866
-        }
-      }
-    },
-    {
-      "id": "qwen3.5-27b",
-      "name": "qwen3.5-27b",
-      "display_name": "qwen3.5-27b",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1358.0,
-          "date": "2026-08-15",
-          "ci": 8.0,
-          "votes": 7438
-        }
-      }
-    },
-    {
-      "id": "qwen3.5-35b-a3b",
-      "name": "qwen3.5-35b-a3b",
-      "display_name": "qwen3.5-35b-a3b",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1250.0,
-          "date": "2026-08-15",
-          "ci": 18.0,
-          "votes": 1540
-        }
-      }
-    },
-    {
-      "id": "qwen3.5-397b-a17b",
-      "name": "qwen3.5-397b-a17b",
-      "display_name": "qwen3.5-397b-a17b",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1400.0,
-          "date": "2026-08-15",
-          "ci": 5.0,
-          "votes": 17926
-        },
-        "elo_vision": {
-          "value": 1247.0,
-          "date": "2026-08-06",
-          "ci": 6.0,
-          "votes": 23868
-        }
-      }
-    },
-    {
-      "id": "qwen3.5-flash",
-      "name": "qwen3.5-flash",
-      "display_name": "qwen3.5-flash",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1238.0,
-          "date": "2026-08-15",
-          "ci": 20.0,
-          "votes": 1271
-        }
-      }
-    },
-    {
       "id": "qwen3.6-max-preview",
       "name": "qwen3.6-max-preview",
       "display_name": "qwen3.6-max-preview",
@@ -3084,12 +1990,6 @@
           "date": "2026-07-26",
           "ci": 11.0,
           "votes": 3088
-        },
-        "elo_vision": {
-          "value": 1262.0,
-          "date": "2026-08-06",
-          "ci": 9.0,
-          "votes": 7200
         }
       }
     },
@@ -3134,39 +2034,6 @@
           "date": "2026-08-15",
           "ci": 8.0,
           "votes": 7121
-        }
-      }
-    },
-    {
-      "id": "solar-pro4",
-      "name": "solar-pro4",
-      "display_name": "solar-pro4",
-      "creator": "upstage",
-      "creator_name": "Upstage",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1371.0,
-          "date": "2026-08-15",
-          "ci": 17.0,
-          "votes": 1400
-        }
-      }
-    },
-    {
-      "id": "trinity-large-thinking",
-      "name": "trinity-large-thinking",
-      "display_name": "trinity-large-thinking",
-      "creator": "",
-      "creator_name": "",
-      "reasoning_status": "Reasoning",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1239.0,
-          "date": "2026-08-15",
-          "ci": 20.0,
-          "votes": 1303
         }
       }
     }
