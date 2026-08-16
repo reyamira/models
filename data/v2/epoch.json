@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-08-15T18:18:14.869317914+00:00",
+    "fetched_at": "2026-08-16T06:18:16.933016487+00:00",
     "verified": true
   },
   "metrics": [
@@ -101,7 +101,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-12",
+      "last_updated": "2026-08-14",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -175,14 +175,14 @@
       "label": "Mystery Game Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-06"
+      "last_updated": "2026-08-15"
     },
     {
       "id": "otis_mock_aime_2024_2025",
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-12",
+      "last_updated": "2026-08-14",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -214,7 +214,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-12",
+      "last_updated": "2026-08-14",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -235,6 +235,37 @@
   ],
   "models": [
     {
+      "id": "gemini-3.7-flash",
+      "name": "gemini-3.7-flash_high",
+      "display_name": "gemini-3.7-flash",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
+      "release_date": "2026-08-13",
+      "effort_level": "high",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.47,
+          "date": "2026-08-14"
+        },
+        "gpqa_diamond": {
+          "value": 0.9482323232323232,
+          "date": "2026-08-14"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.37,
+          "date": "2026-08-14"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9722222222222222,
+          "date": "2026-08-14"
+        },
+        "simpleqa_verified": {
+          "value": 0.712,
+          "date": "2026-08-14"
+        }
+      }
+    },
+    {
       "id": "grok-4.6",
       "name": "grok-4.6",
       "display_name": "grok-4.6",
@@ -250,13 +281,17 @@
           "value": 0.9400252525252525,
           "date": "2026-08-12"
         },
+        "mystery_game_puzzles": {
+          "value": 0.34,
+          "date": "2026-08-14"
+        },
         "otis_mock_aime_2024_2025": {
-          "value": 0.9777777777777777,
-          "date": "2026-08-12"
+          "value": 0.9916666666666667,
+          "date": "2026-08-14"
         },
         "simpleqa_verified": {
-          "value": 0.53,
-          "date": "2026-08-12"
+          "value": 0.544,
+          "date": "2026-08-14"
         }
       }
     },
@@ -737,9 +772,25 @@
       "creator_name": "Thinking Machines",
       "release_date": "2026-07-15",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.18,
+          "date": "2026-08-14"
+        },
         "critpt": {
           "value": 0.08285714285714291,
           "date": "2026-07-15"
+        },
+        "gpqa_diamond": {
+          "value": 0.88510101010101,
+          "date": "2026-08-14"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.06,
+          "date": "2026-08-15"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9,
+          "date": "2026-08-14"
         },
         "proofbench": {
           "value": 0.05,
@@ -748,6 +799,10 @@
         "scicode": {
           "value": 0.487268518518519,
           "date": "2026-07-15"
+        },
+        "simpleqa_verified": {
+          "value": 0.195,
+          "date": "2026-08-14"
         }
       }
     },
