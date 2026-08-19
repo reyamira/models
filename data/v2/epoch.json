@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-08-18T18:18:12.950041744+00:00",
+    "fetched_at": "2026-08-19T06:18:14.473530414+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "ARC-AGI",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-07-24",
+      "last_updated": "2026-08-12",
       "description": "Abstract visual grid puzzles where the model must infer a transformation rule from a few input-output demonstrations and apply it to a novel case. Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -20,7 +20,7 @@
       "label": "ARC-AGI-2",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-07-24",
+      "last_updated": "2026-08-12",
       "description": "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing compositional and symbolic reasoning, two attempts per task (pass@2). Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -37,7 +37,7 @@
       "label": "APEX Agents",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-07-24",
+      "last_updated": "2026-08-12",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
     },
@@ -72,7 +72,7 @@
       "label": "WeirdML",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-07-31",
+      "last_updated": "2026-08-13",
       "description": "Unconventional machine-learning engineering tasks where the agent must write and run code to train a model on provided data, with several iterations allowed. Scored as accuracy on the held-out task; higher is better."
     },
     {
@@ -80,14 +80,14 @@
       "label": "Ale Bench",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-07-31"
+      "last_updated": "2026-08-13"
     },
     {
       "id": "blueprint_bench_2",
       "label": "Blueprint Bench 2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-24"
+      "last_updated": "2026-08-12"
     },
     {
       "id": "btf3",
@@ -117,14 +117,14 @@
       "label": "Cursorbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-24"
+      "last_updated": "2026-08-13"
     },
     {
       "id": "deepswe",
       "label": "Deepswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-24"
+      "last_updated": "2026-08-13"
     },
     {
       "id": "enigma_eval",
@@ -138,14 +138,14 @@
       "label": "Frontiercode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-24"
+      "last_updated": "2026-08-13"
     },
     {
       "id": "frontierswe",
       "label": "Frontierswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-08"
+      "last_updated": "2026-08-12"
     },
     {
       "id": "gpqa_diamond",
@@ -191,7 +191,7 @@
       "label": "Proofbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-24"
+      "last_updated": "2026-08-13"
     },
     {
       "id": "scicode",
@@ -230,25 +230,62 @@
       "label": "Vending Bench 2",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-07-24"
+      "last_updated": "2026-08-12"
     }
   ],
   "models": [
     {
+      "id": "deepseek-v4-pro-0813",
+      "name": "deepseek-v4-pro-0813",
+      "display_name": "deepseek-v4-pro-0813",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2026-08-13",
+      "scores": {
+        "ale_bench": {
+          "value": 1403.15,
+          "date": "2026-08-13"
+        },
+        "proofbench": {
+          "value": 0.5,
+          "date": "2026-08-13"
+        },
+        "weirdml": {
+          "value": 0.6622,
+          "date": "2026-08-13"
+        }
+      }
+    },
+    {
       "id": "gemini-3.7-flash",
-      "name": "gemini-3.7-flash_high",
+      "name": "gemini-3.7-flash",
       "display_name": "gemini-3.7-flash",
       "creator": "google-deepmind",
       "creator_name": "Google DeepMind",
       "release_date": "2026-08-13",
-      "effort_level": "high",
       "scores": {
+        "ale_bench": {
+          "value": 904.3,
+          "date": "2026-08-13"
+        },
         "chess_puzzles": {
           "value": 0.47,
           "date": "2026-08-14"
         },
+        "cursorbench": {
+          "value": 0.616,
+          "date": "2026-08-13"
+        },
+        "deepswe": {
+          "value": 0.6548672566371682,
+          "date": "2026-08-13"
+        },
         "epoch_capabilities_index": {
           "value": 156.36,
+          "date": "2026-08-13"
+        },
+        "frontiercode": {
+          "value": 0.43590000000000007,
           "date": "2026-08-13"
         },
         "gpqa_diamond": {
@@ -262,6 +299,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.9722222222222222,
           "date": "2026-08-14"
+        },
+        "proofbench": {
+          "value": 0.58,
+          "date": "2026-08-13"
         },
         "simpleqa_verified": {
           "value": 0.712,
@@ -277,12 +318,48 @@
       "creator_name": "xAI",
       "release_date": "2026-08-12",
       "scores": {
+        "ale_bench": {
+          "value": 1508.08,
+          "date": "2026-08-12"
+        },
+        "apex_agents": {
+          "value": 0.41200000000000003,
+          "date": "2026-08-12"
+        },
+        "arc_agi": {
+          "value": 0.875,
+          "date": "2026-08-12"
+        },
+        "arc_agi_2": {
+          "value": 0.6708333333333333,
+          "date": "2026-08-12"
+        },
+        "blueprint_bench_2": {
+          "value": 0.33188720173535774,
+          "date": "2026-08-12"
+        },
         "chess_puzzles": {
           "value": 0.4,
           "date": "2026-08-12"
         },
+        "cursorbench": {
+          "value": 0.708,
+          "date": "2026-08-12"
+        },
+        "deepswe": {
+          "value": 0.6747787610619469,
+          "date": "2026-08-12"
+        },
         "epoch_capabilities_index": {
           "value": 154.91,
+          "date": "2026-08-12"
+        },
+        "frontiercode": {
+          "value": 0.4801000000000001,
+          "date": "2026-08-12"
+        },
+        "frontierswe": {
+          "value": 0.78,
           "date": "2026-08-12"
         },
         "gpqa_diamond": {
@@ -297,24 +374,39 @@
           "value": 0.9916666666666667,
           "date": "2026-08-14"
         },
+        "proofbench": {
+          "value": 0.51,
+          "date": "2026-08-12"
+        },
         "simpleqa_verified": {
           "value": 0.544,
           "date": "2026-08-14"
+        },
+        "vending_bench_2": {
+          "value": 9047.032500000001,
+          "date": "2026-08-12"
+        },
+        "weirdml": {
+          "value": 0.6729,
+          "date": "2026-08-12"
         }
       }
     },
     {
       "id": "qwen3.8-max",
-      "name": "qwen3.8-max_xhigh",
+      "name": "qwen3.8-max",
       "display_name": "qwen3.8-max",
       "creator": "alibaba",
       "creator_name": "Alibaba",
       "release_date": "2026-08-02",
-      "effort_level": "max",
       "scores": {
         "chess_puzzles": {
           "value": 0.29,
           "date": "2026-08-04"
+        },
+        "deepswe": {
+          "value": 0.5746102449888641,
+          "date": "2026-08-02"
         },
         "epoch_capabilities_index": {
           "value": 156.08,
@@ -331,6 +423,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.9944444444444445,
           "date": "2026-08-04"
+        },
+        "proofbench": {
+          "value": 0.58,
+          "date": "2026-08-02"
         },
         "simpleqa_verified": {
           "value": 0.46292585170340683,
@@ -350,6 +446,14 @@
           "value": 1306.08,
           "date": "2026-07-31"
         },
+        "arc_agi": {
+          "value": 0.89,
+          "date": "2026-07-31"
+        },
+        "arc_agi_2": {
+          "value": 0.6138888888888888,
+          "date": "2026-07-31"
+        },
         "chess_puzzles": {
           "value": 0.33,
           "date": "2026-08-02"
@@ -360,6 +464,10 @@
         },
         "epoch_capabilities_index": {
           "value": 152.86,
+          "date": "2026-07-31"
+        },
+        "frontiercode": {
+          "value": 0.188,
           "date": "2026-07-31"
         },
         "gpqa_diamond": {
@@ -373,6 +481,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.9444444444444444,
           "date": "2026-08-02"
+        },
+        "proofbench": {
+          "value": 0.56,
+          "date": "2026-07-31"
         },
         "scicode": {
           "value": 0.49884259259259306,
@@ -487,7 +599,7 @@
           "date": "2026-07-24"
         },
         "proofbench": {
-          "value": 0.78,
+          "value": 0.99,
           "date": "2026-07-24"
         },
         "scicode": {
@@ -518,6 +630,14 @@
       "scores": {
         "ale_bench": {
           "value": 765.27,
+          "date": "2026-07-21"
+        },
+        "arc_agi": {
+          "value": 0.535,
+          "date": "2026-07-21"
+        },
+        "arc_agi_2": {
+          "value": 0.10277777777777779,
           "date": "2026-07-21"
         },
         "chess_puzzles": {
@@ -570,6 +690,14 @@
           "value": 715.52,
           "date": "2026-07-21"
         },
+        "arc_agi": {
+          "value": 0.9116666666666666,
+          "date": "2026-07-21"
+        },
+        "arc_agi_2": {
+          "value": 0.6041666666666666,
+          "date": "2026-07-21"
+        },
         "blueprint_bench_2": {
           "value": 0.31236442516268986,
           "date": "2026-07-21"
@@ -582,12 +710,20 @@
           "value": 0.105714285714286,
           "date": "2026-07-21"
         },
+        "cursorbench": {
+          "value": 0.535,
+          "date": "2026-07-21"
+        },
         "deepswe": {
           "value": 0.4855875831485588,
           "date": "2026-07-21"
         },
         "epoch_capabilities_index": {
           "value": 154.01,
+          "date": "2026-07-21"
+        },
+        "frontiercode": {
+          "value": 0.3437,
           "date": "2026-07-21"
         },
         "gpqa_diamond": {
@@ -656,6 +792,10 @@
           "value": 0.234,
           "date": "2026-07-16"
         },
+        "cursorbench": {
+          "value": 0.608,
+          "date": "2026-07-16"
+        },
         "deepswe": {
           "value": 0.6851441241685144,
           "date": "2026-07-16"
@@ -689,7 +829,7 @@
           "date": "2026-07-16"
         },
         "proofbench": {
-          "value": 0.7000000000000001,
+          "value": 0.87,
           "date": "2026-07-16"
         },
         "scicode": {
@@ -759,7 +899,7 @@
           "date": "2026-08-05"
         },
         "proofbench": {
-          "value": 0.02,
+          "value": 0.0,
           "date": "2026-07-15"
         },
         "scicode": {
@@ -784,6 +924,14 @@
       "creator_name": "Thinking Machines",
       "release_date": "2026-07-15",
       "scores": {
+        "arc_agi": {
+          "value": 0.84,
+          "date": "2026-07-15"
+        },
+        "arc_agi_2": {
+          "value": 0.40138888888888885,
+          "date": "2026-07-15"
+        },
         "chess_puzzles": {
           "value": 0.18,
           "date": "2026-08-14"
@@ -809,7 +957,7 @@
           "date": "2026-08-14"
         },
         "proofbench": {
-          "value": 0.05,
+          "value": 0.06,
           "date": "2026-07-15"
         },
         "scicode": {
@@ -854,6 +1002,10 @@
           "value": 0.206,
           "date": "2026-07-09"
         },
+        "cursorbench": {
+          "value": 0.611,
+          "date": "2026-07-09"
+        },
         "deepswe": {
           "value": 0.671875,
           "date": "2026-07-09"
@@ -879,7 +1031,7 @@
           "date": "2026-07-09"
         },
         "proofbench": {
-          "value": 0.54,
+          "value": 0.6,
           "date": "2026-07-09"
         },
         "scicode": {
@@ -993,7 +1145,7 @@
           "date": "2026-07-09"
         },
         "proofbench": {
-          "value": 0.77,
+          "value": 0.83,
           "date": "2026-07-09"
         },
         "scicode": {
@@ -1096,6 +1248,10 @@
         },
         "critpt": {
           "value": 0.3,
+          "date": "2026-07-09"
+        },
+        "cursorbench": {
+          "value": 0.649,
           "date": "2026-07-09"
         },
         "deepswe": {
@@ -1267,7 +1423,7 @@
           "date": "2026-07-08"
         },
         "proofbench": {
-          "value": 0.3,
+          "value": 0.31,
           "date": "2026-07-08"
         },
         "scicode": {
@@ -1326,6 +1482,10 @@
           "value": 0.325,
           "date": "2026-06-30"
         },
+        "blueprint_bench_2": {
+          "value": 0.24945770065075923,
+          "date": "2026-06-30"
+        },
         "btf3": {
           "value": 0.154,
           "date": "2026-06-30"
@@ -1375,7 +1535,7 @@
           "date": "2026-07-01"
         },
         "proofbench": {
-          "value": 0.66,
+          "value": 0.77,
           "date": "2026-06-30"
         },
         "scicode": {
@@ -1526,6 +1686,10 @@
           "value": 0.1,
           "date": "2026-06-12"
         },
+        "cursorbench": {
+          "value": 0.49700000000000005,
+          "date": "2026-06-12"
+        },
         "deepswe": {
           "value": 0.3053097345132743,
           "date": "2026-06-12"
@@ -1590,6 +1754,14 @@
         },
         "apex_agents": {
           "value": 0.45,
+          "date": "2026-06-09"
+        },
+        "arc_agi": {
+          "value": 0.985,
+          "date": "2026-06-09"
+        },
+        "arc_agi_2": {
+          "value": 0.8916666666666667,
           "date": "2026-06-09"
         },
         "blueprint_bench_2": {
@@ -1657,7 +1829,7 @@
           "date": "2026-06-09"
         },
         "proofbench": {
-          "value": 0.77,
+          "value": 0.95,
           "date": "2026-06-09"
         },
         "scicode": {
@@ -1799,7 +1971,7 @@
           "date": "2026-08-10"
         },
         "proofbench": {
-          "value": 0.19,
+          "value": 0.18,
           "date": "2026-06-01"
         },
         "scicode": {
@@ -2065,7 +2237,7 @@
           "date": "2026-05-25"
         },
         "proofbench": {
-          "value": 0.29,
+          "value": 0.31,
           "date": "2026-05-19"
         },
         "scicode": {
@@ -2168,6 +2340,10 @@
       "creator_name": "Cursor",
       "release_date": "2026-05-18",
       "scores": {
+        "cursorbench": {
+          "value": 0.561,
+          "date": "2026-05-18"
+        },
         "frontiercode": {
           "value": 0.256,
           "date": "2026-05-18"
@@ -2308,8 +2484,12 @@
           "value": 142.68,
           "date": "2026-04-28"
         },
+        "frontiercode": {
+          "value": 0.08,
+          "date": "2026-04-28"
+        },
         "proofbench": {
-          "value": 0.1,
+          "value": 0.09,
           "date": "2026-04-28"
         },
         "scicode": {
@@ -2435,7 +2615,7 @@
           "date": "2026-06-17"
         },
         "proofbench": {
-          "value": 0.1,
+          "value": 0.16,
           "date": "2026-04-24"
         },
         "scicode": {
@@ -3422,6 +3602,10 @@
           "value": 149.07,
           "date": "2026-03-17"
         },
+        "frontiercode": {
+          "value": 0.2704,
+          "date": "2026-03-17"
+        },
         "gpqa_diamond": {
           "value": 0.8686868686868687,
           "date": "2026-08-07"
@@ -4028,6 +4212,10 @@
           "value": 152.19,
           "date": "2026-02-17"
         },
+        "frontiercode": {
+          "value": 0.24310000000000004,
+          "date": "2026-02-17"
+        },
         "gbaeval": {
           "value": 0.4875663483204475,
           "date": "2026-02-17"
@@ -4376,6 +4564,10 @@
           "value": 155.16,
           "date": "2026-02-05"
         },
+        "frontiercode": {
+          "value": 0.2664,
+          "date": "2026-02-05"
+        },
         "frontierswe": {
           "value": 0.59,
           "date": "2026-02-05"
@@ -4636,6 +4828,10 @@
       "scores": {
         "ale_bench": {
           "value": 399.48,
+          "date": "2025-12-22"
+        },
+        "apex_agents": {
+          "value": 0.087,
           "date": "2025-12-22"
         },
         "chess_puzzles": {
@@ -11433,7 +11629,7 @@
           "value": 0.04
         },
         "proofbench": {
-          "value": 0.24
+          "value": 0.22
         },
         "scicode": {
           "value": 0.502314814814815
