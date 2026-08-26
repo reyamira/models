@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-08-25T18:18:50.599096679+00:00",
+    "fetched_at": "2026-08-26T06:18:15.255505050+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "ARC-AGI",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-08-12",
+      "last_updated": "2026-08-13",
       "description": "Abstract visual grid puzzles where the model must infer a transformation rule from a few input-output demonstrations and apply it to a novel case. Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -20,7 +20,7 @@
       "label": "ARC-AGI-2",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-08-12",
+      "last_updated": "2026-08-13",
       "description": "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing compositional and symbolic reasoning, two attempts per task (pass@2). Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -71,7 +71,7 @@
       "label": "Ale Bench",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-08-13"
+      "last_updated": "2026-08-14"
     },
     {
       "id": "blueprint_bench_2",
@@ -115,7 +115,7 @@
       "label": "Deepswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-13"
+      "last_updated": "2026-08-14"
     },
     {
       "id": "enigma_eval",
@@ -123,6 +123,13 @@
       "kind": "percentage",
       "group": "Academic",
       "last_updated": "2026-07-09"
+    },
+    {
+      "id": "forecastbench",
+      "label": "Forecastbench",
+      "kind": "index",
+      "group": "Academic",
+      "last_updated": "2026-06-30"
     },
     {
       "id": "frontiercode",
@@ -136,7 +143,7 @@
       "label": "Frontierswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-12"
+      "last_updated": "2026-08-14"
     },
     {
       "id": "gpqa_diamond",
@@ -182,6 +189,13 @@
       "label": "Proofbench",
       "kind": "percentage",
       "group": "Academic",
+      "last_updated": "2026-08-14"
+    },
+    {
+      "id": "rli",
+      "label": "Rli",
+      "kind": "percentage",
+      "group": "Academic",
       "last_updated": "2026-08-13"
     },
     {
@@ -196,7 +210,7 @@
       "label": "SimpleBench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-09",
+      "last_updated": "2026-08-12",
       "description": "Common-sense reasoning 'trick' questions about space, time, and social cues that are easy for people (84% human baseline) but hard for models. Scored as accuracy (% correct); higher is better.",
       "short_label": "SimpleBnch"
     },
@@ -214,17 +228,61 @@
       "label": "Surface Evolver Bench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-16"
+      "last_updated": "2026-08-14"
     },
     {
       "id": "vending_bench_2",
       "label": "Vending Bench 2",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-08-12"
+      "last_updated": "2026-08-14"
     }
   ],
   "models": [
+    {
+      "id": "glm-5.3",
+      "name": "glm-5.3",
+      "display_name": "glm-5.3",
+      "creator": "z-ai-zhipu-ai",
+      "creator_name": "Z.ai (Zhipu AI)",
+      "release_date": "2026-08-14",
+      "scores": {
+        "ale_bench": {
+          "value": 1317.4,
+          "date": "2026-08-14"
+        },
+        "deepswe": {
+          "value": 0.6895787139689579,
+          "date": "2026-08-14"
+        },
+        "frontierswe": {
+          "value": 0.78,
+          "date": "2026-08-14"
+        },
+        "vending_bench_2": {
+          "value": 8163.609999999998,
+          "date": "2026-08-14"
+        }
+      }
+    },
+    {
+      "id": "qwen3.8-27b",
+      "name": "qwen3.8-27b",
+      "display_name": "qwen3.8-27b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-08-14",
+      "scores": {
+        "proofbench": {
+          "value": 0.16,
+          "date": "2026-08-14"
+        },
+        "surface_evolver_bench": {
+          "value": 0.45,
+          "date": "2026-08-14"
+        }
+      }
+    },
     {
       "id": "deepseek-v4-pro-0813",
       "name": "deepseek-v4-pro-0813",
@@ -235,6 +293,14 @@
       "scores": {
         "ale_bench": {
           "value": 1403.15,
+          "date": "2026-08-13"
+        },
+        "arc_agi": {
+          "value": 0.905,
+          "date": "2026-08-13"
+        },
+        "arc_agi_2": {
+          "value": 0.6125,
           "date": "2026-08-13"
         },
         "chess_puzzles": {
@@ -279,6 +345,14 @@
           "value": 904.3,
           "date": "2026-08-13"
         },
+        "arc_agi": {
+          "value": 0.9550000000000001,
+          "date": "2026-08-13"
+        },
+        "arc_agi_2": {
+          "value": 0.8458333333333333,
+          "date": "2026-08-13"
+        },
         "chess_puzzles": {
           "value": 0.47,
           "date": "2026-08-14"
@@ -313,6 +387,10 @@
         },
         "proofbench": {
           "value": 0.58,
+          "date": "2026-08-13"
+        },
+        "rli": {
+          "value": 0.05,
           "date": "2026-08-13"
         },
         "simpleqa_verified": {
@@ -389,6 +467,10 @@
           "value": 0.51,
           "date": "2026-08-12"
         },
+        "simplebench": {
+          "value": 0.7590000000000001,
+          "date": "2026-08-12"
+        },
         "simpleqa_verified": {
           "value": 0.544,
           "date": "2026-08-14"
@@ -400,6 +482,32 @@
         "weirdml": {
           "value": 0.6729,
           "date": "2026-08-12"
+        }
+      }
+    },
+    {
+      "id": "muse-spark-1.2",
+      "name": "muse-spark-1.2",
+      "display_name": "muse-spark-1.2",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
+      "release_date": "2026-08-05",
+      "scores": {
+        "deepswe": {
+          "value": 0.5486725663716814,
+          "date": "2026-08-05"
+        },
+        "proofbench": {
+          "value": 0.43,
+          "date": "2026-08-05"
+        },
+        "simplebench": {
+          "value": 0.745,
+          "date": "2026-08-05"
+        },
+        "weirdml": {
+          "value": 0.603,
+          "date": "2026-08-05"
         }
       }
     },
@@ -501,6 +609,10 @@
           "value": 0.49884259259259306,
           "date": "2026-07-31"
         },
+        "simplebench": {
+          "value": 0.611,
+          "date": "2026-07-31"
+        },
         "simpleqa_verified": {
           "value": 0.3466933867735471,
           "date": "2026-08-02"
@@ -586,7 +698,7 @@
           "date": "2026-07-24"
         },
         "frontiercode": {
-          "value": 0.534,
+          "value": 0.5338,
           "date": "2026-07-24"
         },
         "gbaeval": {
@@ -606,7 +718,7 @@
           "date": "2026-07-24"
         },
         "posttrainbench": {
-          "value": 0.3406,
+          "value": 0.3504,
           "date": "2026-07-24"
         },
         "proofbench": {
@@ -615,6 +727,10 @@
         },
         "scicode": {
           "value": 0.556712962962963,
+          "date": "2026-07-24"
+        },
+        "simplebench": {
+          "value": 0.8059999999999999,
           "date": "2026-07-24"
         },
         "simpleqa_verified": {
@@ -726,7 +842,7 @@
           "date": "2026-07-21"
         },
         "deepswe": {
-          "value": 0.4855875831485588,
+          "value": 0.4668141592920354,
           "date": "2026-07-21"
         },
         "epoch_capabilities_index": {
@@ -816,7 +932,7 @@
           "date": "2026-07-16"
         },
         "frontiercode": {
-          "value": 0.44200000000000006,
+          "value": 0.44170000000000004,
           "date": "2026-07-16"
         },
         "gbaeval": {
@@ -845,6 +961,10 @@
         },
         "scicode": {
           "value": 0.586805555555556,
+          "date": "2026-07-16"
+        },
+        "simplebench": {
+          "value": 0.6070000000000001,
           "date": "2026-07-16"
         },
         "simpleqa_verified": {
@@ -915,6 +1035,10 @@
         },
         "scicode": {
           "value": 0.460648148148148,
+          "date": "2026-07-15"
+        },
+        "simplebench": {
+          "value": 0.5,
           "date": "2026-07-15"
         },
         "simpleqa_verified": {
@@ -1026,7 +1150,7 @@
           "date": "2026-07-09"
         },
         "frontiercode": {
-          "value": 0.398,
+          "value": 0.3981,
           "date": "2026-07-09"
         },
         "gpqa_diamond": {
@@ -1058,7 +1182,7 @@
           "date": "2026-07-09"
         },
         "surface_evolver_bench": {
-          "value": 0.6,
+          "value": 0.61875,
           "date": "2026-07-09"
         },
         "vending_bench_2": {
@@ -1100,7 +1224,7 @@
           "date": "2026-07-09"
         },
         "btf3": {
-          "value": 0.135,
+          "value": 0.137,
           "date": "2026-07-09"
         },
         "chess_puzzles": {
@@ -1128,7 +1252,7 @@
           "date": "2026-07-09"
         },
         "frontiercode": {
-          "value": 0.475,
+          "value": 0.47490000000000004,
           "date": "2026-07-09"
         },
         "gbaeval": {
@@ -1156,7 +1280,7 @@
           "date": "2026-07-09"
         },
         "proofbench": {
-          "value": 0.83,
+          "value": 0.8300000000000001,
           "date": "2026-07-09"
         },
         "scicode": {
@@ -1230,6 +1354,24 @@
       }
     },
     {
+      "id": "gpt-5.6-sol_proxhigh",
+      "name": "gpt-5.6-sol_proxhigh",
+      "display_name": "gpt-5.6-sol_proxhigh",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-07-09",
+      "scores": {
+        "epoch_capabilities_index": {
+          "value": 161.08,
+          "date": "2026-07-09"
+        },
+        "simplebench": {
+          "value": 0.7170000000000001,
+          "date": "2026-07-09"
+        }
+      }
+    },
+    {
       "id": "gpt-5.6-terra",
       "name": "gpt-5.6-terra",
       "display_name": "gpt-5.6-terra",
@@ -1274,7 +1416,7 @@
           "date": "2026-07-09"
         },
         "frontiercode": {
-          "value": 0.413,
+          "value": 0.4131,
           "date": "2026-07-09"
         },
         "gpqa_diamond": {
@@ -1290,7 +1432,7 @@
           "date": "2026-07-09"
         },
         "proofbench": {
-          "value": 0.71,
+          "value": 0.74,
           "date": "2026-07-09"
         },
         "scicode": {
@@ -1410,11 +1552,11 @@
           "date": "2026-07-08"
         },
         "frontiercode": {
-          "value": 0.424,
+          "value": 0.4244,
           "date": "2026-07-08"
         },
         "frontierswe": {
-          "value": 0.78,
+          "value": 0.72,
           "date": "2026-07-08"
         },
         "gbaeval": {
@@ -1442,7 +1584,7 @@
           "date": "2026-07-08"
         },
         "simplebench": {
-          "value": 0.7,
+          "value": 0.7000000000000001,
           "date": "2026-07-08"
         },
         "simpleqa_verified": {
@@ -1472,7 +1614,7 @@
       "release_date": "2026-07-08",
       "scores": {
         "frontiercode": {
-          "value": 0.4233,
+          "value": 0.41990000000000005,
           "date": "2026-07-08"
         }
       }
@@ -1510,7 +1652,7 @@
           "date": "2026-06-30"
         },
         "cursorbench": {
-          "value": 0.612,
+          "value": 0.615,
           "date": "2026-06-30"
         },
         "deepswe": {
@@ -1521,8 +1663,12 @@
           "value": 155.9,
           "date": "2026-06-30"
         },
+        "forecastbench": {
+          "value": 59.9,
+          "date": "2026-06-30"
+        },
         "frontiercode": {
-          "value": 0.42699999999999994,
+          "value": 0.42730000000000007,
           "date": "2026-06-30"
         },
         "gbaeval": {
@@ -1608,7 +1754,7 @@
           "date": "2026-06-16"
         },
         "cursorbench": {
-          "value": 0.546,
+          "value": 0.55,
           "date": "2026-06-16"
         },
         "deepswe": {
@@ -1624,7 +1770,7 @@
           "date": "2026-06-16"
         },
         "frontierswe": {
-          "value": 0.72,
+          "value": 0.67,
           "date": "2026-06-16"
         },
         "gbaeval": {
@@ -1640,7 +1786,7 @@
           "date": "2026-06-25"
         },
         "posttrainbench": {
-          "value": 0.3429,
+          "value": 0.317,
           "date": "2026-06-16"
         },
         "proofbench": {
@@ -1649,6 +1795,10 @@
         },
         "scicode": {
           "value": 0.50462962962963,
+          "date": "2026-06-16"
+        },
+        "simplebench": {
+          "value": 0.588,
           "date": "2026-06-16"
         },
         "simpleqa_verified": {
@@ -1706,7 +1856,7 @@
           "date": "2026-06-12"
         },
         "frontiercode": {
-          "value": 0.301,
+          "value": 0.3006,
           "date": "2026-06-12"
         },
         "gbaeval": {
@@ -1776,7 +1926,7 @@
           "date": "2026-06-09"
         },
         "btf3": {
-          "value": 0.131,
+          "value": 0.13,
           "date": "2026-06-09"
         },
         "chess_puzzles": {
@@ -1788,7 +1938,7 @@
           "date": "2026-06-09"
         },
         "cursorbench": {
-          "value": 0.7290000000000001,
+          "value": 0.705,
           "date": "2026-06-09"
         },
         "deepswe": {
@@ -1804,11 +1954,11 @@
           "date": "2026-06-09"
         },
         "frontiercode": {
-          "value": 0.535,
+          "value": 0.5348,
           "date": "2026-06-09"
         },
         "frontierswe": {
-          "value": 0.9,
+          "value": 0.88,
           "date": "2026-06-09"
         },
         "gbaeval": {
@@ -1836,7 +1986,11 @@
           "date": "2026-06-09"
         },
         "proofbench": {
-          "value": 0.95,
+          "value": 0.9500000000000001,
+          "date": "2026-06-09"
+        },
+        "rli": {
+          "value": 0.161,
           "date": "2026-06-09"
         },
         "scicode": {
@@ -1961,6 +2115,10 @@
           "value": 147.54,
           "date": "2026-06-01"
         },
+        "forecastbench": {
+          "value": 60.4,
+          "date": "2026-06-01"
+        },
         "frontiercode": {
           "value": 0.147,
           "date": "2026-06-01"
@@ -1986,11 +2144,11 @@
           "date": "2026-06-01"
         },
         "simplebench": {
-          "value": 0.458,
+          "value": 0.45799999999999996,
           "date": "2026-06-01"
         },
         "surface_evolver_bench": {
-          "value": 0.53125,
+          "value": 0.5499999999999999,
           "date": "2026-06-01"
         },
         "vending_bench_2": {
@@ -2084,7 +2242,7 @@
           "date": "2026-05-28"
         },
         "cursorbench": {
-          "value": 0.638,
+          "value": 0.623,
           "date": "2026-05-28"
         },
         "deepswe": {
@@ -2099,12 +2257,16 @@
           "value": 157.78,
           "date": "2026-05-28"
         },
+        "forecastbench": {
+          "value": 59.3,
+          "date": "2026-05-28"
+        },
         "frontiercode": {
           "value": 0.465,
           "date": "2026-05-28"
         },
         "frontierswe": {
-          "value": 0.78,
+          "value": 0.67,
           "date": "2026-05-28"
         },
         "gbaeval": {
@@ -2128,11 +2290,15 @@
           "date": "2026-06-07"
         },
         "posttrainbench": {
-          "value": 0.3408,
+          "value": 0.33840000000000003,
           "date": "2026-05-28"
         },
         "proofbench": {
           "value": 0.6900000000000001,
+          "date": "2026-05-28"
+        },
+        "rli": {
+          "value": 0.0833,
           "date": "2026-05-28"
         },
         "scicode": {
@@ -2225,6 +2391,10 @@
         },
         "epoch_capabilities_index": {
           "value": 154.45,
+          "date": "2026-05-19"
+        },
+        "forecastbench": {
+          "value": 59.2,
           "date": "2026-05-19"
         },
         "gbaeval": {
@@ -2344,11 +2514,11 @@
           "date": "2026-05-18"
         },
         "frontiercode": {
-          "value": 0.256,
+          "value": 0.2564,
           "date": "2026-05-18"
         },
         "frontierswe": {
-          "value": 0.38,
+          "value": 0.34,
           "date": "2026-05-18"
         }
       }
@@ -2567,6 +2737,10 @@
           "value": 0.44907407407407407,
           "date": "2026-04-24"
         },
+        "simplebench": {
+          "value": 0.46299999999999997,
+          "date": "2026-04-24"
+        },
         "weirdml": {
           "value": 0.45630000000000004,
           "date": "2026-04-24"
@@ -2597,12 +2771,16 @@
           "value": 149.49,
           "date": "2026-04-24"
         },
+        "forecastbench": {
+          "value": 55.3,
+          "date": "2026-04-24"
+        },
         "frontiercode": {
-          "value": 0.176,
+          "value": 0.1764,
           "date": "2026-04-24"
         },
         "frontierswe": {
-          "value": 0.31,
+          "value": 0.25,
           "date": "2026-04-24"
         },
         "gpqa_diamond": {
@@ -2619,10 +2797,6 @@
         },
         "scicode": {
           "value": 0.5,
-          "date": "2026-04-24"
-        },
-        "simplebench": {
-          "value": 0.612,
           "date": "2026-04-24"
         },
         "simpleqa_verified": {
@@ -2684,7 +2858,7 @@
           "date": "2026-04-23"
         },
         "cursorbench": {
-          "value": 0.643,
+          "value": 0.584,
           "date": "2026-04-23"
         },
         "deepswe": {
@@ -2695,12 +2869,16 @@
           "value": 158.67,
           "date": "2026-04-23"
         },
+        "forecastbench": {
+          "value": 61.1,
+          "date": "2026-04-23"
+        },
         "frontiercode": {
-          "value": 0.43,
+          "value": 0.42960000000000004,
           "date": "2026-04-23"
         },
         "frontierswe": {
-          "value": 0.76,
+          "value": 0.65,
           "date": "2026-04-23"
         },
         "gbaeval": {
@@ -2728,11 +2906,15 @@
           "date": "2026-08-07"
         },
         "posttrainbench": {
-          "value": 0.2502,
+          "value": 0.2723,
           "date": "2026-04-23"
         },
         "proofbench": {
           "value": 0.5,
+          "date": "2026-04-23"
+        },
+        "rli": {
+          "value": 0.0625,
           "date": "2026-04-23"
         },
         "scicode": {
@@ -2740,7 +2922,7 @@
           "date": "2026-04-23"
         },
         "simplebench": {
-          "value": 0.69,
+          "value": 0.6900000000000001,
           "date": "2026-04-23"
         },
         "surface_evolver_bench": {
@@ -2907,7 +3089,7 @@
           "date": "2026-04-20"
         },
         "frontierswe": {
-          "value": 0.28,
+          "value": 0.22,
           "date": "2026-04-20"
         },
         "gbaeval": {
@@ -3014,6 +3196,10 @@
           "value": 149.16,
           "date": "2026-04-17"
         },
+        "forecastbench": {
+          "value": 60.4,
+          "date": "2026-04-17"
+        },
         "vending_bench_2": {
           "value": 35.26166666666665,
           "date": "2026-04-17"
@@ -3111,12 +3297,16 @@
           "value": 155.98,
           "date": "2026-04-16"
         },
+        "forecastbench": {
+          "value": 59.6,
+          "date": "2026-04-16"
+        },
         "frontiercode": {
-          "value": 0.385,
+          "value": 0.3854,
           "date": "2026-04-16"
         },
         "frontierswe": {
-          "value": 0.66,
+          "value": 0.56,
           "date": "2026-04-16"
         },
         "gbaeval": {
@@ -3156,7 +3346,7 @@
           "date": "2026-04-16"
         },
         "simplebench": {
-          "value": 0.629,
+          "value": 0.617,
           "date": "2026-04-16"
         },
         "simpleqa_verified": {
@@ -3168,7 +3358,7 @@
           "date": "2026-04-16"
         },
         "weirdml": {
-          "value": 0.7640000000000001,
+          "value": 0.7644,
           "date": "2026-04-16"
         }
       }
@@ -3292,7 +3482,7 @@
           "date": "2026-04-07"
         },
         "frontierswe": {
-          "value": 0.32,
+          "value": 0.26,
           "date": "2026-04-07"
         },
         "gbaeval": {
@@ -3342,7 +3532,7 @@
       "release_date": "2026-04-07",
       "scores": {
         "frontiercode": {
-          "value": 0.094,
+          "value": 0.09390000000000001,
           "date": "2026-04-07"
         }
       }
@@ -3470,7 +3660,7 @@
           "date": "2026-03-31"
         },
         "frontierswe": {
-          "value": 0.24,
+          "value": 0.2,
           "date": "2026-03-31"
         },
         "gpqa_diamond": {
@@ -3573,6 +3763,10 @@
           "value": 149.29,
           "date": "2026-03-17"
         },
+        "forecastbench": {
+          "value": 57.0,
+          "date": "2026-03-17"
+        },
         "frontiercode": {
           "value": 0.2704,
           "date": "2026-03-17"
@@ -3637,6 +3831,10 @@
         },
         "epoch_capabilities_index": {
           "value": 146.23,
+          "date": "2026-03-17"
+        },
+        "forecastbench": {
+          "value": 57.3,
           "date": "2026-03-17"
         },
         "gpqa_diamond": {
@@ -3753,12 +3951,16 @@
           "value": 156.5,
           "date": "2026-03-05"
         },
+        "forecastbench": {
+          "value": 59.5,
+          "date": "2026-03-05"
+        },
         "frontierswe": {
-          "value": 0.56,
+          "value": 0.46,
           "date": "2026-03-05"
         },
         "gbaeval": {
-          "value": 0.3160372478663838,
+          "value": 0.4514817826662626,
           "date": "2026-03-05"
         },
         "gpqa_diamond": {
@@ -3782,7 +3984,7 @@
           "date": "2026-07-15"
         },
         "posttrainbench": {
-          "value": 0.2023,
+          "value": 0.19,
           "date": "2026-03-05"
         },
         "proofbench": {
@@ -3901,6 +4103,10 @@
         },
         "epoch_capabilities_index": {
           "value": 145.01,
+          "date": "2026-03-03"
+        },
+        "forecastbench": {
+          "value": 54.4,
           "date": "2026-03-03"
         },
         "gpqa_diamond": {
@@ -4040,19 +4246,23 @@
           "date": "2026-02-19"
         },
         "deepswe": {
-          "value": 0.11751662971175167,
+          "value": 0.1172566371681416,
           "date": "2026-02-19"
         },
         "enigma_eval": {
-          "value": 0.19760000000000003,
+          "value": 0.3678,
           "date": "2026-02-19"
         },
         "epoch_capabilities_index": {
           "value": 154.62,
           "date": "2026-02-19"
         },
+        "forecastbench": {
+          "value": 59.0,
+          "date": "2026-02-19"
+        },
         "frontierswe": {
-          "value": 0.41000000000000003,
+          "value": 0.34,
           "date": "2026-02-19"
         },
         "gbaeval": {
@@ -4080,7 +4290,7 @@
           "date": "2026-02-20"
         },
         "posttrainbench": {
-          "value": 0.2159,
+          "value": 0.21989999999999998,
           "date": "2026-02-19"
         },
         "proofbench": {
@@ -4092,7 +4302,7 @@
           "date": "2026-02-19"
         },
         "simplebench": {
-          "value": 0.796,
+          "value": 0.7959999999999999,
           "date": "2026-02-19"
         },
         "simpleqa_verified": {
@@ -4104,7 +4314,7 @@
           "date": "2026-02-19"
         },
         "weirdml": {
-          "value": 0.721,
+          "value": 0.7206999999999999,
           "date": "2026-02-19"
         }
       }
@@ -4173,6 +4383,10 @@
         },
         "epoch_capabilities_index": {
           "value": 152.17,
+          "date": "2026-02-17"
+        },
+        "forecastbench": {
+          "value": 61.2,
           "date": "2026-02-17"
         },
         "frontiercode": {
@@ -4249,6 +4463,10 @@
           "value": 152.07,
           "date": "2026-02-17"
         },
+        "forecastbench": {
+          "value": 61.4,
+          "date": "2026-02-17"
+        },
         "vending_bench_2": {
           "value": 4662.846666666667,
           "date": "2026-02-17"
@@ -4273,6 +4491,10 @@
         },
         "epoch_capabilities_index": {
           "value": 152.07,
+          "date": "2026-02-17"
+        },
+        "forecastbench": {
+          "value": 60.7,
           "date": "2026-02-17"
         },
         "gpqa_diamond": {
@@ -4457,6 +4679,10 @@
           "value": 146.13,
           "date": "2026-02-11"
         },
+        "forecastbench": {
+          "value": 61.0,
+          "date": "2026-02-11"
+        },
         "gpqa_diamond": {
           "value": 0.8781725888324873,
           "date": "2026-02-12"
@@ -4519,12 +4745,16 @@
           "value": 155.01,
           "date": "2026-02-05"
         },
+        "forecastbench": {
+          "value": 60.0,
+          "date": "2026-02-05"
+        },
         "frontiercode": {
           "value": 0.2664,
           "date": "2026-02-05"
         },
         "frontierswe": {
-          "value": 0.59,
+          "value": 0.49,
           "date": "2026-02-05"
         },
         "gbaeval": {
@@ -4555,8 +4785,12 @@
           "value": 0.5,
           "date": "2026-02-05"
         },
+        "rli": {
+          "value": 0.0417,
+          "date": "2026-02-05"
+        },
         "simplebench": {
-          "value": 0.676,
+          "value": 0.6759999999999999,
           "date": "2026-02-05"
         },
         "simpleqa_verified": {
@@ -4700,7 +4934,7 @@
           "date": "2026-01-27"
         },
         "frontierswe": {
-          "value": 0.27,
+          "value": 0.23,
           "date": "2026-01-27"
         },
         "posttrainbench": {
@@ -4917,13 +5151,17 @@
           "value": 151.72,
           "date": "2025-12-17"
         },
+        "forecastbench": {
+          "value": 58.5,
+          "date": "2025-12-17"
+        },
         "gpqa_diamond": {
           "value": 0.8939393939393939,
           "date": "2026-08-06"
         },
         "gso": {
           "value": 0.098,
-          "date": "2025-12-17"
+          "date": "2025-12-19"
         },
         "mystery_game_puzzles": {
           "value": 0.26,
@@ -4991,13 +5229,17 @@
           "value": 153.31,
           "date": "2025-12-11"
         },
+        "forecastbench": {
+          "value": 60.1,
+          "date": "2025-12-11"
+        },
         "gpqa_diamond": {
           "value": 0.914,
           "date": "2025-12-13"
         },
         "gso": {
-          "value": 0.274,
-          "date": "2025-12-11"
+          "value": 0.2745,
+          "date": "2025-12-18"
         },
         "mystery_game_puzzles": {
           "value": 0.23,
@@ -5015,6 +5257,10 @@
           "value": 0.15,
           "date": "2025-12-11"
         },
+        "rli": {
+          "value": 0.025019999999999997,
+          "date": "2025-12-11"
+        },
         "simplebench": {
           "value": 0.458,
           "date": "2025-12-11"
@@ -5028,7 +5274,7 @@
           "date": "2025-12-11"
         },
         "weirdml": {
-          "value": 0.722,
+          "value": 0.7219,
           "date": "2025-12-11"
         }
       }
@@ -5285,6 +5531,10 @@
           "value": 149.93,
           "date": "2025-11-24"
         },
+        "forecastbench": {
+          "value": 60.7,
+          "date": "2025-11-24"
+        },
         "gpqa_diamond": {
           "value": 0.860479797979798,
           "date": "2025-11-24"
@@ -5309,6 +5559,10 @@
           "value": 0.36,
           "date": "2025-11-24"
         },
+        "rli": {
+          "value": 0.0375,
+          "date": "2025-11-24"
+        },
         "simplebench": {
           "value": 0.62,
           "date": "2025-11-24"
@@ -5322,7 +5576,7 @@
           "date": "2025-11-24"
         },
         "weirdml": {
-          "value": 0.637,
+          "value": 0.6374000000000001,
           "date": "2025-11-24"
         }
       }
@@ -5397,6 +5651,10 @@
           "value": 394.93,
           "date": "2025-11-19"
         },
+        "forecastbench": {
+          "value": 61.0,
+          "date": "2025-11-19"
+        },
         "proofbench": {
           "value": 0.04,
           "date": "2025-11-19"
@@ -5451,13 +5709,17 @@
           "value": 153.06,
           "date": "2025-11-18"
         },
+        "forecastbench": {
+          "value": 61.2,
+          "date": "2025-11-18"
+        },
         "gpqa_diamond": {
           "value": 0.9261363636363636,
           "date": "2025-11-19"
         },
         "gso": {
-          "value": 0.186,
-          "date": "2025-11-18"
+          "value": 0.1863,
+          "date": "2025-11-28"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9138888888888889,
@@ -5471,8 +5733,12 @@
           "value": 0.2,
           "date": "2025-11-18"
         },
+        "rli": {
+          "value": 0.0125,
+          "date": "2025-11-18"
+        },
         "simplebench": {
-          "value": 0.764,
+          "value": 0.7640000000000001,
           "date": "2025-11-18"
         },
         "simpleqa_verified": {
@@ -5541,6 +5807,10 @@
         },
         "epoch_capabilities_index": {
           "value": 149.58,
+          "date": "2025-11-13"
+        },
+        "forecastbench": {
+          "value": 58.1,
           "date": "2025-11-13"
         },
         "gpqa_diamond": {
@@ -5721,6 +5991,10 @@
         },
         "epoch_capabilities_index": {
           "value": 142.86,
+          "date": "2025-10-15"
+        },
+        "forecastbench": {
+          "value": 61.4,
           "date": "2025-10-15"
         },
         "gpqa_diamond": {
@@ -5912,6 +6186,10 @@
           "value": 146.86,
           "date": "2025-09-29"
         },
+        "forecastbench": {
+          "value": 61.9,
+          "date": "2025-09-29"
+        },
         "gpqa_diamond": {
           "value": 0.8232323232323232,
           "date": "2025-10-28"
@@ -5934,6 +6212,10 @@
         },
         "proofbench": {
           "value": 0.19,
+          "date": "2025-09-29"
+        },
+        "rli": {
+          "value": 0.020800000000000003,
           "date": "2025-09-29"
         },
         "scicode": {
@@ -6074,6 +6356,10 @@
           "value": 144.45,
           "date": "2025-09-19"
         },
+        "forecastbench": {
+          "value": 60.5,
+          "date": "2025-09-19"
+        },
         "weirdml": {
           "value": 0.4286,
           "date": "2025-09-19"
@@ -6142,6 +6428,10 @@
       "creator_name": "Moonshot",
       "release_date": "2025-09-05",
       "scores": {
+        "forecastbench": {
+          "value": 59.8,
+          "date": "2025-09-05"
+        },
         "weirdml": {
           "value": 0.3668,
           "date": "2025-09-05"
@@ -6203,6 +6493,10 @@
       "release_date": "2025-08-21",
       "reasoning_status": "Reasoning",
       "scores": {
+        "forecastbench": {
+          "value": 58.0,
+          "date": "2025-08-21"
+        },
         "simplebench": {
           "value": 0.4,
           "date": "2025-08-21"
@@ -6234,7 +6528,7 @@
           "date": "2025-08-12"
         },
         "weirdml": {
-          "value": 0.3313,
+          "value": 0.33130000000000004,
           "date": "2025-08-12"
         }
       }
@@ -6256,7 +6550,7 @@
           "date": "2025-08-07"
         },
         "arc_agi": {
-          "value": 0.657,
+          "value": 0.6567000000000001,
           "date": "2025-08-07"
         },
         "arc_agi_2": {
@@ -6279,13 +6573,17 @@
           "value": 150.0,
           "date": "2025-08-07"
         },
+        "forecastbench": {
+          "value": 61.4,
+          "date": "2025-08-07"
+        },
         "gpqa_diamond": {
           "value": 0.8617424242424242,
           "date": "2025-10-29"
         },
         "gso": {
-          "value": 0.069,
-          "date": "2025-08-07"
+          "value": 0.06860000000000001,
+          "date": "2025-08-10"
         },
         "mystery_game_puzzles": {
           "value": 0.23,
@@ -6299,12 +6597,16 @@
           "value": 0.18,
           "date": "2025-08-07"
         },
+        "rli": {
+          "value": 0.0167,
+          "date": "2025-08-07"
+        },
         "scicode": {
           "value": 0.429398148148148,
           "date": "2025-08-07"
         },
         "simplebench": {
-          "value": 0.567,
+          "value": 0.5670000000000001,
           "date": "2025-08-07"
         },
         "simpleqa_verified": {
@@ -6312,7 +6614,7 @@
           "date": "2025-12-09"
         },
         "weirdml": {
-          "value": 0.607,
+          "value": 0.6070000000000001,
           "date": "2025-08-07"
         }
       }
@@ -6353,6 +6655,10 @@
           "value": 145.83,
           "date": "2025-08-07"
         },
+        "forecastbench": {
+          "value": 61.0,
+          "date": "2025-08-07"
+        },
         "gpqa_diamond": {
           "value": 0.75,
           "date": "2025-10-30"
@@ -6378,7 +6684,7 @@
           "date": "2025-08-07"
         },
         "weirdml": {
-          "value": 0.5267,
+          "value": 0.5267000000000001,
           "date": "2025-08-07"
         }
       }
@@ -6411,6 +6717,10 @@
           "value": 140.98,
           "date": "2025-08-07"
         },
+        "forecastbench": {
+          "value": 59.1,
+          "date": "2025-08-07"
+        },
         "gpqa_diamond": {
           "value": 0.6944444444444444,
           "date": "2025-10-30"
@@ -6428,7 +6738,7 @@
           "date": "2025-12-09"
         },
         "weirdml": {
-          "value": 0.3806,
+          "value": 0.38060000000000005,
           "date": "2025-08-07"
         }
       }
@@ -6471,6 +6781,10 @@
           "value": 144.31,
           "date": "2025-08-05"
         },
+        "forecastbench": {
+          "value": 62.0,
+          "date": "2025-08-05"
+        },
         "gpqa_diamond": {
           "value": 0.7727272727272727,
           "date": "2025-08-05"
@@ -6492,7 +6806,7 @@
           "date": "2025-12-09"
         },
         "weirdml": {
-          "value": 0.4276,
+          "value": 0.4586,
           "date": "2025-08-05"
         }
       }
@@ -6648,7 +6962,7 @@
         },
         "gso": {
           "value": 0.049,
-          "date": "2025-07-31"
+          "date": "2025-09-02"
         },
         "weirdml": {
           "value": 0.4117,
@@ -6796,6 +7110,10 @@
       "creator_name": "Z.ai (Zhipu AI)",
       "release_date": "2025-07-20",
       "scores": {
+        "forecastbench": {
+          "value": 59.2,
+          "date": "2025-07-20"
+        },
         "gso": {
           "value": 0.0294,
           "date": "2025-08-26"
@@ -6814,9 +7132,13 @@
           "value": 140.44,
           "date": "2025-07-12"
         },
+        "forecastbench": {
+          "value": 60.2,
+          "date": "2025-07-12"
+        },
         "gso": {
           "value": 0.049,
-          "date": "2025-07-12"
+          "date": "2025-08-26"
         },
         "simplebench": {
           "value": 0.263,
@@ -6872,6 +7194,10 @@
         },
         "epoch_capabilities_index": {
           "value": 146.83,
+          "date": "2025-07-09"
+        },
+        "forecastbench": {
+          "value": 60.9,
           "date": "2025-07-09"
         },
         "gpqa_diamond": {
@@ -6964,6 +7290,10 @@
           "value": 140.35,
           "date": "2025-06-17"
         },
+        "forecastbench": {
+          "value": 59.0,
+          "date": "2025-06-17"
+        },
         "simplebench": {
           "value": 0.412,
           "date": "2025-06-17"
@@ -7043,13 +7373,17 @@
           "value": 145.79,
           "date": "2025-06-17"
         },
+        "forecastbench": {
+          "value": 60.4,
+          "date": "2025-06-17"
+        },
         "gpqa_diamond": {
           "value": 0.8529040404040404,
           "date": "2025-11-16"
         },
         "gso": {
-          "value": 0.039,
-          "date": "2025-06-17"
+          "value": 0.0392,
+          "date": "2025-10-10"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8416666666666667,
@@ -7082,7 +7416,7 @@
       "release_date": "2025-06-10",
       "scores": {
         "arc_agi": {
-          "value": 0.061,
+          "value": 0.061200000000000004,
           "date": "2025-06-10"
         },
         "arc_agi_2": {
@@ -7130,7 +7464,7 @@
       "release_date": "2025-06-10",
       "scores": {
         "arc_agi": {
-          "value": 0.593,
+          "value": 0.5933,
           "date": "2025-06-10"
         },
         "arc_agi_2": {
@@ -7142,7 +7476,7 @@
           "date": "2025-06-10"
         },
         "weirdml": {
-          "value": 0.5821,
+          "value": 0.5821000000000001,
           "date": "2025-06-10"
         }
       }
@@ -7179,6 +7513,10 @@
           "value": 0.0392,
           "date": "2025-10-10"
         },
+        "rli": {
+          "value": 0.0083,
+          "date": "2025-06-05"
+        },
         "simplebench": {
           "value": 0.624,
           "date": "2025-06-05"
@@ -7198,7 +7536,7 @@
           "date": "2025-05-28"
         },
         "arc_agi": {
-          "value": 0.212,
+          "value": 0.2121,
           "date": "2025-05-28"
         },
         "arc_agi_2": {
@@ -7226,7 +7564,7 @@
           "date": "2025-12-08"
         },
         "weirdml": {
-          "value": 0.4163,
+          "value": 0.41630000000000006,
           "date": "2025-05-28"
         }
       }
@@ -7254,7 +7592,7 @@
       "release_date": "2025-05-22",
       "scores": {
         "arc_agi": {
-          "value": 0.357,
+          "value": 0.3567,
           "date": "2025-05-22"
         },
         "arc_agi_2": {
@@ -7271,6 +7609,10 @@
         },
         "epoch_capabilities_index": {
           "value": 142.92,
+          "date": "2025-05-22"
+        },
+        "forecastbench": {
+          "value": 61.1,
           "date": "2025-05-22"
         },
         "gpqa_diamond": {
@@ -7290,7 +7632,7 @@
           "date": "2025-05-22"
         },
         "weirdml": {
-          "value": 0.434,
+          "value": 0.4372,
           "date": "2025-05-22"
         }
       }
@@ -7331,6 +7673,10 @@
           "value": 142.2,
           "date": "2025-05-22"
         },
+        "forecastbench": {
+          "value": 60.2,
+          "date": "2025-05-22"
+        },
         "gpqa_diamond": {
           "value": 0.7828282828282829,
           "date": "2025-05-22"
@@ -7366,7 +7712,7 @@
       "release_date": "2025-05-20",
       "scores": {
         "arc_agi": {
-          "value": 0.333,
+          "value": 0.3333,
           "date": "2025-05-20"
         },
         "arc_agi_2": {
@@ -7400,7 +7746,7 @@
       "release_date": "2025-05-16",
       "scores": {
         "arc_agi": {
-          "value": 0.273,
+          "value": 0.2733,
           "date": "2025-05-16"
         },
         "arc_agi_2": {
@@ -7463,6 +7809,10 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 139.48,
+          "date": "2025-04-29"
+        },
+        "forecastbench": {
+          "value": 59.7,
           "date": "2025-04-29"
         },
         "weirdml": {
@@ -7551,6 +7901,10 @@
           "value": 140.61,
           "date": "2025-04-17"
         },
+        "forecastbench": {
+          "value": 60.6,
+          "date": "2025-04-17"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.7305555555555555,
           "date": "2025-04-22"
@@ -7610,7 +7964,7 @@
           "date": "2025-04-16"
         },
         "arc_agi": {
-          "value": 0.608,
+          "value": 0.6083,
           "date": "2025-04-16"
         },
         "arc_agi_2": {
@@ -7631,6 +7985,10 @@
         },
         "epoch_capabilities_index": {
           "value": 147.0,
+          "date": "2025-04-16"
+        },
+        "forecastbench": {
+          "value": 62.5,
           "date": "2025-04-16"
         },
         "gpqa_diamond": {
@@ -7672,7 +8030,7 @@
           "date": "2025-04-16"
         },
         "arc_agi": {
-          "value": 0.587,
+          "value": 0.5867,
           "date": "2025-04-16"
         },
         "arc_agi_2": {
@@ -7693,6 +8051,10 @@
         },
         "epoch_capabilities_index": {
           "value": 146.32,
+          "date": "2025-04-16"
+        },
+        "forecastbench": {
+          "value": 61.8,
           "date": "2025-04-16"
         },
         "gpqa_diamond": {
@@ -7716,7 +8078,7 @@
           "date": "2025-12-09"
         },
         "weirdml": {
-          "value": 0.5256,
+          "value": 0.5256000000000001,
           "date": "2025-04-16"
         }
       }
@@ -7751,6 +8113,10 @@
         },
         "epoch_capabilities_index": {
           "value": 137.33,
+          "date": "2025-04-14"
+        },
+        "forecastbench": {
+          "value": 61.5,
           "date": "2025-04-14"
         },
         "gpqa_diamond": {
@@ -8004,7 +8370,7 @@
       "release_date": "2025-04-05",
       "scores": {
         "arc_agi": {
-          "value": 0.044,
+          "value": 0.0438,
           "date": "2025-04-05"
         },
         "arc_agi_2": {
@@ -8053,6 +8419,10 @@
           "value": 132.84,
           "date": "2025-04-05"
         },
+        "forecastbench": {
+          "value": 57.5,
+          "date": "2025-04-05"
+        },
         "gpqa_diamond": {
           "value": 0.6698232323232324,
           "date": "2025-04-08"
@@ -8087,6 +8457,10 @@
           "value": 130.32,
           "date": "2025-04-05"
         },
+        "forecastbench": {
+          "value": 57.5,
+          "date": "2025-04-05"
+        },
         "gpqa_diamond": {
           "value": 0.5183080808080808,
           "date": "2025-04-08"
@@ -8115,6 +8489,10 @@
         },
         "epoch_capabilities_index": {
           "value": 144.53,
+          "date": "2025-03-31"
+        },
+        "forecastbench": {
+          "value": 61.3,
           "date": "2025-03-31"
         },
         "simplebench": {
@@ -8357,6 +8735,10 @@
           "value": 137.47,
           "date": "2025-02-27"
         },
+        "forecastbench": {
+          "value": 61.7,
+          "date": "2025-02-27"
+        },
         "gpqa_diamond": {
           "value": 0.6868686868686869,
           "date": "2025-02-28"
@@ -8372,6 +8754,20 @@
         "weirdml": {
           "value": 0.3937,
           "date": "2025-02-27"
+        }
+      }
+    },
+    {
+      "id": "gemini-2.0-flash-lite-001",
+      "name": "gemini-2.0-flash-lite-001",
+      "display_name": "gemini-2.0-flash-lite-001",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
+      "release_date": "2025-02-25",
+      "scores": {
+        "forecastbench": {
+          "value": 57.1,
+          "date": "2025-02-25"
         }
       }
     },
@@ -8397,6 +8793,10 @@
         },
         "epoch_capabilities_index": {
           "value": 141.67,
+          "date": "2025-02-24"
+        },
+        "forecastbench": {
+          "value": 61.8,
           "date": "2025-02-24"
         },
         "gpqa_diamond": {
@@ -8515,6 +8915,10 @@
           "value": 141.36,
           "date": "2025-01-31"
         },
+        "forecastbench": {
+          "value": 59.6,
+          "date": "2025-01-31"
+        },
         "gpqa_diamond": {
           "value": 0.7702020202020202,
           "date": "2025-02-13"
@@ -8536,7 +8940,7 @@
           "date": "2025-01-31"
         },
         "weirdml": {
-          "value": 0.437,
+          "value": 0.43700000000000006,
           "date": "2025-01-31"
         }
       }
@@ -8667,6 +9071,10 @@
           "value": 139.56,
           "date": "2025-01-20"
         },
+        "forecastbench": {
+          "value": 60.0,
+          "date": "2025-01-20"
+        },
         "gpqa_diamond": {
           "value": 0.6922348484848484,
           "date": "2025-05-26"
@@ -8751,6 +9159,10 @@
           "value": 132.87,
           "date": "2024-12-26"
         },
+        "forecastbench": {
+          "value": 59.1,
+          "date": "2024-12-26"
+        },
         "gpqa_diamond": {
           "value": 0.5653409090909091,
           "date": "2025-01-27"
@@ -8824,7 +9236,7 @@
           "date": "2024-12-17"
         },
         "weirdml": {
-          "value": 0.4382,
+          "value": 0.4608,
           "date": "2024-12-17"
         }
       }
@@ -8915,6 +9327,10 @@
           "value": 127.22,
           "date": "2024-12-06"
         },
+        "forecastbench": {
+          "value": 58.6,
+          "date": "2024-12-06"
+        },
         "gpqa_diamond": {
           "value": 0.4744318181818182,
           "date": "2025-01-27"
@@ -8998,6 +9414,20 @@
       }
     },
     {
+      "id": "QwQ-32B-Preview",
+      "name": "QwQ-32B-Preview",
+      "display_name": "QwQ-32B-Preview",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2024-11-28",
+      "scores": {
+        "forecastbench": {
+          "value": 58.3,
+          "date": "2024-11-28"
+        }
+      }
+    },
+    {
       "id": "Llama-3.1-Tulu-3-70B-DPO",
       "name": "Llama-3.1-Tulu-3-70B-DPO",
       "display_name": "Llama-3.1-Tulu-3-70B-DPO",
@@ -9060,7 +9490,7 @@
           "date": "2025-02-25"
         },
         "weirdml": {
-          "value": 0.2512,
+          "value": 0.25120000000000003,
           "date": "2024-11-20"
         }
       }
@@ -9075,6 +9505,10 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 128.56,
+          "date": "2024-11-18"
+        },
+        "forecastbench": {
+          "value": 56.9,
           "date": "2024-11-18"
         },
         "gpqa_diamond": {
@@ -9171,6 +9605,10 @@
         },
         "epoch_capabilities_index": {
           "value": 134.25,
+          "date": "2024-10-22"
+        },
+        "forecastbench": {
+          "value": 60.7,
           "date": "2024-10-22"
         },
         "gpqa_diamond": {
@@ -9365,6 +9803,10 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 128.79,
+          "date": "2024-09-19"
+        },
+        "forecastbench": {
+          "value": 57.5,
           "date": "2024-09-19"
         },
         "gpqa_diamond": {
@@ -9583,6 +10025,10 @@
           "value": 127.27,
           "date": "2024-07-24"
         },
+        "forecastbench": {
+          "value": 57.1,
+          "date": "2024-07-24"
+        },
         "gpqa_diamond": {
           "value": 0.49021464646464646,
           "date": "2025-01-27"
@@ -9621,6 +10067,10 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 128.75,
+          "date": "2024-07-23"
+        },
+        "forecastbench": {
+          "value": 59.9,
           "date": "2024-07-23"
         },
         "gpqa_diamond": {
@@ -9859,6 +10309,10 @@
           "value": 130.0,
           "date": "2024-06-20"
         },
+        "forecastbench": {
+          "value": 59.4,
+          "date": "2024-06-20"
+        },
         "gpqa_diamond": {
           "value": 0.5404040404040404,
           "date": "2025-01-27"
@@ -9925,6 +10379,10 @@
           "value": 122.24,
           "date": "2024-05-23"
         },
+        "forecastbench": {
+          "value": 53.9,
+          "date": "2024-05-23"
+        },
         "gpqa_diamond": {
           "value": 0.40372474747474746,
           "date": "2025-01-27"
@@ -9959,6 +10417,10 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 126.94,
+          "date": "2024-05-14"
+        },
+        "forecastbench": {
+          "value": 58.5,
           "date": "2024-05-14"
         },
         "gpqa_diamond": {
@@ -9997,6 +10459,10 @@
           "value": 128.59,
           "date": "2024-05-13"
         },
+        "forecastbench": {
+          "value": 57.7,
+          "date": "2024-05-13"
+        },
         "gpqa_diamond": {
           "value": 0.4889520202020202,
           "date": "2025-01-27"
@@ -10032,6 +10498,20 @@
         "epoch_capabilities_index": {
           "value": 124.33,
           "date": "2024-05-07"
+        }
+      }
+    },
+    {
+      "id": "qwen1.5-110b-chat",
+      "name": "qwen1.5-110b-chat",
+      "display_name": "qwen1.5-110b-chat",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2024-04-25",
+      "scores": {
+        "forecastbench": {
+          "value": 57.7,
+          "date": "2024-04-25"
         }
       }
     },
@@ -10092,6 +10572,10 @@
         "epoch_capabilities_index": {
           "value": 122.31,
           "date": "2024-04-18"
+        },
+        "forecastbench": {
+          "value": 57.1,
+          "date": "2024-04-18"
         }
       }
     },
@@ -10128,6 +10612,10 @@
         "epoch_capabilities_index": {
           "value": 116.02,
           "date": "2024-04-18"
+        },
+        "forecastbench": {
+          "value": 52.9,
+          "date": "2024-04-18"
         }
       }
     },
@@ -10141,6 +10629,10 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 116.02,
+          "date": "2024-04-18"
+        },
+        "forecastbench": {
+          "value": 58.6,
           "date": "2024-04-18"
         },
         "gpqa_diamond": {
@@ -10163,6 +10655,10 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 120.96,
+          "date": "2024-04-17"
+        },
+        "forecastbench": {
+          "value": 56.3,
           "date": "2024-04-17"
         },
         "weirdml": {
@@ -10233,6 +10729,10 @@
           "value": 127.3,
           "date": "2024-04-09"
         },
+        "forecastbench": {
+          "value": 59.4,
+          "date": "2024-04-09"
+        },
         "gpqa_diamond": {
           "value": 0.4659090909090909,
           "date": "2025-02-27"
@@ -10291,6 +10791,10 @@
           "value": 117.25,
           "date": "2024-03-07"
         },
+        "forecastbench": {
+          "value": 53.2,
+          "date": "2024-03-07"
+        },
         "gpqa_diamond": {
           "value": 0.3630050505050505,
           "date": "2025-01-27"
@@ -10325,6 +10829,10 @@
           "value": 126.68,
           "date": "2024-02-29"
         },
+        "forecastbench": {
+          "value": 58.4,
+          "date": "2024-02-29"
+        },
         "gpqa_diamond": {
           "value": 0.4715909090909091,
           "date": "2025-01-27"
@@ -10338,7 +10846,7 @@
           "date": "2024-02-29"
         },
         "weirdml": {
-          "value": 0.2318,
+          "value": 0.19219999999999998,
           "date": "2024-02-29"
         }
       }
@@ -10364,7 +10872,7 @@
           "date": "2025-02-25"
         },
         "weirdml": {
-          "value": 0.1016,
+          "value": 0.10160000000000001,
           "date": "2024-02-29"
         }
       }
@@ -10505,6 +11013,10 @@
           "value": 114.02,
           "date": "2024-01-25"
         },
+        "forecastbench": {
+          "value": 50.4,
+          "date": "2024-01-25"
+        },
         "gpqa_diamond": {
           "value": 0.27178030303030304,
           "date": "2025-01-27"
@@ -10583,6 +11095,10 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 117.75,
+          "date": "2023-12-11"
+        },
+        "forecastbench": {
+          "value": 56.3,
           "date": "2023-12-11"
         },
         "gpqa_diamond": {
@@ -10679,6 +11195,10 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 118.03,
+          "date": "2023-11-21"
+        },
+        "forecastbench": {
+          "value": 54.2,
           "date": "2023-11-21"
         },
         "gpqa_diamond": {
@@ -11051,6 +11571,10 @@
           "value": 113.25,
           "date": "2023-07-18"
         },
+        "forecastbench": {
+          "value": 51.4,
+          "date": "2023-07-18"
+        },
         "gpqa_diamond": {
           "value": 0.26325757575757575,
           "date": "2025-01-27"
@@ -11183,6 +11707,10 @@
           "value": 121.55,
           "date": "2023-06-13"
         },
+        "forecastbench": {
+          "value": 57.8,
+          "date": "2023-06-13"
+        },
         "gpqa_diamond": {
           "value": 0.30650252525252525,
           "date": "2025-01-27"
@@ -11192,7 +11720,7 @@
           "date": "2025-10-23"
         },
         "weirdml": {
-          "value": 0.1244,
+          "value": 0.1236,
           "date": "2023-06-13"
         }
       }
@@ -11422,7 +11950,7 @@
           "value": 150.0
         },
         "weirdml": {
-          "value": 0.3977
+          "value": 0.39770000000000005
         }
       }
     },
