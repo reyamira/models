@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-08-26T18:18:20.964585153+00:00",
+    "fetched_at": "2026-08-27T06:18:14.515501535+00:00",
     "verified": true
   },
   "metrics": [
@@ -92,7 +92,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-18",
+      "last_updated": "2026-08-24",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -150,7 +150,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-18",
+      "last_updated": "2026-08-24",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -180,7 +180,7 @@
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-18",
+      "last_updated": "2026-08-24",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -219,7 +219,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-18",
+      "last_updated": "2026-08-24",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -251,6 +251,10 @@
           "value": 1317.4,
           "date": "2026-08-14"
         },
+        "chess_puzzles": {
+          "value": 0.21,
+          "date": "2026-08-24"
+        },
         "deepswe": {
           "value": 0.6895787139689579,
           "date": "2026-08-14"
@@ -258,6 +262,18 @@
         "frontierswe": {
           "value": 0.78,
           "date": "2026-08-14"
+        },
+        "gpqa_diamond": {
+          "value": 0.9090909090909091,
+          "date": "2026-08-24"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9111111111111111,
+          "date": "2026-08-24"
+        },
+        "simpleqa_verified": {
+          "value": 0.402,
+          "date": "2026-08-24"
         },
         "vending_bench_2": {
           "value": 8163.609999999998,
@@ -306,6 +322,10 @@
         "chess_puzzles": {
           "value": 0.47,
           "date": "2026-08-18"
+        },
+        "epoch_capabilities_index": {
+          "value": 155.18,
+          "date": "2026-08-13"
         },
         "gpqa_diamond": {
           "value": 0.9166666666666666,
@@ -366,7 +386,7 @@
           "date": "2026-08-13"
         },
         "epoch_capabilities_index": {
-          "value": 156.85,
+          "value": 157.12,
           "date": "2026-08-13"
         },
         "frontiercode": {
@@ -440,7 +460,7 @@
           "date": "2026-08-12"
         },
         "epoch_capabilities_index": {
-          "value": 155.94,
+          "value": 156.15,
           "date": "2026-08-12"
         },
         "frontiercode": {
@@ -497,6 +517,10 @@
           "value": 0.5486725663716814,
           "date": "2026-08-05"
         },
+        "epoch_capabilities_index": {
+          "value": 155.16,
+          "date": "2026-08-05"
+        },
         "proofbench": {
           "value": 0.43,
           "date": "2026-08-05"
@@ -528,7 +552,7 @@
           "date": "2026-08-02"
         },
         "epoch_capabilities_index": {
-          "value": 156.43,
+          "value": 156.42,
           "date": "2026-08-02"
         },
         "gpqa_diamond": {
@@ -582,7 +606,7 @@
           "date": "2026-07-31"
         },
         "epoch_capabilities_index": {
-          "value": 154.43,
+          "value": 154.35,
           "date": "2026-07-31"
         },
         "frontiercode": {
@@ -694,7 +718,7 @@
           "date": "2026-07-24"
         },
         "epoch_capabilities_index": {
-          "value": 161.54,
+          "value": 161.59,
           "date": "2026-07-24"
         },
         "frontiercode": {
@@ -776,7 +800,7 @@
           "date": "2026-07-21"
         },
         "epoch_capabilities_index": {
-          "value": 145.11,
+          "value": 145.19,
           "date": "2026-07-21"
         },
         "gpqa_diamond": {
@@ -846,7 +870,7 @@
           "date": "2026-07-21"
         },
         "epoch_capabilities_index": {
-          "value": 154.2,
+          "value": 154.14,
           "date": "2026-07-21"
         },
         "frontiercode": {
@@ -928,7 +952,7 @@
           "date": "2026-07-16"
         },
         "epoch_capabilities_index": {
-          "value": 157.49,
+          "value": 157.33,
           "date": "2026-07-16"
         },
         "frontiercode": {
@@ -1014,7 +1038,7 @@
           "date": "2026-07-15"
         },
         "epoch_capabilities_index": {
-          "value": 148.77,
+          "value": 148.73,
           "date": "2026-07-15"
         },
         "frontiercode": {
@@ -1146,7 +1170,7 @@
           "date": "2026-07-09"
         },
         "epoch_capabilities_index": {
-          "value": 156.22,
+          "value": 156.21,
           "date": "2026-07-09"
         },
         "frontiercode": {
@@ -1248,7 +1272,7 @@
           "date": "2026-07-09"
         },
         "epoch_capabilities_index": {
-          "value": 161.08,
+          "value": 161.06,
           "date": "2026-07-09"
         },
         "frontiercode": {
@@ -1326,7 +1350,7 @@
           "date": "2026-07-10"
         },
         "epoch_capabilities_index": {
-          "value": 161.08,
+          "value": 161.06,
           "date": "2026-07-09"
         },
         "weirdml": {
@@ -1344,7 +1368,7 @@
       "release_date": "2026-07-09",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 161.08,
+          "value": 161.06,
           "date": "2026-07-09"
         },
         "simplebench": {
@@ -1362,7 +1386,7 @@
       "release_date": "2026-07-09",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 161.08,
+          "value": 161.06,
           "date": "2026-07-09"
         },
         "simplebench": {
@@ -1412,7 +1436,7 @@
           "date": "2026-07-09"
         },
         "epoch_capabilities_index": {
-          "value": 158.78,
+          "value": 158.86,
           "date": "2026-07-09"
         },
         "frontiercode": {
@@ -1482,7 +1506,7 @@
           "date": "2026-07-09"
         },
         "epoch_capabilities_index": {
-          "value": 154.37,
+          "value": 154.33,
           "date": "2026-07-09"
         },
         "gbaeval": {
@@ -1548,7 +1572,7 @@
           "date": "2026-07-08"
         },
         "epoch_capabilities_index": {
-          "value": 153.94,
+          "value": 153.9,
           "date": "2026-07-08"
         },
         "frontiercode": {
@@ -1660,7 +1684,7 @@
           "date": "2026-06-30"
         },
         "epoch_capabilities_index": {
-          "value": 155.9,
+          "value": 155.87,
           "date": "2026-06-30"
         },
         "forecastbench": {
@@ -1762,7 +1786,7 @@
           "date": "2026-06-16"
         },
         "epoch_capabilities_index": {
-          "value": 152.14,
+          "value": 152.02,
           "date": "2026-06-16"
         },
         "frontiercode": {
@@ -1950,7 +1974,7 @@
           "date": "2026-06-09"
         },
         "epoch_capabilities_index": {
-          "value": 162.49,
+          "value": 162.48,
           "date": "2026-06-09"
         },
         "frontiercode": {
@@ -2036,7 +2060,7 @@
           "date": "2026-06-04"
         },
         "epoch_capabilities_index": {
-          "value": 143.02,
+          "value": 143.11,
           "date": "2026-06-04"
         },
         "proofbench": {
@@ -2070,7 +2094,7 @@
           "date": "2026-06-02"
         },
         "epoch_capabilities_index": {
-          "value": 148.26,
+          "value": 148.3,
           "date": "2026-06-02"
         },
         "frontiercode": {
@@ -2112,7 +2136,7 @@
           "date": "2026-06-01"
         },
         "epoch_capabilities_index": {
-          "value": 147.54,
+          "value": 147.76,
           "date": "2026-06-01"
         },
         "forecastbench": {
@@ -2254,7 +2278,7 @@
           "date": "2026-05-28"
         },
         "epoch_capabilities_index": {
-          "value": 157.78,
+          "value": 157.73,
           "date": "2026-05-28"
         },
         "forecastbench": {
@@ -2390,7 +2414,7 @@
           "date": "2026-05-19"
         },
         "epoch_capabilities_index": {
-          "value": 154.45,
+          "value": 154.43,
           "date": "2026-05-19"
         },
         "forecastbench": {
@@ -2464,7 +2488,7 @@
           "date": "2026-05-19"
         },
         "epoch_capabilities_index": {
-          "value": 153.58,
+          "value": 153.55,
           "date": "2026-05-19"
         },
         "gbaeval": {
@@ -2562,7 +2586,7 @@
           "date": "2026-05-05"
         },
         "epoch_capabilities_index": {
-          "value": 143.49,
+          "value": 143.56,
           "date": "2026-05-05"
         },
         "gpqa_diamond": {
@@ -2650,7 +2674,7 @@
           "date": "2026-04-28"
         },
         "epoch_capabilities_index": {
-          "value": 142.48,
+          "value": 142.51,
           "date": "2026-04-28"
         },
         "frontiercode": {
@@ -2692,7 +2716,7 @@
           "date": "2026-08-07"
         },
         "epoch_capabilities_index": {
-          "value": 144.06,
+          "value": 144.15,
           "date": "2026-04-27"
         },
         "gpqa_diamond": {
@@ -2768,7 +2792,7 @@
           "date": "2026-04-24"
         },
         "epoch_capabilities_index": {
-          "value": 149.49,
+          "value": 149.24,
           "date": "2026-04-24"
         },
         "forecastbench": {
@@ -2991,7 +3015,7 @@
           "date": "2026-04-23"
         },
         "epoch_capabilities_index": {
-          "value": 161.73,
+          "value": 161.71,
           "date": "2026-04-23"
         },
         "simplebench": {
@@ -3013,7 +3037,7 @@
           "date": "2026-05-01"
         },
         "epoch_capabilities_index": {
-          "value": 161.73,
+          "value": 161.71,
           "date": "2026-04-23"
         },
         "gpqa_diamond": {
@@ -3085,7 +3109,7 @@
           "date": "2026-04-20"
         },
         "epoch_capabilities_index": {
-          "value": 151.04,
+          "value": 151.0,
           "date": "2026-04-20"
         },
         "frontierswe": {
@@ -3143,7 +3167,7 @@
           "date": "2026-08-07"
         },
         "epoch_capabilities_index": {
-          "value": 149.3,
+          "value": 149.33,
           "date": "2026-04-20"
         },
         "gpqa_diamond": {
@@ -3294,7 +3318,7 @@
           "date": "2026-04-16"
         },
         "epoch_capabilities_index": {
-          "value": 155.98,
+          "value": 155.93,
           "date": "2026-04-16"
         },
         "forecastbench": {
@@ -3394,7 +3418,7 @@
           "date": "2026-04-14"
         },
         "epoch_capabilities_index": {
-          "value": 145.06,
+          "value": 145.03,
           "date": "2026-04-14"
         },
         "gpqa_diamond": {
@@ -3432,7 +3456,7 @@
           "date": "2026-04-08"
         },
         "epoch_capabilities_index": {
-          "value": 152.58,
+          "value": 152.56,
           "date": "2026-04-08"
         },
         "gpqa_diamond": {
@@ -3478,7 +3502,7 @@
           "date": "2026-04-07"
         },
         "epoch_capabilities_index": {
-          "value": 150.86,
+          "value": 150.85,
           "date": "2026-04-07"
         },
         "frontierswe": {
@@ -3584,7 +3608,7 @@
           "date": "2026-04-02"
         },
         "epoch_capabilities_index": {
-          "value": 142.31,
+          "value": 142.4,
           "date": "2026-04-02"
         },
         "gpqa_diamond": {
@@ -3656,7 +3680,7 @@
           "date": "2026-03-31"
         },
         "epoch_capabilities_index": {
-          "value": 149.35,
+          "value": 149.37,
           "date": "2026-03-31"
         },
         "frontierswe": {
@@ -3706,7 +3730,7 @@
           "date": "2026-03-18"
         },
         "epoch_capabilities_index": {
-          "value": 145.91,
+          "value": 146.0,
           "date": "2026-03-18"
         },
         "gbaeval": {
@@ -3760,7 +3784,7 @@
           "date": "2026-03-17"
         },
         "epoch_capabilities_index": {
-          "value": 149.29,
+          "value": 149.33,
           "date": "2026-03-17"
         },
         "forecastbench": {
@@ -3830,7 +3854,7 @@
           "date": "2026-03-17"
         },
         "epoch_capabilities_index": {
-          "value": 146.23,
+          "value": 146.29,
           "date": "2026-03-17"
         },
         "forecastbench": {
@@ -3948,7 +3972,7 @@
           "date": "2026-03-05"
         },
         "epoch_capabilities_index": {
-          "value": 156.5,
+          "value": 156.49,
           "date": "2026-03-05"
         },
         "forecastbench": {
@@ -4038,7 +4062,7 @@
           "date": "2026-03-05"
         },
         "epoch_capabilities_index": {
-          "value": 158.57,
+          "value": 158.55,
           "date": "2026-03-05"
         },
         "gpqa_diamond": {
@@ -4068,7 +4092,7 @@
       "release_date": "2026-03-05",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 158.57,
+          "value": 158.55,
           "date": "2026-03-05"
         }
       }
@@ -4102,7 +4126,7 @@
           "date": "2026-03-03"
         },
         "epoch_capabilities_index": {
-          "value": 145.01,
+          "value": 145.15,
           "date": "2026-03-03"
         },
         "forecastbench": {
@@ -4144,7 +4168,7 @@
           "date": "2026-08-07"
         },
         "epoch_capabilities_index": {
-          "value": 143.87,
+          "value": 143.97,
           "date": "2026-02-25"
         },
         "gpqa_diamond": {
@@ -4254,7 +4278,7 @@
           "date": "2026-02-19"
         },
         "epoch_capabilities_index": {
-          "value": 154.62,
+          "value": 154.61,
           "date": "2026-02-19"
         },
         "forecastbench": {
@@ -4328,7 +4352,7 @@
       "release_date": "2026-02-19",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 154.62,
+          "value": 154.61,
           "date": "2026-02-19"
         },
         "vending_bench_2": {
@@ -4382,7 +4406,7 @@
           "date": "2026-02-17"
         },
         "epoch_capabilities_index": {
-          "value": 152.17,
+          "value": 152.16,
           "date": "2026-02-17"
         },
         "forecastbench": {
@@ -4408,10 +4432,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.857936507936508,
           "date": "2026-02-20"
-        },
-        "posttrainbench": {
-          "value": 0.1642,
-          "date": "2026-02-17"
         },
         "proofbench": {
           "value": 0.45,
@@ -4460,7 +4480,7 @@
           "date": "2026-02-17"
         },
         "epoch_capabilities_index": {
-          "value": 152.07,
+          "value": 152.09,
           "date": "2026-02-17"
         },
         "forecastbench": {
@@ -4490,7 +4510,7 @@
           "date": "2026-07-13"
         },
         "epoch_capabilities_index": {
-          "value": 152.07,
+          "value": 152.09,
           "date": "2026-02-17"
         },
         "forecastbench": {
@@ -4536,7 +4556,7 @@
           "date": "2026-08-07"
         },
         "epoch_capabilities_index": {
-          "value": 147.13,
+          "value": 147.18,
           "date": "2026-02-16"
         },
         "gpqa_diamond": {
@@ -4608,11 +4628,7 @@
           "date": "2026-02-12"
         },
         "epoch_capabilities_index": {
-          "value": 146.67,
-          "date": "2026-02-12"
-        },
-        "posttrainbench": {
-          "value": 0.095,
+          "value": 146.78,
           "date": "2026-02-12"
         },
         "proofbench": {
@@ -4676,7 +4692,7 @@
           "date": "2026-02-12"
         },
         "epoch_capabilities_index": {
-          "value": 146.13,
+          "value": 146.2,
           "date": "2026-02-11"
         },
         "forecastbench": {
@@ -4690,10 +4706,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.8,
           "date": "2026-02-12"
-        },
-        "posttrainbench": {
-          "value": 0.1388,
-          "date": "2026-02-11"
         },
         "simplebench": {
           "value": 0.532,
@@ -4742,7 +4754,7 @@
           "date": "2026-02-05"
         },
         "epoch_capabilities_index": {
-          "value": 155.01,
+          "value": 154.98,
           "date": "2026-02-05"
         },
         "forecastbench": {
@@ -4776,10 +4788,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.9444444444444444,
           "date": "2026-02-06"
-        },
-        "posttrainbench": {
-          "value": 0.2482,
-          "date": "2026-02-05"
         },
         "proofbench": {
           "value": 0.5,
@@ -4824,11 +4832,7 @@
           "date": "2026-02-05"
         },
         "epoch_capabilities_index": {
-          "value": 155.61,
-          "date": "2026-02-05"
-        },
-        "posttrainbench": {
-          "value": 0.1776,
+          "value": 156.22,
           "date": "2026-02-05"
         },
         "vending_bench_2": {
@@ -4876,7 +4880,7 @@
           "date": "2026-01-28"
         },
         "epoch_capabilities_index": {
-          "value": 148.13,
+          "value": 148.22,
           "date": "2026-01-27"
         },
         "gpqa_diamond": {
@@ -4930,15 +4934,11 @@
           "date": "2026-01-27"
         },
         "epoch_capabilities_index": {
-          "value": 148.13,
+          "value": 148.22,
           "date": "2026-01-27"
         },
         "frontierswe": {
           "value": 0.23,
-          "date": "2026-01-27"
-        },
-        "posttrainbench": {
-          "value": 0.1026,
           "date": "2026-01-27"
         },
         "scicode": {
@@ -4988,10 +4988,6 @@
         "ale_bench": {
           "value": 623.83,
           "date": "2025-12-23"
-        },
-        "posttrainbench": {
-          "value": 0.09330000000000001,
-          "date": "2025-12-23"
         }
       }
     },
@@ -5020,7 +5016,7 @@
           "date": "2025-12-22"
         },
         "epoch_capabilities_index": {
-          "value": 143.81,
+          "value": 143.94,
           "date": "2025-12-22"
         },
         "gpqa_diamond": {
@@ -5030,10 +5026,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.8333333333333334,
           "date": "2026-01-29"
-        },
-        "posttrainbench": {
-          "value": 0.0748,
-          "date": "2025-12-22"
         },
         "proofbench": {
           "value": 0.06,
@@ -5066,7 +5058,7 @@
       "release_date": "2025-12-22",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 143.81,
+          "value": 143.94,
           "date": "2025-12-22"
         }
       }
@@ -5084,7 +5076,7 @@
           "date": "2025-12-22"
         },
         "epoch_capabilities_index": {
-          "value": 143.81,
+          "value": 143.94,
           "date": "2025-12-22"
         },
         "simplebench": {
@@ -5107,10 +5099,6 @@
         },
         "apex_agents": {
           "value": 0.276,
-          "date": "2025-12-18"
-        },
-        "posttrainbench": {
-          "value": 0.1722,
           "date": "2025-12-18"
         }
       }
@@ -5148,7 +5136,7 @@
           "date": "2026-08-06"
         },
         "epoch_capabilities_index": {
-          "value": 151.72,
+          "value": 151.73,
           "date": "2025-12-17"
         },
         "forecastbench": {
@@ -5249,10 +5237,6 @@
           "value": 0.9611111111111111,
           "date": "2025-12-11"
         },
-        "posttrainbench": {
-          "value": 0.2138,
-          "date": "2025-12-11"
-        },
         "proofbench": {
           "value": 0.15,
           "date": "2025-12-11"
@@ -5296,7 +5280,7 @@
           "date": "2025-12-11"
         },
         "epoch_capabilities_index": {
-          "value": 155.09,
+          "value": 155.07,
           "date": "2025-12-11"
         },
         "simplebench": {
@@ -5314,7 +5298,7 @@
       "release_date": "2025-12-11",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 155.09,
+          "value": 155.07,
           "date": "2025-12-11"
         }
       }
@@ -5408,7 +5392,7 @@
           "date": "2026-07-16"
         },
         "epoch_capabilities_index": {
-          "value": 146.38,
+          "value": 146.47,
           "date": "2025-12-01"
         },
         "gpqa_diamond": {
@@ -5434,7 +5418,7 @@
           "date": "2025-12-16"
         },
         "epoch_capabilities_index": {
-          "value": 146.38,
+          "value": 146.47,
           "date": "2025-12-01"
         },
         "gpqa_diamond": {
@@ -5472,7 +5456,7 @@
           "date": "2025-12-01"
         },
         "epoch_capabilities_index": {
-          "value": 146.38,
+          "value": 146.47,
           "date": "2025-12-01"
         }
       }
@@ -5486,7 +5470,7 @@
       "release_date": "2025-12-01",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 146.38,
+          "value": 146.47,
           "date": "2025-12-01"
         },
         "proofbench": {
@@ -5528,7 +5512,7 @@
           "date": "2025-11-24"
         },
         "epoch_capabilities_index": {
-          "value": 149.93,
+          "value": 149.97,
           "date": "2025-11-24"
         },
         "forecastbench": {
@@ -5549,10 +5533,6 @@
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8611111111111112,
-          "date": "2025-11-24"
-        },
-        "posttrainbench": {
-          "value": 0.1729,
           "date": "2025-11-24"
         },
         "proofbench": {
@@ -5609,14 +5589,6 @@
       "scores": {
         "ale_bench": {
           "value": 1208.83,
-          "date": "2025-11-19"
-        },
-        "epoch_capabilities_index": {
-          "value": 150.16,
-          "date": "2025-11-19"
-        },
-        "posttrainbench": {
-          "value": 0.1968,
           "date": "2025-11-19"
         },
         "proofbench": {
@@ -5725,10 +5697,6 @@
           "value": 0.9138888888888889,
           "date": "2025-11-19"
         },
-        "posttrainbench": {
-          "value": 0.1812,
-          "date": "2025-11-18"
-        },
         "proofbench": {
           "value": 0.2,
           "date": "2025-11-18"
@@ -5806,7 +5774,7 @@
           "date": "2025-11-13"
         },
         "epoch_capabilities_index": {
-          "value": 149.58,
+          "value": 149.63,
           "date": "2025-11-13"
         },
         "forecastbench": {
@@ -5882,11 +5850,7 @@
           "date": "2025-11-06"
         },
         "epoch_capabilities_index": {
-          "value": 145.94,
-          "date": "2025-11-06"
-        },
-        "posttrainbench": {
-          "value": 0.0725,
+          "value": 146.11,
           "date": "2025-11-06"
         },
         "weirdml": {
@@ -5908,7 +5872,7 @@
           "date": "2025-12-10"
         },
         "epoch_capabilities_index": {
-          "value": 145.94,
+          "value": 146.11,
           "date": "2025-11-06"
         },
         "gpqa_diamond": {
@@ -5934,7 +5898,7 @@
       "release_date": "2025-11-06",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 145.94,
+          "value": 146.11,
           "date": "2025-11-06"
         }
       }
@@ -5990,7 +5954,7 @@
           "date": "2025-10-15"
         },
         "epoch_capabilities_index": {
-          "value": 142.86,
+          "value": 142.99,
           "date": "2025-10-15"
         },
         "forecastbench": {
@@ -6044,7 +6008,7 @@
           "date": "2025-10-07"
         },
         "epoch_capabilities_index": {
-          "value": 150.27,
+          "value": 150.29,
           "date": "2025-10-07"
         },
         "simplebench": {
@@ -6096,7 +6060,7 @@
           "date": "2025-09-30"
         },
         "epoch_capabilities_index": {
-          "value": 141.15,
+          "value": 141.29,
           "date": "2025-09-30"
         },
         "scicode": {
@@ -6114,7 +6078,7 @@
       "release_date": "2025-09-30",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 141.15,
+          "value": 141.29,
           "date": "2025-09-30"
         }
       }
@@ -6133,7 +6097,7 @@
           "date": "2025-09-29"
         },
         "epoch_capabilities_index": {
-          "value": 144.86,
+          "value": 144.99,
           "date": "2025-09-29"
         },
         "scicode": {
@@ -6183,7 +6147,7 @@
           "date": "2025-09-29"
         },
         "epoch_capabilities_index": {
-          "value": 146.86,
+          "value": 146.93,
           "date": "2025-09-29"
         },
         "forecastbench": {
@@ -6205,10 +6169,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.7777777777777778,
           "date": "2025-10-28"
-        },
-        "posttrainbench": {
-          "value": 0.0994,
-          "date": "2025-09-29"
         },
         "proofbench": {
           "value": 0.19,
@@ -6249,7 +6209,7 @@
       "release_date": "2025-09-25",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 143.22,
+          "value": 143.38,
           "date": "2025-09-25"
         },
         "weirdml": {
@@ -6275,7 +6235,7 @@
           "date": "2025-12-10"
         },
         "epoch_capabilities_index": {
-          "value": 143.66,
+          "value": 143.82,
           "date": "2025-09-24"
         },
         "gpqa_diamond": {
@@ -6285,10 +6245,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.7333333333333333,
           "date": "2025-10-06"
-        },
-        "posttrainbench": {
-          "value": 0.0742,
-          "date": "2025-09-24"
         },
         "simpleqa_verified": {
           "value": 0.6746746746746747,
@@ -6353,7 +6309,7 @@
           "date": "2025-09-19"
         },
         "epoch_capabilities_index": {
-          "value": 144.45,
+          "value": 144.55,
           "date": "2025-09-19"
         },
         "forecastbench": {
@@ -6461,7 +6417,7 @@
       "release_date": "2025-09-01",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 138.87,
+          "value": 139.03,
           "date": "2025-09-01"
         }
       }
@@ -6652,7 +6608,7 @@
           "date": "2025-08-07"
         },
         "epoch_capabilities_index": {
-          "value": 145.83,
+          "value": 145.91,
           "date": "2025-08-07"
         },
         "forecastbench": {
@@ -6714,7 +6670,7 @@
           "date": "2026-08-07"
         },
         "epoch_capabilities_index": {
-          "value": 140.98,
+          "value": 141.11,
           "date": "2025-08-07"
         },
         "forecastbench": {
@@ -6752,7 +6708,7 @@
       "release_date": "2025-08-05",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 140.54,
+          "value": 140.69,
           "date": "2025-08-05"
         }
       }
@@ -6778,7 +6734,7 @@
           "date": "2025-08-05"
         },
         "epoch_capabilities_index": {
-          "value": 144.31,
+          "value": 144.44,
           "date": "2025-08-05"
         },
         "forecastbench": {
@@ -6847,7 +6803,7 @@
           "date": "2025-08-05"
         },
         "epoch_capabilities_index": {
-          "value": 140.54,
+          "value": 140.69,
           "date": "2025-08-05"
         },
         "simplebench": {
@@ -6885,7 +6841,7 @@
           "date": "2025-08-05"
         },
         "epoch_capabilities_index": {
-          "value": 136.65,
+          "value": 136.81,
           "date": "2025-08-05"
         },
         "gpqa_diamond": {
@@ -6923,7 +6879,7 @@
           "date": "2025-08-05"
         },
         "epoch_capabilities_index": {
-          "value": 140.54,
+          "value": 140.69,
           "date": "2025-08-05"
         },
         "gpqa_diamond": {
@@ -6993,7 +6949,7 @@
       "release_date": "2025-07-25",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 144.67,
+          "value": 144.77,
           "date": "2025-07-25"
         }
       }
@@ -7015,7 +6971,7 @@
           "date": "2025-07-25"
         },
         "epoch_capabilities_index": {
-          "value": 138.87,
+          "value": 139.03,
           "date": "2025-07-25"
         },
         "weirdml": {
@@ -7037,7 +6993,7 @@
           "date": "2025-12-11"
         },
         "epoch_capabilities_index": {
-          "value": 144.67,
+          "value": 144.77,
           "date": "2025-07-25"
         },
         "gpqa_diamond": {
@@ -7071,7 +7027,7 @@
       "release_date": "2025-07-25",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 144.67,
+          "value": 144.77,
           "date": "2025-07-25"
         }
       }
@@ -7089,7 +7045,7 @@
           "date": "2025-07-25"
         },
         "epoch_capabilities_index": {
-          "value": 144.67,
+          "value": 144.77,
           "date": "2025-07-25"
         },
         "scicode": {
@@ -7129,7 +7085,7 @@
       "release_date": "2025-07-12",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 140.44,
+          "value": 140.58,
           "date": "2025-07-12"
         },
         "forecastbench": {
@@ -7159,7 +7115,7 @@
       "release_date": "2025-07-12",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 140.44,
+          "value": 140.58,
           "date": "2025-07-12"
         },
         "weirdml": {
@@ -7193,7 +7149,7 @@
           "date": "2026-01-30"
         },
         "epoch_capabilities_index": {
-          "value": 146.83,
+          "value": 146.91,
           "date": "2025-07-09"
         },
         "forecastbench": {
@@ -7239,7 +7195,7 @@
           "date": "2025-06-24"
         },
         "epoch_capabilities_index": {
-          "value": 140.91,
+          "value": 141.04,
           "date": "2025-06-24"
         },
         "weirdml": {
@@ -7287,7 +7243,7 @@
           "date": "2025-06-17"
         },
         "epoch_capabilities_index": {
-          "value": 140.35,
+          "value": 140.52,
           "date": "2025-06-17"
         },
         "forecastbench": {
@@ -7370,7 +7326,7 @@
           "date": "2025-06-17"
         },
         "epoch_capabilities_index": {
-          "value": 145.79,
+          "value": 145.84,
           "date": "2025-06-17"
         },
         "forecastbench": {
@@ -7442,7 +7398,7 @@
           "date": "2025-06-10"
         },
         "epoch_capabilities_index": {
-          "value": 134.0,
+          "value": 134.18,
           "date": "2025-06-10"
         },
         "gpqa_diamond": {
@@ -7472,7 +7428,7 @@
           "date": "2025-06-10"
         },
         "epoch_capabilities_index": {
-          "value": 147.44,
+          "value": 147.51,
           "date": "2025-06-10"
         },
         "weirdml": {
@@ -7502,7 +7458,7 @@
           "date": "2025-06-05"
         },
         "epoch_capabilities_index": {
-          "value": 145.79,
+          "value": 145.84,
           "date": "2025-06-05"
         },
         "gpqa_diamond": {
@@ -7544,7 +7500,7 @@
           "date": "2025-05-28"
         },
         "epoch_capabilities_index": {
-          "value": 141.83,
+          "value": 141.97,
           "date": "2025-05-28"
         },
         "gpqa_diamond": {
@@ -7578,7 +7534,7 @@
       "release_date": "2025-05-28",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 141.83,
+          "value": 141.97,
           "date": "2025-05-28"
         }
       }
@@ -7608,7 +7564,7 @@
           "date": "2025-05-22"
         },
         "epoch_capabilities_index": {
-          "value": 142.92,
+          "value": 143.02,
           "date": "2025-05-22"
         },
         "forecastbench": {
@@ -7670,7 +7626,7 @@
           "date": "2025-05-22"
         },
         "epoch_capabilities_index": {
-          "value": 142.2,
+          "value": 142.32,
           "date": "2025-05-22"
         },
         "forecastbench": {
@@ -7724,7 +7680,7 @@
           "date": "2025-05-20"
         },
         "epoch_capabilities_index": {
-          "value": 142.17,
+          "value": 142.3,
           "date": "2025-05-20"
         },
         "otis_mock_aime_2024_2025": {
@@ -7764,7 +7720,7 @@
       "release_date": "2025-05-07",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 135.16,
+          "value": 135.33,
           "date": "2025-05-07"
         },
         "gpqa_diamond": {
@@ -7790,7 +7746,7 @@
           "date": "2025-05-06"
         },
         "epoch_capabilities_index": {
-          "value": 142.76,
+          "value": 143.04,
           "date": "2025-05-06"
         },
         "gpqa_diamond": {
@@ -7808,7 +7764,7 @@
       "release_date": "2025-04-29",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 139.48,
+          "value": 139.64,
           "date": "2025-04-29"
         },
         "forecastbench": {
@@ -7862,7 +7818,7 @@
       "release_date": "2025-04-29",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 139.48,
+          "value": 139.64,
           "date": "2025-04-29"
         },
         "gpqa_diamond": {
@@ -7884,7 +7840,7 @@
       "release_date": "2025-04-28",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 139.48,
+          "value": 139.64,
           "date": "2025-04-28"
         }
       }
@@ -7898,7 +7854,7 @@
       "release_date": "2025-04-17",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 140.61,
+          "value": 140.84,
           "date": "2025-04-17"
         },
         "forecastbench": {
@@ -7920,7 +7876,7 @@
       "release_date": "2025-04-17",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 140.61,
+          "value": 140.84,
           "date": "2025-04-17"
         },
         "weirdml": {
@@ -7942,7 +7898,7 @@
           "date": "2025-04-17"
         },
         "epoch_capabilities_index": {
-          "value": 140.61,
+          "value": 140.84,
           "date": "2025-04-17"
         }
       }
@@ -7984,7 +7940,7 @@
           "date": "2025-04-16"
         },
         "epoch_capabilities_index": {
-          "value": 147.0,
+          "value": 147.06,
           "date": "2025-04-16"
         },
         "forecastbench": {
@@ -8050,7 +8006,7 @@
           "date": "2025-04-16"
         },
         "epoch_capabilities_index": {
-          "value": 146.32,
+          "value": 146.4,
           "date": "2025-04-16"
         },
         "forecastbench": {
@@ -8112,7 +8068,7 @@
           "date": "2025-04-14"
         },
         "epoch_capabilities_index": {
-          "value": 137.33,
+          "value": 137.54,
           "date": "2025-04-14"
         },
         "forecastbench": {
@@ -8162,7 +8118,7 @@
           "date": "2025-04-14"
         },
         "epoch_capabilities_index": {
-          "value": 135.61,
+          "value": 135.78,
           "date": "2025-04-14"
         },
         "gpqa_diamond": {
@@ -8204,7 +8160,7 @@
           "date": "2025-04-14"
         },
         "epoch_capabilities_index": {
-          "value": 130.65,
+          "value": 130.85,
           "date": "2025-04-14"
         },
         "gpqa_diamond": {
@@ -8246,7 +8202,7 @@
           "date": "2025-04-09"
         },
         "epoch_capabilities_index": {
-          "value": 138.92,
+          "value": 139.07,
           "date": "2025-04-09"
         },
         "simplebench": {
@@ -8268,7 +8224,7 @@
       "release_date": "2025-04-09",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 138.92,
+          "value": 139.07,
           "date": "2025-04-09"
         },
         "gpqa_diamond": {
@@ -8294,7 +8250,7 @@
           "date": "2025-04-09"
         },
         "epoch_capabilities_index": {
-          "value": 140.91,
+          "value": 141.04,
           "date": "2025-04-09"
         },
         "gpqa_diamond": {
@@ -8342,7 +8298,7 @@
           "date": "2025-04-06"
         },
         "epoch_capabilities_index": {
-          "value": 132.84,
+          "value": 133.03,
           "date": "2025-04-06"
         }
       }
@@ -8356,7 +8312,7 @@
       "release_date": "2025-04-06",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 130.32,
+          "value": 130.52,
           "date": "2025-04-06"
         }
       }
@@ -8386,7 +8342,7 @@
           "date": "2025-04-05"
         },
         "epoch_capabilities_index": {
-          "value": 132.84,
+          "value": 133.03,
           "date": "2025-04-05"
         },
         "scicode": {
@@ -8416,7 +8372,7 @@
           "date": "2025-04-05"
         },
         "epoch_capabilities_index": {
-          "value": 132.84,
+          "value": 133.03,
           "date": "2025-04-05"
         },
         "forecastbench": {
@@ -8454,7 +8410,7 @@
           "date": "2025-04-05"
         },
         "epoch_capabilities_index": {
-          "value": 130.32,
+          "value": 130.52,
           "date": "2025-04-05"
         },
         "forecastbench": {
@@ -8488,7 +8444,7 @@
           "date": "2025-03-31"
         },
         "epoch_capabilities_index": {
-          "value": 144.53,
+          "value": 144.63,
           "date": "2025-03-31"
         },
         "forecastbench": {
@@ -8514,7 +8470,7 @@
           "date": "2025-03-25"
         },
         "epoch_capabilities_index": {
-          "value": 144.53,
+          "value": 144.63,
           "date": "2025-03-25"
         },
         "gpqa_diamond": {
@@ -8540,7 +8496,7 @@
           "date": "2025-03-24"
         },
         "epoch_capabilities_index": {
-          "value": 136.89,
+          "value": 137.08,
           "date": "2025-03-24"
         },
         "gpqa_diamond": {
@@ -8574,7 +8530,7 @@
       "release_date": "2025-03-24",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 136.89,
+          "value": 137.08,
           "date": "2025-03-24"
         }
       }
@@ -8610,7 +8566,7 @@
           "date": "2025-03-17"
         },
         "epoch_capabilities_index": {
-          "value": 127.49,
+          "value": 127.71,
           "date": "2025-03-17"
         },
         "gpqa_diamond": {
@@ -8662,7 +8618,7 @@
           "date": "2025-03-12"
         },
         "epoch_capabilities_index": {
-          "value": 130.63,
+          "value": 130.83,
           "date": "2025-03-12"
         },
         "gpqa_diamond": {
@@ -8688,7 +8644,7 @@
       "release_date": "2025-03-11",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 130.63,
+          "value": 130.83,
           "date": "2025-03-11"
         }
       }
@@ -8732,7 +8688,7 @@
           "date": "2025-02-27"
         },
         "epoch_capabilities_index": {
-          "value": 137.47,
+          "value": 137.63,
           "date": "2025-02-27"
         },
         "forecastbench": {
@@ -8792,7 +8748,7 @@
           "date": "2025-02-24"
         },
         "epoch_capabilities_index": {
-          "value": 141.67,
+          "value": 141.8,
           "date": "2025-02-24"
         },
         "forecastbench": {
@@ -8830,7 +8786,7 @@
           "date": "2025-02-05"
         },
         "epoch_capabilities_index": {
-          "value": 135.63,
+          "value": 135.8,
           "date": "2025-02-05"
         },
         "gpqa_diamond": {
@@ -8860,7 +8816,7 @@
           "date": "2025-02-05"
         },
         "epoch_capabilities_index": {
-          "value": 135.63,
+          "value": 135.8,
           "date": "2025-02-05"
         }
       }
@@ -8878,7 +8834,7 @@
           "date": "2025-02-05"
         },
         "epoch_capabilities_index": {
-          "value": 135.45,
+          "value": 135.63,
           "date": "2025-02-05"
         },
         "gpqa_diamond": {
@@ -8912,7 +8868,7 @@
           "date": "2025-01-31"
         },
         "epoch_capabilities_index": {
-          "value": 141.36,
+          "value": 141.49,
           "date": "2025-01-31"
         },
         "forecastbench": {
@@ -8954,7 +8910,7 @@
       "release_date": "2025-01-28",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 133.2,
+          "value": 133.39,
           "date": "2025-01-28"
         }
       }
@@ -8986,7 +8942,7 @@
       "release_date": "2025-01-25",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 133.2,
+          "value": 133.39,
           "date": "2025-01-25"
         },
         "gpqa_diamond": {
@@ -9030,7 +8986,7 @@
           "date": "2025-01-21"
         },
         "epoch_capabilities_index": {
-          "value": 136.02,
+          "value": 136.19,
           "date": "2025-01-21"
         },
         "gpqa_diamond": {
@@ -9068,7 +9024,7 @@
           "date": "2025-01-20"
         },
         "epoch_capabilities_index": {
-          "value": 139.56,
+          "value": 139.72,
           "date": "2025-01-20"
         },
         "forecastbench": {
@@ -9156,7 +9112,7 @@
           "date": "2024-12-26"
         },
         "epoch_capabilities_index": {
-          "value": 132.87,
+          "value": 133.12,
           "date": "2024-12-26"
         },
         "forecastbench": {
@@ -9190,7 +9146,7 @@
       "release_date": "2024-12-26",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 132.87,
+          "value": 133.12,
           "date": "2024-12-26"
         }
       }
@@ -9220,7 +9176,7 @@
           "date": "2024-12-17"
         },
         "epoch_capabilities_index": {
-          "value": 142.57,
+          "value": 142.67,
           "date": "2024-12-17"
         },
         "gpqa_diamond": {
@@ -9250,7 +9206,7 @@
       "release_date": "2024-12-12",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 130.56,
+          "value": 130.76,
           "date": "2024-12-12"
         },
         "gpqa_diamond": {
@@ -9280,7 +9236,7 @@
       "release_date": "2024-12-12",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 130.85,
+          "value": 131.04,
           "date": "2024-12-12"
         },
         "gpqa_diamond": {
@@ -9302,7 +9258,7 @@
       "release_date": "2024-12-11",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 134.96,
+          "value": 135.16,
           "date": "2024-12-11"
         },
         "simplebench": {
@@ -9324,7 +9280,7 @@
           "date": "2024-12-06"
         },
         "epoch_capabilities_index": {
-          "value": 127.22,
+          "value": 127.44,
           "date": "2024-12-06"
         },
         "forecastbench": {
@@ -9362,7 +9318,7 @@
       "release_date": "2024-12-06",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 134.96,
+          "value": 135.16,
           "date": "2024-12-06"
         },
         "simplebench": {
@@ -9394,7 +9350,7 @@
       "release_date": "2024-12-03",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 123.61,
+          "value": 123.85,
           "date": "2024-12-03"
         }
       }
@@ -9408,7 +9364,7 @@
       "release_date": "2024-11-29",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 99.82,
+          "value": 100.2,
           "date": "2024-11-29"
         }
       }
@@ -9474,7 +9430,7 @@
           "date": "2024-11-20"
         },
         "epoch_capabilities_index": {
-          "value": 129.08,
+          "value": 129.36,
           "date": "2024-11-20"
         },
         "gpqa_diamond": {
@@ -9504,7 +9460,7 @@
       "release_date": "2024-11-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 128.56,
+          "value": 128.77,
           "date": "2024-11-18"
         },
         "forecastbench": {
@@ -9566,7 +9522,7 @@
           "date": "2024-10-22"
         },
         "epoch_capabilities_index": {
-          "value": 127.21,
+          "value": 127.43,
           "date": "2024-10-22"
         },
         "gpqa_diamond": {
@@ -9604,7 +9560,7 @@
           "date": "2024-10-22"
         },
         "epoch_capabilities_index": {
-          "value": 134.25,
+          "value": 134.29,
           "date": "2024-10-22"
         },
         "forecastbench": {
@@ -9692,7 +9648,7 @@
           "date": "2024-09-24"
         },
         "epoch_capabilities_index": {
-          "value": 125.43,
+          "value": 125.67,
           "date": "2024-09-24"
         },
         "gpqa_diamond": {
@@ -9714,7 +9670,7 @@
       "release_date": "2024-09-24",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 130.16,
+          "value": 130.36,
           "date": "2024-09-24"
         },
         "gpqa_diamond": {
@@ -9744,7 +9700,7 @@
           "date": "2024-09-24"
         },
         "epoch_capabilities_index": {
-          "value": 132.51,
+          "value": 132.69,
           "date": "2024-09-24"
         },
         "gpqa_diamond": {
@@ -9774,7 +9730,7 @@
       "release_date": "2024-09-19",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 128.79,
+          "value": 129.07,
           "date": "2024-09-19"
         }
       }
@@ -9788,7 +9744,7 @@
       "release_date": "2024-09-19",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 128.79,
+          "value": 129.07,
           "date": "2024-09-19"
         }
       }
@@ -9802,7 +9758,7 @@
       "release_date": "2024-09-19",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 128.79,
+          "value": 129.07,
           "date": "2024-09-19"
         },
         "forecastbench": {
@@ -9832,7 +9788,7 @@
       "release_date": "2024-09-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 102.0,
+          "value": 102.37,
           "date": "2024-09-18"
         }
       }
@@ -9846,7 +9802,7 @@
       "release_date": "2024-09-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 118.91,
+          "value": 119.2,
           "date": "2024-09-18"
         }
       }
@@ -9860,7 +9816,7 @@
       "release_date": "2024-09-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 112.41,
+          "value": 112.73,
           "date": "2024-09-18"
         }
       }
@@ -9874,7 +9830,7 @@
       "release_date": "2024-09-17",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 112.41,
+          "value": 112.73,
           "date": "2024-09-17"
         }
       }
@@ -9914,7 +9870,7 @@
           "date": "2024-09-12"
         },
         "epoch_capabilities_index": {
-          "value": 136.47,
+          "value": 136.64,
           "date": "2024-09-12"
         },
         "gpqa_diamond": {
@@ -9948,7 +9904,7 @@
           "date": "2024-09-12"
         },
         "epoch_capabilities_index": {
-          "value": 135.68,
+          "value": 135.77,
           "date": "2024-09-12"
         },
         "gpqa_diamond": {
@@ -9996,7 +9952,7 @@
           "date": "2026-07-15"
         },
         "epoch_capabilities_index": {
-          "value": 128.78,
+          "value": 129.05,
           "date": "2024-08-06"
         },
         "gpqa_diamond": {
@@ -10022,7 +9978,7 @@
       "release_date": "2024-07-24",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 127.27,
+          "value": 127.5,
           "date": "2024-07-24"
         },
         "forecastbench": {
@@ -10052,7 +10008,7 @@
       "release_date": "2024-07-23",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 128.75,
+          "value": 128.97,
           "date": "2024-07-23"
         }
       }
@@ -10066,7 +10022,7 @@
       "release_date": "2024-07-23",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 128.75,
+          "value": 128.97,
           "date": "2024-07-23"
         },
         "forecastbench": {
@@ -10100,7 +10056,7 @@
       "release_date": "2024-07-23",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 125.25,
+          "value": 125.48,
           "date": "2024-07-23"
         },
         "gpqa_diamond": {
@@ -10130,7 +10086,7 @@
           "date": "2024-07-23"
         },
         "epoch_capabilities_index": {
-          "value": 115.04,
+          "value": 115.35,
           "date": "2024-07-23"
         },
         "gpqa_diamond": {
@@ -10160,7 +10116,7 @@
       "release_date": "2024-07-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 118.02,
+          "value": 118.31,
           "date": "2024-07-18"
         }
       }
@@ -10174,7 +10130,7 @@
       "release_date": "2024-07-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 118.02,
+          "value": 118.31,
           "date": "2024-07-18"
         }
       }
@@ -10196,7 +10152,7 @@
           "date": "2026-07-15"
         },
         "epoch_capabilities_index": {
-          "value": 126.67,
+          "value": 126.9,
           "date": "2024-07-18"
         },
         "gpqa_diamond": {
@@ -10226,7 +10182,7 @@
       "release_date": "2024-07-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 118.02,
+          "value": 118.31,
           "date": "2024-07-18"
         },
         "gpqa_diamond": {
@@ -10244,7 +10200,7 @@
       "release_date": "2024-06-24",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 122.16,
+          "value": 122.42,
           "date": "2024-06-24"
         },
         "gpqa_diamond": {
@@ -10266,7 +10222,7 @@
       "release_date": "2024-06-24",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 119.24,
+          "value": 119.52,
           "date": "2024-06-24"
         },
         "gpqa_diamond": {
@@ -10340,7 +10296,7 @@
       "release_date": "2024-06-07",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 124.99,
+          "value": 125.34,
           "date": "2024-06-07"
         },
         "gpqa_diamond": {
@@ -10376,7 +10332,7 @@
       "release_date": "2024-05-23",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 122.24,
+          "value": 122.5,
           "date": "2024-05-23"
         },
         "forecastbench": {
@@ -10402,7 +10358,7 @@
       "release_date": "2024-05-14",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 122.24,
+          "value": 122.5,
           "date": "2024-05-14"
         }
       }
@@ -10416,7 +10372,7 @@
       "release_date": "2024-05-14",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 126.94,
+          "value": 127.17,
           "date": "2024-05-14"
         },
         "forecastbench": {
@@ -10456,7 +10412,7 @@
       "release_date": "2024-05-13",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 128.59,
+          "value": 128.8,
           "date": "2024-05-13"
         },
         "forecastbench": {
@@ -10482,7 +10438,7 @@
       "release_date": "2024-05-09",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 108.73,
+          "value": 109.07,
           "date": "2024-05-09"
         }
       }
@@ -10496,7 +10452,7 @@
       "release_date": "2024-05-07",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 124.33,
+          "value": 124.59,
           "date": "2024-05-07"
         }
       }
@@ -10524,7 +10480,7 @@
       "release_date": "2024-04-23",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 120.74,
+          "value": 121.01,
           "date": "2024-04-23"
         },
         "gpqa_diamond": {
@@ -10542,7 +10498,7 @@
       "release_date": "2024-04-23",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 116.73,
+          "value": 117.03,
           "date": "2024-04-23"
         }
       }
@@ -10556,7 +10512,7 @@
       "release_date": "2024-04-23",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 121.32,
+          "value": 121.6,
           "date": "2024-04-23"
         }
       }
@@ -10570,7 +10526,7 @@
       "release_date": "2024-04-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 122.31,
+          "value": 122.56,
           "date": "2024-04-18"
         },
         "forecastbench": {
@@ -10588,7 +10544,7 @@
       "release_date": "2024-04-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 122.31,
+          "value": 122.56,
           "date": "2024-04-18"
         },
         "gpqa_diamond": {
@@ -10610,7 +10566,7 @@
       "release_date": "2024-04-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 116.02,
+          "value": 116.32,
           "date": "2024-04-18"
         },
         "forecastbench": {
@@ -10628,7 +10584,7 @@
       "release_date": "2024-04-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 116.02,
+          "value": 116.32,
           "date": "2024-04-18"
         },
         "forecastbench": {
@@ -10654,7 +10610,7 @@
       "release_date": "2024-04-17",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 120.96,
+          "value": 121.22,
           "date": "2024-04-17"
         },
         "forecastbench": {
@@ -10676,7 +10632,7 @@
       "release_date": "2024-04-17",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 120.96,
+          "value": 121.22,
           "date": "2024-04-17"
         }
       }
@@ -10690,7 +10646,7 @@
       "release_date": "2024-04-17",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 120.96,
+          "value": 121.22,
           "date": "2024-04-17"
         },
         "gpqa_diamond": {
@@ -10726,7 +10682,7 @@
           "date": "2026-07-15"
         },
         "epoch_capabilities_index": {
-          "value": 127.3,
+          "value": 127.61,
           "date": "2024-04-09"
         },
         "forecastbench": {
@@ -10788,7 +10744,7 @@
       "release_date": "2024-03-07",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 117.25,
+          "value": 117.54,
           "date": "2024-03-07"
         },
         "forecastbench": {
@@ -10826,7 +10782,7 @@
           "date": "2024-02-29"
         },
         "epoch_capabilities_index": {
-          "value": 126.68,
+          "value": 126.51,
           "date": "2024-02-29"
         },
         "forecastbench": {
@@ -10860,7 +10816,7 @@
       "release_date": "2024-02-29",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 119.55,
+          "value": 119.83,
           "date": "2024-02-29"
         },
         "gpqa_diamond": {
@@ -10886,7 +10842,7 @@
       "release_date": "2024-02-26",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 106.86,
+          "value": 107.21,
           "date": "2024-02-26"
         }
       }
@@ -10900,7 +10856,7 @@
       "release_date": "2024-02-26",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 120.7,
+          "value": 120.97,
           "date": "2024-02-26"
         },
         "gpqa_diamond": {
@@ -10922,7 +10878,7 @@
       "release_date": "2024-02-22",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 87.44,
+          "value": 87.88,
           "date": "2024-02-22"
         }
       }
@@ -10936,7 +10892,7 @@
       "release_date": "2024-02-21",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 93.0,
+          "value": 93.42,
           "date": "2024-02-21"
         }
       }
@@ -10950,7 +10906,7 @@
       "release_date": "2024-02-21",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 111.24,
+          "value": 111.57,
           "date": "2024-02-21"
         }
       }
@@ -10964,7 +10920,7 @@
       "release_date": "2024-02-20",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 104.06,
+          "value": 104.43,
           "date": "2024-02-20"
         }
       }
@@ -10978,7 +10934,7 @@
       "release_date": "2024-02-20",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 92.33,
+          "value": 92.75,
           "date": "2024-02-20"
         }
       }
@@ -11010,7 +10966,7 @@
           "date": "2026-08-07"
         },
         "epoch_capabilities_index": {
-          "value": 114.02,
+          "value": 114.33,
           "date": "2024-01-25"
         },
         "forecastbench": {
@@ -11040,7 +10996,7 @@
       "release_date": "2024-01-25",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 125.9,
+          "value": 125.98,
           "date": "2024-01-25"
         },
         "gpqa_diamond": {
@@ -11058,7 +11014,7 @@
       "release_date": "2023-12-13",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 116.63,
+          "value": 116.93,
           "date": "2023-12-13"
         },
         "gpqa_diamond": {
@@ -11080,7 +11036,7 @@
       "release_date": "2023-12-12",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 107.06,
+          "value": 107.41,
           "date": "2023-12-12"
         }
       }
@@ -11094,7 +11050,7 @@
       "release_date": "2023-12-11",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 117.75,
+          "value": 118.04,
           "date": "2023-12-11"
         },
         "forecastbench": {
@@ -11116,7 +11072,7 @@
       "release_date": "2023-12-11",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 117.75,
+          "value": 118.04,
           "date": "2023-12-11"
         }
       }
@@ -11130,7 +11086,7 @@
       "release_date": "2023-12-11",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 117.75,
+          "value": 118.04,
           "date": "2023-12-11"
         },
         "gpqa_diamond": {
@@ -11162,7 +11118,7 @@
       "release_date": "2023-11-22",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 116.75,
+          "value": 117.04,
           "date": "2023-11-22"
         },
         "gpqa_diamond": {
@@ -11180,7 +11136,7 @@
       "release_date": "2023-11-22",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 103.83,
+          "value": 104.2,
           "date": "2023-11-22"
         }
       }
@@ -11194,7 +11150,7 @@
       "release_date": "2023-11-21",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 118.03,
+          "value": 118.31,
           "date": "2023-11-21"
         },
         "forecastbench": {
@@ -11224,7 +11180,7 @@
       "release_date": "2023-11-06",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 117.92,
+          "value": 118.21,
           "date": "2023-11-06"
         },
         "gpqa_diamond": {
@@ -11242,7 +11198,7 @@
       "release_date": "2023-11-06",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 125.9,
+          "value": 125.98,
           "date": "2023-11-06"
         },
         "gpqa_diamond": {
@@ -11260,7 +11216,7 @@
       "release_date": "2023-11-06",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 125.9,
+          "value": 125.98,
           "date": "2023-11-06"
         }
       }
@@ -11274,7 +11230,7 @@
       "release_date": "2023-11-02",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 116.75,
+          "value": 117.04,
           "date": "2023-11-02"
         }
       }
@@ -11288,7 +11244,7 @@
       "release_date": "2023-11-02",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 103.83,
+          "value": 104.2,
           "date": "2023-11-02"
         }
       }
@@ -11302,7 +11258,7 @@
       "release_date": "2023-11-02",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 62.28,
+          "value": 62.85,
           "date": "2023-11-02"
         }
       }
@@ -11316,7 +11272,7 @@
       "release_date": "2023-11-02",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 95.16,
+          "value": 95.57,
           "date": "2023-11-02"
         }
       }
@@ -11330,7 +11286,7 @@
       "release_date": "2023-11-02",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 88.31,
+          "value": 88.75,
           "date": "2023-11-02"
         }
       }
@@ -11344,7 +11300,7 @@
       "release_date": "2023-09-28",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 112.3,
+          "value": 112.62,
           "date": "2023-09-28"
         }
       }
@@ -11358,7 +11314,7 @@
       "release_date": "2023-09-28",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 105.93,
+          "value": 106.28,
           "date": "2023-09-28"
         }
       }
@@ -11372,7 +11328,7 @@
       "release_date": "2023-09-27",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 111.46,
+          "value": 111.79,
           "date": "2023-09-27"
         }
       }
@@ -11386,7 +11342,7 @@
       "release_date": "2023-09-27",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 111.46,
+          "value": 111.79,
           "date": "2023-09-27"
         }
       }
@@ -11414,7 +11370,7 @@
       "release_date": "2023-09-24",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 112.3,
+          "value": 112.62,
           "date": "2023-09-24"
         }
       }
@@ -11428,7 +11384,7 @@
       "release_date": "2023-09-20",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 95.17,
+          "value": 95.58,
           "date": "2023-09-20"
         }
       }
@@ -11442,7 +11398,7 @@
       "release_date": "2023-09-11",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 90.29,
+          "value": 90.72,
           "date": "2023-09-11"
         }
       }
@@ -11456,7 +11412,7 @@
       "release_date": "2023-09-06",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 102.22,
+          "value": 102.59,
           "date": "2023-09-06"
         }
       }
@@ -11470,7 +11426,7 @@
       "release_date": "2023-09-06",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 111.4,
+          "value": 111.73,
           "date": "2023-09-06"
         }
       }
@@ -11484,7 +11440,7 @@
       "release_date": "2023-08-09",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 120.79,
+          "value": 121.07,
           "date": "2023-08-09"
         }
       }
@@ -11498,7 +11454,7 @@
       "release_date": "2023-07-20",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 116.49,
+          "value": 116.79,
           "date": "2023-07-20"
         }
       }
@@ -11512,7 +11468,7 @@
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 105.27,
+          "value": 105.62,
           "date": "2023-07-18"
         }
       }
@@ -11526,7 +11482,7 @@
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 105.27,
+          "value": 105.62,
           "date": "2023-07-18"
         }
       }
@@ -11540,7 +11496,7 @@
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 104.28,
+          "value": 104.64,
           "date": "2023-07-18"
         }
       }
@@ -11554,7 +11510,7 @@
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 113.25,
+          "value": 113.57,
           "date": "2023-07-18"
         }
       }
@@ -11568,7 +11524,7 @@
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 113.25,
+          "value": 113.57,
           "date": "2023-07-18"
         },
         "forecastbench": {
@@ -11594,7 +11550,7 @@
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 113.25,
+          "value": 113.57,
           "date": "2023-07-18"
         }
       }
@@ -11608,7 +11564,7 @@
       "release_date": "2023-07-18",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 97.98,
+          "value": 98.37,
           "date": "2023-07-18"
         }
       }
@@ -11622,7 +11578,7 @@
       "release_date": "2023-07-11",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 119.24,
+          "value": 119.51,
           "date": "2023-07-11"
         },
         "gpqa_diamond": {
@@ -11644,7 +11600,7 @@
       "release_date": "2023-06-27",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 92.19,
+          "value": 92.61,
           "date": "2023-06-27"
         }
       }
@@ -11658,7 +11614,7 @@
       "release_date": "2023-06-22",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 99.62,
+          "value": 100.0,
           "date": "2023-06-22"
         }
       }
@@ -11672,7 +11628,7 @@
       "release_date": "2023-06-22",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 99.62,
+          "value": 100.0,
           "date": "2023-06-22"
         }
       }
@@ -11686,7 +11642,7 @@
       "release_date": "2023-06-13",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 112.63,
+          "value": 112.95,
           "date": "2023-06-13"
         }
       }
@@ -11704,7 +11660,7 @@
           "date": "2026-08-07"
         },
         "epoch_capabilities_index": {
-          "value": 121.55,
+          "value": 121.92,
           "date": "2023-06-13"
         },
         "forecastbench": {
@@ -11734,7 +11690,7 @@
       "release_date": "2023-06-01",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 89.15,
+          "value": 89.59,
           "date": "2023-06-01"
         }
       }
@@ -11748,7 +11704,7 @@
       "release_date": "2023-05-25",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 103.51,
+          "value": 103.88,
           "date": "2023-05-25"
         }
       }
@@ -11762,7 +11718,7 @@
       "release_date": "2023-05-05",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 93.4,
+          "value": 93.82,
           "date": "2023-05-05"
         }
       }
@@ -11776,7 +11732,7 @@
       "release_date": "2023-04-24",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 93.92,
+          "value": 94.33,
           "date": "2023-04-24"
         }
       }
@@ -11790,7 +11746,7 @@
       "release_date": "2023-04-11",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 88.36,
+          "value": 88.8,
           "date": "2023-04-11"
         }
       }
@@ -11804,7 +11760,7 @@
       "release_date": "2023-03-20",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 81.79,
+          "value": 82.27,
           "date": "2023-03-20"
         }
       }
@@ -11818,7 +11774,7 @@
       "release_date": "2023-03-15",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 103.51,
+          "value": 103.88,
           "date": "2023-03-15"
         }
       }
@@ -11832,7 +11788,7 @@
       "release_date": "2023-03-14",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 125.75,
+          "value": 126.19,
           "date": "2023-03-14"
         },
         "gpqa_diamond": {
@@ -11854,7 +11810,7 @@
       "release_date": "2023-03-14",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 125.75,
+          "value": 126.19,
           "date": "2023-03-14"
         }
       }
@@ -11868,7 +11824,7 @@
       "release_date": "2023-02-24",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 99.54,
+          "value": 99.92,
           "date": "2023-02-24"
         }
       }
@@ -11882,7 +11838,7 @@
       "release_date": "2023-02-24",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 106.54,
+          "value": 106.89,
           "date": "2023-02-24"
         }
       }
@@ -11896,7 +11852,7 @@
       "release_date": "2023-02-24",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 109.37,
+          "value": 109.71,
           "date": "2023-02-24"
         }
       }
@@ -11910,7 +11866,7 @@
       "release_date": "2023-02-24",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 95.56,
+          "value": 95.96,
           "date": "2023-02-24"
         }
       }
@@ -11923,7 +11879,7 @@
       "creator_name": "Anthropic",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 120.79
+          "value": 121.07
         }
       }
     },
@@ -11935,7 +11891,7 @@
       "creator_name": "Google DeepMind",
       "scores": {
         "epoch_capabilities_index": {
-          "value": 119.24
+          "value": 119.52
         }
       }
     },
