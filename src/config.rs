@@ -64,12 +64,12 @@ pub struct Config {
 /// Benchmarks-tab persistence.
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct BenchmarksConfig {
-    /// Visible metric columns per data-source id (`aa` / `epoch` / `arena` /
-    /// `llmstats`), saved when the column picker applies. Values are metric
-    /// **ids**, not indices — Epoch's auto-prune shifts metric positions
-    /// between pipeline runs, so ids are the stable handle. Ids whose metric
-    /// no longer exists in the loaded file are silently dropped at resolve
-    /// time.
+    /// Visible columns per data-source id (`aa` / `epoch` / `arena` /
+    /// `llmstats`), saved when the column picker applies. Source metrics use
+    /// their stable metric **ids** rather than indices; optional model metadata
+    /// columns use namespaced ids such as `meta:effort`. Epoch's auto-prune
+    /// shifts metric positions between pipeline runs, so ids whose column no
+    /// longer exists are silently dropped at resolve time.
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub columns: HashMap<String, Vec<String>>,
 }

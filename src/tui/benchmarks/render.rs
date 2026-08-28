@@ -772,14 +772,18 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
     const COL_W: u16 = 12; // 11 value + 1 gap
 
     let has_release_col = matches!(sort_key, SortKey::ReleaseDate);
+    let has_effort_col =
+        bench_app.show_effort_column && BenchmarksApp::effort_column_available(file);
     // For metric sort, the sort column index is already included via
     // effective_columns(). For ReleaseDate we add one extra column of COL_W.
     let effective_metric_cols = bench_app.effective_columns();
 
     // Count how many columns we can actually fit, respecting the 10-char name min.
     let avail = inner_area.width.saturating_sub(fixed_overhead);
-    // Total extra columns: metric cols + optional release col.
-    let total_extra = effective_metric_cols.len() + if has_release_col { 1 } else { 0 };
+    // Total extra columns: optional effort metadata + metric cols + optional
+    // release sort column.
+    let total_extra =
+        effective_metric_cols.len() + usize::from(has_effort_col) + usize::from(has_release_col);
     // How many columns we can fit while keeping name >= 10.
     let max_cols = if COL_W == 0 || avail < 10 {
         0
@@ -797,13 +801,16 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
     //     visible_columns it may not be the last element.
     //   - For Name: no mandatory column; cap visible cols from the right.
     let render_metric_cols: Vec<usize>;
+    let render_effort_col: bool;
     let render_release_col: bool;
     if total_extra == 0 {
         render_metric_cols = Vec::new();
+        render_effort_col = false;
         render_release_col = false;
     } else if total_extra <= max_cols {
         // Everything fits.
         render_metric_cols = effective_metric_cols.clone();
+        render_effort_col = has_effort_col;
         render_release_col = has_release_col;
     } else {
         // Need to drop: always keep the mandatory sort column.
@@ -811,8 +818,12 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
             // ReleaseDate sort: keep the release col; drop visible metric cols
             // from the right (they are not the sort column).
             render_release_col = true;
-            // 1 slot used by release col; remaining for visible metric cols.
-            let available_for_metrics = max_cols.saturating_sub(1);
+            // 1 slot used by release; optional slots keep effort first, then
+            // source metrics in file order.
+            let available_for_optional = max_cols.saturating_sub(1);
+            render_effort_col = has_effort_col && available_for_optional > 0;
+            let available_for_metrics =
+                available_for_optional.saturating_sub(usize::from(render_effort_col));
             let take = available_for_metrics.min(effective_metric_cols.len());
             render_metric_cols = effective_metric_cols[..take].to_vec();
         } else if !effective_metric_cols.is_empty() {
@@ -828,25 +839,31 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
                     .copied()
                     .filter(|&c| c != sort_idx)
                     .collect();
-                let available_for_visible = max_cols.saturating_sub(1);
+                let available_for_optional = max_cols.saturating_sub(1);
+                render_effort_col = has_effort_col && available_for_optional > 0;
+                let available_for_visible =
+                    available_for_optional.saturating_sub(usize::from(render_effort_col));
                 let take = available_for_visible.min(non_sort_visible.len());
                 let mut cols: Vec<usize> = non_sort_visible[..take].to_vec();
                 cols.push(sort_idx);
                 render_metric_cols = cols;
             } else {
                 // Name sort with non-empty effective cols (visible_columns only).
-                let available = max_cols;
+                render_effort_col = has_effort_col && max_cols > 0;
+                let available = max_cols.saturating_sub(usize::from(render_effort_col));
                 let take = available.min(effective_metric_cols.len());
                 render_metric_cols = effective_metric_cols[..take].to_vec();
             }
         } else {
             render_metric_cols = Vec::new();
+            render_effort_col = has_effort_col && max_cols > 0;
             render_release_col = false;
         }
     };
 
     // Recompute name_width from the columns we'll actually render.
-    let rendered_col_count = render_metric_cols.len() + if render_release_col { 1 } else { 0 };
+    let rendered_col_count =
+        render_metric_cols.len() + usize::from(render_effort_col) + usize::from(render_release_col);
     let name_width = (inner_area
         .width
         .saturating_sub(fixed_overhead + rendered_col_count as u16 * COL_W)
@@ -879,6 +896,9 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
         format!("{:<width$}", "Name", width = name_width),
         header_style,
     ));
+    if render_effort_col {
+        header_spans.push(Span::styled(format!(" {:>11}", "Effort"), header_style));
+    }
     // Metric column headers: sorted column = Cyan+BOLD, others = Yellow+BOLD.
     for &mi in &render_metric_cols {
         let label = file
@@ -959,6 +979,17 @@ fn draw_benchmark_list(f: &mut Frame, area: Rect, app: &mut App) {
             ),
             style,
         ));
+
+        // Optional model metadata column, selected independently from metrics.
+        if render_effort_col {
+            let value = model.effort_level.as_deref().unwrap_or(EM);
+            let col_style = if value == EM {
+                Style::default().fg(Color::DarkGray)
+            } else {
+                style
+            };
+            row_spans.push(Span::styled(format!(" {:>11}", value), col_style));
+        }
 
         // Metric columns (visible + sort, in render order).
         for &mi in &render_metric_cols {
@@ -1617,23 +1648,24 @@ fn draw_sort_picker(f: &mut Frame, area: Rect, app: &App) {
     f.render_stateful_widget(list, popup_area, &mut list_state);
 }
 
-/// Column visibility picker popup (`C`, browse mode). Shows every metric of the
-/// active source with a checkbox; Enter applies, Esc cancels.
+/// Column visibility picker popup (`C`, browse mode). Shows optional model
+/// metadata followed by every source metric; Enter applies, Esc cancels.
 fn draw_column_picker(f: &mut Frame, area: Rect, app: &App) {
     let bench_app = &app.benchmarks_app;
     let Some(file) = app.multi_store.file(bench_app.active_source) else {
         return;
     };
-    if file.metrics.is_empty() {
+    let picker_len = BenchmarksApp::column_picker_len(file);
+    if picker_len == 0 {
         return;
     }
 
     let metrics = &file.metrics;
     let selected = bench_app.column_picker_selected;
 
-    // Size: up to 50 wide, height = metrics + 2 border rows, clamped to screen.
+    // Size: up to 50 wide, height = picker rows + 2 border rows, clamped.
     let popup_width = 50u16.min(area.width.saturating_sub(4));
-    let popup_height = ((metrics.len() + 2) as u16).min(area.height.saturating_sub(4));
+    let popup_height = ((picker_len + 2) as u16).min(area.height.saturating_sub(4));
     let popup_area = centered_rect_fixed(popup_width, popup_height, area);
 
     // Cache the inner list rect for click hit-testing.
@@ -1646,25 +1678,48 @@ fn draw_column_picker(f: &mut Frame, area: Rect, app: &App) {
     // Inner label width = popup_width - 2 border - 4 checkbox chars - 1 gap.
     let label_w = popup_width.saturating_sub(7) as usize;
 
-    let items: Vec<ListItem> = metrics
-        .iter()
-        .enumerate()
-        .map(|(idx, metric)| {
-            let checked = bench_app.column_picker_pending.contains(&idx);
-            let checkbox = if checked { "[x]" } else { "[ ]" };
-            let label = truncate(&metric.label, label_w);
-            let line = Line::from(vec![Span::raw(format!("{} ", checkbox)), Span::raw(label)]);
-            if idx == selected {
-                ListItem::new(line).style(
-                    Style::default()
-                        .fg(Color::Yellow)
-                        .add_modifier(Modifier::BOLD),
-                )
-            } else {
-                ListItem::new(line)
-            }
-        })
-        .collect();
+    let has_effort = BenchmarksApp::effort_column_available(file);
+    let mut items: Vec<ListItem> = Vec::with_capacity(picker_len);
+    if has_effort {
+        let checkbox = if bench_app.column_picker_pending_effort {
+            "[x]"
+        } else {
+            "[ ]"
+        };
+        let line = Line::from(vec![
+            Span::raw(format!("{} ", checkbox)),
+            Span::raw("Effort"),
+            Span::styled(" (model metadata)", Style::default().fg(Color::DarkGray)),
+        ]);
+        let item = if selected == 0 {
+            ListItem::new(line).style(
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
+            )
+        } else {
+            ListItem::new(line)
+        };
+        items.push(item);
+    }
+
+    let metric_offset = usize::from(has_effort);
+    items.extend(metrics.iter().enumerate().map(|(idx, metric)| {
+        let picker_idx = idx + metric_offset;
+        let checked = bench_app.column_picker_pending.contains(&idx);
+        let checkbox = if checked { "[x]" } else { "[ ]" };
+        let label = truncate(&metric.label, label_w);
+        let line = Line::from(vec![Span::raw(format!("{} ", checkbox)), Span::raw(label)]);
+        if picker_idx == selected {
+            ListItem::new(line).style(
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
+            )
+        } else {
+            ListItem::new(line)
+        }
+    }));
 
     let mut list_state = ListState::default();
     list_state.select(Some(selected));
@@ -2935,6 +2990,23 @@ mod mouse_tests {
             .expect("draw");
     }
 
+    fn render_text(app: &mut App, w: u16, h: u16) -> String {
+        let backend = TestBackend::new(w, h);
+        let mut terminal = Terminal::new(backend).expect("terminal");
+        terminal
+            .draw(|f| crate::tui::ui::draw(f, app))
+            .expect("draw");
+        let buffer = terminal.backend().buffer();
+        let mut text = String::new();
+        for y in 0..h {
+            for x in 0..w {
+                text.push_str(buffer[(x, y)].symbol());
+            }
+            text.push('\n');
+        }
+        text
+    }
+
     fn click(col: u16, row: u16) -> MouseEvent {
         MouseEvent {
             kind: MouseEventKind::Down(MouseButton::Left),
@@ -2972,6 +3044,18 @@ mod mouse_tests {
         // Clicking the header row itself selects nothing new.
         handle_benchmarks_mouse(&mut app, click(area.x + 6, area.y));
         assert_eq!(app.benchmarks_app.selected, 2);
+    }
+
+    #[test]
+    fn selected_effort_column_renders_header_and_values() {
+        let mut app = test_app(3);
+        app.multi_store.file_mut(0).expect("loaded source").models[0].effort_level =
+            Some("high".to_string());
+        app.benchmarks_app.show_effort_column = true;
+
+        let text = render_text(&mut app, 140, 32);
+        assert!(text.contains("Effort"), "missing effort header:\n{text}");
+        assert!(text.contains("high"), "missing effort value:\n{text}");
     }
 
     #[test]

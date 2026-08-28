@@ -39,7 +39,7 @@ TUI and CLI for browsing AI models, benchmarks, coding agents, and provider stat
 ## What's New in v0.12.0
 
 - **Multi-source benchmarks** — 4 switchable data sources (Artificial Analysis, Epoch AI, Arena, LLM Stats) with state-preserving switching, in-app refresh, and a benchmark glossary
-- **Column picker** — choose which metric columns are visible, persisted per source in config.toml
+- **Column picker** — choose visible metric and effort columns, persisted per source in config.toml
 - **Comparator column** — cycle field average / peer average / rank alongside every score in the detail panel
 - **Refresh keys everywhere** — refresh benchmarks, models.dev data, and agent GitHub data without restarting
 - **`default_tab` config** — launch the TUI straight into your tab of choice
@@ -107,7 +107,7 @@ Curated catalog of 12+ agents with automatic version detection, GitHub release t
 
 ![Benchmarks tab](public/assets/benchmark-screenshot.png)
 
-~1,000 entries across 4 switchable data sources (Artificial Analysis, Epoch AI, Arena, LLM Stats) with quality indexes, Elo ratings, speed, and pricing. Compare mode with head-to-head tables, scatter plots, and radar charts. Choose visible metric columns, cycle a field-average/peer-average/rank comparator in the detail panel, and refresh any source in-app. Filter by creator, region, type, reasoning, and open/closed source.
+~1,000 entries across 4 switchable data sources (Artificial Analysis, Epoch AI, Arena, LLM Stats) with quality indexes, Elo ratings, speed, and pricing. Compare mode with head-to-head tables, scatter plots, and radar charts. Choose visible metric and effort columns, cycle a field-average/peer-average/rank comparator in the detail panel, and refresh any source in-app. Filter by creator, region, type, reasoning, and open/closed source.
 
 [Benchmarks wiki page](https://github.com/reyamira/models/wiki/Benchmarks) &#8226; CLI: `models benchmarks list`, `models benchmarks show`
 

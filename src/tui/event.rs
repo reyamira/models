@@ -163,7 +163,7 @@ fn handle_modal_popup_click(app: &mut App, ev: MouseEvent) -> Option<Message> {
             let count = app
                 .multi_store
                 .file(app.benchmarks_app.active_source)
-                .map(|f| f.metrics.len())
+                .map(super::benchmarks::BenchmarksApp::column_picker_len)
                 .unwrap_or(0);
             let rect = app.benchmarks_app.column_picker_area.get()?;
             let item = popup_row_at(
@@ -751,7 +751,11 @@ fn handle_search_mode(code: KeyCode) -> Option<Message> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::benchmarks::schema::{
+        MetricDef, MetricKind, ModelRow, ReasoningStatus, SourceFile, SourceMeta,
+    };
     use ratatui::layout::Rect;
+    use std::collections::BTreeMap;
 
     fn app() -> App {
         App::new(Default::default(), None, None)
@@ -832,6 +836,63 @@ mod tests {
             handle_mouse(&mut a, wheel(true)),
             Some(Message::ColumnPickerNext)
         ));
+    }
+
+    #[test]
+    fn column_picker_click_count_includes_effort_metadata_row() {
+        let mut a = app();
+        a.current_tab = Tab::Benchmarks;
+        a.multi_store.set_loaded(
+            0,
+            SourceFile {
+                source: SourceMeta {
+                    id: "test".into(),
+                    name: "Test".into(),
+                    url: "https://example.com".into(),
+                    fetched_at: "2026-08-28T00:00:00Z".into(),
+                    verified: true,
+                },
+                metrics: vec![MetricDef {
+                    id: "score".into(),
+                    label: "Score".into(),
+                    kind: MetricKind::Index,
+                    group: "Quality".into(),
+                    higher_is_better: true,
+                    last_updated: None,
+                    description: None,
+                    short_label: None,
+                }],
+                models: vec![ModelRow {
+                    id: "model".into(),
+                    name: "Model (High Effort)".into(),
+                    display_name: "Model".into(),
+                    creator: "lab".into(),
+                    creator_name: "Lab".into(),
+                    release_date: None,
+                    reasoning_status: ReasoningStatus::Reasoning,
+                    effort_level: Some("high".into()),
+                    variant_tag: None,
+                    open_weights: None,
+                    context_window: None,
+                    supports_tools: None,
+                    max_output: None,
+                    scores: BTreeMap::new(),
+                }],
+            },
+        );
+        a.benchmarks_app.show_column_picker = true;
+        a.benchmarks_app.column_picker_selected = 0;
+        a.benchmarks_app
+            .column_picker_area
+            .set(Some(Rect::new(10, 10, 30, 2)));
+
+        // Row 0 is Effort; row 1 is the sole metric. The metric click must not
+        // be rejected as past the end of a one-metric list.
+        assert!(matches!(
+            handle_mouse(&mut a, click_at(12, 11)),
+            Some(Message::ColumnPickerToggle)
+        ));
+        assert_eq!(a.benchmarks_app.column_picker_selected, 1);
     }
 
     #[test]

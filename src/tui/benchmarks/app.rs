@@ -13,6 +13,10 @@ use crate::benchmarks::multi::{
 use crate::benchmarks::schema::{ModelRow, SourceFile};
 use crate::benchmarks::sources::SourceDescriptor;
 use crate::formatting::{cmp_opt_f64, parse_date_to_numeric};
+
+/// Stable config id for the optional model-metadata effort column. Namespaced
+/// so it cannot collide with a source-defined metric id.
+pub const EFFORT_COLUMN_ID: &str = "meta:effort";
 use crate::tui::widgets::scroll_offset::ScrollOffset;
 
 /// Page size for page up/down navigation
@@ -443,8 +447,12 @@ pub struct BenchmarksApp {
     // --- Column visibility picker (Phase 2) ---
     /// Metric indices (into the active source's `file.metrics`) that the user
     /// has chosen to show as extra columns in the browse-mode list. Kept in
-    /// file order. **Session-only** (no config persistence).
+    /// file order and persisted per source by stable metric id.
     pub visible_columns: Vec<usize>,
+    /// Show the model's normalized reasoning-effort metadata as an opt-in list
+    /// column. This is separate from `visible_columns`, whose indices always
+    /// address source-defined metrics.
+    pub show_effort_column: bool,
     /// Whether the column-visibility picker popup (`C`) is open.
     pub show_column_picker: bool,
     /// Cursor position in the column picker list.
@@ -452,6 +460,8 @@ pub struct BenchmarksApp {
     /// Pending working set for the column picker: indices that are toggled on.
     /// Applying this to `visible_columns` happens on Enter; Esc discards it.
     pub column_picker_pending: Vec<usize>,
+    /// Pending state for the effort metadata row in the column picker.
+    pub column_picker_pending_effort: bool,
 
     // --- Mouse hit-test geometry (cached at render time; see crate::tui::mouse) ---
     /// Bare creator-list item region (no border, no filter row). Browse mode, and
@@ -526,9 +536,11 @@ impl BenchmarksApp {
             show_glossary: false,
             glossary_scroll: ScrollOffset::default(),
             visible_columns: Vec::new(),
+            show_effort_column: false,
             show_column_picker: false,
             column_picker_selected: 0,
             column_picker_pending: Vec::new(),
+            column_picker_pending_effort: false,
             creators_area: None,
             list_area: None,
             detail_area: None,
@@ -657,6 +669,7 @@ impl BenchmarksApp {
         self.reset_detail_scroll();
         // Column picker: indices are per-source, so reset on every switch.
         self.visible_columns = Vec::new();
+        self.show_effort_column = false;
         self.show_column_picker = false;
 
         if let Some(file) = store.file(active) {
@@ -742,6 +755,9 @@ impl BenchmarksApp {
         // Column visibility: drop entries that are out of range after a refresh
         // that shrank the metric list.
         self.visible_columns.retain(|&i| i < file.metrics.len());
+        if !Self::effort_column_available(file) {
+            self.show_effort_column = false;
+        }
 
         // The selected creator slug is file-independent (slugs are strings), so
         // it can be read here; the selected model id is captured by the caller
@@ -1480,25 +1496,52 @@ impl BenchmarksApp {
 
     // --- Column visibility picker (`C`, browse mode) ---
 
+    /// Whether this source has at least one meaningful effort value to show.
+    pub fn effort_column_available(file: &SourceFile) -> bool {
+        file.models.iter().any(|model| model.effort_level.is_some())
+    }
+
+    fn column_picker_metric_offset(file: &SourceFile) -> usize {
+        usize::from(Self::effort_column_available(file))
+    }
+
+    /// Number of selectable rows in the column picker: an optional effort
+    /// metadata row followed by every source-defined metric.
+    pub fn column_picker_len(file: &SourceFile) -> usize {
+        Self::column_picker_metric_offset(file) + file.metrics.len()
+    }
+
+    /// Resolve a picker row to its metric index. The effort metadata row, when
+    /// present, intentionally resolves to `None`.
+    pub fn column_picker_metric_index(file: &SourceFile, row: usize) -> Option<usize> {
+        row.checked_sub(Self::column_picker_metric_offset(file))
+            .filter(|&idx| idx < file.metrics.len())
+    }
+
     /// Open the column picker, initialising the pending set from the current
     /// `visible_columns` (so previously-selected columns appear pre-checked).
     pub fn open_column_picker(&mut self, file: &SourceFile) {
         self.column_picker_pending = self.visible_columns.clone();
-        // Clamp the cursor to the current metric count.
-        if file.metrics.is_empty() {
+        self.column_picker_pending_effort = self.show_effort_column;
+        // Clamp the cursor to the current picker row count.
+        let len = Self::column_picker_len(file);
+        if len == 0 {
             self.column_picker_selected = 0;
         } else {
-            self.column_picker_selected = self.column_picker_selected.min(file.metrics.len() - 1);
+            self.column_picker_selected = self.column_picker_selected.min(len - 1);
         }
         self.show_column_picker = true;
     }
 
-    /// Toggle the metric at `column_picker_selected` in the pending set.
+    /// Toggle the column at `column_picker_selected` in the pending set.
     pub fn column_picker_toggle(&mut self, file: &SourceFile) {
-        let idx = self.column_picker_selected;
-        if idx >= file.metrics.len() {
+        if Self::effort_column_available(file) && self.column_picker_selected == 0 {
+            self.column_picker_pending_effort = !self.column_picker_pending_effort;
             return;
         }
+        let Some(idx) = Self::column_picker_metric_index(file, self.column_picker_selected) else {
+            return;
+        };
         if let Some(pos) = self.column_picker_pending.iter().position(|&i| i == idx) {
             self.column_picker_pending.remove(pos);
         } else {
@@ -1508,11 +1551,11 @@ impl BenchmarksApp {
         }
     }
 
-    /// Move the column picker cursor down by one, clamped to the metric count.
+    /// Move the column picker cursor down by one, clamped to the picker length.
     pub fn column_picker_next(&mut self, file: &SourceFile) {
-        if !file.metrics.is_empty() {
-            self.column_picker_selected =
-                (self.column_picker_selected + 1).min(file.metrics.len() - 1);
+        let len = Self::column_picker_len(file);
+        if len > 0 {
+            self.column_picker_selected = (self.column_picker_selected + 1).min(len - 1);
         }
     }
 
@@ -1526,16 +1569,18 @@ impl BenchmarksApp {
         self.column_picker_selected = 0;
     }
 
-    /// Jump to the last metric.
+    /// Jump to the last picker row.
     pub fn column_picker_last(&mut self, file: &SourceFile) {
-        if !file.metrics.is_empty() {
-            self.column_picker_selected = file.metrics.len() - 1;
+        let len = Self::column_picker_len(file);
+        if len > 0 {
+            self.column_picker_selected = len - 1;
         }
     }
 
     /// Apply the pending set to `visible_columns` and close the picker.
     pub fn column_picker_save(&mut self) {
         self.visible_columns = self.column_picker_pending.clone();
+        self.show_effort_column = self.column_picker_pending_effort;
         self.show_column_picker = false;
     }
 
@@ -1543,6 +1588,7 @@ impl BenchmarksApp {
     pub fn column_picker_cancel(&mut self) {
         self.show_column_picker = false;
         self.column_picker_pending = Vec::new();
+        self.column_picker_pending_effort = false;
     }
 
     /// Resolve saved column metric **ids** (from config) onto `visible_columns`
@@ -1550,6 +1596,8 @@ impl BenchmarksApp {
     /// silently dropped — Epoch's auto-prune retires metrics between pipeline
     /// runs, so a stale id is expected, not an error.
     pub fn apply_saved_columns(&mut self, file: &SourceFile, saved: &[String]) {
+        self.show_effort_column =
+            Self::effort_column_available(file) && saved.iter().any(|id| id == EFFORT_COLUMN_ID);
         self.visible_columns = file
             .metrics
             .iter()
@@ -1562,10 +1610,16 @@ impl BenchmarksApp {
     /// The current `visible_columns` as metric **ids** (the stable handle the
     /// config persists — indices shift when a source's metric set changes).
     pub fn visible_column_ids(&self, file: &SourceFile) -> Vec<String> {
-        self.visible_columns
-            .iter()
-            .filter_map(|&i| file.metrics.get(i).map(|m| m.id.clone()))
-            .collect()
+        let mut ids = Vec::with_capacity(self.visible_columns.len() + 1);
+        if self.show_effort_column && Self::effort_column_available(file) {
+            ids.push(EFFORT_COLUMN_ID.to_string());
+        }
+        ids.extend(
+            self.visible_columns
+                .iter()
+                .filter_map(|&i| file.metrics.get(i).map(|m| m.id.clone())),
+        );
+        ids
     }
 
     /// Compute the effective set of column metric indices to render in the
@@ -2419,16 +2473,68 @@ mod tests {
     }
 
     #[test]
+    fn effort_column_is_optional_picker_metadata_and_persists_by_stable_id() {
+        let mut file = sample_file();
+        file.models[0].effort_level = Some("high".into());
+        let mut app = BenchmarksApp::new(Some(&file));
+
+        assert!(BenchmarksApp::effort_column_available(&file));
+        assert_eq!(
+            BenchmarksApp::column_picker_len(&file),
+            file.metrics.len() + 1
+        );
+
+        app.open_column_picker(&file);
+        app.column_picker_selected = 0;
+        app.column_picker_toggle(&file);
+        assert!(app.column_picker_pending_effort);
+        assert!(app.column_picker_pending.is_empty());
+
+        // Metric rows follow the effort metadata row.
+        app.column_picker_selected = 3;
+        app.column_picker_toggle(&file);
+        assert_eq!(app.column_picker_pending, vec![2]);
+
+        app.column_picker_save();
+        assert!(app.show_effort_column);
+        assert_eq!(app.visible_columns, vec![2]);
+        assert_eq!(
+            app.visible_column_ids(&file),
+            vec![EFFORT_COLUMN_ID.to_string(), "math_index".to_string()]
+        );
+
+        let mut restored = BenchmarksApp::new(Some(&file));
+        restored.apply_saved_columns(&file, &app.visible_column_ids(&file));
+        assert!(restored.show_effort_column);
+        assert_eq!(restored.visible_columns, vec![2]);
+    }
+
+    #[test]
+    fn effort_column_is_unavailable_when_source_has_no_values() {
+        let file = sample_file();
+        let mut app = BenchmarksApp::new(Some(&file));
+
+        assert!(!BenchmarksApp::effort_column_available(&file));
+        assert_eq!(BenchmarksApp::column_picker_len(&file), file.metrics.len());
+
+        app.apply_saved_columns(&file, &[EFFORT_COLUMN_ID.to_string()]);
+        assert!(!app.show_effort_column);
+        assert!(app.visible_column_ids(&file).is_empty());
+    }
+
+    #[test]
     fn visible_columns_reset_on_source_switch() {
         let file = sample_file();
         let store = store_with(file.clone());
         let mut app = BenchmarksApp::new(Some(&file));
         app.visible_columns = vec![1, 3, 5];
+        app.show_effort_column = true;
         app.switch_source(&store, true);
         assert!(
             app.visible_columns.is_empty(),
             "visible_columns must reset on source switch"
         );
+        assert!(!app.show_effort_column);
     }
 
     #[test]

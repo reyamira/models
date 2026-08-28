@@ -1515,7 +1515,8 @@ impl App {
             }
             Message::ColumnPickerSave => {
                 self.benchmarks_app.column_picker_save();
-                // Persist the (possibly empty) selection per source as metric ids.
+                // Persist the (possibly empty) selection per source as stable
+                // metric / namespaced metadata ids.
                 self.persist_visible_columns();
             }
             Message::ColumnPickerCancel => {
@@ -2419,18 +2420,26 @@ mod tests {
 
     #[test]
     fn column_sync_persists_ids_and_clears_empty_entry() {
-        let file0 = bm_file_reasoning("aa", &["alpha"]);
+        let mut file0 = bm_file_reasoning("aa", &["alpha"]);
+        file0.models[0].effort_level = Some("high".to_string());
         let mut app = make_test_app();
         app.multi_store.set_loaded(0, file0);
         app.benchmarks_app.active_source = 0;
-        // Select the "coding" column (index 1) and sync.
+        // Select effort metadata plus the "coding" metric (index 1) and sync.
+        app.benchmarks_app.show_effort_column = true;
         app.benchmarks_app.visible_columns = vec![1];
         assert!(app.sync_visible_columns_to_config());
         assert_eq!(
             app.config.benchmarks.columns.get("aa").map(Vec::as_slice),
-            Some(&["coding".to_string()][..])
+            Some(
+                &[
+                    super::super::benchmarks::EFFORT_COLUMN_ID.to_string(),
+                    "coding".to_string()
+                ][..]
+            )
         );
         // Clearing the selection removes the entry (no `aa = []` noise).
+        app.benchmarks_app.show_effort_column = false;
         app.benchmarks_app.visible_columns.clear();
         assert!(app.sync_visible_columns_to_config());
         assert!(!app.config.benchmarks.columns.contains_key("aa"));
@@ -2438,13 +2447,17 @@ mod tests {
 
     #[test]
     fn switch_restores_saved_columns_per_source() {
-        let file0 = bm_file_reasoning("aa", &["alpha"]);
+        let mut file0 = bm_file_reasoning("aa", &["alpha"]);
+        file0.models[0].effort_level = Some("high".to_string());
         let file1 = bm_file_reasoning("epoch", &["alpha"]);
         let mut app = app_with_two_sources(file0, file1);
-        app.config
-            .benchmarks
-            .columns
-            .insert("aa".to_string(), vec!["intelligence".to_string()]);
+        app.config.benchmarks.columns.insert(
+            "aa".to_string(),
+            vec![
+                super::super::benchmarks::EFFORT_COLUMN_ID.to_string(),
+                "intelligence".to_string(),
+            ],
+        );
         // Saved epoch entry carries one live id and one stale id (a metric the
         // source no longer ships) — the stale one must drop silently.
         app.config.benchmarks.columns.insert(
@@ -2455,10 +2468,12 @@ mod tests {
         app.update(Message::CycleDataSourceNext);
         assert_eq!(app.benchmarks_app.active_source, 1);
         assert_eq!(app.benchmarks_app.visible_columns, vec![1]);
+        assert!(!app.benchmarks_app.show_effort_column);
 
         app.update(Message::CycleDataSourcePrev);
         assert_eq!(app.benchmarks_app.active_source, 0);
         assert_eq!(app.benchmarks_app.visible_columns, vec![0]);
+        assert!(app.benchmarks_app.show_effort_column);
     }
 
     #[test]
