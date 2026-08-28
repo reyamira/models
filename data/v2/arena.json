@@ -3,7 +3,7 @@
     "id": "arena",
     "name": "Arena",
     "url": "https://arena.ai",
-    "fetched_at": "2026-08-26T06:18:12.867190417+00:00",
+    "fetched_at": "2026-08-28T17:35:17.285938587+00:00",
     "verified": true
   },
   "metrics": [
@@ -195,6 +195,8 @@
       "display_name": "claude-opus-4-5-20251101-high-32k",
       "creator": "anthropic",
       "creator_name": "Anthropic",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_code": {
@@ -267,6 +269,8 @@
       "display_name": "claude-opus-4-6-high",
       "creator": "anthropic",
       "creator_name": "Anthropic",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_code": {
@@ -357,6 +361,8 @@
       "display_name": "claude-opus-4-7-high",
       "creator": "anthropic",
       "creator_name": "Anthropic",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_code": {
@@ -431,6 +437,8 @@
       "display_name": "claude-opus-4-8-high",
       "creator": "anthropic",
       "creator_name": "Anthropic",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_code": {
@@ -481,6 +489,8 @@
       "display_name": "claude-opus-5-high",
       "creator": "anthropic",
       "creator_name": "Anthropic",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_code": {
@@ -619,6 +629,8 @@
       "display_name": "claude-sonnet-5-high",
       "creator": "anthropic",
       "creator_name": "Anthropic",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_code": {
@@ -669,6 +681,8 @@
       "display_name": "deepseek-v4-flash-high",
       "creator": "deepseek",
       "creator_name": "DeepSeek",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": true,
       "scores": {
         "elo_code": {
@@ -701,6 +715,8 @@
       "display_name": "deepseek-v4-pro-high-20260813",
       "creator": "deepseek",
       "creator_name": "DeepSeek",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": true,
       "scores": {
         "elo_code": {
@@ -723,6 +739,8 @@
       "display_name": "deepseek-v4-pro-high-preview",
       "creator": "deepseek",
       "creator_name": "DeepSeek",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": true,
       "scores": {
         "elo_code": {
@@ -860,6 +878,7 @@
       "creator": "google",
       "creator_name": "Google",
       "reasoning_status": "Reasoning",
+      "effort_level": "minimal",
       "open_weights": false,
       "scores": {
         "elo_vision": {
@@ -986,6 +1005,8 @@
       "display_name": "gemini-3.5-flash-high",
       "creator": "google",
       "creator_name": "Google",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_code": {
@@ -1042,6 +1063,8 @@
       "display_name": "gemini-3.5-flash-medium",
       "creator": "google",
       "creator_name": "Google",
+      "reasoning_status": "Reasoning",
+      "effort_level": "medium",
       "open_weights": false,
       "scores": {
         "elo_code": {
@@ -1076,6 +1099,8 @@
       "display_name": "gemini-3.6-flash-high",
       "creator": "google",
       "creator_name": "Google",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_code": {
@@ -1104,6 +1129,8 @@
       "display_name": "gemini-3.7-flash-high",
       "creator": "google",
       "creator_name": "Google",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_code": {
@@ -1284,6 +1311,8 @@
       "display_name": "gpt-5.1-high",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_vision": {
@@ -1354,6 +1383,8 @@
       "display_name": "gpt-5.2-high",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_document": {
@@ -1437,6 +1468,8 @@
       "display_name": "gpt-5.4-high",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_text": {
@@ -1459,6 +1492,8 @@
       "display_name": "gpt-5.4-high",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "variant_tag": "codex-harness",
       "open_weights": false,
       "scores": {
@@ -1476,6 +1511,8 @@
       "display_name": "gpt-5.4-medium",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "medium",
       "variant_tag": "codex-harness",
       "open_weights": false,
       "scores": {
@@ -1493,6 +1530,8 @@
       "display_name": "gpt-5.4-mini-high",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_vision": {
@@ -1570,6 +1609,8 @@
       "display_name": "gpt-5.5-high",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_document": {
@@ -1598,6 +1639,8 @@
       "display_name": "gpt-5.5-high",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "variant_tag": "codex-harness",
       "open_weights": false,
       "scores": {
@@ -1659,6 +1702,8 @@
       "display_name": "gpt-5.5-xhigh",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
       "variant_tag": "codex-harness",
       "open_weights": false,
       "scores": {
@@ -1676,6 +1721,8 @@
       "display_name": "gpt-5.6-luna-xhigh",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
       "open_weights": false,
       "scores": {
         "elo_document": {
@@ -1698,6 +1745,8 @@
       "display_name": "gpt-5.6-luna-xhigh",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
       "variant_tag": "codex-harness",
       "open_weights": false,
       "scores": {
@@ -1715,6 +1764,8 @@
       "display_name": "gpt-5.6-sol-xhigh",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
       "open_weights": false,
       "scores": {
         "elo_document": {
@@ -1749,6 +1800,8 @@
       "display_name": "gpt-5.6-sol-xhigh",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
       "variant_tag": "codex-harness",
       "open_weights": false,
       "scores": {
@@ -1766,6 +1819,8 @@
       "display_name": "gpt-5.6-terra-xhigh",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
       "open_weights": false,
       "scores": {
         "elo_document": {
@@ -1794,6 +1849,8 @@
       "display_name": "gpt-5.6-terra-xhigh",
       "creator": "openai",
       "creator_name": "OpenAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
       "variant_tag": "codex-harness",
       "open_weights": false,
       "scores": {
@@ -2033,6 +2090,8 @@
       "display_name": "grok-4.6-high",
       "creator": "spacexai",
       "creator_name": "SpaceXAI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_code": {
@@ -2334,6 +2393,8 @@
       "display_name": "ppl-sonar-pro-high",
       "creator": "perplexity-ai",
       "creator_name": "Perplexity AI",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_search": {
@@ -2351,6 +2412,7 @@
       "creator": "perplexity-ai",
       "creator_name": "Perplexity AI",
       "reasoning_status": "Reasoning",
+      "effort_level": "high",
       "open_weights": false,
       "scores": {
         "elo_search": {

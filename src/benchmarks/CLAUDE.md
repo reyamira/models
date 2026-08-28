@@ -47,9 +47,11 @@ in the data files — there are no hardcoded benchmark field names. `BenchmarkSt
     reasoning-status / effort-level / variant-tag extraction from parentheticals
     in a raw model name (e.g. `"Claude (Adaptive Reasoning, Max Effort)"` →
     `Adaptive` / `max` / `display_name="Claude"`). It runs at **transform time**
-    (the AA transform `#[path]`-includes this file and calls it), so in the
-    `models` binary these items are exercised only by the unit tests — hence the
-    item-level `#[allow(dead_code)]`s.
+    (the transform binary `#[path]`-includes this file; AA, Arena, and LLM Stats
+    call it), so in the `models` binary these items are exercised only by the
+    unit tests — hence the item-level `#[allow(dead_code)]`s. Arena adds a
+    conservative source-specific fallback for delimiter-separated effort tags;
+    see `src/bin/transform/CLAUDE.md`.
 
 - **multi.rs** — `MultiStore` + the registry-driven view primitives.
   - `MultiStore { sources: Vec<SourceState> }`, `SourceState { descriptor, load }`,

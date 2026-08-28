@@ -77,6 +77,12 @@ within-source uniqueness, and serde round-trip.
   sample size, surfaced as a confidence signal in the detail panel). Board date
   = `last_updated`, falling back to the date part of `fetched_at`. No release
   dates upstream.
+- **Effort tags:** after the shared parenthetical parser, Arena recognizes exact
+  delimiter-separated `minimal`/`low`/`medium`/`high`/`xhigh` tokens anywhere in
+  the raw model name (`xhigh` normalizes to `max`). Conflicting tokens are left
+  unset. Bare delimited `max` is deliberately excluded because Arena also has
+  branded tiers such as `qwen3.8-max`; an explicit parenthetical `(Max)` is
+  still handled by the shared parser.
 
 ### `epoch.rs`
 - Input is the **unzipped** ZIP: one wide CSV per benchmark. Uses the `csv`

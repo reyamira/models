@@ -149,7 +149,7 @@ static DATE_RE: LazyLock<Regex> = LazyLock::new(|| {
 // Matches a standalone effort keyword (entire content is just the keyword)
 #[allow(dead_code)]
 static EFFORT_ONLY_RE: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?i)^(high|low|medium|xhigh|minimal)(\s+effort)?$").expect("valid regex")
+    Regex::new(r"(?i)^(max|high|low|medium|xhigh|minimal)(\s+effort)?$").expect("valid regex")
 });
 
 #[allow(dead_code)]
@@ -321,6 +321,14 @@ mod tests {
         assert_eq!(p.reasoning_status, ReasoningStatus::Adaptive);
         assert_eq!(p.effort_level, Some("max".to_string()));
         assert_eq!(p.display_name, "Claude Opus 4.6");
+    }
+
+    #[test]
+    fn test_parse_parenthetical_max_effort() {
+        let p = parse("Claude Opus (Max)");
+        assert_eq!(p.display_name, "Claude Opus");
+        assert_eq!(p.reasoning_status, ReasoningStatus::Reasoning);
+        assert_eq!(p.effort_level.as_deref(), Some("max"));
     }
 
     #[test]

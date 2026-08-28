@@ -299,12 +299,55 @@ fn domain_root(source_url: &str) -> String {
     format!("{scheme}://{host}")
 }
 
+/// Extract an unambiguous Arena effort tag from anywhere in a model name.
+///
+/// Arena commonly encodes effort as a hyphen-delimited segment rather than the
+/// parenthetical form handled by `parse_name_metadata`: `...-high-32k`,
+/// `...-xhigh (codex-harness)`, or `(thinking-minimal)`. Only exact delimited
+/// tokens count, and conflicting tokens are rejected rather than guessed.
+///
+/// Bare `max` is deliberately excluded here. Arena also carries branded model
+/// tiers such as `qwen3.8-max`, so treating every delimited `max` as reasoning
+/// effort would create false positives. Explicit `(Max)` remains supported by
+/// the shared parenthetical parser.
+fn delimited_effort_level(name: &str) -> Option<String> {
+    let mut found: Option<&'static str> = None;
+
+    for token in name.split(|c: char| !c.is_ascii_alphanumeric()) {
+        let level = match token.to_ascii_lowercase().as_str() {
+            "minimal" => "minimal",
+            "low" => "low",
+            "medium" => "medium",
+            "high" => "high",
+            "xhigh" => "max",
+            _ => continue,
+        };
+
+        match found {
+            Some(existing) if existing != level => return None,
+            None => found = Some(level),
+            _ => {}
+        }
+    }
+
+    found.map(str::to_string)
+}
+
 /// Convert one merged row into a `ModelRow`. Arena names rarely carry
 /// parentheticals, but `parse_name_metadata` is run anyway (per spec) so any
 /// `(Thinking)` / `(High)` suffix on e.g. agent-board names is cleaned from
 /// `display_name` and folded into reasoning/effort/variant metadata.
 fn merge_to_row(row: MergeRow) -> ModelRow {
     let parsed = crate::schema::parse_name_metadata(&row.name, ReasoningStatus::None);
+    let effort_level = parsed
+        .effort_level
+        .or_else(|| delimited_effort_level(&row.name));
+    let reasoning_status =
+        if effort_level.is_some() && parsed.reasoning_status == ReasoningStatus::None {
+            ReasoningStatus::Reasoning
+        } else {
+            parsed.reasoning_status
+        };
 
     let creator = row.vendor.as_deref().map(slugify).unwrap_or_default();
     let creator_name = row.vendor.unwrap_or_default();
@@ -317,8 +360,8 @@ fn merge_to_row(row: MergeRow) -> ModelRow {
         creator_name,
         // Arena boards carry no release dates.
         release_date: None,
-        reasoning_status: parsed.reasoning_status,
-        effort_level: parsed.effort_level,
+        reasoning_status,
+        effort_level,
         variant_tag: parsed.variant_tag,
         open_weights: license_to_open_weights(row.license.as_deref()),
         // Arena boards carry no context window.
@@ -465,6 +508,38 @@ mod tests {
         );
         assert_eq!(domain_root("http://example.com/x/y"), "http://example.com");
         assert_eq!(domain_root("not-a-url"), "https://arena.ai");
+    }
+
+    #[test]
+    fn delimited_effort_tags_parse_across_arena_name_shapes() {
+        let cases = [
+            ("claude-opus-4-5-20251101-high-32k", "high"),
+            ("gemini-3.5-flash-medium", "medium"),
+            ("model-low-preview", "low"),
+            ("gpt-5.5-xhigh (codex-harness)", "max"),
+            ("gemini-3-flash (thinking-minimal)", "minimal"),
+        ];
+
+        for (name, expected) in cases {
+            assert_eq!(
+                delimited_effort_level(name).as_deref(),
+                Some(expected),
+                "{name}"
+            );
+        }
+    }
+
+    #[test]
+    fn delimited_effort_tags_reject_ambiguous_or_non_delimited_names() {
+        for name in [
+            "qwen3.8-max",
+            "qwen3.7-max-preview",
+            "highlander-model",
+            "model-high-low",
+            "ordinary-model",
+        ] {
+            assert_eq!(delimited_effort_level(name), None, "{name}");
+        }
     }
 
     // --- metric set / order / group ---------------------------------------
@@ -719,6 +794,36 @@ mod tests {
         // "(High)" is a pure-effort keyword -> implies reasoning.
         assert_eq!(m.effort_level.as_deref(), Some("high"));
         assert_eq!(m.reasoning_status, ReasoningStatus::Reasoning);
+    }
+
+    #[test]
+    fn merge_row_folds_delimited_effort_into_metadata() {
+        let model = merge_to_row(MergeRow {
+            name: "gemini-3-flash (thinking-minimal)".into(),
+            vendor: Some("Google".into()),
+            license: Some("proprietary".into()),
+            scores: BTreeMap::new(),
+            first_seen: 0,
+        });
+
+        assert_eq!(model.display_name, "gemini-3-flash");
+        assert_eq!(model.effort_level.as_deref(), Some("minimal"));
+        assert_eq!(model.reasoning_status, ReasoningStatus::Reasoning);
+    }
+
+    #[test]
+    fn merge_row_keeps_ambiguous_max_as_model_identity() {
+        let model = merge_to_row(MergeRow {
+            name: "qwen3.8-max".into(),
+            vendor: Some("Alibaba".into()),
+            license: Some("proprietary".into()),
+            scores: BTreeMap::new(),
+            first_seen: 0,
+        });
+
+        assert_eq!(model.display_name, "qwen3.8-max");
+        assert_eq!(model.effort_level, None);
+        assert_eq!(model.reasoning_status, ReasoningStatus::None);
     }
 
     #[test]
