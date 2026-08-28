@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-08-27T18:18:18.790027226+00:00",
+    "fetched_at": "2026-08-28T06:18:20.138938805+00:00",
     "verified": true
   },
   "metrics": [
@@ -92,7 +92,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-24",
+      "last_updated": "2026-08-27",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -150,7 +150,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-24",
+      "last_updated": "2026-08-27",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -173,14 +173,14 @@
       "label": "Mystery Game Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-19"
+      "last_updated": "2026-08-27"
     },
     {
       "id": "otis_mock_aime_2024_2025",
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-24",
+      "last_updated": "2026-08-27",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -219,7 +219,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-24",
+      "last_updated": "2026-08-26",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -239,6 +239,33 @@
     }
   ],
   "models": [
+    {
+      "id": "glm-5.3-flash",
+      "name": "glm-5.3-flash_max",
+      "display_name": "glm-5.3-flash",
+      "creator": "z-ai-zhipu-ai",
+      "creator_name": "Z.ai (Zhipu AI)",
+      "release_date": "2026-08-20",
+      "effort_level": "max",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.14,
+          "date": "2026-08-26"
+        },
+        "gpqa_diamond": {
+          "value": 0.9015151515151515,
+          "date": "2026-08-26"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9388888888888889,
+          "date": "2026-08-26"
+        },
+        "simpleqa_verified": {
+          "value": 0.32,
+          "date": "2026-08-26"
+        }
+      }
+    },
     {
       "id": "glm-5.3",
       "name": "glm-5.3",
@@ -1805,6 +1832,10 @@
           "value": 0.9185606060606061,
           "date": "2026-06-24"
         },
+        "mystery_game_puzzles": {
+          "value": 0.15,
+          "date": "2026-08-27"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.8638888888888889,
           "date": "2026-06-25"
@@ -2055,6 +2086,10 @@
           "value": 0.115,
           "date": "2026-06-04"
         },
+        "chess_puzzles": {
+          "value": 0.12,
+          "date": "2026-08-10"
+        },
         "critpt": {
           "value": 0.0314285714285714,
           "date": "2026-06-04"
@@ -2062,6 +2097,14 @@
         "epoch_capabilities_index": {
           "value": 143.11,
           "date": "2026-06-04"
+        },
+        "gpqa_diamond": {
+          "value": 0.8535353535353535,
+          "date": "2026-08-10"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.8666666666666667,
+          "date": "2026-08-10"
         },
         "proofbench": {
           "value": 0.02,
@@ -2104,6 +2147,10 @@
         "gpqa_diamond": {
           "value": 0.8787878787878788,
           "date": "2026-08-07"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.17,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9333333333333333,
@@ -2154,6 +2201,10 @@
         "gpqa_diamond": {
           "value": 0.9090909090909091,
           "date": "2026-08-10"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.07,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.7111111111111111,
@@ -3070,6 +3121,10 @@
           "value": 0.8585858585858586,
           "date": "2026-08-07"
         },
+        "mystery_game_puzzles": {
+          "value": 0.07,
+          "date": "2026-08-27"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9111111111111111,
           "date": "2026-08-07"
@@ -3175,8 +3230,8 @@
           "date": "2026-08-07"
         },
         "mystery_game_puzzles": {
-          "value": 0.16,
-          "date": "2026-08-05"
+          "value": 0.19,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9111111111111111,
@@ -3588,6 +3643,25 @@
       }
     },
     {
+      "id": "gemma-4-26b-a4b-it",
+      "name": "gemma-4-26b-a4b-it_minimal",
+      "display_name": "gemma-4-26b-a4b-it",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
+      "release_date": "2026-04-02",
+      "effort_level": "minimal",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.06,
+          "date": "2026-08-06"
+        },
+        "gpqa_diamond": {
+          "value": 0.7323232323232324,
+          "date": "2026-08-06"
+        }
+      }
+    },
+    {
       "id": "gemma-4-31b-it",
       "name": "gemma-4-31b-it",
       "display_name": "gemma-4-31b-it",
@@ -3692,8 +3766,8 @@
           "date": "2026-08-07"
         },
         "mystery_game_puzzles": {
-          "value": 0.27,
-          "date": "2026-08-05"
+          "value": 0.12,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9333333333333333,
@@ -3799,6 +3873,10 @@
           "value": 0.8686868686868687,
           "date": "2026-08-07"
         },
+        "mystery_game_puzzles": {
+          "value": 0.08,
+          "date": "2026-08-27"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.8888888888888888,
           "date": "2026-08-07"
@@ -3864,6 +3942,10 @@
         "gpqa_diamond": {
           "value": 0.7847,
           "date": "2026-04-14"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.09,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8778,
@@ -4176,8 +4258,8 @@
           "date": "2026-08-07"
         },
         "mystery_game_puzzles": {
-          "value": 0.15,
-          "date": "2026-08-05"
+          "value": 0.2,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8444444444444444,
@@ -4223,9 +4305,21 @@
       "creator_name": "Alibaba",
       "release_date": "2026-02-24",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.12,
+          "date": "2026-08-27"
+        },
         "critpt": {
           "value": 0.00285714285714286,
           "date": "2026-02-24"
+        },
+        "gpqa_diamond": {
+          "value": 0.7897727272727273,
+          "date": "2026-08-27"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.6166666666666667,
+          "date": "2026-08-27"
         },
         "scicode": {
           "value": 0.275462962962963,
@@ -4564,8 +4658,8 @@
           "date": "2026-08-07"
         },
         "mystery_game_puzzles": {
-          "value": 0.16,
-          "date": "2026-08-05"
+          "value": 0.17,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8666666666666667,
@@ -4596,6 +4690,10 @@
         "gpqa_diamond": {
           "value": 0.8636363636363636,
           "date": "2026-08-07"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.18,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8888888888888888,
@@ -5789,6 +5887,10 @@
           "value": 0.1373,
           "date": "2025-12-18"
         },
+        "mystery_game_puzzles": {
+          "value": 0.19,
+          "date": "2026-08-27"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.8861111111111111,
           "date": "2025-11-13"
@@ -6619,6 +6721,10 @@
           "value": 0.75,
           "date": "2025-10-30"
         },
+        "mystery_game_puzzles": {
+          "value": 0.05,
+          "date": "2026-08-27"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.8666666666666667,
           "date": "2025-10-30"
@@ -6680,6 +6786,10 @@
         "gpqa_diamond": {
           "value": 0.6944444444444444,
           "date": "2025-10-30"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.08,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8111111111111111,
@@ -6806,6 +6916,10 @@
           "value": 140.69,
           "date": "2025-08-05"
         },
+        "mystery_game_puzzles": {
+          "value": 0.02,
+          "date": "2026-08-27"
+        },
         "simplebench": {
           "value": 0.221,
           "date": "2025-08-05"
@@ -6836,6 +6950,10 @@
           "value": 566.05,
           "date": "2025-08-05"
         },
+        "chess_puzzles": {
+          "value": 0.04,
+          "date": "2026-08-27"
+        },
         "critpt": {
           "value": 0.0142857142857143,
           "date": "2025-08-05"
@@ -6845,12 +6963,12 @@
           "date": "2025-08-05"
         },
         "gpqa_diamond": {
-          "value": 0.4595959595959596,
-          "date": "2026-08-06"
+          "value": 0.6079545454545454,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
-          "value": 0.5388888888888889,
-          "date": "2026-08-07"
+          "value": 0.6527777777777778,
+          "date": "2026-08-27"
         },
         "scicode": {
           "value": 0.34375,
@@ -6999,6 +7117,10 @@
         "gpqa_diamond": {
           "value": 0.8005050505050505,
           "date": "2025-12-11"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.09,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8666666666666667,
@@ -7846,6 +7968,28 @@
       }
     },
     {
+      "id": "qwen3-8b",
+      "name": "qwen3-8b",
+      "display_name": "qwen3-8b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2025-04-28",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.05,
+          "date": "2026-08-27"
+        },
+        "gpqa_diamond": {
+          "value": 0.5675505050505051,
+          "date": "2026-08-27"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.5611111111111111,
+          "date": "2026-08-27"
+        }
+      }
+    },
+    {
       "id": "gemini-2.5-flash-preview-04-17",
       "name": "gemini-2.5-flash-preview-04-17",
       "display_name": "gemini-2.5-flash-preview-04-17",
@@ -7955,6 +8099,10 @@
           "value": 0.088,
           "date": "2025-04-16"
         },
+        "mystery_game_puzzles": {
+          "value": 0.29,
+          "date": "2026-08-27"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.8444444444444444,
           "date": "2026-08-07"
@@ -8020,6 +8168,10 @@
         "gso": {
           "value": 0.036,
           "date": "2025-04-16"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.05,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.8166666666666667,
@@ -8124,6 +8276,10 @@
         "gpqa_diamond": {
           "value": 0.6584595959595959,
           "date": "2025-04-14"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.07,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.44722222222222224,
@@ -8611,7 +8767,7 @@
       "scores": {
         "chess_puzzles": {
           "value": 0.0,
-          "date": "2026-08-06"
+          "date": "2026-08-27"
         },
         "critpt": {
           "value": 0.0,
@@ -8622,12 +8778,12 @@
           "date": "2025-03-12"
         },
         "gpqa_diamond": {
-          "value": 0.4393939393939394,
-          "date": "2026-08-06"
+          "value": 0.4772727272727273,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
-          "value": 0.2222222222222222,
-          "date": "2026-08-06"
+          "value": 0.225,
+          "date": "2026-08-27"
         },
         "scicode": {
           "value": 0.211805555555556,
@@ -8882,6 +9038,10 @@
         "gso": {
           "value": 0.013000000000000001,
           "date": "2025-05-30"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.07,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.7694444444444445,
@@ -10081,6 +10241,10 @@
       "creator_name": "Meta AI",
       "release_date": "2024-07-23",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-27"
+        },
         "critpt": {
           "value": 0.0,
           "date": "2024-07-23"
@@ -10094,8 +10258,8 @@
           "date": "2025-01-27"
         },
         "otis_mock_aime_2024_2025": {
-          "value": 0.025,
-          "date": "2025-02-25"
+          "value": 0.016666666666666666,
+          "date": "2026-08-27"
         },
         "scicode": {
           "value": 0.131944444444444,
@@ -10158,6 +10322,10 @@
         "gpqa_diamond": {
           "value": 0.37720959595959597,
           "date": "2025-01-27"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.12,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.06944444444444445,
@@ -10976,6 +11144,10 @@
         "gpqa_diamond": {
           "value": 0.27178030303030304,
           "date": "2025-01-27"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.03,
+          "date": "2026-08-27"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.022222222222222223,
