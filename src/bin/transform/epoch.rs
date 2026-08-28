@@ -314,7 +314,7 @@ fn infer_kind(max_value: f64) -> MetricKind {
 struct CleanedVersion {
     /// Slug with effort/context/placeholder suffixes removed (the model id).
     slug: String,
-    /// Effort level (`high`/`low`/`medium`/`max`/`minimal`) if a suffix encoded one.
+    /// Effort level (`high`/`low`/`medium`/`xhigh`/`max`/`minimal`) if a suffix encoded one.
     effort_level: Option<String>,
     /// Context-window variant tag (e.g. `32K`) if a `_<digits>k` suffix was present.
     variant_tag: Option<String>,
@@ -326,7 +326,7 @@ struct CleanedVersion {
 ///
 /// Recognized suffixes (case-insensitive on the keyword, applied once):
 /// - effort: `_high` `_low` `_medium` `_xhigh` `_max` `_minimal` -> `effort_level`
-///   (`xhigh` normalizes to `max`, matching the AA effort vocabulary)
+///   (source vocabulary is preserved, so `xhigh` stays distinct from `max`)
 /// - context: `_<digits>k` (e.g. `_32K`, `_128k`) -> `variant_tag`
 /// - reasoning: `_thinking` -> `reasoning_status = Reasoning`
 /// - placeholder: `_unknown` `_none` `_default` -> stripped, no metadata
@@ -354,12 +354,8 @@ fn clean_model_version(raw: &str) -> CleanedVersion {
     let lower = suffix.to_lowercase();
 
     let stripped = match lower.as_str() {
-        "high" | "low" | "medium" | "minimal" => {
+        "high" | "low" | "medium" | "xhigh" | "max" | "minimal" => {
             effort_level = Some(lower.clone());
-            true
-        }
-        "xhigh" | "max" => {
-            effort_level = Some("max".to_string());
             true
         }
         "thinking" => {
@@ -1066,10 +1062,10 @@ mod tests {
     }
 
     #[test]
-    fn xhigh_and_max_normalize_to_max() {
+    fn xhigh_and_max_remain_distinct() {
         assert_eq!(
             clean_model_version("m_xhigh").effort_level.as_deref(),
-            Some("max")
+            Some("xhigh")
         );
         assert_eq!(
             clean_model_version("m_max").effort_level.as_deref(),

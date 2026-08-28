@@ -79,10 +79,10 @@ within-source uniqueness, and serde round-trip.
   dates upstream.
 - **Effort tags:** after the shared parenthetical parser, Arena recognizes exact
   delimiter-separated `minimal`/`low`/`medium`/`high`/`xhigh` tokens anywhere in
-  the raw model name (`xhigh` normalizes to `max`). Conflicting tokens are left
-  unset. Bare delimited `max` is deliberately excluded because Arena also has
-  branded tiers such as `qwen3.8-max`; an explicit parenthetical `(Max)` is
-  still handled by the shared parser.
+  the raw model name, preserving `xhigh` as distinct from `max`. Conflicting
+  tokens are left unset. Bare delimited `max` is deliberately excluded because
+  Arena also has branded tiers such as `qwen3.8-max`; an explicit parenthetical
+  `(Max)` is still handled by the shared parser.
 
 ### `epoch.rs`
 - Input is the **unzipped** ZIP: one wide CSV per benchmark. Uses the `csv`
@@ -97,8 +97,8 @@ within-source uniqueness, and serde round-trip.
   `infer_kind` picks Percentage / Index / Elo from the max observed value for
   stems not in the static `metric_meta` registry.
 - **Suffix split:** trailing `_high`/`_low`/`_medium`/`_xhigh`/`_max`/`_minimal`
-  → `effort_level` (`xhigh` normalizes to `max`); context/other suffixes →
-  `variant_tag`.
+  → `effort_level`, preserving `xhigh` and `max` as distinct source values;
+  context/other suffixes → `variant_tag`.
 - **Dedup:** best (max — every Epoch metric is higher-is-better) score per model
   per benchmark; the winning run's date lands on the `ScoreCell`.
 - **Auto-prune (`PRUNE_DAYS = 60`):** a CSV becomes a metric only if its newest

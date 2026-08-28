@@ -156,7 +156,9 @@ static EFFORT_ONLY_RE: LazyLock<Regex> = LazyLock::new(|| {
 fn extract_effort(content: &str) -> Option<String> {
     // content is like "Max Effort" or "Low Effort" or just "High"
     let lower = content.to_lowercase();
-    if lower.contains("max") || lower.contains("xhigh") {
+    if lower.contains("xhigh") {
+        Some("xhigh".to_string())
+    } else if lower.contains("max") {
         Some("max".to_string())
     } else if lower.contains("high") {
         Some("high".to_string())
@@ -329,6 +331,17 @@ mod tests {
         assert_eq!(p.display_name, "Claude Opus");
         assert_eq!(p.reasoning_status, ReasoningStatus::Reasoning);
         assert_eq!(p.effort_level.as_deref(), Some("max"));
+    }
+
+    #[test]
+    fn test_parse_xhigh_preserves_source_vocabulary() {
+        let standalone = parse("GPT-5.6 Sol (xhigh)");
+        assert_eq!(standalone.reasoning_status, ReasoningStatus::Reasoning);
+        assert_eq!(standalone.effort_level.as_deref(), Some("xhigh"));
+
+        let adaptive = parse("Claude Opus 5 (Adaptive Reasoning, Xhigh Effort)");
+        assert_eq!(adaptive.reasoning_status, ReasoningStatus::Adaptive);
+        assert_eq!(adaptive.effort_level.as_deref(), Some("xhigh"));
     }
 
     #[test]

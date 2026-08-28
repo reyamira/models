@@ -319,7 +319,7 @@ fn delimited_effort_level(name: &str) -> Option<String> {
             "low" => "low",
             "medium" => "medium",
             "high" => "high",
-            "xhigh" => "max",
+            "xhigh" => "xhigh",
             _ => continue,
         };
 
@@ -516,7 +516,7 @@ mod tests {
             ("claude-opus-4-5-20251101-high-32k", "high"),
             ("gemini-3.5-flash-medium", "medium"),
             ("model-low-preview", "low"),
-            ("gpt-5.5-xhigh (codex-harness)", "max"),
+            ("gpt-5.5-xhigh (codex-harness)", "xhigh"),
             ("gemini-3-flash (thinking-minimal)", "minimal"),
         ];
 
