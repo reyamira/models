@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-08-30T18:18:17.981812779+00:00",
+    "fetched_at": "2026-08-31T06:18:23.330545575+00:00",
     "verified": true
   },
   "metrics": [
@@ -92,7 +92,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-28",
+      "last_updated": "2026-08-30",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -143,7 +143,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-28",
+      "last_updated": "2026-08-30",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -166,14 +166,14 @@
       "label": "Mystery Game Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-29"
+      "last_updated": "2026-08-30"
     },
     {
       "id": "otis_mock_aime_2024_2025",
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-28",
+      "last_updated": "2026-08-30",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -6323,9 +6323,21 @@
       "creator_name": "Mistral AI",
       "release_date": "2025-09-18",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.03,
+          "date": "2026-08-30"
+        },
         "critpt": {
           "value": 0.00285714285714286,
           "date": "2025-09-18"
+        },
+        "gpqa_diamond": {
+          "value": 0.476010101010101,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.28055555555555556,
+          "date": "2026-08-30"
         },
         "scicode": {
           "value": 0.351851851851852,
@@ -8709,6 +8721,28 @@
       }
     },
     {
+      "id": "qwen2.5-7b-instruct",
+      "name": "qwen2.5-7b-instruct",
+      "display_name": "qwen2.5-7b-instruct",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2025-02-26",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-30"
+        },
+        "gpqa_diamond": {
+          "value": 0.3547979797979798,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.025,
+          "date": "2026-08-30"
+        }
+      }
+    },
+    {
       "id": "claude-3-7-sonnet-20250219",
       "name": "claude-3-7-sonnet-20250219",
       "display_name": "claude-3-7-sonnet-20250219",
@@ -9782,6 +9816,10 @@
       "creator_name": "Alibaba",
       "release_date": "2024-09-17",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-30"
+        },
         "gpqa_diamond": {
           "value": 0.46085858585858586,
           "date": "2025-01-30"
