@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-08-31T18:18:20.480331955+00:00",
+    "fetched_at": "2026-09-01T06:18:20.957988184+00:00",
     "verified": true
   },
   "metrics": [
@@ -212,7 +212,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-27",
+      "last_updated": "2026-08-31",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -248,6 +248,10 @@
         "gpqa_diamond": {
           "value": 0.9015151515151515,
           "date": "2026-08-26"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.08,
+          "date": "2026-08-28"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9388888888888889,
@@ -287,9 +291,17 @@
           "value": 0.9090909090909091,
           "date": "2026-08-24"
         },
+        "mystery_game_puzzles": {
+          "value": 0.33,
+          "date": "2026-08-30"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9111111111111111,
           "date": "2026-08-24"
+        },
+        "simpleqa_verified": {
+          "value": 0.41,
+          "date": "2026-08-28"
         },
         "vending_bench_2": {
           "value": 8163.609999999998,
@@ -1544,6 +1556,10 @@
         "scicode": {
           "value": 0.582175925925926,
           "date": "2026-07-09"
+        },
+        "simpleqa_verified": {
+          "value": 0.5778894472361809,
+          "date": "2026-08-31"
         },
         "surface_evolver_bench": {
           "value": 0.525,
@@ -3225,9 +3241,9 @@
       }
     },
     {
-      "id": "grok-4-3",
-      "name": "grok-4-3",
-      "display_name": "grok-4-3",
+      "id": "grok-4.3",
+      "name": "grok-4.3",
+      "display_name": "grok-4.3",
       "creator": "xai",
       "creator_name": "xAI",
       "release_date": "2026-04-17",
@@ -3240,33 +3256,6 @@
           "value": 0.0,
           "date": "2026-04-17"
         },
-        "critpt": {
-          "value": 0.0,
-          "date": "2026-04-17"
-        },
-        "epoch_capabilities_index": {
-          "value": 149.16,
-          "date": "2026-04-17"
-        },
-        "vending_bench_2": {
-          "value": 35.26166666666665,
-          "date": "2026-04-17"
-        },
-        "weirdml": {
-          "value": 0.4989,
-          "date": "2026-04-17"
-        }
-      }
-    },
-    {
-      "id": "grok-4.3",
-      "name": "grok-4.3_high",
-      "display_name": "grok-4.3",
-      "creator": "xai",
-      "creator_name": "xAI",
-      "release_date": "2026-04-17",
-      "effort_level": "high",
-      "scores": {
         "chess_puzzles": {
           "value": 0.25,
           "date": "2026-06-17"
@@ -3298,6 +3287,14 @@
         "simpleqa_verified": {
           "value": 0.332,
           "date": "2026-08-27"
+        },
+        "vending_bench_2": {
+          "value": 35.26166666666665,
+          "date": "2026-04-17"
+        },
+        "weirdml": {
+          "value": 0.4989,
+          "date": "2026-04-17"
         }
       }
     },
@@ -4229,6 +4226,20 @@
       }
     },
     {
+      "id": "qwen3.5-122b-a10b",
+      "name": "qwen3.5-122b-a10b_none",
+      "display_name": "qwen3.5-122b-a10b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-02-24",
+      "scores": {
+        "mystery_game_puzzles": {
+          "value": 0.17,
+          "date": "2026-08-27"
+        }
+      }
+    },
+    {
       "id": "qwen3.5-27B",
       "name": "qwen3.5-27B",
       "display_name": "qwen3.5-27B",
@@ -4247,6 +4258,56 @@
         "weirdml": {
           "value": 0.39530000000000004,
           "date": "2026-02-24"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-2b",
+      "name": "qwen3.5-2b_none",
+      "display_name": "qwen3.5-2b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-02-24",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-28"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-35b-a3b",
+      "name": "qwen3.5-35b-a3b",
+      "display_name": "qwen3.5-35b-a3b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-02-24",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.1,
+          "date": "2026-08-30"
+        },
+        "gpqa_diamond": {
+          "value": 0.8345959595959596,
+          "date": "2026-08-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.7,
+          "date": "2026-08-30"
+        }
+      }
+    },
+    {
+      "id": "qwen3.5-4b",
+      "name": "qwen3.5-4b_none",
+      "display_name": "qwen3.5-4b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-02-24",
+      "scores": {
+        "otis_mock_aime_2024_2025": {
+          "value": 0.5583333333333333,
+          "date": "2026-08-28"
         }
       }
     },
@@ -5899,6 +5960,50 @@
       }
     },
     {
+      "id": "granite-4.0-1b",
+      "name": "granite-4.0-1b",
+      "display_name": "granite-4.0-1b",
+      "creator": "",
+      "creator_name": "",
+      "release_date": "2025-10-28",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-30"
+        },
+        "gpqa_diamond": {
+          "value": 0.2398989898989899,
+          "date": "2026-08-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.008333333333333333,
+          "date": "2026-08-30"
+        }
+      }
+    },
+    {
+      "id": "granite-4.0-350m",
+      "name": "granite-4.0-350m",
+      "display_name": "granite-4.0-350m",
+      "creator": "",
+      "creator_name": "",
+      "release_date": "2025-10-28",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-28"
+        },
+        "gpqa_diamond": {
+          "value": 0.11237373737373738,
+          "date": "2026-08-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.002777777777777778,
+          "date": "2026-08-28"
+        }
+      }
+    },
+    {
       "id": "MiniMax-M2",
       "name": "MiniMax-M2",
       "display_name": "MiniMax-M2",
@@ -6027,6 +6132,28 @@
         "arc_agi_2": {
           "value": 0.0625,
           "date": "2025-10-06"
+        }
+      }
+    },
+    {
+      "id": "granite-4.0-micro",
+      "name": "granite-4.0-micro",
+      "display_name": "granite-4.0-micro",
+      "creator": "",
+      "creator_name": "",
+      "release_date": "2025-10-02",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-30"
+        },
+        "gpqa_diamond": {
+          "value": 0.2828282828282828,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.027777777777777776,
+          "date": "2026-08-30"
         }
       }
     },
@@ -6455,6 +6582,28 @@
       }
     },
     {
+      "id": "seed-oss-36b-instruct",
+      "name": "seed-oss-36b-instruct",
+      "display_name": "seed-oss-36b-instruct",
+      "creator": "",
+      "creator_name": "",
+      "release_date": "2025-08-20",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.13,
+          "date": "2026-08-28"
+        },
+        "gpqa_diamond": {
+          "value": 0.7152777777777778,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.675,
+          "date": "2026-08-28"
+        }
+      }
+    },
+    {
       "id": "mistral-medium-2508",
       "name": "mistral-medium-2508",
       "display_name": "mistral-medium-2508",
@@ -6683,6 +6832,28 @@
         "weirdml": {
           "value": 0.38060000000000005,
           "date": "2025-08-07"
+        }
+      }
+    },
+    {
+      "id": "qwen3-4b-instruct-2507",
+      "name": "qwen3-4b-instruct-2507",
+      "display_name": "qwen3-4b-instruct-2507",
+      "creator": "",
+      "creator_name": "",
+      "release_date": "2025-08-06",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.04,
+          "date": "2026-08-28"
+        },
+        "gpqa_diamond": {
+          "value": 0.4583333333333333,
+          "date": "2026-08-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.5222222222222223,
+          "date": "2026-08-28"
         }
       }
     },
@@ -6920,6 +7091,50 @@
         "ale_bench": {
           "value": 137.78,
           "date": "2025-07-30"
+        }
+      }
+    },
+    {
+      "id": "qwen3-30b-a3b-thinking-2507",
+      "name": "qwen3-30b-a3b-thinking-2507",
+      "display_name": "qwen3-30b-a3b-thinking-2507",
+      "creator": "",
+      "creator_name": "",
+      "release_date": "2025-07-30",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.08,
+          "date": "2026-08-30"
+        },
+        "gpqa_diamond": {
+          "value": 0.7007575757575758,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.7027777777777777,
+          "date": "2026-08-30"
+        }
+      }
+    },
+    {
+      "id": "qwen3-30b-a3b-instruct-2507",
+      "name": "qwen3-30b-a3b-instruct-2507",
+      "display_name": "qwen3-30b-a3b-instruct-2507",
+      "creator": "",
+      "creator_name": "",
+      "release_date": "2025-07-29",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.02,
+          "date": "2026-08-30"
+        },
+        "gpqa_diamond": {
+          "value": 0.5561868686868687,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.6222222222222222,
+          "date": "2026-08-30"
         }
       }
     },
@@ -7190,6 +7405,28 @@
         "scicode": {
           "value": 0.263888888888889,
           "date": "2025-06-20"
+        }
+      }
+    },
+    {
+      "id": "mistral-small-3.2-2506",
+      "name": "mistral-small-3.2-2506",
+      "display_name": "mistral-small-3.2-2506",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2025-06-20",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.01,
+          "date": "2026-08-30"
+        },
+        "gpqa_diamond": {
+          "value": 0.49053030303030304,
+          "date": "2026-08-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.30277777777777776,
+          "date": "2026-08-30"
         }
       }
     },
@@ -7495,6 +7732,28 @@
       }
     },
     {
+      "id": "deepseek-r1-0528-qwen3-8b",
+      "name": "deepseek-r1-0528-qwen3-8b",
+      "display_name": "deepseek-r1-0528-qwen3-8b",
+      "creator": "",
+      "creator_name": "",
+      "release_date": "2025-05-28",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.03,
+          "date": "2026-08-28"
+        },
+        "gpqa_diamond": {
+          "value": 0.0928030303030303,
+          "date": "2026-08-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.4388888888888889,
+          "date": "2026-08-28"
+        }
+      }
+    },
+    {
       "id": "claude-opus-4-20250514",
       "name": "claude-opus-4-20250514",
       "display_name": "claude-opus-4-20250514",
@@ -7728,6 +7987,18 @@
       "creator_name": "Alibaba",
       "release_date": "2025-04-29",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.04,
+          "date": "2026-08-30"
+        },
+        "gpqa_diamond": {
+          "value": 0.6167929292929293,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.6277777777777778,
+          "date": "2026-08-28"
+        },
         "weirdml": {
           "value": 0.2975,
           "date": "2025-04-29"
@@ -7742,13 +8013,69 @@
       "creator_name": "Alibaba",
       "release_date": "2025-04-29",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.05,
+          "date": "2026-08-28"
+        },
         "critpt": {
           "value": 0.00285714285714286,
           "date": "2025-04-29"
         },
+        "gpqa_diamond": {
+          "value": 0.6571969696969697,
+          "date": "2026-08-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.6694444444444444,
+          "date": "2026-08-30"
+        },
         "scicode": {
           "value": 0.354166666666667,
           "date": "2025-04-29"
+        }
+      }
+    },
+    {
+      "id": "qwen3-1.7b",
+      "name": "qwen3-1.7b",
+      "display_name": "qwen3-1.7b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2025-04-29",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-28"
+        },
+        "gpqa_diamond": {
+          "value": 0.380050505050505,
+          "date": "2026-08-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.08055555555555556,
+          "date": "2026-08-28"
+        }
+      }
+    },
+    {
+      "id": "qwen3-14b",
+      "name": "qwen3-14b",
+      "display_name": "qwen3-14b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2025-04-29",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.04,
+          "date": "2026-08-30"
+        },
+        "gpqa_diamond": {
+          "value": 0.6376262626262627,
+          "date": "2026-08-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.6638888888888889,
+          "date": "2026-08-28"
         }
       }
     },
@@ -7771,6 +8098,24 @@
         "simplebench": {
           "value": 0.31,
           "date": "2025-04-29"
+        }
+      }
+    },
+    {
+      "id": "qwen3-4b",
+      "name": "qwen3-4b",
+      "display_name": "qwen3-4b",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2025-04-29",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.01,
+          "date": "2026-08-28"
+        },
+        "gpqa_diamond": {
+          "value": 0.5233585858585859,
+          "date": "2026-08-28"
         }
       }
     },
@@ -8044,6 +8389,10 @@
           "value": 0.27,
           "date": "2025-04-14"
         },
+        "simpleqa_verified": {
+          "value": 0.311,
+          "date": "2026-08-31"
+        },
         "weirdml": {
           "value": 0.3904,
           "date": "2025-04-14"
@@ -8094,6 +8443,10 @@
           "value": 0.403935185185185,
           "date": "2025-04-14"
         },
+        "simpleqa_verified": {
+          "value": 0.127,
+          "date": "2026-08-31"
+        },
         "weirdml": {
           "value": 0.3761,
           "date": "2025-04-14"
@@ -8135,6 +8488,10 @@
         "scicode": {
           "value": 0.259259259259259,
           "date": "2025-04-14"
+        },
+        "simpleqa_verified": {
+          "value": 0.06,
+          "date": "2026-08-31"
         },
         "weirdml": {
           "value": 0.1898,
@@ -8529,6 +8886,32 @@
       }
     },
     {
+      "id": "mistral-small-3.1-2503",
+      "name": "mistral-small-3.1-2503",
+      "display_name": "mistral-small-3.1-2503",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2025-03-17",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.01,
+          "date": "2026-08-30"
+        },
+        "epoch_capabilities_index": {
+          "value": 127.71,
+          "date": "2025-03-17"
+        },
+        "gpqa_diamond": {
+          "value": 0.41919191919191917,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.03888888888888889,
+          "date": "2026-08-30"
+        }
+      }
+    },
+    {
       "id": "gemma-3-12b-it",
       "name": "gemma-3-12b-it",
       "display_name": "gemma-3-12b-it",
@@ -8918,9 +9301,35 @@
           "value": 0.228,
           "date": "2025-01-31"
         },
+        "simpleqa_verified": {
+          "value": 0.153,
+          "date": "2026-08-31"
+        },
         "weirdml": {
           "value": 0.43700000000000006,
           "date": "2025-01-31"
+        }
+      }
+    },
+    {
+      "id": "mistral-small-3-2501",
+      "name": "mistral-small-3-2501",
+      "display_name": "mistral-small-3-2501",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2025-01-30",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-30"
+        },
+        "gpqa_diamond": {
+          "value": 0.47285353535353536,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.06666666666666667,
+          "date": "2026-08-30"
         }
       }
     },
@@ -9091,6 +9500,28 @@
       }
     },
     {
+      "id": "DeepSeek-R1-Distill-Qwen-1.5B",
+      "name": "DeepSeek-R1-Distill-Qwen-1.5B",
+      "display_name": "DeepSeek-R1-Distill-Qwen-1.5B",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2025-01-20",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-28"
+        },
+        "gpqa_diamond": {
+          "value": 0.33585858585858586,
+          "date": "2026-08-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.21388888888888888,
+          "date": "2026-08-28"
+        }
+      }
+    },
+    {
       "id": "DeepSeek-R1-Distill-Qwen-14B",
       "name": "DeepSeek-R1-Distill-Qwen-14B",
       "display_name": "DeepSeek-R1-Distill-Qwen-14B",
@@ -9098,9 +9529,39 @@
       "creator_name": "DeepSeek",
       "release_date": "2025-01-20",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.01,
+          "date": "2026-08-28"
+        },
         "gpqa_diamond": {
           "value": 0.44696969696969696,
           "date": "2025-03-10"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.5055555555555555,
+          "date": "2026-08-28"
+        }
+      }
+    },
+    {
+      "id": "DeepSeek-R1-Distill-Qwen-32B",
+      "name": "DeepSeek-R1-Distill-Qwen-32B",
+      "display_name": "DeepSeek-R1-Distill-Qwen-32B",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2025-01-20",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.01,
+          "date": "2026-08-28"
+        },
+        "gpqa_diamond": {
+          "value": 0.6414141414141414,
+          "date": "2026-08-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.5555555555555556,
+          "date": "2026-08-28"
         }
       }
     },
@@ -9205,6 +9666,10 @@
         "simplebench": {
           "value": 0.401,
           "date": "2024-12-17"
+        },
+        "simpleqa_verified": {
+          "value": 0.411,
+          "date": "2026-08-31"
         },
         "weirdml": {
           "value": 0.4608,
@@ -9625,6 +10090,28 @@
       }
     },
     {
+      "id": "Llama-3.2-1B-Instruct",
+      "name": "Llama-3.2-1B-Instruct",
+      "display_name": "Llama-3.2-1B-Instruct",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
+      "release_date": "2024-09-24",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-30"
+        },
+        "gpqa_diamond": {
+          "value": 0.23926767676767677,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.005555555555555556,
+          "date": "2026-08-30"
+        }
+      }
+    },
+    {
       "id": "Llama-3.2-90B-Vision-Instruct",
       "name": "Llama-3.2-90B-Vision-Instruct",
       "display_name": "Llama-3.2-90B-Vision-Instruct",
@@ -9955,6 +10442,10 @@
         "simplebench": {
           "value": 0.178,
           "date": "2024-08-06"
+        },
+        "simpleqa_verified": {
+          "value": 0.26,
+          "date": "2026-08-31"
         }
       }
     },
@@ -10156,6 +10647,10 @@
           "value": 0.107,
           "date": "2024-07-18"
         },
+        "simpleqa_verified": {
+          "value": 0.083,
+          "date": "2026-08-31"
+        },
         "weirdml": {
           "value": 0.1176,
           "date": "2024-07-18"
@@ -10302,9 +10797,17 @@
       "creator_name": "Mistral AI",
       "release_date": "2024-05-27",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-30"
+        },
         "gpqa_diamond": {
           "value": 0.1518308080808081,
           "date": "2025-01-27"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.002777777777777778,
+          "date": "2026-08-30"
         }
       }
     },
@@ -10456,6 +10959,10 @@
       "creator_name": "Microsoft",
       "release_date": "2024-04-23",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-30"
+        },
         "epoch_capabilities_index": {
           "value": 117.03,
           "date": "2024-04-23"
@@ -10534,6 +11041,10 @@
       "creator_name": "Meta AI",
       "release_date": "2024-04-18",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-28"
+        },
         "epoch_capabilities_index": {
           "value": 116.32,
           "date": "2024-04-18"
@@ -10543,8 +11054,8 @@
           "date": "2025-01-27"
         },
         "otis_mock_aime_2024_2025": {
-          "value": 0.008333333333333333,
-          "date": "2025-02-25"
+          "value": 0.019444444444444445,
+          "date": "2026-08-30"
         }
       }
     },
@@ -10731,6 +11242,10 @@
         "simplebench": {
           "value": 0.235,
           "date": "2024-02-29"
+        },
+        "simpleqa_verified": {
+          "value": 0.126,
+          "date": "2026-08-31"
         },
         "weirdml": {
           "value": 0.19219999999999998,
@@ -11412,6 +11927,10 @@
       "creator_name": "Meta AI",
       "release_date": "2023-07-18",
       "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-28"
+        },
         "epoch_capabilities_index": {
           "value": 105.62,
           "date": "2023-07-18"
@@ -11490,6 +12009,24 @@
       "creator_name": "Meta AI",
       "release_date": "2023-07-18",
       "scores": {
+        "epoch_capabilities_index": {
+          "value": 98.37,
+          "date": "2023-07-18"
+        }
+      }
+    },
+    {
+      "id": "llama-2-7b-chat",
+      "name": "llama-2-7b-chat",
+      "display_name": "llama-2-7b-chat",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
+      "release_date": "2023-07-18",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-30"
+        },
         "epoch_capabilities_index": {
           "value": 98.37,
           "date": "2023-07-18"
@@ -11819,6 +12356,27 @@
       "scores": {
         "epoch_capabilities_index": {
           "value": 119.52
+        }
+      }
+    },
+    {
+      "id": "glm-4.7-flash",
+      "name": "glm-4.7-flash",
+      "display_name": "glm-4.7-flash",
+      "creator": "",
+      "creator_name": "",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-28"
+        },
+        "gpqa_diamond": {
+          "value": 0.6054292929292929,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.5833333333333334,
+          "date": "2026-08-30"
         }
       }
     },
