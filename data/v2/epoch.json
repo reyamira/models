@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-09-02T06:18:00.169337522+00:00",
+    "fetched_at": "2026-09-02T18:18:13.825156826+00:00",
     "verified": true
   },
   "metrics": [
@@ -9874,32 +9874,6 @@
       }
     },
     {
-      "id": "qwen2.5-7b-instruct",
-      "name": "qwen2.5-7b-instruct",
-      "display_name": "qwen2.5-7b-instruct",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "release_date": "2025-02-26",
-      "scores": {
-        "chess_puzzles": {
-          "value": 0.0,
-          "date": "2026-08-30"
-        },
-        "epoch_capabilities_index": {
-          "value": 118.88,
-          "date": "2025-02-26"
-        },
-        "gpqa_diamond": {
-          "value": 0.3547979797979798,
-          "date": "2026-08-30"
-        },
-        "otis_mock_aime_2024_2025": {
-          "value": 0.025,
-          "date": "2026-08-30"
-        }
-      }
-    },
-    {
       "id": "claude-3-7-sonnet-20250219",
       "name": "claude-3-7-sonnet-20250219",
       "display_name": "claude-3-7-sonnet-20250219",
@@ -11042,6 +11016,32 @@
         "weirdml": {
           "value": 0.1597,
           "date": "2024-09-19"
+        }
+      }
+    },
+    {
+      "id": "qwen2.5-7b-instruct",
+      "name": "qwen2.5-7b-instruct",
+      "display_name": "qwen2.5-7b-instruct",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2024-09-19",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.0,
+          "date": "2026-08-30"
+        },
+        "epoch_capabilities_index": {
+          "value": 118.88,
+          "date": "2024-09-19"
+        },
+        "gpqa_diamond": {
+          "value": 0.3547979797979798,
+          "date": "2026-08-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.025,
+          "date": "2026-08-30"
         }
       }
     },
