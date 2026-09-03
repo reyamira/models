@@ -3,7 +3,7 @@
     "id": "arena",
     "name": "Arena",
     "url": "https://arena.ai",
-    "fetched_at": "2026-09-03T06:18:18.083726362+00:00",
+    "fetched_at": "2026-09-03T18:18:32.429360305+00:00",
     "verified": true
   },
   "metrics": [
@@ -207,12 +207,6 @@
       "creator_name": "Anthropic",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1536.0,
-          "date": "2026-09-02",
-          "ci": 6.0,
-          "votes": 19154
-        },
         "elo_document": {
           "value": 1510.0,
           "date": "2026-07-26",
@@ -243,12 +237,6 @@
       "effort_level": "high",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1546.0,
-          "date": "2026-09-02",
-          "ci": 6.0,
-          "votes": 17987
-        },
         "elo_document": {
           "value": 1506.0,
           "date": "2026-07-26",
@@ -293,12 +281,6 @@
       "creator_name": "Anthropic",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1557.0,
-          "date": "2026-09-02",
-          "ci": 6.0,
-          "votes": 15534
-        },
         "elo_document": {
           "value": 1498.0,
           "date": "2026-07-26",
@@ -335,12 +317,6 @@
       "effort_level": "high",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1557.0,
-          "date": "2026-09-02",
-          "ci": 6.0,
-          "votes": 16003
-        },
         "elo_document": {
           "value": 1497.0,
           "date": "2026-07-26",
@@ -369,12 +345,6 @@
       "creator_name": "Anthropic",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1540.0,
-          "date": "2026-09-02",
-          "ci": 7.0,
-          "votes": 11648
-        },
         "elo_document": {
           "value": 1469.0,
           "date": "2026-07-26",
@@ -539,12 +509,6 @@
       "creator_name": "Anthropic",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1522.0,
-          "date": "2026-09-02",
-          "ci": 5.0,
-          "votes": 21266
-        },
         "elo_document": {
           "value": 1483.0,
           "date": "2026-07-26",
@@ -579,12 +543,6 @@
       "effort_level": "high",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1537.0,
-          "date": "2026-09-02",
-          "ci": 8.0,
-          "votes": 8219
-        },
         "elo_document": {
           "value": 1470.0,
           "date": "2026-07-26",
@@ -833,12 +791,6 @@
       "effort_level": "high",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1501.0,
-          "date": "2026-09-02",
-          "ci": 8.0,
-          "votes": 8537
-        },
         "elo_document": {
           "value": 1465.0,
           "date": "2026-07-26",
@@ -887,12 +839,6 @@
       "effort_level": "high",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1538.0,
-          "date": "2026-09-02",
-          "ci": 8.0,
-          "votes": 7860
-        },
         "elo_vision": {
           "value": 1285.0,
           "date": "2026-08-27",
@@ -962,22 +908,6 @@
           "date": "2026-07-26",
           "ci": 8.0,
           "votes": 10577
-        }
-      }
-    },
-    {
-      "id": "glm-5.1",
-      "name": "glm-5.1",
-      "display_name": "glm-5.1",
-      "creator": "z.ai",
-      "creator_name": "Z.ai",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1508.0,
-          "date": "2026-09-02",
-          "ci": 7.0,
-          "votes": 9959
         }
       }
     },
@@ -1307,25 +1237,6 @@
       }
     },
     {
-      "id": "gpt-5.5-xhigh-(codex-harness)",
-      "name": "gpt-5.5-xhigh (codex-harness)",
-      "display_name": "gpt-5.5-xhigh",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "reasoning_status": "Reasoning",
-      "effort_level": "xhigh",
-      "variant_tag": "codex-harness",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1509.0,
-          "date": "2026-09-02",
-          "ci": 6.0,
-          "votes": 14606
-        }
-      }
-    },
-    {
       "id": "gpt-5.6-luna-xhigh",
       "name": "gpt-5.6-luna-xhigh",
       "display_name": "gpt-5.6-luna-xhigh",
@@ -1340,25 +1251,6 @@
           "date": "2026-07-26",
           "ci": 13.0,
           "votes": 1888
-        }
-      }
-    },
-    {
-      "id": "gpt-5.6-luna-xhigh-(codex-harness)",
-      "name": "gpt-5.6-luna-xhigh (codex-harness)",
-      "display_name": "gpt-5.6-luna-xhigh",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "reasoning_status": "Reasoning",
-      "effort_level": "xhigh",
-      "variant_tag": "codex-harness",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1519.0,
-          "date": "2026-09-02",
-          "ci": 8.0,
-          "votes": 6736
         }
       }
     },
@@ -1432,25 +1324,6 @@
           "date": "2026-07-26",
           "ci": 13.0,
           "votes": 1969
-        }
-      }
-    },
-    {
-      "id": "gpt-5.6-terra-xhigh-(codex-harness)",
-      "name": "gpt-5.6-terra-xhigh (codex-harness)",
-      "display_name": "gpt-5.6-terra-xhigh",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "reasoning_status": "Reasoning",
-      "effort_level": "xhigh",
-      "variant_tag": "codex-harness",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1519.0,
-          "date": "2026-09-02",
-          "ci": 8.0,
-          "votes": 6654
         }
       }
     },
@@ -1575,12 +1448,6 @@
       "creator_name": "SpaceXAI",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1556.0,
-          "date": "2026-09-02",
-          "ci": 8.0,
-          "votes": 7208
-        },
         "elo_document": {
           "value": 1454.0,
           "date": "2026-07-26",
@@ -1616,22 +1483,6 @@
           "date": "2026-09-02",
           "ci": 17.0,
           "votes": 1534
-        }
-      }
-    },
-    {
-      "id": "hy3",
-      "name": "hy3",
-      "display_name": "hy3",
-      "creator": "tencent",
-      "creator_name": "Tencent",
-      "open_weights": true,
-      "scores": {
-        "elo_code": {
-          "value": 1511.0,
-          "date": "2026-09-02",
-          "ci": 11.0,
-          "votes": 3125
         }
       }
     },
@@ -1676,12 +1527,6 @@
       "creator_name": "Moonshot",
       "open_weights": true,
       "scores": {
-        "elo_code": {
-          "value": 1509.0,
-          "date": "2026-09-02",
-          "ci": 7.0,
-          "votes": 9589
-        },
         "elo_document": {
           "value": 1451.0,
           "date": "2026-07-26",
@@ -1763,12 +1608,6 @@
       "creator_name": "Meta",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1540.0,
-          "date": "2026-09-02",
-          "ci": 8.0,
-          "votes": 7184
-        },
         "elo_document": {
           "value": 1472.0,
           "date": "2026-07-26",
@@ -1793,12 +1632,6 @@
       "effort_level": "xhigh",
       "open_weights": false,
       "scores": {
-        "elo_code": {
-          "value": 1534.0,
-          "date": "2026-09-02",
-          "ci": 14.0,
-          "votes": 2065
-        },
         "elo_text": {
           "value": 1499.0,
           "date": "2026-09-02",
@@ -1862,22 +1695,6 @@
           "date": "2026-08-24",
           "ci": 6.0,
           "votes": 29055
-        }
-      }
-    },
-    {
-      "id": "qwen3.7-max-20260517",
-      "name": "qwen3.7-max-20260517",
-      "display_name": "qwen3.7-max-20260517",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1517.0,
-          "date": "2026-09-02",
-          "ci": 8.0,
-          "votes": 8371
         }
       }
     },
@@ -1963,22 +1780,6 @@
           "date": "2026-09-02",
           "ci": 18.0,
           "votes": 1472
-        }
-      }
-    },
-    {
-      "id": "seed-2.1-pro-preview",
-      "name": "seed-2.1-pro-preview",
-      "display_name": "seed-2.1-pro-preview",
-      "creator": "bytedance",
-      "creator_name": "Bytedance",
-      "open_weights": false,
-      "scores": {
-        "elo_code": {
-          "value": 1522.0,
-          "date": "2026-09-02",
-          "ci": 8.0,
-          "votes": 8469
         }
       }
     }
