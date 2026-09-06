@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-09-05T18:17:53.099821987+00:00",
+    "fetched_at": "2026-09-06T06:18:00.104258423+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "ARC-AGI",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-09-01",
+      "last_updated": "2026-09-03",
       "description": "Abstract visual grid puzzles where the model must infer a transformation rule from a few input-output demonstrations and apply it to a novel case. Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -20,15 +20,24 @@
       "label": "ARC-AGI-2",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-09-01",
+      "last_updated": "2026-09-03",
       "description": "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing compositional and symbolic reasoning, two attempts per task (pass@2). Scored as accuracy (% of tasks solved); higher is better."
+    },
+    {
+      "id": "hle",
+      "label": "Humanity's Last Exam",
+      "kind": "percentage",
+      "group": "Frontier",
+      "last_updated": "2026-09-01",
+      "description": "Expert-authored questions across 100+ academic subjects, requiring graduate-level knowledge that cannot be quickly looked up online. Scored as accuracy (% correct); higher is better.",
+      "short_label": "HLE"
     },
     {
       "id": "apex_agents",
       "label": "APEX Agents",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-09-01",
+      "last_updated": "2026-09-03",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
     },
@@ -54,7 +63,7 @@
       "label": "WeirdML",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-08-14",
+      "last_updated": "2026-09-03",
       "description": "Unconventional machine-learning engineering tasks where the agent must write and run code to train a model on provided data, with several iterations allowed. Scored as accuracy on the held-out task; higher is better."
     },
     {
@@ -62,14 +71,14 @@
       "label": "Ale Bench",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-08-20"
+      "last_updated": "2026-09-01"
     },
     {
       "id": "blueprint_bench_2",
       "label": "Blueprint Bench 2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-12"
+      "last_updated": "2026-09-01"
     },
     {
       "id": "btf3",
@@ -92,7 +101,7 @@
       "label": "Critpt",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-02"
+      "last_updated": "2026-09-03"
     },
     {
       "id": "cursorbench",
@@ -106,7 +115,7 @@
       "label": "Deepswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-02"
+      "last_updated": "2026-09-03"
     },
     {
       "id": "dtbench",
@@ -134,7 +143,7 @@
       "label": "Frontiercode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-01"
+      "last_updated": "2026-09-03"
     },
     {
       "id": "frontiermath_erdos",
@@ -222,7 +231,7 @@
       "label": "Proofbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-02"
+      "last_updated": "2026-09-03"
     },
     {
       "id": "rli",
@@ -236,7 +245,7 @@
       "label": "Scicode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-02"
+      "last_updated": "2026-09-03"
     },
     {
       "id": "simplebench",
@@ -268,7 +277,7 @@
       "label": "Vending Bench 2",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-08-14"
+      "last_updated": "2026-09-01"
     }
   ],
   "models": [
@@ -280,13 +289,37 @@
       "creator_name": "OpenAI",
       "release_date": "2026-09-03",
       "scores": {
+        "apex_agents": {
+          "value": 0.467,
+          "date": "2026-09-03"
+        },
+        "arc_agi": {
+          "value": 0.985,
+          "date": "2026-09-03"
+        },
+        "arc_agi_2": {
+          "value": 0.9500000000000001,
+          "date": "2026-09-03"
+        },
         "chess_puzzles": {
           "value": 0.72,
           "date": "2026-08-30"
         },
+        "critpt": {
+          "value": 0.317142857142857,
+          "date": "2026-09-03"
+        },
+        "deepswe": {
+          "value": 0.7411504424778761,
+          "date": "2026-09-03"
+        },
         "ebr_bench": {
           "value": 0.7619047619047619,
           "date": "2026-08-30"
+        },
+        "frontiercode": {
+          "value": 0.5326,
+          "date": "2026-09-03"
         },
         "frontiermath_erdos": {
           "value": 0.029411764705882353,
@@ -316,9 +349,21 @@
           "value": 1.0,
           "date": "2026-08-30"
         },
+        "proofbench": {
+          "value": 0.99,
+          "date": "2026-09-03"
+        },
+        "scicode": {
+          "value": 0.564814814814815,
+          "date": "2026-09-03"
+        },
         "simpleqa_verified": {
           "value": 0.756,
           "date": "2026-08-30"
+        },
+        "weirdml": {
+          "value": 0.9287000000000001,
+          "date": "2026-09-03"
         }
       }
     },
@@ -360,6 +405,10 @@
       "creator_name": "Anthropic",
       "release_date": "2026-09-01",
       "scores": {
+        "ale_bench": {
+          "value": 2143.2,
+          "date": "2026-09-01"
+        },
         "apex_agents": {
           "value": 0.474,
           "date": "2026-09-01"
@@ -370,6 +419,10 @@
         },
         "arc_agi_2": {
           "value": 0.9,
+          "date": "2026-09-01"
+        },
+        "blueprint_bench_2": {
+          "value": 0.4186550976138828,
           "date": "2026-09-01"
         },
         "chess_puzzles": {
@@ -408,6 +461,10 @@
           "value": 0.5629078999999999,
           "date": "2026-09-01"
         },
+        "hle": {
+          "value": 0.465,
+          "date": "2026-09-01"
+        },
         "mystery_game_puzzles": {
           "value": 0.58,
           "date": "2026-09-01"
@@ -426,6 +483,14 @@
         },
         "simpleqa_verified": {
           "value": 0.708,
+          "date": "2026-09-01"
+        },
+        "vending_bench_2": {
+          "value": 5421.556666666666,
+          "date": "2026-09-01"
+        },
+        "weirdml": {
+          "value": 0.929,
           "date": "2026-09-01"
         }
       }
@@ -4122,6 +4187,10 @@
           "value": 0.4412,
           "date": "2026-04-27"
         },
+        "hle": {
+          "value": 0.362,
+          "date": "2026-04-16"
+        },
         "lmca": {
           "value": 52.2,
           "date": "2026-04-16"
@@ -4254,6 +4323,10 @@
         },
         "gpqa_diamond": {
           "value": 0.898,
+          "date": "2026-04-08"
+        },
+        "hle": {
+          "value": 0.4056,
           "date": "2026-04-08"
         },
         "otis_mock_aime_2024_2025": {
@@ -4851,6 +4924,10 @@
           "value": 0.31370000000000003,
           "date": "2026-03-10"
         },
+        "hle": {
+          "value": 0.3624,
+          "date": "2026-03-05"
+        },
         "lmca": {
           "value": 51.97,
           "date": "2026-03-05"
@@ -4933,6 +5010,10 @@
           "value": 0.946,
           "date": "2026-03-20"
         },
+        "hle": {
+          "value": 0.4432,
+          "date": "2026-03-05"
+        },
         "simplebench": {
           "value": 0.741,
           "date": "2026-03-05"
@@ -4986,6 +5067,10 @@
         "gpqa_diamond": {
           "value": 0.8181818181818182,
           "date": "2026-08-06"
+        },
+        "hle": {
+          "value": 0.0864,
+          "date": "2026-03-03"
         },
         "lmca": {
           "value": 35.01,
@@ -5290,6 +5375,10 @@
         "gso": {
           "value": 0.2255,
           "date": "2026-03-09"
+        },
+        "hle": {
+          "value": 0.4644,
+          "date": "2026-02-19"
         },
         "lmca": {
           "value": 53.82,
@@ -5787,6 +5876,10 @@
           "value": 0.412,
           "date": "2026-04-27"
         },
+        "hle": {
+          "value": 0.3444,
+          "date": "2026-02-05"
+        },
         "lmca": {
           "value": 55.76,
           "date": "2026-02-05"
@@ -5929,6 +6022,10 @@
         },
         "enigma_eval": {
           "value": 0.0338,
+          "date": "2026-01-27"
+        },
+        "hle": {
+          "value": 0.24370000000000003,
           "date": "2026-01-27"
         },
         "scicode": {
@@ -6216,6 +6313,10 @@
         "gso": {
           "value": 0.2745,
           "date": "2025-12-18"
+        },
+        "hle": {
+          "value": 0.278,
+          "date": "2025-12-11"
         },
         "lmca": {
           "value": 43.91,
@@ -6521,6 +6622,10 @@
           "value": 0.265,
           "date": "2025-11-24"
         },
+        "hle": {
+          "value": 0.252,
+          "date": "2025-11-24"
+        },
         "lmca": {
           "value": 44.46,
           "date": "2025-11-24"
@@ -6683,6 +6788,10 @@
           "value": 0.1863,
           "date": "2025-11-28"
         },
+        "hle": {
+          "value": 0.37520000000000003,
+          "date": "2025-11-18"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9138888888888889,
           "date": "2025-11-19"
@@ -6770,6 +6879,10 @@
         "gso": {
           "value": 0.1373,
           "date": "2025-12-18"
+        },
+        "hle": {
+          "value": 0.2368,
+          "date": "2025-11-13"
         },
         "lmca": {
           "value": 43.89,
@@ -7023,6 +7136,10 @@
           "value": 0.5578947368421052,
           "date": "2026-06-12"
         },
+        "hle": {
+          "value": 0.3164,
+          "date": "2025-10-07"
+        },
         "simplebench": {
           "value": 0.616,
           "date": "2025-10-07"
@@ -7189,6 +7306,10 @@
         "gso": {
           "value": 0.1471,
           "date": "2025-10-10"
+        },
+        "hle": {
+          "value": 0.13720000000000002,
+          "date": "2025-09-29"
         },
         "lmca": {
           "value": 38.76,
@@ -7626,6 +7747,10 @@
           "value": 0.06860000000000001,
           "date": "2025-08-10"
         },
+        "hle": {
+          "value": 0.2532,
+          "date": "2025-08-07"
+        },
         "lmca": {
           "value": 39.99,
           "date": "2025-08-07"
@@ -7711,6 +7836,10 @@
         "gpqa_diamond": {
           "value": 0.75,
           "date": "2025-10-30"
+        },
+        "hle": {
+          "value": 0.19440000000000002,
+          "date": "2025-08-07"
         },
         "lmca": {
           "value": 34.2,
@@ -7874,6 +8003,10 @@
           "value": 0.7727272727272727,
           "date": "2025-08-05"
         },
+        "hle": {
+          "value": 0.1152,
+          "date": "2025-08-05"
+        },
         "lmca": {
           "value": 37.08,
           "date": "2025-08-05"
@@ -7892,25 +8025,6 @@
         },
         "weirdml": {
           "value": 0.4586,
-          "date": "2025-08-05"
-        }
-      }
-    },
-    {
-      "id": "glm-4.5",
-      "name": "glm-4.5",
-      "display_name": "glm-4.5",
-      "creator": "z-ai-zhipu-ai",
-      "creator_name": "Z.ai (Zhipu AI)",
-      "release_date": "2025-08-05",
-      "reasoning_status": "Reasoning",
-      "scores": {
-        "ale_bench": {
-          "value": 344.82,
-          "date": "2025-08-03"
-        },
-        "weirdml": {
-          "value": 0.4058,
           "date": "2025-08-05"
         }
       }
@@ -8037,6 +8151,29 @@
         },
         "weirdml": {
           "value": 0.4817,
+          "date": "2025-08-05"
+        }
+      }
+    },
+    {
+      "id": "glm-4.5",
+      "name": "glm-4.5",
+      "display_name": "glm-4.5",
+      "creator": "z-ai-zhipu-ai",
+      "creator_name": "Z.ai (Zhipu AI)",
+      "release_date": "2025-08-03",
+      "reasoning_status": "Reasoning",
+      "scores": {
+        "ale_bench": {
+          "value": 344.82,
+          "date": "2025-08-03"
+        },
+        "hle": {
+          "value": 0.08320000000000001,
+          "date": "2025-08-03"
+        },
+        "weirdml": {
+          "value": 0.4058,
           "date": "2025-08-05"
         }
       }
@@ -8254,6 +8391,10 @@
         "gso": {
           "value": 0.0294,
           "date": "2025-08-26"
+        },
+        "hle": {
+          "value": 0.0812,
+          "date": "2025-07-20"
         }
       }
     },
@@ -8656,6 +8797,10 @@
           "value": 0.0392,
           "date": "2025-10-10"
         },
+        "hle": {
+          "value": 0.2164,
+          "date": "2025-06-05"
+        },
         "rli": {
           "value": 0.0083,
           "date": "2025-06-05"
@@ -8762,6 +8907,10 @@
           "value": 0.069,
           "date": "2025-05-22"
         },
+        "hle": {
+          "value": 0.1072,
+          "date": "2025-05-22"
+        },
         "lmca": {
           "value": 37.43,
           "date": "2025-05-22"
@@ -8824,6 +8973,10 @@
           "value": 0.049,
           "date": "2025-05-22"
         },
+        "hle": {
+          "value": 0.0776,
+          "date": "2025-05-22"
+        },
         "lmca": {
           "value": 29.0,
           "date": "2025-05-22"
@@ -8864,6 +9017,10 @@
         },
         "enigma_eval": {
           "value": 0.027000000000000003,
+          "date": "2025-05-20"
+        },
+        "hle": {
+          "value": 0.10960000000000002,
           "date": "2025-05-20"
         },
         "otis_mock_aime_2024_2025": {
@@ -8910,6 +9067,10 @@
           "value": 0.5953282828282829,
           "date": "2025-05-07"
         },
+        "hle": {
+          "value": 0.0452,
+          "date": "2025-05-07"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.32222222222222224,
           "date": "2025-05-07"
@@ -8931,6 +9092,10 @@
         "gpqa_diamond": {
           "value": 0.6666666666666666,
           "date": "2025-06-03"
+        },
+        "hle": {
+          "value": 0.17800000000000002,
+          "date": "2025-05-06"
         }
       }
     },
@@ -9188,6 +9353,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-04-17",
       "scores": {
+        "hle": {
+          "value": 0.1208,
+          "date": "2025-04-17"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.7305555555555555,
           "date": "2025-04-22"
@@ -9274,6 +9443,10 @@
           "value": 0.088,
           "date": "2025-04-16"
         },
+        "hle": {
+          "value": 0.20320000000000002,
+          "date": "2025-04-16"
+        },
         "lmca": {
           "value": 39.7,
           "date": "2025-04-16"
@@ -9352,6 +9525,10 @@
           "value": 0.036,
           "date": "2025-04-16"
         },
+        "hle": {
+          "value": 0.1808,
+          "date": "2025-04-16"
+        },
         "lmca": {
           "value": 26.5,
           "date": "2025-04-16"
@@ -9416,6 +9593,10 @@
         },
         "gpqa_diamond": {
           "value": 0.6691919191919192,
+          "date": "2025-04-14"
+        },
+        "hle": {
+          "value": 0.054000000000000006,
           "date": "2025-04-14"
         },
         "lmca": {
@@ -9682,6 +9863,10 @@
           "value": 0.0058,
           "date": "2025-04-05"
         },
+        "hle": {
+          "value": 0.056799999999999996,
+          "date": "2025-04-05"
+        },
         "lmca": {
           "value": 15.87,
           "date": "2025-04-05"
@@ -9798,6 +9983,10 @@
           "value": 0.8383838383838383,
           "date": "2025-03-31"
         },
+        "hle": {
+          "value": 0.1816,
+          "date": "2025-03-25"
+        },
         "simplebench": {
           "value": 0.516,
           "date": "2025-03-25"
@@ -9860,6 +10049,10 @@
         },
         "enigma_eval": {
           "value": 0.061399999999999996,
+          "date": "2025-03-19"
+        },
+        "hle": {
+          "value": 0.0812,
           "date": "2025-03-19"
         }
       }
@@ -10126,6 +10319,10 @@
           "value": 0.6868686868686869,
           "date": "2025-02-28"
         },
+        "hle": {
+          "value": 0.054400000000000004,
+          "date": "2025-02-27"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.37777777777777777,
           "date": "2025-02-28"
@@ -10166,6 +10363,10 @@
         },
         "gso": {
           "value": 0.038,
+          "date": "2025-02-24"
+        },
+        "hle": {
+          "value": 0.0804,
           "date": "2025-02-24"
         },
         "otis_mock_aime_2024_2025": {
@@ -10420,6 +10621,10 @@
           "value": 0.5707070707070707,
           "date": "2025-02-06"
         },
+        "hle": {
+          "value": 0.06559999999999999,
+          "date": "2025-01-21"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 0.5777777777777777,
           "date": "2025-03-07"
@@ -10636,6 +10841,10 @@
           "value": 0.7676767676767676,
           "date": "2025-02-13"
         },
+        "hle": {
+          "value": 0.0796,
+          "date": "2024-12-17"
+        },
         "lmca": {
           "value": 22.27,
           "date": "2024-12-17"
@@ -10791,6 +11000,24 @@
         "ale_bench": {
           "value": 236.25,
           "date": "2024-12-03"
+        },
+        "hle": {
+          "value": 0.0364,
+          "date": "2024-12-03"
+        }
+      }
+    },
+    {
+      "id": "amazon.nova-pro-v1:0",
+      "name": "amazon.nova-pro-v1:0",
+      "display_name": "amazon.nova-pro-v1:0",
+      "creator": "amazon",
+      "creator_name": "Amazon",
+      "release_date": "2024-12-03",
+      "scores": {
+        "hle": {
+          "value": 0.044000000000000004,
+          "date": "2024-12-03"
         }
       }
     },
@@ -10846,6 +11073,10 @@
         },
         "gso": {
           "value": 0.0,
+          "date": "2024-11-20"
+        },
+        "hle": {
+          "value": 0.027200000000000002,
           "date": "2024-11-20"
         },
         "otis_mock_aime_2024_2025": {
@@ -10968,6 +11199,10 @@
         },
         "gso": {
           "value": 0.046,
+          "date": "2024-10-22"
+        },
+        "hle": {
+          "value": 0.0408,
           "date": "2024-10-22"
         },
         "otis_mock_aime_2024_2025": {
@@ -11135,6 +11370,10 @@
         "gpqa_diamond": {
           "value": 0.5722853535353535,
           "date": "2025-01-27"
+        },
+        "hle": {
+          "value": 0.046,
+          "date": "2024-09-24"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.23055555555555557,
