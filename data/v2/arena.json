@@ -3,7 +3,7 @@
     "id": "arena",
     "name": "Arena",
     "url": "https://arena.ai",
-    "fetched_at": "2026-09-14T18:18:11.555356340+00:00",
+    "fetched_at": "2026-09-15T18:18:16.112929414+00:00",
     "verified": true
   },
   "metrics": [
@@ -36,7 +36,7 @@
       "label": "Agent",
       "kind": "elo",
       "group": "Arena Elo",
-      "last_updated": "2026-09-09",
+      "last_updated": "2026-09-13",
       "description": "Human-preference ranking for agentic, autonomous task completion. Score is an Elo rating from blind side-by-side votes; higher is better."
     },
     {
@@ -1537,6 +1537,7 @@
       "display_name": "kimi-k3-max",
       "creator": "moonshot",
       "creator_name": "Moonshot",
+      "open_weights": false,
       "scores": {
         "elo_code": {
           "value": 1674.0,
@@ -1784,6 +1785,7 @@
       "display_name": "qwen3.8-flash-next",
       "creator": "alibaba",
       "creator_name": "Alibaba",
+      "open_weights": true,
       "scores": {
         "elo_code": {
           "value": 1635.0,
