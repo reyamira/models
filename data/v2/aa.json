@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-09-15T17:48:22.856014329+00:00",
+    "fetched_at": "2026-09-15T19:18:37.702479825+00:00",
     "verified": true
   },
   "metrics": [
@@ -198,7 +198,7 @@
           "value": 0.853333333333333
         },
         "output_tps": {
-          "value": 69.67
+          "value": 69.723
         },
         "price_blended": {
           "value": 20.0
@@ -213,10 +213,10 @@
           "value": 0.631
         },
         "ttfat": {
-          "value": 128.288
+          "value": 133.65
         },
         "ttft": {
-          "value": 128.288
+          "value": 133.65
         }
       }
     },
@@ -261,10 +261,10 @@
           "value": 0.609
         },
         "ttfat": {
-          "value": 36.678
+          "value": 41.817
         },
         "ttft": {
-          "value": 36.678
+          "value": 41.817
         }
       }
     },
@@ -309,10 +309,10 @@
           "value": 0.565
         },
         "ttfat": {
-          "value": 177.329
+          "value": 187.48
         },
         "ttft": {
-          "value": 177.329
+          "value": 187.48
         }
       }
     },
@@ -357,10 +357,10 @@
           "value": 0.557
         },
         "ttfat": {
-          "value": 63.11
+          "value": 66.282
         },
         "ttft": {
-          "value": 63.11
+          "value": 66.282
         }
       }
     },
@@ -453,10 +453,10 @@
           "value": 0.554
         },
         "ttfat": {
-          "value": 27.781
+          "value": 29.283
         },
         "ttft": {
-          "value": 27.781
+          "value": 29.283
         }
       }
     },
@@ -501,10 +501,10 @@
           "value": 0.564
         },
         "ttfat": {
-          "value": 36.407
+          "value": 39.008
         },
         "ttft": {
-          "value": 36.407
+          "value": 39.008
         }
       }
     },
@@ -591,7 +591,7 @@
           "value": 0.796666666666667
         },
         "output_tps": {
-          "value": 55.583
+          "value": 55.371
         },
         "price_blended": {
           "value": 20.0
@@ -606,10 +606,10 @@
           "value": 0.542
         },
         "ttfat": {
-          "value": 3.798
+          "value": 4.9
         },
         "ttft": {
-          "value": 3.798
+          "value": 4.9
         }
       }
     },
@@ -654,10 +654,10 @@
           "value": 0.557
         },
         "ttfat": {
-          "value": 22.043
+          "value": 23.269
         },
         "ttft": {
-          "value": 22.043
+          "value": 23.269
         }
       }
     },
@@ -687,7 +687,7 @@
           "value": 0.846666666666667
         },
         "output_tps": {
-          "value": 55.889
+          "value": 56.64
         },
         "price_blended": {
           "value": 20.0
@@ -702,10 +702,10 @@
           "value": 0.564
         },
         "ttfat": {
-          "value": 5.808
+          "value": 6.064
         },
         "ttft": {
-          "value": 5.808
+          "value": 6.064
         }
       }
     },
@@ -750,10 +750,10 @@
           "value": 0.554
         },
         "ttfat": {
-          "value": 11.606
+          "value": 11.793
         },
         "ttft": {
-          "value": 11.606
+          "value": 11.793
         }
       }
     },
@@ -783,7 +783,7 @@
           "value": 0.83
         },
         "output_tps": {
-          "value": 247.878
+          "value": 273.672
         },
         "price_blended": {
           "value": 2.0
@@ -798,10 +798,10 @@
           "value": 0.588
         },
         "ttfat": {
-          "value": 28.54
+          "value": 35.621
         },
         "ttft": {
-          "value": 20.472
+          "value": 28.313
         }
       }
     },
@@ -834,7 +834,7 @@
           "value": 0.84
         },
         "output_tps": {
-          "value": 69.151
+          "value": 69.43
         },
         "price_blended": {
           "value": 8.0
@@ -888,7 +888,7 @@
           "value": 0.823333333333333
         },
         "output_tps": {
-          "value": 54.308
+          "value": 55.945
         },
         "price_blended": {
           "value": 20.0
@@ -903,10 +903,10 @@
           "value": 0.567
         },
         "ttfat": {
-          "value": 4.359
+          "value": 5.169
         },
         "ttft": {
-          "value": 4.359
+          "value": 5.169
         }
       }
     },
@@ -951,10 +951,57 @@
           "value": 0.541
         },
         "ttfat": {
-          "value": 1.896
+          "value": 1.945
         },
         "ttft": {
-          "value": 1.896
+          "value": 1.945
+        }
+      }
+    },
+    {
+      "id": "qwen3-8-max",
+      "name": "Qwen3.8 Max (0902)",
+      "display_name": "Qwen3.8 Max",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-09-02",
+      "variant_tag": "0902",
+      "scores": {
+        "coding_index": {
+          "value": 76.2
+        },
+        "gpqa": {
+          "value": 0.928
+        },
+        "hle": {
+          "value": 0.431
+        },
+        "intelligence_index": {
+          "value": 45.4
+        },
+        "lcr": {
+          "value": 0.803333333333333
+        },
+        "output_tps": {
+          "value": 40.381
+        },
+        "price_blended": {
+          "value": 3.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 6.0
+        },
+        "scicode": {
+          "value": 0.521
+        },
+        "ttfat": {
+          "value": 51.4
+        },
+        "ttft": {
+          "value": 1.872
         }
       }
     },
@@ -984,7 +1031,7 @@
           "value": 0.83
         },
         "output_tps": {
-          "value": 247.795
+          "value": 281.683
         },
         "price_blended": {
           "value": 2.0
@@ -999,10 +1046,10 @@
           "value": 0.597
         },
         "ttfat": {
-          "value": 30.848
+          "value": 36.769
         },
         "ttft": {
-          "value": 22.777
+          "value": 29.668
         }
       }
     },
@@ -1032,7 +1079,7 @@
           "value": 0.82
         },
         "output_tps": {
-          "value": 52.014
+          "value": 52.815
         },
         "price_blended": {
           "value": 10.0
@@ -1047,10 +1094,10 @@
           "value": 0.515
         },
         "ttfat": {
-          "value": 8.503
+          "value": 9.228
         },
         "ttft": {
-          "value": 8.503
+          "value": 9.228
         }
       }
     },
@@ -1080,7 +1127,7 @@
           "value": 0.796666666666667
         },
         "output_tps": {
-          "value": 66.843
+          "value": 66.076
         },
         "price_blended": {
           "value": 2.15
@@ -1095,10 +1142,10 @@
           "value": 0.59
         },
         "ttfat": {
-          "value": 32.548
+          "value": 32.969
         },
         "ttft": {
-          "value": 2.627
+          "value": 2.701
         }
       }
     },
@@ -1128,7 +1175,7 @@
           "value": 0.803333333333333
         },
         "output_tps": {
-          "value": 58.433
+          "value": 59.488
         },
         "price_blended": {
           "value": 3.0
@@ -1248,10 +1295,10 @@
           "value": 0.613636363636364
         },
         "ttfat": {
-          "value": 27.841
+          "value": 30.005
         },
         "ttft": {
-          "value": 27.841
+          "value": 30.005
         }
       }
     },
@@ -1281,7 +1328,7 @@
           "value": 0.886666666666667
         },
         "output_tps": {
-          "value": 37.547
+          "value": 38.017
         },
         "price_blended": {
           "value": 6.0
@@ -1296,10 +1343,10 @@
           "value": 0.595
         },
         "ttfat": {
-          "value": 56.887
+          "value": 56.003
         },
         "ttft": {
-          "value": 3.621
+          "value": 3.396
         }
       }
     },
@@ -1344,10 +1391,10 @@
           "value": 0.559
         },
         "ttfat": {
-          "value": 27.116
+          "value": 30.228
         },
         "ttft": {
-          "value": 27.116
+          "value": 30.228
         }
       }
     },
@@ -1380,7 +1427,7 @@
           "value": 0.816666666666667
         },
         "output_tps": {
-          "value": 70.118
+          "value": 70.487
         },
         "price_blended": {
           "value": 8.0
@@ -1401,10 +1448,10 @@
           "value": 0.621212121212121
         },
         "ttfat": {
-          "value": 8.194
+          "value": 9.113
         },
         "ttft": {
-          "value": 8.194
+          "value": 9.113
         }
       }
     },
@@ -1585,7 +1632,7 @@
           "value": 0.813333333333333
         },
         "output_tps": {
-          "value": 298.705
+          "value": 307.538
         },
         "price_blended": {
           "value": 1.5
@@ -1600,10 +1647,10 @@
           "value": 0.566
         },
         "ttfat": {
-          "value": 11.856
+          "value": 13.821
         },
         "ttft": {
-          "value": 11.856
+          "value": 13.821
         }
       }
     },
@@ -1653,7 +1700,7 @@
       }
     },
     {
-      "id": "qwen3-8-max",
+      "id": "qwen3-8-max-0803",
       "name": "Qwen3.8 Max",
       "display_name": "Qwen3.8 Max",
       "creator": "alibaba",
@@ -1691,10 +1738,10 @@
           "value": 0.532
         },
         "ttfat": {
-          "value": 51.609
+          "value": 51.693
         },
         "ttft": {
-          "value": 1.731
+          "value": 1.815
         }
       }
     },
@@ -1807,7 +1854,7 @@
           "value": 0.796666666666667
         },
         "output_tps": {
-          "value": 49.411
+          "value": 53.993
         },
         "price_blended": {
           "value": 0.23
@@ -1822,10 +1869,10 @@
           "value": 0.506
         },
         "ttfat": {
-          "value": 41.891
+          "value": 38.474
         },
         "ttft": {
-          "value": 1.414
+          "value": 1.432
         }
       }
     },
@@ -1855,7 +1902,7 @@
           "value": 0.79
         },
         "output_tps": {
-          "value": 192.64
+          "value": 217.372
         },
         "price_blended": {
           "value": 2.0
@@ -1870,10 +1917,10 @@
           "value": 0.574
         },
         "ttfat": {
-          "value": 22.653
+          "value": 22.006
         },
         "ttft": {
-          "value": 12.271
+          "value": 12.805
         }
       }
     },
@@ -1903,7 +1950,7 @@
           "value": 0.813333333333333
         },
         "output_tps": {
-          "value": 53.178
+          "value": 53.953
         },
         "price_blended": {
           "value": 10.0
@@ -1918,10 +1965,10 @@
           "value": 0.492
         },
         "ttfat": {
-          "value": 2.194
+          "value": 2.358
         },
         "ttft": {
-          "value": 2.194
+          "value": 2.358
         }
       }
     },
@@ -1993,7 +2040,7 @@
           "value": 0.84
         },
         "output_tps": {
-          "value": 213.661
+          "value": 219.58
         },
         "price_blended": {
           "value": 0.525
@@ -2008,7 +2055,7 @@
           "value": 0.519
         },
         "ttfat": {
-          "value": 10.321
+          "value": 10.069
         },
         "ttft": {
           "value": 0.96
@@ -2065,10 +2112,10 @@
           "value": 0.628787878787879
         },
         "ttfat": {
-          "value": 3.688
+          "value": 5.833
         },
         "ttft": {
-          "value": 3.688
+          "value": 5.833
         }
       }
     },
@@ -2113,10 +2160,10 @@
           "value": 0.572
         },
         "ttfat": {
-          "value": 8.574
+          "value": 9.019
         },
         "ttft": {
-          "value": 8.574
+          "value": 9.019
         }
       }
     },
@@ -2146,7 +2193,7 @@
           "value": 0.793333333333333
         },
         "output_tps": {
-          "value": 58.445
+          "value": 58.636
         },
         "price_blended": {
           "value": 3.0
@@ -2302,10 +2349,10 @@
           "value": 0.543
         },
         "ttfat": {
-          "value": 125.076
+          "value": 108.323
         },
         "ttft": {
-          "value": 125.076
+          "value": 108.323
         }
       }
     },
@@ -2359,10 +2406,10 @@
           "value": 0.628787878787879
         },
         "ttfat": {
-          "value": 7.29
+          "value": 9.515
         },
         "ttft": {
-          "value": 7.29
+          "value": 9.515
         }
       }
     },
@@ -2407,10 +2454,10 @@
           "value": 0.536
         },
         "ttfat": {
-          "value": 71.713
+          "value": 56.43
         },
         "ttft": {
-          "value": 71.713
+          "value": 56.43
         }
       }
     },
@@ -2503,10 +2550,10 @@
           "value": 0.557
         },
         "ttfat": {
-          "value": 0.719
+          "value": 0.729
         },
         "ttft": {
-          "value": 0.719
+          "value": 0.729
         }
       }
     },
@@ -2536,7 +2583,7 @@
           "value": 0.803333333333333
         },
         "output_tps": {
-          "value": 82.826
+          "value": 87.025
         },
         "price_blended": {
           "value": 1.98
@@ -2551,10 +2598,10 @@
           "value": 0.51
         },
         "ttfat": {
-          "value": 25.33
+          "value": 24.108
         },
         "ttft": {
-          "value": 1.182
+          "value": 1.126
         }
       }
     },
@@ -2579,7 +2626,7 @@
           "value": 0.81
         },
         "output_tps": {
-          "value": 237.652
+          "value": 246.122
         },
         "price_blended": {
           "value": 0.075
@@ -2594,10 +2641,10 @@
           "value": 0.516
         },
         "ttfat": {
-          "value": 9.596
+          "value": 9.301
         },
         "ttft": {
-          "value": 1.18
+          "value": 1.174
         }
       }
     },
@@ -2642,10 +2689,10 @@
           "value": 0.494
         },
         "ttfat": {
-          "value": 3.997
+          "value": 5.375
         },
         "ttft": {
-          "value": 3.997
+          "value": 5.375
         }
       }
     },
@@ -2712,7 +2759,7 @@
           "value": 0.813333333333333
         },
         "output_tps": {
-          "value": 219.55
+          "value": 225.921
         },
         "price_blended": {
           "value": 0.66
@@ -2727,7 +2774,7 @@
           "value": 0.497
         },
         "ttfat": {
-          "value": 10.116
+          "value": 9.859
         },
         "ttft": {
           "value": 1.006
@@ -2775,10 +2822,10 @@
           "value": 0.505
         },
         "ttfat": {
-          "value": 39.214
+          "value": 35.37
         },
         "ttft": {
-          "value": 39.214
+          "value": 35.37
         }
       }
     },
@@ -2817,10 +2864,10 @@
           "value": 0.541
         },
         "ttfat": {
-          "value": 16.544
+          "value": 19.741
         },
         "ttft": {
-          "value": 16.544
+          "value": 19.741
         }
       }
     },
@@ -2850,7 +2897,7 @@
           "value": 0.796666666666667
         },
         "output_tps": {
-          "value": 220.435
+          "value": 222.585
         },
         "price_blended": {
           "value": 0.66
@@ -2865,10 +2912,10 @@
           "value": 0.503
         },
         "ttfat": {
-          "value": 9.95
+          "value": 9.86
         },
         "ttft": {
-          "value": 0.877
+          "value": 0.874
         }
       }
     },
@@ -2922,10 +2969,10 @@
           "value": 0.575757575757576
         },
         "ttfat": {
-          "value": 1.992
+          "value": 2.281
         },
         "ttft": {
-          "value": 1.992
+          "value": 2.281
         }
       }
     },
@@ -2955,7 +3002,7 @@
           "value": 0.8
         },
         "output_tps": {
-          "value": 185.211
+          "value": 183.651
         },
         "price_blended": {
           "value": 1.5
@@ -2970,10 +3017,10 @@
           "value": 0.534
         },
         "ttfat": {
-          "value": 13.397
+          "value": 14.512
         },
         "ttft": {
-          "value": 13.397
+          "value": 14.512
         }
       }
     },
@@ -3114,10 +3161,10 @@
           "value": 0.507575757575758
         },
         "ttfat": {
-          "value": 32.692
+          "value": 32.85
         },
         "ttft": {
-          "value": 6.816
+          "value": 6.974
         }
       }
     },
@@ -3147,7 +3194,7 @@
           "value": 0.82
         },
         "output_tps": {
-          "value": 43.769
+          "value": 43.024
         },
         "price_blended": {
           "value": 1.125
@@ -3162,7 +3209,7 @@
           "value": 0.466
         },
         "ttfat": {
-          "value": 46.944
+          "value": 47.735
         },
         "ttft": {
           "value": 1.25
@@ -3219,10 +3266,10 @@
           "value": 0.606060606060606
         },
         "ttfat": {
-          "value": 2.331
+          "value": 2.467
         },
         "ttft": {
-          "value": 2.331
+          "value": 2.467
         }
       }
     },
@@ -3309,10 +3356,10 @@
           "value": 0.393939393939394
         },
         "ttfat": {
-          "value": 11.172
+          "value": 11.906
         },
         "ttft": {
-          "value": 11.172
+          "value": 11.906
         }
       }
     },
@@ -3445,10 +3492,10 @@
           "value": 0.53030303030303
         },
         "ttfat": {
-          "value": 29.175
+          "value": 30.361
         },
         "ttft": {
-          "value": 29.175
+          "value": 30.361
         }
       }
     },
@@ -3493,10 +3540,10 @@
           "value": 0.516
         },
         "ttfat": {
-          "value": 9.442
+          "value": 8.964
         },
         "ttft": {
-          "value": 9.442
+          "value": 8.964
         }
       }
     },
@@ -3555,7 +3602,7 @@
           "value": 0.766666666666667
         },
         "output_tps": {
-          "value": 66.5
+          "value": 69.593
         },
         "price_blended": {
           "value": 4.0
@@ -3733,7 +3780,7 @@
           "value": 0.746666666666667
         },
         "output_tps": {
-          "value": 86.036
+          "value": 89.028
         },
         "price_blended": {
           "value": 0.544
@@ -3754,10 +3801,10 @@
           "value": 0.462121212121212
         },
         "ttfat": {
-          "value": 52.044
+          "value": 50.311
         },
         "ttft": {
-          "value": 1.193
+          "value": 1.169
         }
       }
     },
@@ -4040,10 +4087,10 @@
           "value": 0.728070175438596
         },
         "ttfat": {
-          "value": 1.68
+          "value": 1.606
         },
         "ttft": {
-          "value": 1.68
+          "value": 1.606
         }
       }
     },
@@ -4111,7 +4158,7 @@
           "value": 0.82
         },
         "output_tps": {
-          "value": 121.051
+          "value": 123.446
         },
         "price_blended": {
           "value": 4.5
@@ -4132,10 +4179,10 @@
           "value": 0.537878787878788
         },
         "ttfat": {
-          "value": 26.58
+          "value": 29.279
         },
         "ttft": {
-          "value": 26.58
+          "value": 29.279
         }
       }
     },
@@ -4168,7 +4215,7 @@
           "value": 0.703333333333333
         },
         "output_tps": {
-          "value": 78.344
+          "value": 86.758
         },
         "price_blended": {
           "value": 0.544
@@ -4186,10 +4233,10 @@
           "value": 0.416666666666667
         },
         "ttfat": {
-          "value": 26.505
+          "value": 24.057
         },
         "ttft": {
-          "value": 1.079
+          "value": 1.096
         }
       }
     },
@@ -4266,7 +4313,7 @@
           "value": 0.83
         },
         "output_tps": {
-          "value": 116.267
+          "value": 110.274
         },
         "price_blended": {
           "value": 0.525
@@ -4287,10 +4334,10 @@
           "value": 0.424242424242424
         },
         "ttfat": {
-          "value": 18.143
+          "value": 19.074
         },
         "ttft": {
-          "value": 0.941
+          "value": 0.938
         }
       }
     },
@@ -4373,7 +4420,7 @@
           "value": 0.7
         },
         "output_tps": {
-          "value": 65.523
+          "value": 68.358
         },
         "price_blended": {
           "value": 4.0
@@ -4385,10 +4432,10 @@
           "value": 10.0
         },
         "ttfat": {
-          "value": 0.846
+          "value": 0.938
         },
         "ttft": {
-          "value": 0.846
+          "value": 0.938
         }
       }
     },
@@ -4509,10 +4556,10 @@
           "value": 0.516
         },
         "ttfat": {
-          "value": 1.33
+          "value": 1.366
         },
         "ttft": {
-          "value": 1.33
+          "value": 1.366
         }
       }
     },
@@ -4670,7 +4717,7 @@
           "value": 0.74
         },
         "output_tps": {
-          "value": 77.082
+          "value": 70.867
         },
         "price_blended": {
           "value": 0.525
@@ -4685,7 +4732,7 @@
           "value": 0.446
         },
         "ttfat": {
-          "value": 27.182
+          "value": 29.457
         },
         "ttft": {
           "value": 1.235
@@ -4870,7 +4917,7 @@
           "value": 0.796666666666667
         },
         "output_tps": {
-          "value": 51.3
+          "value": 53.081
         },
         "price_blended": {
           "value": 1.125
@@ -4885,10 +4932,10 @@
           "value": 0.39
         },
         "ttfat": {
-          "value": 40.184
+          "value": 38.893
         },
         "ttft": {
-          "value": 1.197
+          "value": 1.215
         }
       }
     },
@@ -4931,10 +4978,10 @@
           "value": 0.429
         },
         "ttfat": {
-          "value": 13.392
+          "value": 13.464
         },
         "ttft": {
-          "value": 2.73
+          "value": 2.802
         }
       }
     },
@@ -5119,7 +5166,7 @@
           "value": 0.763333333333333
         },
         "output_tps": {
-          "value": 156.605
+          "value": 170.291
         },
         "price_blended": {
           "value": 0.9
@@ -5134,10 +5181,10 @@
           "value": 0.481
         },
         "ttfat": {
-          "value": 13.421
+          "value": 12.414
         },
         "ttft": {
-          "value": 0.65
+          "value": 0.669
         }
       }
     },
@@ -5208,7 +5255,7 @@
           "value": 0.7
         },
         "output_tps": {
-          "value": 131.594
+          "value": 136.3
         },
         "price_blended": {
           "value": 11.25
@@ -5223,10 +5270,10 @@
           "value": 0.525
         },
         "ttfat": {
-          "value": 16.07
+          "value": 15.547
         },
         "ttft": {
-          "value": 0.872
+          "value": 0.873
         }
       }
     },
@@ -5350,7 +5397,7 @@
           "value": 0.773333333333333
         },
         "output_tps": {
-          "value": 52.685
+          "value": 52.503
         },
         "price_blended": {
           "value": 1.125
@@ -5365,10 +5412,10 @@
           "value": 0.4
         },
         "ttfat": {
-          "value": 39.198
+          "value": 39.35
         },
         "ttft": {
-          "value": 1.237
+          "value": 1.257
         }
       }
     },
@@ -5446,7 +5493,7 @@
           "value": 0.796666666666667
         },
         "output_tps": {
-          "value": 40.006
+          "value": 40.475
         },
         "price_blended": {
           "value": 0.544
@@ -5467,10 +5514,10 @@
           "value": 0.431818181818182
         },
         "ttfat": {
-          "value": 56.952
+          "value": 55.079
         },
         "ttft": {
-          "value": 6.96
+          "value": 5.665
         }
       }
     },
@@ -5617,10 +5664,10 @@
           "value": 0.446969696969697
         },
         "ttfat": {
-          "value": 52.026
+          "value": 52.03
         },
         "ttft": {
-          "value": 1.151
+          "value": 1.154
         }
       }
     },
@@ -5648,7 +5695,7 @@
           "value": 0.756666666666667
         },
         "output_tps": {
-          "value": 177.735
+          "value": 184.122
         },
         "price_blended": {
           "value": 0.525
@@ -5663,10 +5710,10 @@
           "value": 0.497
         },
         "ttfat": {
-          "value": 13.053
+          "value": 12.682
         },
         "ttft": {
-          "value": 1.8
+          "value": 1.82
         }
       }
     },
@@ -5718,10 +5765,10 @@
           "value": 0.46969696969697
         },
         "ttfat": {
-          "value": 30.604
+          "value": 30.558
         },
         "ttft": {
-          "value": 1.484
+          "value": 1.438
         }
       }
     },
@@ -5764,10 +5811,10 @@
           "value": 0.486
         },
         "ttfat": {
-          "value": 22.313
+          "value": 22.309
         },
         "ttft": {
-          "value": 1.753
+          "value": 1.749
         }
       }
     },
@@ -5872,7 +5919,7 @@
           "value": 0.773333333333333
         },
         "output_tps": {
-          "value": 85.468
+          "value": 82.463
         },
         "price_blended": {
           "value": 1.762
@@ -5887,7 +5934,7 @@
           "value": 0.47
         },
         "ttfat": {
-          "value": 26.089
+          "value": 26.942
         },
         "ttft": {
           "value": 2.688
@@ -5920,7 +5967,7 @@
           "value": 0.75
         },
         "output_tps": {
-          "value": 106.543
+          "value": 110.04
         },
         "price_blended": {
           "value": 0.45
@@ -5935,10 +5982,10 @@
           "value": 0.468
         },
         "ttfat": {
-          "value": 2.725
+          "value": 2.856
         },
         "ttft": {
-          "value": 2.725
+          "value": 2.856
         }
       }
     },
@@ -6095,7 +6142,7 @@
           "value": 0.783333333333333
         },
         "output_tps": {
-          "value": 147.951
+          "value": 147.036
         },
         "price_blended": {
           "value": 0.0
@@ -6110,10 +6157,10 @@
           "value": 0.442
         },
         "ttfat": {
-          "value": 15.232
+          "value": 15.302
         },
         "ttft": {
-          "value": 1.714
+          "value": 1.7
         }
       }
     },
@@ -6263,10 +6310,10 @@
           "value": 0.303030303030303
         },
         "ttfat": {
-          "value": 15.02
+          "value": 16.463
         },
         "ttft": {
-          "value": 15.02
+          "value": 16.463
         }
       }
     },
@@ -6290,7 +6337,7 @@
           "value": 0.673333333333333
         },
         "output_tps": {
-          "value": 68.694
+          "value": 69.583
         },
         "price_blended": {
           "value": 4.0
@@ -6305,10 +6352,10 @@
           "value": 0.501
         },
         "ttfat": {
-          "value": 0.915
+          "value": 0.954
         },
         "ttft": {
-          "value": 0.915
+          "value": 0.954
         }
       }
     },
@@ -6570,7 +6617,7 @@
           "value": 0.74
         },
         "output_tps": {
-          "value": 111.683
+          "value": 114.212
         },
         "price_blended": {
           "value": 1.563
@@ -6588,10 +6635,10 @@
           "value": 0.265151515151515
         },
         "ttfat": {
-          "value": 6.446
+          "value": 6.654
         },
         "ttft": {
-          "value": 6.446
+          "value": 6.654
         }
       }
     },
@@ -6988,7 +7035,7 @@
           "value": 0.793333333333333
         },
         "output_tps": {
-          "value": 233.717
+          "value": 230.276
         },
         "price_blended": {
           "value": 1.05
@@ -7009,10 +7056,10 @@
           "value": 0.363636363636364
         },
         "ttfat": {
-          "value": 10.889
+          "value": 11.054
         },
         "ttft": {
-          "value": 1.155
+          "value": 1.175
         }
       }
     },
@@ -7042,7 +7089,7 @@
           "value": 0.693333333333333
         },
         "output_tps": {
-          "value": 55.163
+          "value": 55.968
         },
         "price_blended": {
           "value": 6.0
@@ -7060,10 +7107,10 @@
           "value": 0.424242424242424
         },
         "ttfat": {
-          "value": 1.305
+          "value": 1.261
         },
         "ttft": {
-          "value": 1.305
+          "value": 1.261
         }
       }
     },
@@ -7571,10 +7618,10 @@
           "value": 0.413
         },
         "ttfat": {
-          "value": 7.972
+          "value": 8.198
         },
         "ttft": {
-          "value": 7.972
+          "value": 8.198
         }
       }
     },
@@ -7701,7 +7748,7 @@
           "value": 0.423333333333333
         },
         "output_tps": {
-          "value": 161.861
+          "value": 154.078
         },
         "price_blended": {
           "value": 2.15
@@ -7713,10 +7760,10 @@
           "value": 4.4
         },
         "ttfat": {
-          "value": 1.004
+          "value": 1.021
         },
         "ttft": {
-          "value": 1.004
+          "value": 1.021
         }
       }
     },
@@ -7848,7 +7895,7 @@
           "value": 0.73
         },
         "output_tps": {
-          "value": 53.532
+          "value": 55.159
         },
         "price_blended": {
           "value": 0.175
@@ -7869,10 +7916,10 @@
           "value": 0.416666666666667
         },
         "ttfat": {
-          "value": 50.349
+          "value": 50.572
         },
         "ttft": {
-          "value": 12.988
+          "value": 14.313
         }
       }
     },
@@ -7916,10 +7963,10 @@
           "value": 0.451
         },
         "ttfat": {
-          "value": 0.974
+          "value": 0.996
         },
         "ttft": {
-          "value": 0.974
+          "value": 0.996
         }
       }
     },
@@ -8060,7 +8107,7 @@
           "value": 0.773333333333333
         },
         "output_tps": {
-          "value": 58.424
+          "value": 58.574
         },
         "price_blended": {
           "value": 1.35
@@ -8081,10 +8128,10 @@
           "value": 0.348484848484849
         },
         "ttfat": {
-          "value": 98.594
+          "value": 98.358
         },
         "ttft": {
-          "value": 1.442
+          "value": 1.455
         }
       }
     },
@@ -8260,7 +8307,7 @@
           "value": 0.7
         },
         "output_tps": {
-          "value": 100.356
+          "value": 103.977
         },
         "price_blended": {
           "value": 0.45
@@ -8275,10 +8322,10 @@
           "value": 0.461
         },
         "ttfat": {
-          "value": 1.715
+          "value": 1.792
         },
         "ttft": {
-          "value": 1.715
+          "value": 1.792
         }
       }
     },
@@ -8363,7 +8410,7 @@
           "value": 0.643333333333333
         },
         "output_tps": {
-          "value": 84.149
+          "value": 85.497
         },
         "price_blended": {
           "value": 1.35
@@ -8381,10 +8428,10 @@
           "value": 0.356060606060606
         },
         "ttfat": {
-          "value": 1.653
+          "value": 1.591
         },
         "ttft": {
-          "value": 1.653
+          "value": 1.591
         }
       }
     },
@@ -8668,10 +8715,10 @@
           "value": 0.363636363636364
         },
         "ttfat": {
-          "value": 1.046
+          "value": 1.038
         },
         "ttft": {
-          "value": 1.046
+          "value": 1.038
         }
       }
     },
@@ -8883,10 +8930,10 @@
           "value": 0.42
         },
         "ttfat": {
-          "value": 7.92
+          "value": 7.924
         },
         "ttft": {
-          "value": 1.698
+          "value": 1.703
         }
       }
     },
@@ -8986,10 +9033,10 @@
           "value": 0.212121212121212
         },
         "ttfat": {
-          "value": 1.172
+          "value": 1.162
         },
         "ttft": {
-          "value": 1.172
+          "value": 1.162
         }
       }
     },
@@ -9142,7 +9189,7 @@
           "value": 0.853
         },
         "output_tps": {
-          "value": 144.298
+          "value": 135.845
         },
         "price_blended": {
           "value": 3.5
@@ -9255,10 +9302,10 @@
           "value": 0.212121212121212
         },
         "ttfat": {
-          "value": 1.395
+          "value": 1.389
         },
         "ttft": {
-          "value": 1.395
+          "value": 1.389
         }
       }
     },
@@ -9405,7 +9452,7 @@
           "value": 0.736666666666667
         },
         "output_tps": {
-          "value": 125.415
+          "value": 123.284
         },
         "price_blended": {
           "value": 0.438
@@ -9426,10 +9473,10 @@
           "value": 0.356060606060606
         },
         "ttfat": {
-          "value": 17.459
+          "value": 17.702
         },
         "ttft": {
-          "value": 1.512
+          "value": 1.479
         }
       }
     },
@@ -9637,7 +9684,7 @@
           "value": 0.773333333333333
         },
         "output_tps": {
-          "value": 81.742
+          "value": 82.375
         },
         "price_blended": {
           "value": 1.35
@@ -9658,7 +9705,7 @@
           "value": 0.409090909090909
         },
         "ttfat": {
-          "value": 40.649
+          "value": 40.349
         },
         "ttft": {
           "value": 1.672
@@ -9817,10 +9864,10 @@
           "value": 0.348484848484849
         },
         "ttfat": {
-          "value": 41.585
+          "value": 41.599
         },
         "ttft": {
-          "value": 1.095
+          "value": 1.109
         }
       }
     },
@@ -10090,10 +10137,10 @@
           "value": 0.356060606060606
         },
         "ttfat": {
-          "value": 7.462
+          "value": 5.686
         },
         "ttft": {
-          "value": 7.462
+          "value": 5.686
         }
       }
     },
@@ -10164,7 +10211,7 @@
           "value": 0.833333333333333
         },
         "output_tps": {
-          "value": 92.978
+          "value": 93.98
         },
         "price_blended": {
           "value": 0.637
@@ -10179,10 +10226,10 @@
           "value": 0.449
         },
         "ttfat": {
-          "value": 21.841
+          "value": 21.607
         },
         "ttft": {
-          "value": 0.331
+          "value": 0.325
         }
       }
     },
@@ -10465,10 +10512,10 @@
           "value": 0.272727272727273
         },
         "ttfat": {
-          "value": 6.885
+          "value": 7.236
         },
         "ttft": {
-          "value": 6.885
+          "value": 7.236
         }
       }
     },
@@ -10612,7 +10659,7 @@
           "value": 0.7
         },
         "output_tps": {
-          "value": 130.964
+          "value": 132.149
         },
         "price_blended": {
           "value": 0.85
@@ -10633,10 +10680,10 @@
           "value": 0.287878787878788
         },
         "ttfat": {
-          "value": 17.294
+          "value": 17.204
         },
         "ttft": {
-          "value": 2.023
+          "value": 2.07
         }
       }
     },
@@ -10903,10 +10950,10 @@
           "value": 1.2
         },
         "ttfat": {
-          "value": 0.713
+          "value": 0.753
         },
         "ttft": {
-          "value": 0.713
+          "value": 0.753
         }
       }
     },
@@ -11715,7 +11762,7 @@
           "value": 0.696666666666667
         },
         "output_tps": {
-          "value": 35.209
+          "value": 35.046
         },
         "price_blended": {
           "value": 0.0
@@ -11736,7 +11783,7 @@
           "value": 0.363636363636364
         },
         "ttfat": {
-          "value": 50.245
+          "value": 50.475
         },
         "ttft": {
           "value": 0.939
@@ -12003,7 +12050,7 @@
           "value": 0.643333333333333
         },
         "output_tps": {
-          "value": 135.366
+          "value": 138.422
         },
         "price_blended": {
           "value": 0.844
@@ -12021,10 +12068,10 @@
           "value": 0.257575757575758
         },
         "ttfat": {
-          "value": 1.167
+          "value": 1.253
         },
         "ttft": {
-          "value": 1.167
+          "value": 1.253
         }
       }
     },
@@ -12111,7 +12158,7 @@
           "value": 0.63
         },
         "output_tps": {
-          "value": 165.801
+          "value": 169.859
         },
         "price_blended": {
           "value": 0.688
@@ -12129,10 +12176,10 @@
           "value": 0.106060606060606
         },
         "ttfat": {
-          "value": 1.139
+          "value": 1.131
         },
         "ttft": {
-          "value": 1.139
+          "value": 1.131
         }
       }
     },
@@ -12259,7 +12306,7 @@
           "value": 0.693333333333333
         },
         "output_tps": {
-          "value": 151.133
+          "value": 153.355
         },
         "price_blended": {
           "value": 3.0
@@ -12280,7 +12327,7 @@
           "value": 0.333333333333333
         },
         "ttfat": {
-          "value": 13.918
+          "value": 13.726
         },
         "ttft": {
           "value": 0.684
@@ -12367,10 +12414,10 @@
           "value": 0.378
         },
         "ttfat": {
-          "value": 25.845
+          "value": 25.856
         },
         "ttft": {
-          "value": 0.246
+          "value": 0.257
         }
       }
     },
@@ -12503,7 +12550,7 @@
           "value": 0.323333333333333
         },
         "output_tps": {
-          "value": 111.831
+          "value": 115.921
         },
         "price_blended": {
           "value": 1.563
@@ -12524,10 +12571,10 @@
           "value": 0.189393939393939
         },
         "ttfat": {
-          "value": 0.615
+          "value": 0.623
         },
         "ttft": {
-          "value": 0.615
+          "value": 0.623
         }
       }
     },
@@ -12798,7 +12845,7 @@
           "value": 0.636666666666667
         },
         "output_tps": {
-          "value": 128.543
+          "value": 130.601
         },
         "price_blended": {
           "value": 0.15
@@ -12816,7 +12863,7 @@
           "value": 0.181818181818182
         },
         "ttfat": {
-          "value": 16.909
+          "value": 16.664
         },
         "ttft": {
           "value": 1.35
@@ -12864,7 +12911,7 @@
           "value": 0.83
         },
         "output_tps": {
-          "value": 137.778
+          "value": 137.841
         },
         "price_blended": {
           "value": 3.438
@@ -12882,7 +12929,7 @@
           "value": 0.242424242424242
         },
         "ttfat": {
-          "value": 33.255
+          "value": 33.248
         },
         "ttft": {
           "value": 18.739
@@ -13021,7 +13068,7 @@
           "value": 0.526666666666667
         },
         "output_tps": {
-          "value": 239.042
+          "value": 241.276
         },
         "price_blended": {
           "value": 0.0
@@ -13042,10 +13089,10 @@
           "value": 0.25
         },
         "ttfat": {
-          "value": 8.529
+          "value": 8.455
         },
         "ttft": {
-          "value": 0.163
+          "value": 0.166
         }
       }
     },
@@ -13077,7 +13124,7 @@
           "value": 0.466666666666667
         },
         "output_tps": {
-          "value": 50.747
+          "value": 50.463
         },
         "price_blended": {
           "value": 0.205
@@ -13095,10 +13142,10 @@
           "value": 0.303030303030303
         },
         "ttfat": {
-          "value": 0.952
+          "value": 0.969
         },
         "ttft": {
-          "value": 0.952
+          "value": 0.969
         }
       }
     },
@@ -13288,7 +13335,7 @@
           "value": 0.7
         },
         "output_tps": {
-          "value": 80.53
+          "value": 79.298
         },
         "price_blended": {
           "value": 0.151
@@ -13306,10 +13353,10 @@
           "value": 0.242424242424242
         },
         "ttfat": {
-          "value": 25.973
+          "value": 26.111
         },
         "ttft": {
-          "value": 1.137
+          "value": 0.889
         }
       }
     },
@@ -13406,10 +13453,10 @@
           "value": 0.321
         },
         "ttfat": {
-          "value": 7.031
+          "value": 7.034
         },
         "ttft": {
-          "value": 0.458
+          "value": 0.46
         }
       }
     },
@@ -13441,7 +13488,7 @@
           "value": 0.656666666666667
         },
         "output_tps": {
-          "value": 152.27
+          "value": 151.342
         },
         "price_blended": {
           "value": 0.307
@@ -13462,10 +13509,10 @@
           "value": 0.287878787878788
         },
         "ttfat": {
-          "value": 15.861
+          "value": 16.097
         },
         "ttft": {
-          "value": 2.726
+          "value": 2.881
         }
       }
     },
@@ -13683,10 +13730,10 @@
           "value": 0.166666666666667
         },
         "ttfat": {
-          "value": 21.52
+          "value": 21.368
         },
         "ttft": {
-          "value": 11.211
+          "value": 11.059
         }
       }
     },
@@ -13771,7 +13818,7 @@
           "value": 0.46
         },
         "output_tps": {
-          "value": 101.091
+          "value": 93.065
         },
         "price_blended": {
           "value": 0.19
@@ -13789,10 +13836,10 @@
           "value": 0.181818181818182
         },
         "ttfat": {
-          "value": 0.405
+          "value": 0.421
         },
         "ttft": {
-          "value": 0.405
+          "value": 0.421
         }
       }
     },
@@ -13901,7 +13948,7 @@
           "value": 0.423333333333333
         },
         "output_tps": {
-          "value": 67.283
+          "value": 70.848
         },
         "price_blended": {
           "value": 0.198
@@ -13919,10 +13966,10 @@
           "value": 0.25
         },
         "ttfat": {
-          "value": 0.759
+          "value": 0.795
         },
         "ttft": {
-          "value": 0.759
+          "value": 0.795
         }
       }
     },
@@ -13954,7 +14001,7 @@
           "value": 0.63
         },
         "output_tps": {
-          "value": 24.028
+          "value": 24.803
         },
         "price_blended": {
           "value": 0.06
@@ -13972,10 +14019,10 @@
           "value": 0.181818181818182
         },
         "ttfat": {
-          "value": 83.699
+          "value": 81.084
         },
         "ttft": {
-          "value": 0.464
+          "value": 0.45
         }
       }
     },
@@ -14198,10 +14245,10 @@
           "value": 0.310606060606061
         },
         "ttfat": {
-          "value": 25.174
+          "value": 25.172
         },
         "ttft": {
-          "value": 0.204
+          "value": 0.203
         }
       }
     },
@@ -14246,7 +14293,7 @@
           "value": 0.822
         },
         "output_tps": {
-          "value": 136.856
+          "value": 137.283
         },
         "price_blended": {
           "value": 3.438
@@ -14264,10 +14311,10 @@
           "value": 0.174242424242424
         },
         "ttfat": {
-          "value": 19.791
+          "value": 20.308
         },
         "ttft": {
-          "value": 5.177
+          "value": 5.74
         }
       }
     },
@@ -14602,7 +14649,7 @@
           "value": 0.813
         },
         "output_tps": {
-          "value": 199.32
+          "value": 208.776
         },
         "price_blended": {
           "value": 0.85
@@ -14620,7 +14667,7 @@
           "value": 0.174242424242424
         },
         "ttfat": {
-          "value": 22.653
+          "value": 22.199
         },
         "ttft": {
           "value": 12.619
@@ -14705,7 +14752,7 @@
           "value": 0.52
         },
         "output_tps": {
-          "value": 241.42
+          "value": 248.787
         },
         "price_blended": {
           "value": 0.275
@@ -14892,7 +14939,7 @@
           "value": 0.808
         },
         "output_tps": {
-          "value": 210.661
+          "value": 196.567
         },
         "price_blended": {
           "value": 0.261
@@ -14913,10 +14960,10 @@
           "value": 0.234848484848485
         },
         "ttfat": {
-          "value": 9.99
+          "value": 10.705
         },
         "ttft": {
-          "value": 0.496
+          "value": 0.531
         }
       }
     },
@@ -15263,7 +15310,7 @@
           "value": 0.603333333333333
         },
         "output_tps": {
-          "value": 195.24
+          "value": 192.579
         },
         "price_blended": {
           "value": 0.0
@@ -15278,10 +15325,10 @@
           "value": 0.242
         },
         "ttfat": {
-          "value": 12.2
+          "value": 12.345
         },
         "ttft": {
-          "value": 1.956
+          "value": 1.959
         }
       }
     },
@@ -15393,7 +15440,7 @@
           "value": 0.45
         },
         "output_tps": {
-          "value": 75.109
+          "value": 72.407
         },
         "price_blended": {
           "value": 0.107
@@ -15408,10 +15455,10 @@
           "value": 0.315
         },
         "ttfat": {
-          "value": 26.892
+          "value": 27.887
         },
         "ttft": {
-          "value": 0.264
+          "value": 0.266
         }
       }
     },
@@ -15471,10 +15518,10 @@
           "value": 0.0378787878787879
         },
         "ttfat": {
-          "value": 13.846
+          "value": 14.08
         },
         "ttft": {
-          "value": 4.521
+          "value": 4.755
         }
       }
     },
@@ -15506,7 +15553,7 @@
           "value": 0.363333333333333
         },
         "output_tps": {
-          "value": 363.607
+          "value": 370.699
         },
         "price_blended": {
           "value": 0.065
@@ -15524,10 +15571,10 @@
           "value": 0.234848484848485
         },
         "ttfat": {
-          "value": 5.895
+          "value": 5.857
         },
         "ttft": {
-          "value": 0.394
+          "value": 0.462
         }
       }
     },
@@ -15762,10 +15809,10 @@
           "value": 0.265151515151515
         },
         "ttfat": {
-          "value": 4.085
+          "value": 4.551
         },
         "ttft": {
-          "value": 4.085
+          "value": 4.551
         }
       }
     },
@@ -16318,7 +16365,7 @@
           "value": 0.824
         },
         "output_tps": {
-          "value": 195.192
+          "value": 196.501
         },
         "price_blended": {
           "value": 0.412
@@ -16336,10 +16383,10 @@
           "value": 0.0984848484848485
         },
         "ttfat": {
-          "value": 11.442
+          "value": 11.366
         },
         "ttft": {
-          "value": 1.196
+          "value": 1.188
         }
       }
     },
@@ -16738,7 +16785,7 @@
           "value": 0.38
         },
         "output_tps": {
-          "value": 335.356
+          "value": 349.053
         },
         "price_blended": {
           "value": 0.412
@@ -16759,7 +16806,7 @@
           "value": 0.227272727272727
         },
         "ttfat": {
-          "value": 7.084
+          "value": 6.85
         },
         "ttft": {
           "value": 1.121
@@ -16828,7 +16875,7 @@
           "value": 0.346666666666667
         },
         "output_tps": {
-          "value": 20.031
+          "value": 17.52
         },
         "price_blended": {
           "value": 0.06
@@ -16846,10 +16893,10 @@
           "value": 0.113636363636364
         },
         "ttfat": {
-          "value": 0.524
+          "value": 0.58
         },
         "ttft": {
-          "value": 0.524
+          "value": 0.58
         }
       }
     },
@@ -17201,7 +17248,7 @@
           "value": 0.775
         },
         "output_tps": {
-          "value": 217.263
+          "value": 208.543
         },
         "price_blended": {
           "value": 0.249
@@ -17219,10 +17266,10 @@
           "value": 0.053030303030303
         },
         "ttfat": {
-          "value": 9.717
+          "value": 10.14
         },
         "ttft": {
-          "value": 0.512
+          "value": 0.55
         }
       }
     },
@@ -17314,7 +17361,7 @@
           "value": 0.47
         },
         "output_tps": {
-          "value": 100.889
+          "value": 94.406
         },
         "price_blended": {
           "value": 0.563
@@ -17335,10 +17382,10 @@
           "value": 0.181818181818182
         },
         "ttfat": {
-          "value": 0.916
+          "value": 0.959
         },
         "ttft": {
-          "value": 0.916
+          "value": 0.959
         }
       }
     },
@@ -17437,7 +17484,7 @@
           "value": 0.772
         },
         "output_tps": {
-          "value": 136.642
+          "value": 138.321
         },
         "price_blended": {
           "value": 3.438
@@ -17455,10 +17502,10 @@
           "value": 0.166666666666667
         },
         "ttfat": {
-          "value": 0.681
+          "value": 0.688
         },
         "ttft": {
-          "value": 0.681
+          "value": 0.688
         }
       }
     },
@@ -17500,7 +17547,7 @@
           "value": 0.718
         },
         "output_tps": {
-          "value": 262.101
+          "value": 266.961
         },
         "price_blended": {
           "value": 0.103
@@ -17518,10 +17565,10 @@
           "value": 0.0454545454545455
         },
         "ttfat": {
-          "value": 8.114
+          "value": 7.98
         },
         "ttft": {
-          "value": 0.484
+          "value": 0.488
         }
       }
     },
@@ -18007,7 +18054,7 @@
           "value": 0.807
         },
         "output_tps": {
-          "value": 76.547
+          "value": 77.862
         },
         "price_blended": {
           "value": 0.75
@@ -18028,10 +18075,10 @@
           "value": 0.159090909090909
         },
         "ttfat": {
-          "value": 0.723
+          "value": 0.804
         },
         "ttft": {
-          "value": 0.723
+          "value": 0.804
         }
       }
     },
@@ -18114,7 +18161,7 @@
           "value": 0.819
         },
         "output_tps": {
-          "value": 190.878
+          "value": 191.761
         },
         "price_blended": {
           "value": 0.412
@@ -18132,10 +18179,10 @@
           "value": 0.0757575757575758
         },
         "ttfat": {
-          "value": 1.159
+          "value": 1.213
         },
         "ttft": {
-          "value": 1.159
+          "value": 1.213
         }
       }
     },
@@ -18541,7 +18588,7 @@
           "value": 0.762
         },
         "output_tps": {
-          "value": 144.922
+          "value": 143.189
         },
         "price_blended": {
           "value": 0.0
@@ -18594,7 +18641,7 @@
           "value": 0.35
         },
         "output_tps": {
-          "value": 126.212
+          "value": 128.703
         },
         "price_blended": {
           "value": 0.15
@@ -18612,10 +18659,10 @@
           "value": 0.113636363636364
         },
         "ttfat": {
-          "value": 1.348
+          "value": 1.353
         },
         "ttft": {
-          "value": 1.348
+          "value": 1.353
         }
       }
     },
@@ -18738,10 +18785,10 @@
           "value": 0.0681818181818182
         },
         "ttfat": {
-          "value": 0.61
+          "value": 0.618
         },
         "ttft": {
-          "value": 0.61
+          "value": 0.618
         }
       }
     },
@@ -18892,7 +18939,7 @@
           "value": 0.733
         },
         "output_tps": {
-          "value": 71.691
+          "value": 72.341
         },
         "price_blended": {
           "value": 5.0
@@ -18983,7 +19030,7 @@
           "value": 0.243333333333333
         },
         "output_tps": {
-          "value": 229.369
+          "value": 224.752
         },
         "price_blended": {
           "value": 0.052
@@ -18998,10 +19045,10 @@
           "value": 0.253
         },
         "ttfat": {
-          "value": 8.919
+          "value": 9.1
         },
         "ttft": {
-          "value": 0.199
+          "value": 0.202
         }
       }
     },
@@ -19162,7 +19209,7 @@
           "value": 0.748
         },
         "output_tps": {
-          "value": 237.497
+          "value": 236.653
         },
         "price_blended": {
           "value": 0.092
@@ -19183,10 +19230,10 @@
           "value": 0.106060606060606
         },
         "ttfat": {
-          "value": 8.839
+          "value": 8.87
         },
         "ttft": {
-          "value": 0.418
+          "value": 0.419
         }
       }
     },
@@ -19284,7 +19331,7 @@
           "value": 0.814
         },
         "output_tps": {
-          "value": 137.297
+          "value": 121.102
         },
         "price_blended": {
           "value": 0.4
@@ -19302,10 +19349,10 @@
           "value": 0.053030303030303
         },
         "ttfat": {
-          "value": 16.65
+          "value": 19.709
         },
         "ttft": {
-          "value": 2.083
+          "value": 3.194
         }
       }
     },
@@ -19410,10 +19457,10 @@
           "value": 0.106060606060606
         },
         "ttfat": {
-          "value": 0.519
+          "value": 0.52
         },
         "ttft": {
-          "value": 0.519
+          "value": 0.52
         }
       }
     },
@@ -19722,10 +19769,10 @@
           "value": 0.0833333333333333
         },
         "ttfat": {
-          "value": 46.35
+          "value": 46.352
         },
         "ttft": {
-          "value": 0.383
+          "value": 0.385
         }
       }
     },
@@ -19769,7 +19816,7 @@
           "value": 0.794
         },
         "output_tps": {
-          "value": 179.459
+          "value": 159.496
         },
         "price_blended": {
           "value": 0.088
@@ -19790,10 +19837,10 @@
           "value": 0.136363636363636
         },
         "ttfat": {
-          "value": 11.876
+          "value": 13.289
         },
         "ttft": {
-          "value": 0.731
+          "value": 0.75
         }
       }
     },
@@ -20013,7 +20060,7 @@
           "value": 0.743
         },
         "output_tps": {
-          "value": 216.714
+          "value": 221.124
         },
         "price_blended": {
           "value": 0.85
@@ -20031,10 +20078,10 @@
           "value": 0.0681818181818182
         },
         "ttfat": {
-          "value": 0.811
+          "value": 0.839
         },
         "ttft": {
-          "value": 0.811
+          "value": 0.839
         }
       }
     },
@@ -20703,7 +20750,7 @@
           "value": 0.678
         },
         "output_tps": {
-          "value": 136.661
+          "value": 137.72
         },
         "price_blended": {
           "value": 0.0
@@ -20724,10 +20771,10 @@
           "value": 0.166666666666667
         },
         "ttfat": {
-          "value": 0.663
+          "value": 0.861
         },
         "ttft": {
-          "value": 0.663
+          "value": 0.861
         }
       }
     },
@@ -21682,7 +21729,7 @@
           "value": 0.323333333333333
         },
         "output_tps": {
-          "value": 154.421
+          "value": 147.801
         },
         "price_blended": {
           "value": 0.262
@@ -21703,10 +21750,10 @@
           "value": 0.0757575757575758
         },
         "ttfat": {
-          "value": 14.072
+          "value": 14.618
         },
         "ttft": {
-          "value": 1.12
+          "value": 1.087
         }
       }
     },
@@ -21843,7 +21890,7 @@
           "value": 0.792
         },
         "output_tps": {
-          "value": 108.257
+          "value": 108.328
         },
         "price_blended": {
           "value": 0.43
@@ -21861,7 +21908,7 @@
           "value": 0.0378787878787879
         },
         "ttfat": {
-          "value": 19.418
+          "value": 19.406
         },
         "ttft": {
           "value": 0.943
@@ -22097,7 +22144,7 @@
           "value": 0.713
         },
         "output_tps": {
-          "value": 93.022
+          "value": 97.097
         },
         "price_blended": {
           "value": 0.671
@@ -22115,10 +22162,10 @@
           "value": 0.0303030303030303
         },
         "ttfat": {
-          "value": 0.633
+          "value": 0.631
         },
         "ttft": {
-          "value": 0.633
+          "value": 0.631
         }
       }
     },
@@ -22651,10 +22698,10 @@
           "value": 0.113636363636364
         },
         "ttfat": {
-          "value": 47.363
+          "value": 47.37
         },
         "ttft": {
-          "value": 0.806
+          "value": 0.812
         }
       }
     },
@@ -22754,7 +22801,7 @@
           "value": 0.759
         },
         "output_tps": {
-          "value": 140.87
+          "value": 123.529
         },
         "price_blended": {
           "value": 0.3
@@ -22772,10 +22819,10 @@
           "value": 0.0454545454545455
         },
         "ttfat": {
-          "value": 17.266
+          "value": 19.685
         },
         "ttft": {
-          "value": 3.069
+          "value": 3.495
         }
       }
     },
@@ -22804,7 +22851,7 @@
           "value": 0.24
         },
         "output_tps": {
-          "value": 45.011
+          "value": 43.878
         },
         "price_blended": {
           "value": 0.04
@@ -22909,7 +22956,7 @@
           "value": 0.742
         },
         "output_tps": {
-          "value": 105.38
+          "value": 105.617
         },
         "price_blended": {
           "value": 0.07
@@ -22927,7 +22974,7 @@
           "value": 0.0151515151515152
         },
         "ttfat": {
-          "value": 26.407
+          "value": 26.364
         },
         "ttft": {
           "value": 7.428
@@ -23186,7 +23233,7 @@
           "value": 0.692
         },
         "output_tps": {
-          "value": 201.822
+          "value": 195.488
         },
         "price_blended": {
           "value": 0.4
@@ -23204,10 +23251,10 @@
           "value": 0.0378787878787879
         },
         "ttfat": {
-          "value": 2.87
+          "value": 3.272
         },
         "ttft": {
-          "value": 2.87
+          "value": 3.272
         }
       }
     },
@@ -24579,10 +24626,10 @@
           "value": 0.00757575757575758
         },
         "ttfat": {
-          "value": 0.327
+          "value": 0.353
         },
         "ttft": {
-          "value": 0.327
+          "value": 0.353
         }
       }
     },
@@ -24672,7 +24719,7 @@
           "value": 0.69
         },
         "output_tps": {
-          "value": 130.491
+          "value": 113.918
         },
         "price_blended": {
           "value": 1.2
@@ -24690,10 +24737,10 @@
           "value": 0.0454545454545455
         },
         "ttfat": {
-          "value": 2.982
+          "value": 3.787
         },
         "ttft": {
-          "value": 2.982
+          "value": 3.787
         }
       }
     },
@@ -24875,7 +24922,7 @@
           "value": 0.579
         },
         "output_tps": {
-          "value": 181.966
+          "value": 164.808
         },
         "price_blended": {
           "value": 0.088
@@ -25748,7 +25795,7 @@
           "value": 0.133333333333333
         },
         "output_tps": {
-          "value": 134.647
+          "value": 134.999
         },
         "price_blended": {
           "value": 0.063
@@ -25766,10 +25813,10 @@
           "value": 0.0
         },
         "ttfat": {
-          "value": 0.42
+          "value": 0.451
         },
         "ttft": {
-          "value": 0.42
+          "value": 0.451
         }
       }
     },
@@ -26127,7 +26174,7 @@
           "value": 0.752
         },
         "output_tps": {
-          "value": 118.924
+          "value": 116.998
         },
         "price_blended": {
           "value": 0.313
@@ -26148,10 +26195,10 @@
           "value": 0.0151515151515152
         },
         "ttfat": {
-          "value": 0.606
+          "value": 0.609
         },
         "ttft": {
-          "value": 0.606
+          "value": 0.609
         }
       }
     },
@@ -26578,7 +26625,7 @@
           "value": 0.465
         },
         "output_tps": {
-          "value": 46.614
+          "value": 46.248
         },
         "price_blended": {
           "value": 0.0
@@ -26596,10 +26643,10 @@
           "value": 0.0
         },
         "ttfat": {
-          "value": 0.385
+          "value": 0.395
         },
         "ttft": {
-          "value": 0.385
+          "value": 0.395
         }
       }
     },
@@ -26922,7 +26969,7 @@
           "value": 0.624
         },
         "output_tps": {
-          "value": 18.883
+          "value": 18.57
         },
         "price_blended": {
           "value": 0.107
@@ -26940,10 +26987,10 @@
           "value": 0.0227272727272727
         },
         "ttfat": {
-          "value": 26.99
+          "value": 27.518
         },
         "ttft": {
-          "value": 26.99
+          "value": 27.518
         }
       }
     },
@@ -26986,7 +27033,7 @@
           "value": 0.693
         },
         "output_tps": {
-          "value": 75.24
+          "value": 76.757
         },
         "price_blended": {
           "value": 0.2
@@ -27090,7 +27137,7 @@
           "value": 0.725
         },
         "output_tps": {
-          "value": 107.913
+          "value": 108.157
         },
         "price_blended": {
           "value": 0.43
@@ -27108,10 +27155,10 @@
           "value": 0.0151515151515152
         },
         "ttfat": {
-          "value": 0.933
+          "value": 0.982
         },
         "ttft": {
-          "value": 0.933
+          "value": 0.982
         }
       }
     },
@@ -27453,7 +27500,7 @@
           "value": 0.714
         },
         "output_tps": {
-          "value": 43.359
+          "value": 43.923
         },
         "price_blended": {
           "value": 0.219
@@ -27560,7 +27607,7 @@
           "value": 0.531
         },
         "output_tps": {
-          "value": 285.618
+          "value": 301.047
         },
         "price_blended": {
           "value": 0.061
@@ -27578,10 +27625,10 @@
           "value": 0.0151515151515152
         },
         "ttfat": {
-          "value": 0.592
+          "value": 0.586
         },
         "ttft": {
-          "value": 0.592
+          "value": 0.586
         }
       }
     },
@@ -27785,7 +27832,7 @@
           "value": 0.649
         },
         "output_tps": {
-          "value": 198.208
+          "value": 197.52
         },
         "price_blended": {
           "value": 0.3
@@ -27803,10 +27850,10 @@
           "value": 0.0
         },
         "ttfat": {
-          "value": 1.368
+          "value": 1.446
         },
         "ttft": {
-          "value": 1.368
+          "value": 1.446
         }
       }
     },
@@ -27880,7 +27927,7 @@
           "value": 0.485
         },
         "output_tps": {
-          "value": 17.279
+          "value": 17.338
         },
         "price_blended": {
           "value": 0.0
@@ -28347,10 +28394,10 @@
           "value": 0.0
         },
         "ttfat": {
-          "value": 23.245
+          "value": 23.334
         },
         "ttft": {
-          "value": 0.787
+          "value": 0.876
         }
       }
     },
@@ -28915,7 +28962,7 @@
           "value": 0.642
         },
         "output_tps": {
-          "value": 85.267
+          "value": 84.96
         },
         "price_blended": {
           "value": 0.15
@@ -29122,7 +29169,7 @@
           "value": 0.464
         },
         "output_tps": {
-          "value": 17.92
+          "value": 17.213
         },
         "price_blended": {
           "value": 0.345
@@ -29140,10 +29187,10 @@
           "value": 0.00757575757575758
         },
         "ttfat": {
-          "value": 0.568
+          "value": 0.57
         },
         "ttft": {
-          "value": 0.568
+          "value": 0.57
         }
       }
     },
@@ -30932,7 +30979,7 @@
           "value": 0.524
         },
         "output_tps": {
-          "value": 219.85
+          "value": 230.187
         },
         "price_blended": {
           "value": 0.1
@@ -31686,7 +31733,7 @@
           "value": 0.0
         },
         "output_tps": {
-          "value": 132.086
+          "value": 131.625
         },
         "price_blended": {
           "value": 0.0
@@ -31704,10 +31751,10 @@
           "value": 0.0
         },
         "ttfat": {
-          "value": 0.34
+          "value": 0.321
         },
         "ttft": {
-          "value": 0.34
+          "value": 0.321
         }
       }
     },
