@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-09-15T19:18:37.702479825+00:00",
+    "fetched_at": "2026-09-15T22:19:52.210045656+00:00",
     "verified": true
   },
   "metrics": [
@@ -7924,53 +7924,6 @@
       }
     },
     {
-      "id": "gpt-5-6-terra-non-reasoning",
-      "name": "GPT-5.6 Terra (Non-reasoning)",
-      "display_name": "GPT-5.6 Terra",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "release_date": "2026-07-09",
-      "reasoning_status": "NonReasoning",
-      "scores": {
-        "coding_index": {
-          "value": 52.3
-        },
-        "gpqa": {
-          "value": 0.746
-        },
-        "hle": {
-          "value": 0.114
-        },
-        "intelligence_index": {
-          "value": 22.3
-        },
-        "lcr": {
-          "value": 0.586666666666667
-        },
-        "output_tps": {
-          "value": 98.686
-        },
-        "price_blended": {
-          "value": 4.5
-        },
-        "price_input": {
-          "value": 2.0
-        },
-        "price_output": {
-          "value": 12.0
-        },
-        "scicode": {
-          "value": 0.451
-        },
-        "ttfat": {
-          "value": 0.996
-        },
-        "ttft": {
-          "value": 0.996
-        }
-      }
-    },
-    {
       "id": "glm-4-7",
       "name": "GLM-4.7 (Reasoning)",
       "display_name": "GLM-4.7",
@@ -8521,6 +8474,53 @@
         },
         "terminalbench_hard": {
           "value": 0.424242424242424
+        }
+      }
+    },
+    {
+      "id": "gpt-5-6-terra-non-reasoning",
+      "name": "GPT-5.6 Terra (Non-reasoning)",
+      "display_name": "GPT-5.6 Terra",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-07-09",
+      "reasoning_status": "NonReasoning",
+      "scores": {
+        "coding_index": {
+          "value": 52.3
+        },
+        "gpqa": {
+          "value": 0.746
+        },
+        "hle": {
+          "value": 0.114
+        },
+        "intelligence_index": {
+          "value": 21.2
+        },
+        "lcr": {
+          "value": 0.586666666666667
+        },
+        "output_tps": {
+          "value": 98.686
+        },
+        "price_blended": {
+          "value": 4.5
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 12.0
+        },
+        "scicode": {
+          "value": 0.451
+        },
+        "ttfat": {
+          "value": 0.996
+        },
+        "ttft": {
+          "value": 0.996
         }
       }
     },
