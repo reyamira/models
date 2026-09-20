@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-09-20T06:18:25.733800323+00:00",
+    "fetched_at": "2026-09-20T18:18:19.205195830+00:00",
     "verified": true
   },
   "metrics": [
@@ -84,7 +84,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-16",
+      "last_updated": "2026-09-18",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -142,14 +142,14 @@
       "label": "Frontiermath Tier 4 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-16"
+      "last_updated": "2026-09-18"
     },
     {
       "id": "frontiermath_tiers_1_3_v2",
       "label": "Frontiermath Tiers 1 3 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-16"
+      "last_updated": "2026-09-18"
     },
     {
       "id": "frontierswe",
@@ -193,7 +193,7 @@
       "label": "Mystery Game Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-16"
+      "last_updated": "2026-09-18"
     },
     {
       "id": "otis_mock_aime_2024_2025",
@@ -412,28 +412,27 @@
     },
     {
       "id": "muse-spark-1.3",
-      "name": "muse-spark-1.3_xhigh",
+      "name": "muse-spark-1.3",
       "display_name": "muse-spark-1.3",
       "creator": "meta-ai",
       "creator_name": "Meta AI",
       "release_date": "2026-09-02",
-      "effort_level": "xhigh",
       "scores": {
         "chess_puzzles": {
-          "value": 0.35,
-          "date": "2026-09-16"
+          "value": 0.38,
+          "date": "2026-09-18"
         },
         "frontiermath_tier_4_v2": {
-          "value": 0.4146341463414634,
-          "date": "2026-09-16"
+          "value": 0.4634146341463415,
+          "date": "2026-09-18"
         },
         "frontiermath_tiers_1_3_v2": {
           "value": 0.743859649122807,
           "date": "2026-09-16"
         },
         "mystery_game_puzzles": {
-          "value": 0.1414141414141414,
-          "date": "2026-09-16"
+          "value": 0.25,
+          "date": "2026-09-18"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9916666666666667,
