@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-09-21T13:48:13.765031613+00:00",
+    "fetched_at": "2026-09-21T16:18:27.026787933+00:00",
     "verified": true
   },
   "metrics": [
@@ -898,6 +898,72 @@
         },
         "ttft": {
           "value": 4.338
+        }
+      }
+    },
+    {
+      "id": "grok-4-7",
+      "name": "Grok 4.7 (xhigh)",
+      "display_name": "Grok 4.7",
+      "creator": "xai",
+      "creator_name": "SpaceXAI",
+      "release_date": "2026-09-21",
+      "reasoning_status": "Reasoning",
+      "effort_level": "xhigh",
+      "scores": {
+        "hle": {
+          "value": 0.431
+        },
+        "intelligence_index": {
+          "value": 46.4
+        },
+        "lcr": {
+          "value": 0.766666666666667
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.574
+        }
+      }
+    },
+    {
+      "id": "grok-4-7-high",
+      "name": "Grok 4.7 (high)",
+      "display_name": "Grok 4.7",
+      "creator": "xai",
+      "creator_name": "SpaceXAI",
+      "release_date": "2026-09-21",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
+      "scores": {
+        "hle": {
+          "value": 0.423
+        },
+        "intelligence_index": {
+          "value": 46.3
+        },
+        "lcr": {
+          "value": 0.77
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.578
         }
       }
     },
