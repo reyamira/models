@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-09-22T18:18:11.015249895+00:00",
+    "fetched_at": "2026-09-22T18:48:14.286193061+00:00",
     "verified": true
   },
   "metrics": [
@@ -956,6 +956,39 @@
       }
     },
     {
+      "id": "gpt-6-sol",
+      "name": "GPT-6 Sol (max)",
+      "display_name": "GPT-6 Sol",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
+      "scores": {
+        "hle": {
+          "value": 0.479
+        },
+        "intelligence_index": {
+          "value": 47.5
+        },
+        "lcr": {
+          "value": 0.836666666666667
+        },
+        "price_blended": {
+          "value": 4.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 10.0
+        },
+        "scicode": {
+          "value": 0.576
+        }
+      }
+    },
+    {
       "id": "gpt-5-6-sol",
       "name": "GPT-5.6 Sol (max)",
       "display_name": "GPT-5.6 Sol",
@@ -1520,6 +1553,39 @@
       }
     },
     {
+      "id": "gpt-6-sol-xhigh",
+      "name": "GPT-6 Sol (xhigh)",
+      "display_name": "GPT-6 Sol",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Reasoning",
+      "effort_level": "xhigh",
+      "scores": {
+        "hle": {
+          "value": 0.463
+        },
+        "intelligence_index": {
+          "value": 44.1
+        },
+        "lcr": {
+          "value": 0.813333333333333
+        },
+        "price_blended": {
+          "value": 4.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 10.0
+        },
+        "scicode": {
+          "value": 0.551
+        }
+      }
+    },
+    {
       "id": "gpt-5-6-sol-xhigh",
       "name": "GPT-5.6 Sol (xhigh)",
       "display_name": "GPT-5.6 Sol",
@@ -1709,6 +1775,39 @@
         },
         "ttft": {
           "value": 23.34
+        }
+      }
+    },
+    {
+      "id": "gpt-6-sol-high",
+      "name": "GPT-6 Sol (high)",
+      "display_name": "GPT-6 Sol",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
+      "scores": {
+        "hle": {
+          "value": 0.441
+        },
+        "intelligence_index": {
+          "value": 42.8
+        },
+        "lcr": {
+          "value": 0.836666666666667
+        },
+        "price_blended": {
+          "value": 4.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 10.0
+        },
+        "scicode": {
+          "value": 0.549
         }
       }
     },
@@ -2181,6 +2280,39 @@
         },
         "ttft": {
           "value": 1.415
+        }
+      }
+    },
+    {
+      "id": "gpt-6-sol-medium",
+      "name": "GPT-6 Sol (medium)",
+      "display_name": "GPT-6 Sol",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Reasoning",
+      "effort_level": "medium",
+      "scores": {
+        "hle": {
+          "value": 0.41
+        },
+        "intelligence_index": {
+          "value": 39.8
+        },
+        "lcr": {
+          "value": 0.823333333333333
+        },
+        "price_blended": {
+          "value": 4.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 10.0
+        },
+        "scicode": {
+          "value": 0.538
         }
       }
     },
@@ -2773,6 +2905,39 @@
       }
     },
     {
+      "id": "gpt-6-luna",
+      "name": "GPT-6 Luna (max)",
+      "display_name": "GPT-6 Luna",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
+      "scores": {
+        "hle": {
+          "value": 0.385
+        },
+        "intelligence_index": {
+          "value": 37.3
+        },
+        "lcr": {
+          "value": 0.833333333333333
+        },
+        "price_blended": {
+          "value": 0.2
+        },
+        "price_input": {
+          "value": 0.1
+        },
+        "price_output": {
+          "value": 0.5
+        },
+        "scicode": {
+          "value": 0.546
+        }
+      }
+    },
+    {
       "id": "gpt-5-5-high",
       "name": "GPT-5.5 (high)",
       "display_name": "GPT-5.5",
@@ -3348,6 +3513,72 @@
       }
     },
     {
+      "id": "gpt-6-sol-low",
+      "name": "GPT-6 Sol (low)",
+      "display_name": "GPT-6 Sol",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Reasoning",
+      "effort_level": "low",
+      "scores": {
+        "hle": {
+          "value": 0.349
+        },
+        "intelligence_index": {
+          "value": 33.9
+        },
+        "lcr": {
+          "value": 0.793333333333333
+        },
+        "price_blended": {
+          "value": 4.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 10.0
+        },
+        "scicode": {
+          "value": 0.502
+        }
+      }
+    },
+    {
+      "id": "gpt-6-luna-xhigh",
+      "name": "GPT-6 Luna (xhigh)",
+      "display_name": "GPT-6 Luna",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Reasoning",
+      "effort_level": "xhigh",
+      "scores": {
+        "hle": {
+          "value": 0.343
+        },
+        "intelligence_index": {
+          "value": 33.9
+        },
+        "lcr": {
+          "value": 0.8
+        },
+        "price_blended": {
+          "value": 0.2
+        },
+        "price_input": {
+          "value": 0.1
+        },
+        "price_output": {
+          "value": 0.5
+        },
+        "scicode": {
+          "value": 0.517
+        }
+      }
+    },
+    {
       "id": "gpt-5-5-medium",
       "name": "GPT-5.5 (medium)",
       "display_name": "GPT-5.5",
@@ -3836,6 +4067,39 @@
         },
         "price_output": {
           "value": 0.0
+        }
+      }
+    },
+    {
+      "id": "gpt-6-luna-high",
+      "name": "GPT-6 Luna (high)",
+      "display_name": "GPT-6 Luna",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
+      "scores": {
+        "hle": {
+          "value": 0.329
+        },
+        "intelligence_index": {
+          "value": 32.1
+        },
+        "lcr": {
+          "value": 0.793333333333333
+        },
+        "price_blended": {
+          "value": 0.2
+        },
+        "price_input": {
+          "value": 0.1
+        },
+        "price_output": {
+          "value": 0.5
+        },
+        "scicode": {
+          "value": 0.503
         }
       }
     },
@@ -4480,6 +4744,39 @@
       }
     },
     {
+      "id": "gpt-6-luna-medium",
+      "name": "GPT-6 Luna (medium)",
+      "display_name": "GPT-6 Luna",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Reasoning",
+      "effort_level": "medium",
+      "scores": {
+        "hle": {
+          "value": 0.283
+        },
+        "intelligence_index": {
+          "value": 29.5
+        },
+        "lcr": {
+          "value": 0.783333333333333
+        },
+        "price_blended": {
+          "value": 0.2
+        },
+        "price_input": {
+          "value": 0.1
+        },
+        "price_output": {
+          "value": 0.5
+        },
+        "scicode": {
+          "value": 0.509
+        }
+      }
+    },
+    {
       "id": "qwen3-7-max",
       "name": "Qwen3.7 Max",
       "display_name": "Qwen3.7 Max",
@@ -4889,6 +5186,38 @@
         },
         "ttft": {
           "value": 1.295
+        }
+      }
+    },
+    {
+      "id": "gpt-6-sol-non-reasoning",
+      "name": "GPT-6 Sol (Non-reasoning)",
+      "display_name": "GPT-6 Sol",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "NonReasoning",
+      "scores": {
+        "hle": {
+          "value": 0.184
+        },
+        "intelligence_index": {
+          "value": 28.1
+        },
+        "lcr": {
+          "value": 0.64
+        },
+        "price_blended": {
+          "value": 4.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 10.0
+        },
+        "scicode": {
+          "value": 0.473
         }
       }
     },
@@ -8710,6 +9039,39 @@
       }
     },
     {
+      "id": "gpt-6-luna-low",
+      "name": "GPT-6 Luna (low)",
+      "display_name": "GPT-6 Luna",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Reasoning",
+      "effort_level": "low",
+      "scores": {
+        "hle": {
+          "value": 0.203
+        },
+        "intelligence_index": {
+          "value": 20.9
+        },
+        "lcr": {
+          "value": 0.74
+        },
+        "price_blended": {
+          "value": 0.2
+        },
+        "price_input": {
+          "value": 0.1
+        },
+        "price_output": {
+          "value": 0.5
+        },
+        "scicode": {
+          "value": 0.469
+        }
+      }
+    },
+    {
       "id": "deepseek-v4-pro-0424-non-reasoning",
       "name": "DeepSeek V4 Pro 0424 (Non-reasoning)",
       "display_name": "DeepSeek V4 Pro 0424",
@@ -10352,6 +10714,38 @@
         },
         "ttft": {
           "value": 3.489
+        }
+      }
+    },
+    {
+      "id": "gpt-6-luna-non-reasoning",
+      "name": "GPT-6 Luna (Non-reasoning)",
+      "display_name": "GPT-6 Luna",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "NonReasoning",
+      "scores": {
+        "hle": {
+          "value": 0.086
+        },
+        "intelligence_index": {
+          "value": 18.3
+        },
+        "lcr": {
+          "value": 0.396666666666667
+        },
+        "price_blended": {
+          "value": 0.2
+        },
+        "price_input": {
+          "value": 0.1
+        },
+        "price_output": {
+          "value": 0.5
+        },
+        "scicode": {
+          "value": 0.431
         }
       }
     },
