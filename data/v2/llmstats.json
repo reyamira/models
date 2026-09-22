@@ -3,7 +3,7 @@
     "id": "llmstats",
     "name": "LLM Stats",
     "url": "https://llm-stats.com",
-    "fetched_at": "2026-09-21T06:18:13.806528894+00:00",
+    "fetched_at": "2026-09-22T00:18:23.160528699+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "Agents",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-09-21T06:18:11.177042Z",
+      "last_updated": "2026-09-22T00:18:20.248213Z",
       "description": "Capability on agentic, multi-step tool-using tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -20,7 +20,7 @@
       "label": "Code",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-09-21T06:18:11.283799Z",
+      "last_updated": "2026-09-22T00:18:20.383559Z",
       "description": "Capability on programming and code-generation tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -28,7 +28,7 @@
       "label": "Finance",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-09-21T06:18:11.393062Z",
+      "last_updated": "2026-09-22T00:18:20.521347Z",
       "description": "Capability on finance-domain tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -36,7 +36,7 @@
       "label": "Frontend Dev",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-09-21T06:18:11.522563Z",
+      "last_updated": "2026-09-22T00:18:20.657469Z",
       "description": "Capability on front-end / web-UI development tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better.",
       "short_label": "Front. Dev"
     },
@@ -45,7 +45,7 @@
       "label": "General",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-09-21T06:18:11.633846Z",
+      "last_updated": "2026-09-22T00:18:20.788772Z",
       "description": "Overall general-capability rating across all tracked benchmarks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -53,7 +53,7 @@
       "label": "Healthcare",
       "kind": "index",
       "group": "Categories I",
-      "last_updated": "2026-09-21T06:18:11.732693Z",
+      "last_updated": "2026-09-22T00:18:20.904173Z",
       "description": "Capability on healthcare and medical-domain tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -61,7 +61,7 @@
       "label": "Legal",
       "kind": "index",
       "group": "Categories II",
-      "last_updated": "2026-09-21T06:18:11.833388Z",
+      "last_updated": "2026-09-22T00:18:21.005501Z",
       "description": "Capability on legal-domain tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -69,7 +69,7 @@
       "label": "Math",
       "kind": "index",
       "group": "Categories II",
-      "last_updated": "2026-09-21T06:18:11.947465Z",
+      "last_updated": "2026-09-22T00:18:21.133738Z",
       "description": "Capability on mathematical problem-solving tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -77,7 +77,7 @@
       "label": "Multimodal",
       "kind": "index",
       "group": "Categories II",
-      "last_updated": "2026-09-21T06:18:12.067710Z",
+      "last_updated": "2026-09-22T00:18:21.248615Z",
       "description": "Capability on multimodal tasks spanning more than one input modality. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -85,7 +85,7 @@
       "label": "Reasoning",
       "kind": "index",
       "group": "Categories II",
-      "last_updated": "2026-09-21T06:18:12.183319Z",
+      "last_updated": "2026-09-22T00:18:21.398352Z",
       "description": "Capability on logical and multi-step reasoning tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     },
     {
@@ -93,7 +93,7 @@
       "label": "Vision",
       "kind": "index",
       "group": "Categories II",
-      "last_updated": "2026-09-21T06:18:12.285244Z",
+      "last_updated": "2026-09-22T00:18:21.546975Z",
       "description": "Capability on visual understanding tasks. Score is an LLM Stats TrueSkill rating (a conservative skill estimate from the benchmarks tagged with this category); higher is better."
     }
   ],
@@ -108,75 +108,36 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 45.69,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 45.87,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 48.5,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 48.66,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 59.58,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 59.67,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "healthcare": {
-          "value": 32.42,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "value": 32.45,
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "math": {
           "value": 35.95,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 39.0,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 38.99,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 57.5,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 57.47,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 41.75,
-          "date": "2026-09-21T06:18:12.285244Z"
-        }
-      }
-    },
-    {
-      "id": "claude-fable-5-1",
-      "name": "Claude Fable 5.1",
-      "display_name": "Claude Fable 5.1",
-      "creator": "anthropic",
-      "creator_name": "Anthropic",
-      "release_date": "2026-09-01",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 41.33,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "code": {
-          "value": 35.47,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "general": {
-          "value": 55.7,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "math": {
-          "value": 43.63,
-          "date": "2026-09-21T06:18:11.947465Z"
-        },
-        "multimodal": {
-          "value": 31.31,
-          "date": "2026-09-21T06:18:12.067710Z"
-        },
-        "reasoning": {
-          "value": 52.81,
-          "date": "2026-09-21T06:18:12.183319Z"
-        },
-        "vision": {
-          "value": 41.76,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 41.73,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -190,36 +151,75 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 41.21,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 41.36,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 45.99,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 46.08,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 54.92,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 54.96,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "healthcare": {
-          "value": 36.06,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "value": 35.67,
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "math": {
           "value": 35.19,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 37.09,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 37.06,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 54.02,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 53.9,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 36.58,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 36.56,
+          "date": "2026-09-22T00:18:21.546975Z"
+        }
+      }
+    },
+    {
+      "id": "claude-fable-5-1",
+      "name": "Claude Fable 5.1",
+      "display_name": "Claude Fable 5.1",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-09-01",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 41.34,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "code": {
+          "value": 35.62,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "general": {
+          "value": 55.67,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "math": {
+          "value": 43.63,
+          "date": "2026-09-22T00:18:21.133738Z"
+        },
+        "multimodal": {
+          "value": 31.31,
+          "date": "2026-09-22T00:18:21.248615Z"
+        },
+        "reasoning": {
+          "value": 52.78,
+          "date": "2026-09-22T00:18:21.398352Z"
+        },
+        "vision": {
+          "value": 41.75,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -234,31 +234,31 @@
       "scores": {
         "agents": {
           "value": 41.13,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
           "value": 44.22,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 51.84,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 51.82,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 35.21,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 34.27,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 34.25,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 48.9,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 48.82,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 29.49,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 29.48,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -272,44 +272,44 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 40.36,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 40.25,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 45.74,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 45.52,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "finance": {
           "value": 28.46,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 35.38,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "general": {
-          "value": 54.27,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 54.17,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "healthcare": {
-          "value": 27.97,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "value": 28.21,
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "math": {
           "value": 41.41,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 31.75,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 31.55,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 51.76,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 51.68,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 36.21,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 36.1,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -323,28 +323,28 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 40.15,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 40.18,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 41.79,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 42.09,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 54.29,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 54.23,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "multimodal": {
           "value": 27.07,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 51.76,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 51.7,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
           "value": 27.62,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -358,32 +358,32 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 39.55,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 39.45,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 41.95,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 41.66,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 54.64,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 54.59,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 42.6,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
           "value": 28.31,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 53.65,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 53.59,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
           "value": 37.85,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -397,28 +397,28 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 39.38,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 39.3,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 42.56,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 42.29,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 52.71,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 52.59,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 41.13,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "reasoning": {
           "value": 51.85,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
           "value": 33.64,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -432,32 +432,32 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 39.17,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 38.98,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 43.26,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 42.95,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 52.98,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 52.81,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 40.88,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 38.1,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 38.09,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 51.59,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 51.55,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 36.26,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 36.25,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -471,20 +471,20 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 38.81,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 38.64,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 36.21,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 35.84,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 52.33,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 52.13,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "reasoning": {
-          "value": 50.45,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 50.35,
+          "date": "2026-09-22T00:18:21.398352Z"
         }
       }
     },
@@ -498,32 +498,32 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 38.03,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 38.14,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 42.25,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 42.29,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 50.77,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 50.85,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "healthcare": {
-          "value": 32.23,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "value": 31.95,
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "multimodal": {
-          "value": 30.65,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 30.62,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 49.13,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 48.98,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 29.92,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 29.9,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -537,32 +537,32 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 37.9,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 37.76,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 39.77,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 39.44,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 52.01,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 51.88,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "healthcare": {
-          "value": 28.77,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "value": 28.03,
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "multimodal": {
-          "value": 39.4,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 39.33,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 50.59,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 50.53,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 37.68,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 37.64,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -576,55 +576,28 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 37.61,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 37.54,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 40.35,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 40.15,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 51.98,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 51.85,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 41.03,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "reasoning": {
-          "value": 50.0,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 49.91,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
           "value": 32.25,
-          "date": "2026-09-21T06:18:12.285244Z"
-        }
-      }
-    },
-    {
-      "id": "grok-4.6",
-      "name": "Grok 4.6",
-      "display_name": "Grok 4.6",
-      "creator": "xai",
-      "creator_name": "xAI",
-      "release_date": "2026-08-12",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 37.17,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "code": {
-          "value": 37.42,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "general": {
-          "value": 46.74,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "reasoning": {
-          "value": 48.56,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -638,32 +611,59 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 37.09,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 36.8,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 34.66,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 34.12,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 50.23,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 50.01,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 36.5,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 31.41,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 31.4,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 49.0,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 48.86,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 31.69,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 31.68,
+          "date": "2026-09-22T00:18:21.546975Z"
+        }
+      }
+    },
+    {
+      "id": "grok-4.6",
+      "name": "Grok 4.6",
+      "display_name": "Grok 4.6",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2026-08-12",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 36.69,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "code": {
+          "value": 36.61,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "general": {
+          "value": 46.31,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "reasoning": {
+          "value": 48.21,
+          "date": "2026-09-22T00:18:21.398352Z"
         }
       }
     },
@@ -677,24 +677,24 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 36.72,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 36.54,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 39.67,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 39.34,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 50.99,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 50.82,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 41.0,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "reasoning": {
-          "value": 50.78,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 50.69,
+          "date": "2026-09-22T00:18:21.398352Z"
         }
       }
     },
@@ -707,36 +707,59 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 36.22,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 36.36,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 44.52,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 44.46,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "frontend_development": {
           "value": 34.16,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "general": {
           "value": 54.86,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 47.02,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 37.36,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 37.16,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 55.81,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 55.8,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 39.32,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 39.2,
+          "date": "2026-09-22T00:18:21.546975Z"
+        }
+      }
+    },
+    {
+      "id": "grok-4.7",
+      "name": "Grok 4.7",
+      "display_name": "Grok 4.7",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2026-09-21",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 36.29,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "code": {
+          "value": 40.12,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "general": {
+          "value": 48.55,
+          "date": "2026-09-22T00:18:20.788772Z"
         }
       }
     },
@@ -750,28 +773,28 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 35.59,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 35.57,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 38.65,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 38.56,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 50.49,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 50.35,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "multimodal": {
-          "value": 35.29,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 35.27,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 46.88,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 46.64,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 34.14,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 34.13,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -785,40 +808,40 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 35.28,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 35.08,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 41.59,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 41.18,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "finance": {
           "value": 26.7,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 33.09,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "general": {
-          "value": 50.78,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 50.59,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 39.29,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 36.14,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 36.0,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 50.26,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 50.15,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 36.35,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 36.25,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -832,28 +855,28 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 35.1,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 34.97,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 36.12,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 35.84,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 49.15,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 49.07,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "multimodal": {
-          "value": 36.12,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 36.1,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 48.88,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 48.89,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
           "value": 34.06,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -867,71 +890,28 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 35.07,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 34.94,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 36.07,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 35.79,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 49.1,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 49.02,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "multimodal": {
-          "value": 36.1,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 36.09,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
           "value": 48.81,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 34.03,
-          "date": "2026-09-21T06:18:12.285244Z"
-        }
-      }
-    },
-    {
-      "id": "muse-spark-1.1",
-      "name": "Muse Spark 1.1",
-      "display_name": "Muse Spark 1.1",
-      "creator": "meta",
-      "creator_name": "Meta",
-      "release_date": "2026-07-09",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 34.79,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "code": {
-          "value": 34.87,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "finance": {
-          "value": 29.48,
-          "date": "2026-09-21T06:18:11.393062Z"
-        },
-        "general": {
-          "value": 49.71,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "math": {
-          "value": 40.5,
-          "date": "2026-09-21T06:18:11.947465Z"
-        },
-        "multimodal": {
-          "value": 33.95,
-          "date": "2026-09-21T06:18:12.067710Z"
-        },
-        "reasoning": {
-          "value": 50.1,
-          "date": "2026-09-21T06:18:12.183319Z"
-        },
-        "vision": {
-          "value": 35.12,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 34.02,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -945,20 +925,98 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 34.61,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 34.88,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 37.88,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 38.01,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 45.06,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 45.23,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "reasoning": {
-          "value": 44.17,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 44.2,
+          "date": "2026-09-22T00:18:21.398352Z"
+        }
+      }
+    },
+    {
+      "id": "muse-spark-1.1",
+      "name": "Muse Spark 1.1",
+      "display_name": "Muse Spark 1.1",
+      "creator": "meta",
+      "creator_name": "Meta",
+      "release_date": "2026-07-09",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 34.65,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "code": {
+          "value": 34.59,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "finance": {
+          "value": 29.48,
+          "date": "2026-09-22T00:18:20.521347Z"
+        },
+        "general": {
+          "value": 49.59,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "math": {
+          "value": 40.5,
+          "date": "2026-09-22T00:18:21.133738Z"
+        },
+        "multimodal": {
+          "value": 33.8,
+          "date": "2026-09-22T00:18:21.248615Z"
+        },
+        "reasoning": {
+          "value": 50.05,
+          "date": "2026-09-22T00:18:21.398352Z"
+        },
+        "vision": {
+          "value": 35.02,
+          "date": "2026-09-22T00:18:21.546975Z"
+        }
+      }
+    },
+    {
+      "id": "mimo-v2.6-flash",
+      "name": "MiMo-V2.6-Flash",
+      "display_name": "MiMo-V2.6-Flash",
+      "creator": "xiaomi",
+      "creator_name": "Xiaomi",
+      "release_date": "2026-09-22",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 33.34,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "code": {
+          "value": 36.61,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "general": {
+          "value": 45.67,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "multimodal": {
+          "value": 27.05,
+          "date": "2026-09-22T00:18:21.248615Z"
+        },
+        "reasoning": {
+          "value": 43.24,
+          "date": "2026-09-22T00:18:21.398352Z"
+        },
+        "vision": {
+          "value": 26.11,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -972,28 +1030,28 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 33.32,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 32.97,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 35.42,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 34.81,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 48.69,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 48.43,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "multimodal": {
-          "value": 34.14,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 34.12,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 46.55,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 46.35,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 32.84,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 32.83,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -1007,20 +1065,20 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 32.93,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 32.68,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 35.12,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 34.82,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 46.01,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 45.79,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "reasoning": {
-          "value": 42.4,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 42.12,
+          "date": "2026-09-22T00:18:21.398352Z"
         }
       }
     },
@@ -1034,130 +1092,36 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 32.6,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 32.53,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 38.25,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 37.97,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "finance": {
           "value": 29.99,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "general": {
-          "value": 48.11,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 48.03,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 38.01,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 33.48,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 33.31,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 47.5,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 47.48,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 35.51,
-          "date": "2026-09-21T06:18:12.285244Z"
-        }
-      }
-    },
-    {
-      "id": "seed-2.1-pro",
-      "name": "Seed 2.1 Pro",
-      "display_name": "Seed 2.1 Pro",
-      "creator": "bytedance",
-      "creator_name": "ByteDance",
-      "release_date": "2026-06-24",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 31.89,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "code": {
-          "value": 33.41,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "finance": {
-          "value": 35.69,
-          "date": "2026-09-21T06:18:11.393062Z"
-        },
-        "general": {
-          "value": 46.27,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "healthcare": {
-          "value": 32.27,
-          "date": "2026-09-21T06:18:11.732693Z"
-        },
-        "legal": {
-          "value": 35.51,
-          "date": "2026-09-21T06:18:11.833388Z"
-        },
-        "math": {
-          "value": 40.48,
-          "date": "2026-09-21T06:18:11.947465Z"
-        },
-        "multimodal": {
-          "value": 37.84,
-          "date": "2026-09-21T06:18:12.067710Z"
-        },
-        "reasoning": {
-          "value": 47.45,
-          "date": "2026-09-21T06:18:12.183319Z"
-        },
-        "vision": {
-          "value": 34.39,
-          "date": "2026-09-21T06:18:12.285244Z"
-        }
-      }
-    },
-    {
-      "id": "claude-sonnet-5",
-      "name": "Claude Sonnet 5",
-      "display_name": "Claude Sonnet 5",
-      "creator": "anthropic",
-      "creator_name": "Anthropic",
-      "release_date": "2026-06-30",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 31.62,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "code": {
-          "value": 36.94,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "frontend_development": {
-          "value": 31.35,
-          "date": "2026-09-21T06:18:11.522563Z"
-        },
-        "general": {
-          "value": 48.31,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "math": {
-          "value": 38.95,
-          "date": "2026-09-21T06:18:11.947465Z"
-        },
-        "multimodal": {
-          "value": 32.81,
-          "date": "2026-09-21T06:18:12.067710Z"
-        },
-        "reasoning": {
-          "value": 47.69,
-          "date": "2026-09-21T06:18:12.183319Z"
-        },
-        "vision": {
-          "value": 33.91,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 35.43,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -1171,32 +1135,126 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 31.58,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 32.2,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 36.33,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 37.04,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 45.08,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 45.39,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "healthcare": {
-          "value": 28.86,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "value": 28.34,
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "multimodal": {
-          "value": 25.99,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 25.96,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 44.17,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 44.05,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 25.01,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 25.0,
+          "date": "2026-09-22T00:18:21.546975Z"
+        }
+      }
+    },
+    {
+      "id": "seed-2.1-pro",
+      "name": "Seed 2.1 Pro",
+      "display_name": "Seed 2.1 Pro",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2026-06-24",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 31.96,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "code": {
+          "value": 33.47,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "finance": {
+          "value": 35.69,
+          "date": "2026-09-22T00:18:20.521347Z"
+        },
+        "general": {
+          "value": 46.26,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "healthcare": {
+          "value": 32.27,
+          "date": "2026-09-22T00:18:20.904173Z"
+        },
+        "legal": {
+          "value": 35.51,
+          "date": "2026-09-22T00:18:21.005501Z"
+        },
+        "math": {
+          "value": 40.48,
+          "date": "2026-09-22T00:18:21.133738Z"
+        },
+        "multimodal": {
+          "value": 37.83,
+          "date": "2026-09-22T00:18:21.248615Z"
+        },
+        "reasoning": {
+          "value": 47.43,
+          "date": "2026-09-22T00:18:21.398352Z"
+        },
+        "vision": {
+          "value": 34.39,
+          "date": "2026-09-22T00:18:21.546975Z"
+        }
+      }
+    },
+    {
+      "id": "claude-sonnet-5",
+      "name": "Claude Sonnet 5",
+      "display_name": "Claude Sonnet 5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-06-30",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 31.46,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "code": {
+          "value": 36.68,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "frontend_development": {
+          "value": 31.35,
+          "date": "2026-09-22T00:18:20.657469Z"
+        },
+        "general": {
+          "value": 48.24,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "math": {
+          "value": 38.95,
+          "date": "2026-09-22T00:18:21.133738Z"
+        },
+        "multimodal": {
+          "value": 32.66,
+          "date": "2026-09-22T00:18:21.248615Z"
+        },
+        "reasoning": {
+          "value": 47.6,
+          "date": "2026-09-22T00:18:21.398352Z"
+        },
+        "vision": {
+          "value": 33.81,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -1210,40 +1268,40 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 31.26,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 31.2,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 36.75,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 36.6,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "finance": {
           "value": 32.18,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 32.17,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "general": {
-          "value": 44.09,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 44.05,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 38.99,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 31.99,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 31.86,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 45.68,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 45.67,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 33.04,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 32.97,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -1257,47 +1315,20 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 31.11,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 30.91,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 32.97,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 32.6,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 44.71,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 44.47,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "reasoning": {
-          "value": 42.29,
-          "date": "2026-09-21T06:18:12.183319Z"
-        }
-      }
-    },
-    {
-      "id": "grok-4.5",
-      "name": "Grok 4.5",
-      "display_name": "Grok 4.5",
-      "creator": "xai",
-      "creator_name": "xAI",
-      "release_date": "2026-07-16",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 31.0,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "code": {
-          "value": 35.27,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "general": {
-          "value": 45.36,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "reasoning": {
-          "value": 43.89,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 42.07,
+          "date": "2026-09-22T00:18:21.398352Z"
         }
       }
     },
@@ -1311,28 +1342,55 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 30.89,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 30.82,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 31.61,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 31.37,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 45.1,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 45.06,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "multimodal": {
-          "value": 37.18,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 37.09,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 44.66,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 44.64,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 33.1,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 33.05,
+          "date": "2026-09-22T00:18:21.546975Z"
+        }
+      }
+    },
+    {
+      "id": "grok-4.5",
+      "name": "Grok 4.5",
+      "display_name": "Grok 4.5",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2026-07-16",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 30.69,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "code": {
+          "value": 34.82,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "general": {
+          "value": 45.08,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "reasoning": {
+          "value": 43.69,
+          "date": "2026-09-22T00:18:21.398352Z"
         }
       }
     },
@@ -1346,28 +1404,28 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 30.26,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 30.22,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 35.47,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 35.37,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "general": {
-          "value": 45.6,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 45.57,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 41.4,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "reasoning": {
-          "value": 44.95,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 44.91,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
           "value": 28.01,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -1381,12 +1439,31 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 29.84,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 29.98,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 33.1,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 32.67,
+          "date": "2026-09-22T00:18:20.383559Z"
+        }
+      }
+    },
+    {
+      "id": "mimo-v2.6-pro",
+      "name": "MiMo-V2.6-Pro",
+      "display_name": "MiMo-V2.6-Pro",
+      "creator": "xiaomi",
+      "creator_name": "Xiaomi",
+      "release_date": "2026-09-22",
+      "open_weights": true,
+      "scores": {
+        "agents": {
+          "value": 29.88,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "code": {
+          "value": 34.07,
+          "date": "2026-09-22T00:18:20.383559Z"
         }
       }
     },
@@ -1400,110 +1477,32 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 29.48,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 29.41,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 31.32,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 31.19,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "finance": {
           "value": 30.4,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "general": {
-          "value": 42.6,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 42.57,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "multimodal": {
-          "value": 33.21,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 33.09,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
           "value": 43.39,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 31.66,
-          "date": "2026-09-21T06:18:12.285244Z"
-        }
-      }
-    },
-    {
-      "id": "ling-3.0-flash-fin",
-      "name": "Ling 3.0 Flash Fin",
-      "display_name": "Ling 3.0 Flash Fin",
-      "creator": "inclusionai",
-      "creator_name": "InclusionAI",
-      "release_date": "2026-09-03",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 29.19,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "finance": {
-          "value": 36.67,
-          "date": "2026-09-21T06:18:11.393062Z"
-        },
-        "general": {
-          "value": 43.03,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "reasoning": {
-          "value": 44.2,
-          "date": "2026-09-21T06:18:12.183319Z"
-        }
-      }
-    },
-    {
-      "id": "qwen3.7-max",
-      "name": "Qwen3.7 Max",
-      "display_name": "Qwen3.7 Max",
-      "creator": "qwen",
-      "creator_name": "Alibaba Cloud / Qwen Team",
-      "release_date": "2026-05-19",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 29.17,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "code": {
-          "value": 36.11,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "finance": {
-          "value": 41.15,
-          "date": "2026-09-21T06:18:11.393062Z"
-        },
-        "frontend_development": {
-          "value": 28.18,
-          "date": "2026-09-21T06:18:11.522563Z"
-        },
-        "general": {
-          "value": 45.52,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "healthcare": {
-          "value": 44.82,
-          "date": "2026-09-21T06:18:11.732693Z"
-        },
-        "legal": {
-          "value": 44.48,
-          "date": "2026-09-21T06:18:11.833388Z"
-        },
-        "math": {
-          "value": 43.05,
-          "date": "2026-09-21T06:18:11.947465Z"
-        },
-        "reasoning": {
-          "value": 46.17,
-          "date": "2026-09-21T06:18:12.183319Z"
-        },
-        "vision": {
-          "value": 25.29,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 31.61,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -1517,44 +1516,122 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 29.14,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 29.2,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 31.0,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 31.11,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "finance": {
           "value": 30.75,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "general": {
-          "value": 43.17,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 43.16,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "healthcare": {
           "value": 30.26,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 32.35,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 39.73,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
           "value": 33.5,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 44.49,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 44.46,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
           "value": 30.36,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.7-max",
+      "name": "Qwen3.7 Max",
+      "display_name": "Qwen3.7 Max",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-05-19",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 29.18,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "code": {
+          "value": 36.07,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "finance": {
+          "value": 41.15,
+          "date": "2026-09-22T00:18:20.521347Z"
+        },
+        "frontend_development": {
+          "value": 28.18,
+          "date": "2026-09-22T00:18:20.657469Z"
+        },
+        "general": {
+          "value": 45.52,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "healthcare": {
+          "value": 44.82,
+          "date": "2026-09-22T00:18:20.904173Z"
+        },
+        "legal": {
+          "value": 44.48,
+          "date": "2026-09-22T00:18:21.005501Z"
+        },
+        "math": {
+          "value": 43.05,
+          "date": "2026-09-22T00:18:21.133738Z"
+        },
+        "reasoning": {
+          "value": 46.16,
+          "date": "2026-09-22T00:18:21.398352Z"
+        },
+        "vision": {
+          "value": 25.29,
+          "date": "2026-09-22T00:18:21.546975Z"
+        }
+      }
+    },
+    {
+      "id": "ling-3.0-flash-fin",
+      "name": "Ling 3.0 Flash Fin",
+      "display_name": "Ling 3.0 Flash Fin",
+      "creator": "inclusionai",
+      "creator_name": "InclusionAI",
+      "release_date": "2026-09-03",
+      "open_weights": false,
+      "scores": {
+        "agents": {
+          "value": 29.12,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "finance": {
+          "value": 36.67,
+          "date": "2026-09-22T00:18:20.521347Z"
+        },
+        "general": {
+          "value": 42.97,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "reasoning": {
+          "value": 44.15,
+          "date": "2026-09-22T00:18:21.398352Z"
         }
       }
     },
@@ -1568,59 +1645,32 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 28.04,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 27.99,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 32.78,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 32.65,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "frontend_development": {
           "value": 29.91,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "general": {
-          "value": 44.93,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 44.89,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 40.12,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "reasoning": {
-          "value": 45.38,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 45.37,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
           "value": 27.2,
-          "date": "2026-09-21T06:18:12.285244Z"
-        }
-      }
-    },
-    {
-      "id": "gemini-3.6-flash",
-      "name": "Gemini 3.6 Flash",
-      "display_name": "Gemini 3.6 Flash",
-      "creator": "google",
-      "creator_name": "Google",
-      "release_date": "2026-07-21",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 27.82,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "general": {
-          "value": 43.33,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "multimodal": {
-          "value": 33.34,
-          "date": "2026-09-21T06:18:12.067710Z"
-        },
-        "vision": {
-          "value": 31.86,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -1635,38 +1685,50 @@
       "scores": {
         "agents": {
           "value": 27.65,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "general": {
-          "value": 44.81,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 44.79,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 37.26,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "reasoning": {
           "value": 44.65,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
           "value": 29.92,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
     {
-      "id": "muse-spark-1.2",
-      "name": "Muse Spark 1.2",
-      "display_name": "Muse Spark 1.2",
-      "creator": "meta",
-      "creator_name": "Meta",
-      "release_date": "2026-08-05",
+      "id": "gemini-3.6-flash",
+      "name": "Gemini 3.6 Flash",
+      "display_name": "Gemini 3.6 Flash",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-07-21",
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 27.41,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 27.65,
+          "date": "2026-09-22T00:18:20.248213Z"
+        },
+        "general": {
+          "value": 43.17,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "multimodal": {
+          "value": 33.13,
+          "date": "2026-09-22T00:18:21.248615Z"
+        },
+        "vision": {
+          "value": 31.69,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -1680,67 +1742,28 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 27.24,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 27.19,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 33.19,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 33.11,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "frontend_development": {
           "value": 24.61,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "general": {
-          "value": 43.18,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 43.13,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 36.92,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "reasoning": {
-          "value": 43.13,
-          "date": "2026-09-21T06:18:12.183319Z"
-        }
-      }
-    },
-    {
-      "id": "gpt-5.4",
-      "name": "GPT-5.4",
-      "display_name": "GPT-5.4",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "release_date": "2026-03-05",
-      "open_weights": false,
-      "scores": {
-        "agents": {
-          "value": 27.06,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "code": {
-          "value": 31.35,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "general": {
-          "value": 42.14,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "math": {
-          "value": 36.17,
-          "date": "2026-09-21T06:18:11.947465Z"
-        },
-        "multimodal": {
-          "value": 28.72,
-          "date": "2026-09-21T06:18:12.067710Z"
-        },
-        "reasoning": {
-          "value": 42.38,
-          "date": "2026-09-21T06:18:12.183319Z"
-        },
-        "vision": {
-          "value": 29.36,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 43.09,
+          "date": "2026-09-22T00:18:21.398352Z"
         }
       }
     },
@@ -1754,55 +1777,47 @@
       "open_weights": true,
       "scores": {
         "agents": {
-          "value": 27.01,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 27.17,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 30.69,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 30.87,
+          "date": "2026-09-22T00:18:20.383559Z"
         }
       }
     },
     {
-      "id": "kimi-k2.6",
-      "name": "Kimi K2.6",
-      "display_name": "Kimi K2.6",
-      "creator": "moonshotai",
-      "creator_name": "Moonshot AI",
-      "release_date": "2026-04-20",
-      "open_weights": true,
+      "id": "gpt-5.4",
+      "name": "GPT-5.4",
+      "display_name": "GPT-5.4",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-03-05",
+      "open_weights": false,
       "scores": {
         "agents": {
-          "value": 26.86,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 26.98,
+          "date": "2026-09-22T00:18:20.248213Z"
         },
         "code": {
-          "value": 33.67,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "frontend_development": {
-          "value": 27.74,
-          "date": "2026-09-21T06:18:11.522563Z"
-        },
-        "general": {
-          "value": 43.7,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 31.18,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "math": {
-          "value": 36.77,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "value": 36.17,
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 32.0,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 28.64,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 43.89,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 42.38,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 28.9,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 29.33,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -1816,144 +1831,62 @@
       "open_weights": false,
       "scores": {
         "agents": {
-          "value": 26.44,
-          "date": "2026-09-21T06:18:11.177042Z"
+          "value": 26.94,
+          "date": "2026-09-22T00:18:20.248213Z"
         }
       }
     },
     {
-      "id": "minimax-m3",
-      "name": "MiniMax M3",
-      "display_name": "MiniMax M3",
-      "creator": "minimax",
-      "creator_name": "MiniMax",
-      "release_date": "2026-06-01",
-      "open_weights": true,
-      "scores": {
-        "agents": {
-          "value": 26.34,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "code": {
-          "value": 32.02,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "frontend_development": {
-          "value": 28.75,
-          "date": "2026-09-21T06:18:11.522563Z"
-        },
-        "healthcare": {
-          "value": 29.39,
-          "date": "2026-09-21T06:18:11.732693Z"
-        },
-        "multimodal": {
-          "value": 28.66,
-          "date": "2026-09-21T06:18:12.067710Z"
-        },
-        "reasoning": {
-          "value": 41.37,
-          "date": "2026-09-21T06:18:12.183319Z"
-        },
-        "vision": {
-          "value": 25.68,
-          "date": "2026-09-21T06:18:12.285244Z"
-        }
-      }
-    },
-    {
-      "id": "laguna-s-2.1",
-      "name": "Laguna S 2.1",
-      "display_name": "Laguna S 2.1",
-      "creator": "poolside",
-      "creator_name": "Poolside",
-      "release_date": "2026-07-21",
-      "open_weights": true,
-      "scores": {
-        "agents": {
-          "value": 24.55,
-          "date": "2026-09-21T06:18:11.177042Z"
-        },
-        "code": {
-          "value": 31.0,
-          "date": "2026-09-21T06:18:11.283799Z"
-        }
-      }
-    },
-    {
-      "id": "deepseek-v4-pro-max",
-      "name": "DeepSeek-V4-Pro-Max",
-      "display_name": "DeepSeek-V4-Pro-Max",
-      "creator": "deepseek",
-      "creator_name": "DeepSeek",
-      "release_date": "2026-04-23",
-      "open_weights": true,
-      "scores": {
-        "code": {
-          "value": 32.1,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "finance": {
-          "value": 31.99,
-          "date": "2026-09-21T06:18:11.393062Z"
-        },
-        "frontend_development": {
-          "value": 29.26,
-          "date": "2026-09-21T06:18:11.522563Z"
-        },
-        "general": {
-          "value": 43.11,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "healthcare": {
-          "value": 31.99,
-          "date": "2026-09-21T06:18:11.732693Z"
-        },
-        "legal": {
-          "value": 31.99,
-          "date": "2026-09-21T06:18:11.833388Z"
-        },
-        "math": {
-          "value": 40.13,
-          "date": "2026-09-21T06:18:11.947465Z"
-        },
-        "reasoning": {
-          "value": 43.28,
-          "date": "2026-09-21T06:18:12.183319Z"
-        }
-      }
-    },
-    {
-      "id": "gemini-3.1-pro-preview",
-      "name": "Gemini 3.1 Pro",
-      "display_name": "Gemini 3.1 Pro",
-      "creator": "google",
-      "creator_name": "Google",
-      "release_date": "2026-02-19",
+      "id": "muse-spark-1.2",
+      "name": "Muse Spark 1.2",
+      "display_name": "Muse Spark 1.2",
+      "creator": "meta",
+      "creator_name": "Meta",
+      "release_date": "2026-08-05",
       "open_weights": false,
       "scores": {
+        "agents": {
+          "value": 26.87,
+          "date": "2026-09-22T00:18:20.248213Z"
+        }
+      }
+    },
+    {
+      "id": "kimi-k2.6",
+      "name": "Kimi K2.6",
+      "display_name": "Kimi K2.6",
+      "creator": "moonshotai",
+      "creator_name": "Moonshot AI",
+      "release_date": "2026-04-20",
+      "open_weights": true,
+      "scores": {
         "code": {
-          "value": 31.18,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 33.64,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "frontend_development": {
-          "value": 29.35,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "value": 27.74,
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "general": {
-          "value": 43.34,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 43.7,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
-          "value": 42.37,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "value": 36.77,
+          "date": "2026-09-22T00:18:21.133738Z"
+        },
+        "multimodal": {
+          "value": 31.97,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "reasoning": {
-          "value": 44.98,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 43.89,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 31.02,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 28.89,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -1967,82 +1900,125 @@
       "open_weights": true,
       "scores": {
         "code": {
-          "value": 30.97,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 32.61,
+          "date": "2026-09-22T00:18:20.383559Z"
         },
         "frontend_development": {
           "value": 25.87,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
     {
-      "id": "qwen3.7-plus",
-      "name": "Qwen3.7-Plus",
-      "display_name": "Qwen3.7-Plus",
-      "creator": "qwen",
-      "creator_name": "Alibaba Cloud / Qwen Team",
-      "release_date": "2026-05-31",
-      "open_weights": false,
-      "scores": {
-        "code": {
-          "value": 30.76,
-          "date": "2026-09-21T06:18:11.283799Z"
-        },
-        "finance": {
-          "value": 37.14,
-          "date": "2026-09-21T06:18:11.393062Z"
-        },
-        "frontend_development": {
-          "value": 23.87,
-          "date": "2026-09-21T06:18:11.522563Z"
-        },
-        "general": {
-          "value": 42.61,
-          "date": "2026-09-21T06:18:11.633846Z"
-        },
-        "healthcare": {
-          "value": 42.1,
-          "date": "2026-09-21T06:18:11.732693Z"
-        },
-        "legal": {
-          "value": 41.28,
-          "date": "2026-09-21T06:18:11.833388Z"
-        },
-        "math": {
-          "value": 39.7,
-          "date": "2026-09-21T06:18:11.947465Z"
-        },
-        "multimodal": {
-          "value": 35.15,
-          "date": "2026-09-21T06:18:12.067710Z"
-        },
-        "reasoning": {
-          "value": 43.08,
-          "date": "2026-09-21T06:18:12.183319Z"
-        },
-        "vision": {
-          "value": 32.19,
-          "date": "2026-09-21T06:18:12.285244Z"
-        }
-      }
-    },
-    {
-      "id": "glm-5.1",
-      "name": "GLM-5.1",
-      "display_name": "GLM-5.1",
-      "creator": "zai-org",
-      "creator_name": "Zhipu AI",
-      "release_date": "2026-04-07",
+      "id": "deepseek-v4-pro-max",
+      "name": "DeepSeek-V4-Pro-Max",
+      "display_name": "DeepSeek-V4-Pro-Max",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2026-04-23",
       "open_weights": true,
       "scores": {
         "code": {
-          "value": 30.63,
-          "date": "2026-09-21T06:18:11.283799Z"
+          "value": 32.06,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "finance": {
+          "value": 31.99,
+          "date": "2026-09-22T00:18:20.521347Z"
+        },
+        "frontend_development": {
+          "value": 29.26,
+          "date": "2026-09-22T00:18:20.657469Z"
+        },
+        "general": {
+          "value": 43.1,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "healthcare": {
+          "value": 31.99,
+          "date": "2026-09-22T00:18:20.904173Z"
+        },
+        "legal": {
+          "value": 31.99,
+          "date": "2026-09-22T00:18:21.005501Z"
+        },
+        "math": {
+          "value": 40.13,
+          "date": "2026-09-22T00:18:21.133738Z"
+        },
+        "reasoning": {
+          "value": 43.27,
+          "date": "2026-09-22T00:18:21.398352Z"
+        }
+      }
+    },
+    {
+      "id": "minimax-m3",
+      "name": "MiniMax M3",
+      "display_name": "MiniMax M3",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
+      "release_date": "2026-06-01",
+      "open_weights": true,
+      "scores": {
+        "code": {
+          "value": 31.93,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "frontend_development": {
+          "value": 28.75,
+          "date": "2026-09-22T00:18:20.657469Z"
+        },
+        "healthcare": {
+          "value": 29.39,
+          "date": "2026-09-22T00:18:20.904173Z"
+        },
+        "multimodal": {
+          "value": 28.62,
+          "date": "2026-09-22T00:18:21.248615Z"
+        },
+        "reasoning": {
+          "value": 41.34,
+          "date": "2026-09-22T00:18:21.398352Z"
         },
         "vision": {
-          "value": 26.6,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 25.67,
+          "date": "2026-09-22T00:18:21.546975Z"
+        }
+      }
+    },
+    {
+      "id": "gemini-3.1-pro-preview",
+      "name": "Gemini 3.1 Pro",
+      "display_name": "Gemini 3.1 Pro",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-02-19",
+      "open_weights": false,
+      "scores": {
+        "code": {
+          "value": 31.11,
+          "date": "2026-09-22T00:18:20.383559Z"
+        },
+        "frontend_development": {
+          "value": 29.35,
+          "date": "2026-09-22T00:18:20.657469Z"
+        },
+        "general": {
+          "value": 43.31,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "math": {
+          "value": 42.37,
+          "date": "2026-09-22T00:18:21.133738Z"
+        },
+        "reasoning": {
+          "value": 44.98,
+          "date": "2026-09-22T00:18:21.398352Z"
+        },
+        "vision": {
+          "value": 31.01,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -2057,23 +2033,23 @@
       "scores": {
         "finance": {
           "value": 38.82,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 21.45,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 39.17,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 38.82,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 36.59,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         }
       }
     },
@@ -2088,31 +2064,78 @@
       "scores": {
         "finance": {
           "value": 37.19,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 25.39,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 42.0,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 40.91,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 39.07,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 31.65,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 31.63,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "vision": {
           "value": 28.6,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
+        }
+      }
+    },
+    {
+      "id": "qwen3.7-plus",
+      "name": "Qwen3.7-Plus",
+      "display_name": "Qwen3.7-Plus",
+      "creator": "qwen",
+      "creator_name": "Alibaba Cloud / Qwen Team",
+      "release_date": "2026-05-31",
+      "open_weights": false,
+      "scores": {
+        "finance": {
+          "value": 37.14,
+          "date": "2026-09-22T00:18:20.521347Z"
+        },
+        "frontend_development": {
+          "value": 23.87,
+          "date": "2026-09-22T00:18:20.657469Z"
+        },
+        "general": {
+          "value": 42.61,
+          "date": "2026-09-22T00:18:20.788772Z"
+        },
+        "healthcare": {
+          "value": 42.1,
+          "date": "2026-09-22T00:18:20.904173Z"
+        },
+        "legal": {
+          "value": 41.28,
+          "date": "2026-09-22T00:18:21.005501Z"
+        },
+        "math": {
+          "value": 39.7,
+          "date": "2026-09-22T00:18:21.133738Z"
+        },
+        "multimodal": {
+          "value": 35.12,
+          "date": "2026-09-22T00:18:21.248615Z"
+        },
+        "reasoning": {
+          "value": 43.07,
+          "date": "2026-09-22T00:18:21.398352Z"
+        },
+        "vision": {
+          "value": 32.18,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -2127,27 +2150,27 @@
       "scores": {
         "finance": {
           "value": 36.34,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "general": {
-          "value": 42.14,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 42.13,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "healthcare": {
           "value": 36.34,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 36.34,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 38.43,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "reasoning": {
-          "value": 41.88,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "value": 41.87,
+          "date": "2026-09-22T00:18:21.398352Z"
         }
       }
     },
@@ -2162,27 +2185,27 @@
       "scores": {
         "finance": {
           "value": 35.04,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 38.18,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 35.04,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 36.07,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 29.13,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 29.12,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "vision": {
           "value": 25.78,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -2197,23 +2220,23 @@
       "scores": {
         "finance": {
           "value": 33.73,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 35.38,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 33.73,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 35.07,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
           "value": 27.88,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         }
       }
     },
@@ -2228,15 +2251,15 @@
       "scores": {
         "finance": {
           "value": 33.38,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 33.38,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 33.38,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2252,15 +2275,15 @@
       "scores": {
         "finance": {
           "value": 33.14,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 32.07,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 33.24,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2276,19 +2299,19 @@
       "scores": {
         "finance": {
           "value": 32.73,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 20.15,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 32.97,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 32.73,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2303,19 +2326,19 @@
       "scores": {
         "finance": {
           "value": 32.72,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 35.03,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 32.72,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "multimodal": {
-          "value": 27.4,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 27.39,
+          "date": "2026-09-22T00:18:21.248615Z"
         }
       }
     },
@@ -2330,31 +2353,27 @@
       "scores": {
         "finance": {
           "value": 32.34,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 22.73,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 36.11,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 32.34,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 34.23,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
           "value": 27.73,
-          "date": "2026-09-21T06:18:12.067710Z"
-        },
-        "vision": {
-          "value": 24.66,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         }
       }
     },
@@ -2370,15 +2389,15 @@
       "scores": {
         "finance": {
           "value": 31.95,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 31.79,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 31.74,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2393,31 +2412,31 @@
       "scores": {
         "finance": {
           "value": 31.36,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 22.3,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 36.18,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 31.36,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 36.65,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
           "value": 29.39,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "vision": {
-          "value": 27.36,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 27.35,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -2432,11 +2451,11 @@
       "scores": {
         "finance": {
           "value": 31.34,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "legal": {
           "value": 25.98,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2451,19 +2470,19 @@
       "scores": {
         "finance": {
           "value": 31.11,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 32.03,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 31.11,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "multimodal": {
-          "value": 24.99,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 24.98,
+          "date": "2026-09-22T00:18:21.248615Z"
         }
       }
     },
@@ -2478,15 +2497,15 @@
       "scores": {
         "finance": {
           "value": 30.76,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 30.76,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 30.76,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2501,19 +2520,19 @@
       "scores": {
         "finance": {
           "value": 30.51,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 26.84,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "math": {
           "value": 34.39,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "vision": {
           "value": 25.46,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -2528,23 +2547,23 @@
       "scores": {
         "finance": {
           "value": 29.31,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 17.49,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 33.37,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 29.31,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "multimodal": {
           "value": 25.99,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         }
       }
     },
@@ -2559,23 +2578,23 @@
       "scores": {
         "finance": {
           "value": 29.24,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 19.74,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 32.53,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 29.24,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "multimodal": {
           "value": 27.6,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         }
       }
     },
@@ -2591,15 +2610,15 @@
       "scores": {
         "finance": {
           "value": 29.2,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 17.5,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "legal": {
           "value": 26.7,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2614,23 +2633,23 @@
       "scores": {
         "finance": {
           "value": 29.11,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 24.92,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 29.11,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 29.11,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 36.81,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         }
       }
     },
@@ -2646,19 +2665,19 @@
       "scores": {
         "finance": {
           "value": 29.0,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 34.49,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 33.49,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 36.42,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         }
       }
     },
@@ -2673,15 +2692,15 @@
       "scores": {
         "finance": {
           "value": 28.59,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 28.59,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 28.59,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2696,15 +2715,15 @@
       "scores": {
         "finance": {
           "value": 28.3,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 28.68,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 27.96,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2719,23 +2738,23 @@
       "scores": {
         "finance": {
           "value": 28.08,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 26.35,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 28.08,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 28.08,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 39.16,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         }
       }
     },
@@ -2751,11 +2770,11 @@
       "scores": {
         "finance": {
           "value": 27.91,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "legal": {
           "value": 26.32,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2771,15 +2790,15 @@
       "scores": {
         "finance": {
           "value": 27.84,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 27.38,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 27.09,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2795,15 +2814,15 @@
       "scores": {
         "finance": {
           "value": 27.46,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 27.55,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 27.46,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2819,7 +2838,7 @@
       "scores": {
         "finance": {
           "value": 27.37,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         }
       }
     },
@@ -2834,15 +2853,15 @@
       "scores": {
         "finance": {
           "value": 26.7,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 27.86,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 26.7,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2857,11 +2876,11 @@
       "scores": {
         "finance": {
           "value": 26.59,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "legal": {
           "value": 26.59,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2876,7 +2895,7 @@
       "scores": {
         "finance": {
           "value": 26.55,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         }
       }
     },
@@ -2891,11 +2910,11 @@
       "scores": {
         "finance": {
           "value": 26.49,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "legal": {
           "value": 26.49,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2910,11 +2929,11 @@
       "scores": {
         "finance": {
           "value": 26.38,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "legal": {
           "value": 26.38,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2929,11 +2948,11 @@
       "scores": {
         "finance": {
           "value": 26.33,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "legal": {
           "value": 26.33,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2948,15 +2967,15 @@
       "scores": {
         "finance": {
           "value": 26.31,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
           "value": 27.61,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 26.31,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2971,15 +2990,15 @@
       "scores": {
         "finance": {
           "value": 26.27,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "healthcare": {
-          "value": 27.49,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "value": 27.4,
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "legal": {
           "value": 26.27,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -2994,11 +3013,11 @@
       "scores": {
         "finance": {
           "value": 26.24,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "legal": {
           "value": 26.24,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -3013,15 +3032,15 @@
       "scores": {
         "finance": {
           "value": 26.23,
-          "date": "2026-09-21T06:18:11.393062Z"
+          "date": "2026-09-22T00:18:20.521347Z"
         },
         "frontend_development": {
           "value": 17.3,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "legal": {
           "value": 26.23,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -3036,7 +3055,7 @@
       "scores": {
         "frontend_development": {
           "value": 30.6,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3051,7 +3070,7 @@
       "scores": {
         "frontend_development": {
           "value": 27.85,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3066,7 +3085,7 @@
       "scores": {
         "frontend_development": {
           "value": 27.63,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3081,27 +3100,23 @@
       "scores": {
         "frontend_development": {
           "value": 27.34,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 31.94,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "math": {
           "value": 37.77,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
           "value": 31.23,
-          "date": "2026-09-21T06:18:12.067710Z"
-        },
-        "reasoning": {
-          "value": 40.69,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "vision": {
           "value": 27.78,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -3116,7 +3131,7 @@
       "scores": {
         "frontend_development": {
           "value": 24.76,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3131,23 +3146,23 @@
       "scores": {
         "frontend_development": {
           "value": 24.46,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 32.0,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "math": {
           "value": 36.98,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
           "value": 27.17,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "vision": {
           "value": 25.5,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -3162,7 +3177,7 @@
       "scores": {
         "frontend_development": {
           "value": 24.31,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3177,7 +3192,7 @@
       "scores": {
         "frontend_development": {
           "value": 23.59,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3192,7 +3207,7 @@
       "scores": {
         "frontend_development": {
           "value": 23.43,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3207,27 +3222,23 @@
       "scores": {
         "frontend_development": {
           "value": 23.16,
-          "date": "2026-09-21T06:18:11.522563Z"
-        },
-        "general": {
-          "value": 41.7,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 36.77,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "math": {
           "value": 39.37,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
-          "value": 32.42,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "value": 32.41,
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "vision": {
           "value": 31.21,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -3242,7 +3253,7 @@
       "scores": {
         "frontend_development": {
           "value": 21.88,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3258,15 +3269,15 @@
       "scores": {
         "frontend_development": {
           "value": 21.39,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 31.39,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "multimodal": {
           "value": 25.14,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         }
       }
     },
@@ -3281,15 +3292,15 @@
       "scores": {
         "frontend_development": {
           "value": 21.21,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 31.36,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "multimodal": {
           "value": 25.11,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         }
       }
     },
@@ -3304,15 +3315,15 @@
       "scores": {
         "frontend_development": {
           "value": 21.03,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 31.33,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "multimodal": {
           "value": 25.09,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         }
       }
     },
@@ -3327,23 +3338,23 @@
       "scores": {
         "frontend_development": {
           "value": 20.98,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "healthcare": {
           "value": 35.25,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "math": {
           "value": 37.14,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "multimodal": {
           "value": 28.3,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
         },
         "vision": {
           "value": 26.34,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -3358,7 +3369,7 @@
       "scores": {
         "frontend_development": {
           "value": 20.56,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3373,7 +3384,7 @@
       "scores": {
         "frontend_development": {
           "value": 19.34,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3388,7 +3399,7 @@
       "scores": {
         "frontend_development": {
           "value": 19.12,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3403,7 +3414,7 @@
       "scores": {
         "frontend_development": {
           "value": 18.93,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3418,11 +3429,11 @@
       "scores": {
         "frontend_development": {
           "value": 18.71,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "math": {
           "value": 33.94,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         }
       }
     },
@@ -3437,15 +3448,15 @@
       "scores": {
         "frontend_development": {
           "value": 18.31,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         },
         "legal": {
           "value": 25.34,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         },
         "math": {
           "value": 34.45,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         }
       }
     },
@@ -3460,7 +3471,7 @@
       "scores": {
         "frontend_development": {
           "value": 17.91,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3475,7 +3486,7 @@
       "scores": {
         "frontend_development": {
           "value": 17.7,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3490,7 +3501,7 @@
       "scores": {
         "frontend_development": {
           "value": 17.09,
-          "date": "2026-09-21T06:18:11.522563Z"
+          "date": "2026-09-22T00:18:20.657469Z"
         }
       }
     },
@@ -3504,16 +3515,16 @@
       "open_weights": false,
       "scores": {
         "general": {
-          "value": 42.95,
-          "date": "2026-09-21T06:18:11.633846Z"
+          "value": 42.94,
+          "date": "2026-09-22T00:18:20.788772Z"
         },
         "math": {
           "value": 38.55,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "reasoning": {
           "value": 41.47,
-          "date": "2026-09-21T06:18:12.183319Z"
+          "date": "2026-09-22T00:18:21.398352Z"
         }
       }
     },
@@ -3527,32 +3538,8 @@
       "open_weights": true,
       "scores": {
         "healthcare": {
-          "value": 32.04,
-          "date": "2026-09-21T06:18:11.732693Z"
-        }
-      }
-    },
-    {
-      "id": "kimi-k2-thinking-0905",
-      "name": "Kimi K2-Thinking-0905",
-      "display_name": "Kimi K2-Thinking-0905",
-      "creator": "moonshotai",
-      "creator_name": "Moonshot AI",
-      "release_date": "2025-09-05",
-      "reasoning_status": "Reasoning",
-      "open_weights": true,
-      "scores": {
-        "healthcare": {
-          "value": 31.39,
-          "date": "2026-09-21T06:18:11.732693Z"
-        },
-        "math": {
-          "value": 38.02,
-          "date": "2026-09-21T06:18:11.947465Z"
-        },
-        "vision": {
-          "value": 25.25,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "value": 31.7,
+          "date": "2026-09-22T00:18:20.904173Z"
         }
       }
     },
@@ -3567,11 +3554,35 @@
       "scores": {
         "healthcare": {
           "value": 31.09,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         },
         "multimodal": {
           "value": 25.56,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
+        }
+      }
+    },
+    {
+      "id": "kimi-k2-thinking-0905",
+      "name": "Kimi K2-Thinking-0905",
+      "display_name": "Kimi K2-Thinking-0905",
+      "creator": "moonshotai",
+      "creator_name": "Moonshot AI",
+      "release_date": "2025-09-05",
+      "reasoning_status": "Reasoning",
+      "open_weights": true,
+      "scores": {
+        "healthcare": {
+          "value": 30.96,
+          "date": "2026-09-22T00:18:20.904173Z"
+        },
+        "math": {
+          "value": 38.02,
+          "date": "2026-09-22T00:18:21.133738Z"
+        },
+        "vision": {
+          "value": 25.25,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -3586,11 +3597,7 @@
       "scores": {
         "healthcare": {
           "value": 30.79,
-          "date": "2026-09-21T06:18:11.732693Z"
-        },
-        "multimodal": {
-          "value": 24.88,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         }
       }
     },
@@ -3605,7 +3612,7 @@
       "scores": {
         "healthcare": {
           "value": 29.26,
-          "date": "2026-09-21T06:18:11.732693Z"
+          "date": "2026-09-22T00:18:20.904173Z"
         }
       }
     },
@@ -3620,7 +3627,7 @@
       "scores": {
         "legal": {
           "value": 26.96,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -3636,7 +3643,7 @@
       "scores": {
         "legal": {
           "value": 26.17,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -3651,7 +3658,7 @@
       "scores": {
         "legal": {
           "value": 26.01,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -3666,7 +3673,7 @@
       "scores": {
         "legal": {
           "value": 25.87,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -3681,7 +3688,7 @@
       "scores": {
         "legal": {
           "value": 25.82,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -3696,7 +3703,7 @@
       "scores": {
         "legal": {
           "value": 25.65,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -3711,7 +3718,7 @@
       "scores": {
         "legal": {
           "value": 25.62,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -3726,7 +3733,7 @@
       "scores": {
         "legal": {
           "value": 24.93,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -3741,7 +3748,7 @@
       "scores": {
         "legal": {
           "value": 24.31,
-          "date": "2026-09-21T06:18:11.833388Z"
+          "date": "2026-09-22T00:18:21.005501Z"
         }
       }
     },
@@ -3755,11 +3762,11 @@
       "scores": {
         "math": {
           "value": 41.5,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         },
         "vision": {
           "value": 24.81,
-          "date": "2026-09-21T06:18:12.285244Z"
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     },
@@ -3774,7 +3781,7 @@
       "scores": {
         "math": {
           "value": 34.23,
-          "date": "2026-09-21T06:18:11.947465Z"
+          "date": "2026-09-22T00:18:21.133738Z"
         }
       }
     },
@@ -3789,7 +3796,22 @@
       "scores": {
         "multimodal": {
           "value": 26.04,
-          "date": "2026-09-21T06:18:12.067710Z"
+          "date": "2026-09-22T00:18:21.248615Z"
+        }
+      }
+    },
+    {
+      "id": "glm-5.1",
+      "name": "GLM-5.1",
+      "display_name": "GLM-5.1",
+      "creator": "zai-org",
+      "creator_name": "Zhipu AI",
+      "release_date": "2026-04-07",
+      "open_weights": true,
+      "scores": {
+        "vision": {
+          "value": 26.6,
+          "date": "2026-09-22T00:18:21.546975Z"
         }
       }
     }
