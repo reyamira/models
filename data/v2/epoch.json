@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-09-21T18:18:31.377673385+00:00",
+    "fetched_at": "2026-09-22T06:18:34.204590960+00:00",
     "verified": true
   },
   "metrics": [
@@ -28,7 +28,7 @@
       "label": "Humanity's Last Exam",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-09-01",
+      "last_updated": "2026-09-03",
       "description": "Expert-authored questions across 100+ academic subjects, requiring graduate-level knowledge that cannot be quickly looked up online. Scored as accuracy (% correct); higher is better.",
       "short_label": "HLE"
     },
@@ -63,21 +63,28 @@
       "label": "Ale Bench",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-09-01"
+      "last_updated": "2026-09-09"
+    },
+    {
+      "id": "balrog",
+      "label": "Balrog",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-09-20"
     },
     {
       "id": "blueprint_bench_2",
       "label": "Blueprint Bench 2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-01"
+      "last_updated": "2026-09-03"
     },
     {
       "id": "btf3",
       "label": "Btf3",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-07-24"
+      "last_updated": "2026-09-03"
     },
     {
       "id": "chess_puzzles",
@@ -93,14 +100,14 @@
       "label": "Critpt",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-03"
+      "last_updated": "2026-09-21"
     },
     {
       "id": "cursorbench",
       "label": "Cursorbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-02"
+      "last_updated": "2026-09-21"
     },
     {
       "id": "deepswe",
@@ -114,7 +121,7 @@
       "label": "Dtbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-13"
+      "last_updated": "2026-09-09"
     },
     {
       "id": "ebr_bench",
@@ -128,7 +135,7 @@
       "label": "Frontiercode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-03"
+      "last_updated": "2026-09-10"
     },
     {
       "id": "frontiermath_erdos",
@@ -156,7 +163,7 @@
       "label": "Frontierswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-01"
+      "last_updated": "2026-09-03"
     },
     {
       "id": "gpqa_diamond",
@@ -179,7 +186,7 @@
       "label": "Lmca",
       "kind": "index",
       "group": "Academic",
-      "last_updated": "2026-08-13"
+      "last_updated": "2026-09-09"
     },
     {
       "id": "mirrorcode",
@@ -216,21 +223,21 @@
       "label": "Proofbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-03"
+      "last_updated": "2026-09-21"
     },
     {
       "id": "rli",
       "label": "Rli",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-13"
+      "last_updated": "2026-09-03"
     },
     {
       "id": "scicode",
       "label": "Scicode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-03"
+      "last_updated": "2026-09-21"
     },
     {
       "id": "simplebench",
@@ -255,17 +262,132 @@
       "label": "Surface Evolver Bench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-08-20"
+      "last_updated": "2026-09-09"
     },
     {
       "id": "vending_bench_2",
       "label": "Vending Bench 2",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-09-01"
+      "last_updated": "2026-09-03"
     }
   ],
   "models": [
+    {
+      "id": "grok-4.7",
+      "name": "grok-4.7",
+      "display_name": "grok-4.7",
+      "creator": "xai",
+      "creator_name": "xAI",
+      "release_date": "2026-09-21",
+      "scores": {
+        "critpt": {
+          "value": 0.177142857142857,
+          "date": "2026-09-21"
+        },
+        "cursorbench": {
+          "value": 0.46299999999999997,
+          "date": "2026-09-21"
+        },
+        "proofbench": {
+          "value": 0.34,
+          "date": "2026-09-21"
+        },
+        "scicode": {
+          "value": 0.574074074074074,
+          "date": "2026-09-21"
+        }
+      }
+    },
+    {
+      "id": "step-5-preview",
+      "name": "step-5-preview_unknown",
+      "display_name": "step-5-preview",
+      "creator": "stepfun",
+      "creator_name": "StepFun",
+      "release_date": "2026-09-18",
+      "scores": {
+        "critpt": {
+          "value": 0.20857142857142902,
+          "date": "2026-09-18"
+        },
+        "scicode": {
+          "value": 0.58912037037037,
+          "date": "2026-09-18"
+        }
+      }
+    },
+    {
+      "id": "swe-2",
+      "name": "swe-2_max",
+      "display_name": "swe-2",
+      "creator": "cognition",
+      "creator_name": "Cognition",
+      "release_date": "2026-09-10",
+      "effort_level": "max",
+      "scores": {
+        "frontiercode": {
+          "value": 0.5,
+          "date": "2026-09-10"
+        }
+      }
+    },
+    {
+      "id": "deepseek-v4.1-flash",
+      "name": "deepseek-v4.1-flash",
+      "display_name": "deepseek-v4.1-flash",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2026-09-09",
+      "scores": {
+        "ale_bench": {
+          "value": 1092.35,
+          "date": "2026-09-09"
+        },
+        "critpt": {
+          "value": 0.142857142857143,
+          "date": "2026-09-09"
+        },
+        "dtbench": {
+          "value": 0.8987,
+          "date": "2026-09-09"
+        },
+        "lmca": {
+          "value": 46.97,
+          "date": "2026-09-09"
+        },
+        "proofbench": {
+          "value": 0.54,
+          "date": "2026-09-09"
+        },
+        "scicode": {
+          "value": 0.518518518518518,
+          "date": "2026-09-09"
+        },
+        "surface_evolver_bench": {
+          "value": 0.4625,
+          "date": "2026-09-09"
+        }
+      }
+    },
+    {
+      "id": "mercury-2.5",
+      "name": "mercury-2.5",
+      "display_name": "mercury-2.5",
+      "creator": "inception-labs",
+      "creator_name": "Inception Labs",
+      "release_date": "2026-09-08",
+      "scores": {
+        "ale_bench": {
+          "value": 301.65,
+          "date": "2026-09-08"
+        },
+        "proofbench": {
+          "value": 0.03,
+          "date": "2026-09-08"
+        }
+      }
+    },
     {
       "id": "gpt-6-astra",
       "name": "gpt-6-astra",
@@ -274,8 +396,12 @@
       "creator_name": "OpenAI",
       "release_date": "2026-09-03",
       "scores": {
+        "ale_bench": {
+          "value": 2951.32,
+          "date": "2026-09-03"
+        },
         "apex_agents": {
-          "value": 0.467,
+          "value": 0.647,
           "date": "2026-09-03"
         },
         "arc_agi": {
@@ -284,6 +410,18 @@
         },
         "arc_agi_2": {
           "value": 0.9500000000000001,
+          "date": "2026-09-03"
+        },
+        "balrog": {
+          "value": 0.6829999999999999,
+          "date": "2026-09-18"
+        },
+        "blueprint_bench_2": {
+          "value": 0.4967462039045553,
+          "date": "2026-09-03"
+        },
+        "btf3": {
+          "value": 0.135,
           "date": "2026-09-03"
         },
         "chess_puzzles": {
@@ -296,6 +434,10 @@
         },
         "deepswe": {
           "value": 0.7411504424778761,
+          "date": "2026-09-03"
+        },
+        "dtbench": {
+          "value": 0.9733,
           "date": "2026-09-03"
         },
         "ebr_bench": {
@@ -318,9 +460,21 @@
           "value": 0.9368421052631579,
           "date": "2026-08-30"
         },
+        "frontierswe": {
+          "value": 0.6550757455882352,
+          "date": "2026-09-03"
+        },
         "gpqa_diamond": {
           "value": 0.9577020202020202,
           "date": "2026-08-30"
+        },
+        "hle": {
+          "value": 0.5479999999999999,
+          "date": "2026-09-03"
+        },
+        "lmca": {
+          "value": 64.37,
+          "date": "2026-09-03"
         },
         "mirrorcode": {
           "value": 0.467,
@@ -338,6 +492,10 @@
           "value": 0.99,
           "date": "2026-09-03"
         },
+        "rli": {
+          "value": 0.20829999999999999,
+          "date": "2026-09-03"
+        },
         "scicode": {
           "value": 0.564814814814815,
           "date": "2026-09-03"
@@ -346,8 +504,26 @@
           "value": 0.756,
           "date": "2026-08-30"
         },
+        "vending_bench_2": {
+          "value": 15514.701666666668,
+          "date": "2026-09-03"
+        },
         "weirdml": {
-          "value": 0.9287000000000001,
+          "value": 0.9328000000000001,
+          "date": "2026-09-03"
+        }
+      }
+    },
+    {
+      "id": "gpt-6-astra_promax",
+      "name": "gpt-6-astra_promax",
+      "display_name": "gpt-6-astra_promax",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-03",
+      "scores": {
+        "weirdml": {
+          "value": 0.9357,
           "date": "2026-09-03"
         }
       }
@@ -360,6 +536,18 @@
       "creator_name": "Google DeepMind",
       "release_date": "2026-09-02",
       "scores": {
+        "ale_bench": {
+          "value": 1269.72,
+          "date": "2026-09-02"
+        },
+        "apex_agents": {
+          "value": 0.643,
+          "date": "2026-09-02"
+        },
+        "blueprint_bench_2": {
+          "value": 0.3861171366594359,
+          "date": "2026-09-02"
+        },
         "chess_puzzles": {
           "value": 0.61,
           "date": "2026-09-02"
@@ -369,11 +557,19 @@
           "date": "2026-09-02"
         },
         "cursorbench": {
-          "value": 0.6920000000000001,
+          "value": 0.396,
           "date": "2026-09-02"
         },
         "deepswe": {
           "value": 0.738255033557047,
+          "date": "2026-09-02"
+        },
+        "dtbench": {
+          "value": 0.9572,
+          "date": "2026-09-02"
+        },
+        "frontiercode": {
+          "value": 0.4119,
           "date": "2026-09-02"
         },
         "frontiermath_tier_4_v2": {
@@ -384,8 +580,20 @@
           "value": 0.6842105263157895,
           "date": "2026-09-02"
         },
+        "frontierswe": {
+          "value": 0.19626902941176463,
+          "date": "2026-09-02"
+        },
         "gpqa_diamond": {
           "value": 0.9539141414141414,
+          "date": "2026-09-02"
+        },
+        "hle": {
+          "value": 0.44520000000000004,
+          "date": "2026-09-02"
+        },
+        "lmca": {
+          "value": 52.9,
           "date": "2026-09-02"
         },
         "mystery_game_puzzles": {
@@ -401,11 +609,19 @@
           "date": "2026-09-02"
         },
         "scicode": {
-          "value": 0.543981481481482,
+          "value": 0.565972222222222,
           "date": "2026-09-02"
         },
         "simpleqa_verified": {
           "value": 0.697,
+          "date": "2026-09-02"
+        },
+        "surface_evolver_bench": {
+          "value": 0.76875,
+          "date": "2026-09-02"
+        },
+        "vending_bench_2": {
+          "value": 5093.793333333332,
           "date": "2026-09-02"
         }
       }
@@ -418,9 +634,29 @@
       "creator_name": "Meta AI",
       "release_date": "2026-09-02",
       "scores": {
+        "apex_agents": {
+          "value": 0.578,
+          "date": "2026-09-02"
+        },
+        "btf3": {
+          "value": 0.141,
+          "date": "2026-09-02"
+        },
         "chess_puzzles": {
           "value": 0.38,
           "date": "2026-09-18"
+        },
+        "critpt": {
+          "value": 0.248571428571429,
+          "date": "2026-09-02"
+        },
+        "cursorbench": {
+          "value": 0.41600000000000004,
+          "date": "2026-09-02"
+        },
+        "dtbench": {
+          "value": 0.9653,
+          "date": "2026-09-02"
         },
         "frontiermath_tier_4_v2": {
           "value": 0.4634146341463415,
@@ -430,6 +666,10 @@
           "value": 0.743859649122807,
           "date": "2026-09-16"
         },
+        "lmca": {
+          "value": 53.87,
+          "date": "2026-09-02"
+        },
         "mystery_game_puzzles": {
           "value": 0.25,
           "date": "2026-09-18"
@@ -437,6 +677,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.9916666666666667,
           "date": "2026-09-17"
+        },
+        "scicode": {
+          "value": 0.597222222222222,
+          "date": "2026-09-02"
         }
       }
     },
@@ -453,7 +697,7 @@
           "date": "2026-09-01"
         },
         "apex_agents": {
-          "value": 0.474,
+          "value": 0.6859999999999999,
           "date": "2026-09-01"
         },
         "arc_agi": {
@@ -477,7 +721,11 @@
           "date": "2026-09-01"
         },
         "cursorbench": {
-          "value": 0.7340000000000001,
+          "value": 0.518,
+          "date": "2026-09-01"
+        },
+        "dtbench": {
+          "value": 0.976,
           "date": "2026-09-01"
         },
         "ebr_bench": {
@@ -508,6 +756,10 @@
           "value": 0.465,
           "date": "2026-09-01"
         },
+        "lmca": {
+          "value": 65.46,
+          "date": "2026-09-01"
+        },
         "mirrorcode": {
           "value": 0.733,
           "date": "2026-09-10"
@@ -524,8 +776,12 @@
           "value": 1.0,
           "date": "2026-09-01"
         },
+        "rli": {
+          "value": 0.17920000000000003,
+          "date": "2026-09-01"
+        },
         "scicode": {
-          "value": 0.62037037037037,
+          "value": 0.630787037037037,
           "date": "2026-09-01"
         },
         "simpleqa_verified": {
@@ -544,16 +800,19 @@
     },
     {
       "id": "qwen3.8-max-0902",
-      "name": "qwen3.8-max-0902_xhigh",
+      "name": "qwen3.8-max-0902",
       "display_name": "qwen3.8-max-0902",
       "creator": "alibaba",
       "creator_name": "Alibaba",
       "release_date": "2026-09-01",
-      "effort_level": "xhigh",
       "scores": {
         "chess_puzzles": {
           "value": 0.4,
           "date": "2026-09-02"
+        },
+        "critpt": {
+          "value": 0.177142857142857,
+          "date": "2026-09-01"
         },
         "frontiermath_tier_4_v2": {
           "value": 0.34146341463414637,
@@ -571,9 +830,27 @@
           "value": 1.0,
           "date": "2026-09-02"
         },
+        "scicode": {
+          "value": 0.520833333333333,
+          "date": "2026-09-01"
+        },
         "simpleqa_verified": {
           "value": 0.473,
           "date": "2026-09-02"
+        }
+      }
+    },
+    {
+      "id": "hy4-preview",
+      "name": "hy4-preview_unknown",
+      "display_name": "hy4-preview",
+      "creator": "tencent",
+      "creator_name": "Tencent",
+      "release_date": "2026-08-28",
+      "scores": {
+        "proofbench": {
+          "value": 0.75,
+          "date": "2026-08-28"
         }
       }
     },
@@ -589,6 +866,14 @@
           "value": 303.55,
           "date": "2026-08-20"
         },
+        "apex_agents": {
+          "value": 0.528,
+          "date": "2026-08-20"
+        },
+        "btf3": {
+          "value": 0.149,
+          "date": "2026-08-20"
+        },
         "chess_puzzles": {
           "value": 0.14,
           "date": "2026-08-26"
@@ -599,6 +884,10 @@
         },
         "deepswe": {
           "value": 0.6339285714285714,
+          "date": "2026-08-20"
+        },
+        "frontiercode": {
+          "value": 0.3183,
           "date": "2026-08-20"
         },
         "frontiermath_tier_4_v2": {
@@ -626,7 +915,7 @@
           "date": "2026-08-20"
         },
         "scicode": {
-          "value": 0.460648148148148,
+          "value": 0.516203703703704,
           "date": "2026-08-20"
         },
         "surface_evolver_bench": {
@@ -647,6 +936,14 @@
           "value": 1317.4,
           "date": "2026-08-14"
         },
+        "apex_agents": {
+          "value": 0.5660000000000001,
+          "date": "2026-08-14"
+        },
+        "btf3": {
+          "value": 0.149,
+          "date": "2026-08-14"
+        },
         "chess_puzzles": {
           "value": 0.21,
           "date": "2026-08-24"
@@ -657,6 +954,14 @@
         },
         "deepswe": {
           "value": 0.6895787139689579,
+          "date": "2026-08-14"
+        },
+        "dtbench": {
+          "value": 0.8767,
+          "date": "2026-08-14"
+        },
+        "frontiercode": {
+          "value": 0.40140000000000003,
           "date": "2026-08-14"
         },
         "frontiermath_tier_4_v2": {
@@ -675,6 +980,10 @@
           "value": 0.9090909090909091,
           "date": "2026-08-24"
         },
+        "lmca": {
+          "value": 55.51,
+          "date": "2026-08-14"
+        },
         "mystery_game_puzzles": {
           "value": 0.33,
           "date": "2026-08-30"
@@ -688,7 +997,7 @@
           "date": "2026-08-14"
         },
         "scicode": {
-          "value": 0.564814814814815,
+          "value": 0.590277777777778,
           "date": "2026-08-14"
         },
         "simpleqa_verified": {
@@ -717,12 +1026,20 @@
           "value": 0.0542857142857143,
           "date": "2026-08-14"
         },
+        "dtbench": {
+          "value": 0.88,
+          "date": "2026-08-14"
+        },
+        "lmca": {
+          "value": 41.36,
+          "date": "2026-08-14"
+        },
         "proofbench": {
           "value": 0.16,
           "date": "2026-08-14"
         },
         "scicode": {
-          "value": 0.446759259259259,
+          "value": 0.466435185185185,
           "date": "2026-08-14"
         },
         "surface_evolver_bench": {
@@ -743,6 +1060,10 @@
           "value": 1403.15,
           "date": "2026-08-13"
         },
+        "apex_agents": {
+          "value": 0.473,
+          "date": "2026-08-13"
+        },
         "arc_agi": {
           "value": 0.905,
           "date": "2026-08-13"
@@ -759,6 +1080,14 @@
           "value": 0.18,
           "date": "2026-08-13"
         },
+        "dtbench": {
+          "value": 0.9387000000000001,
+          "date": "2026-08-13"
+        },
+        "frontiercode": {
+          "value": 0.2855,
+          "date": "2026-08-13"
+        },
         "frontiermath_tier_4_v2": {
           "value": 0.2682926829268293,
           "date": "2026-08-19"
@@ -770,6 +1099,10 @@
         "gpqa_diamond": {
           "value": 0.9166666666666666,
           "date": "2026-08-18"
+        },
+        "lmca": {
+          "value": 45.45,
+          "date": "2026-08-13"
         },
         "mystery_game_puzzles": {
           "value": 0.43,
@@ -784,7 +1117,7 @@
           "date": "2026-08-13"
         },
         "scicode": {
-          "value": 0.491898148148148,
+          "value": 0.510416666666667,
           "date": "2026-08-13"
         },
         "simpleqa_verified": {
@@ -809,6 +1142,10 @@
           "value": 904.3,
           "date": "2026-08-13"
         },
+        "apex_agents": {
+          "value": 0.6779999999999999,
+          "date": "2026-08-13"
+        },
         "arc_agi": {
           "value": 0.9550000000000001,
           "date": "2026-08-13"
@@ -823,10 +1160,6 @@
         },
         "critpt": {
           "value": 0.142857142857143,
-          "date": "2026-08-13"
-        },
-        "cursorbench": {
-          "value": 0.616,
           "date": "2026-08-13"
         },
         "deepswe": {
@@ -878,7 +1211,7 @@
           "date": "2026-08-13"
         },
         "scicode": {
-          "value": 0.578703703703704,
+          "value": 0.59837962962963,
           "date": "2026-08-13"
         },
         "simpleqa_verified": {
@@ -900,7 +1233,7 @@
           "date": "2026-08-12"
         },
         "apex_agents": {
-          "value": 0.41200000000000003,
+          "value": 0.653,
           "date": "2026-08-12"
         },
         "arc_agi": {
@@ -924,7 +1257,7 @@
           "date": "2026-08-12"
         },
         "cursorbench": {
-          "value": 0.708,
+          "value": 0.414,
           "date": "2026-08-12"
         },
         "deepswe": {
@@ -976,7 +1309,7 @@
           "date": "2026-08-12"
         },
         "scicode": {
-          "value": 0.546296296296296,
+          "value": 0.564814814814815,
           "date": "2026-08-12"
         },
         "simplebench": {
@@ -1005,6 +1338,10 @@
       "creator_name": "Meta AI",
       "release_date": "2026-08-05",
       "scores": {
+        "apex_agents": {
+          "value": 0.364,
+          "date": "2026-08-05"
+        },
         "critpt": {
           "value": 0.177142857142857,
           "date": "2026-08-05"
@@ -1238,7 +1575,7 @@
           "date": "2026-07-24"
         },
         "apex_agents": {
-          "value": 0.435,
+          "value": 0.658,
           "date": "2026-07-24"
         },
         "arc_agi": {
@@ -1249,12 +1586,16 @@
           "value": 0.9042,
           "date": "2026-07-24"
         },
+        "balrog": {
+          "value": 0.634,
+          "date": "2026-09-20"
+        },
         "blueprint_bench_2": {
           "value": 0.30368763557483736,
           "date": "2026-07-24"
         },
         "btf3": {
-          "value": 0.118,
+          "value": 0.12,
           "date": "2026-07-24"
         },
         "chess_puzzles": {
@@ -1262,11 +1603,11 @@
           "date": "2026-07-24"
         },
         "critpt": {
-          "value": 0.291428571,
+          "value": 0.291428571428571,
           "date": "2026-07-24"
         },
         "cursorbench": {
-          "value": 0.7000000000000001,
+          "value": 0.466,
           "date": "2026-07-24"
         },
         "deepswe": {
@@ -1274,7 +1615,7 @@
           "date": "2026-07-24"
         },
         "dtbench": {
-          "value": 0.976,
+          "value": 0.9787,
           "date": "2026-07-24"
         },
         "ebr_bench": {
@@ -1293,6 +1634,10 @@
           "value": 0.856140350877193,
           "date": "2026-07-24"
         },
+        "frontierswe": {
+          "value": 0.5201176764705882,
+          "date": "2026-07-24"
+        },
         "gbaeval": {
           "value": 0.7959852171423216,
           "date": "2026-07-24"
@@ -1302,7 +1647,7 @@
           "date": "2026-07-24"
         },
         "lmca": {
-          "value": 63.3,
+          "value": 64.45,
           "date": "2026-07-24"
         },
         "mystery_game_puzzles": {
@@ -1326,7 +1671,7 @@
           "date": "2026-07-24"
         },
         "scicode": {
-          "value": 0.556712962962963,
+          "value": 0.563657407407407,
           "date": "2026-07-24"
         },
         "simplebench": {
@@ -1408,7 +1753,7 @@
           "date": "2026-07-21"
         },
         "scicode": {
-          "value": 0.40856481481481505,
+          "value": 0.41319444444444403,
           "date": "2026-07-21"
         },
         "weirdml": {
@@ -1429,6 +1774,10 @@
           "value": 715.52,
           "date": "2026-07-21"
         },
+        "apex_agents": {
+          "value": 0.469,
+          "date": "2026-07-21"
+        },
         "arc_agi": {
           "value": 0.9116666666666666,
           "date": "2026-07-21"
@@ -1447,10 +1796,6 @@
         },
         "critpt": {
           "value": 0.105714285714286,
-          "date": "2026-07-21"
-        },
-        "cursorbench": {
-          "value": 0.535,
           "date": "2026-07-21"
         },
         "deepswe": {
@@ -1520,7 +1865,7 @@
           "date": "2026-07-16"
         },
         "apex_agents": {
-          "value": 0.39299999999999996,
+          "value": 0.506,
           "date": "2026-07-16"
         },
         "arc_agi": {
@@ -1541,10 +1886,6 @@
         },
         "critpt": {
           "value": 0.234,
-          "date": "2026-07-16"
-        },
-        "cursorbench": {
-          "value": 0.608,
           "date": "2026-07-16"
         },
         "deepswe": {
@@ -1600,7 +1941,7 @@
           "date": "2026-07-16"
         },
         "scicode": {
-          "value": 0.586805555555556,
+          "value": 0.594907407407407,
           "date": "2026-07-16"
         },
         "simplebench": {
@@ -1635,6 +1976,10 @@
       "scores": {
         "ale_bench": {
           "value": 946.0,
+          "date": "2026-07-15"
+        },
+        "apex_agents": {
+          "value": 0.33799999999999997,
           "date": "2026-07-15"
         },
         "arc_agi": {
@@ -1690,7 +2035,7 @@
           "date": "2026-07-15"
         },
         "scicode": {
-          "value": 0.460648148148148,
+          "value": 0.469907407407407,
           "date": "2026-07-15"
         },
         "simplebench": {
@@ -1785,6 +2130,10 @@
           "value": 0.5954,
           "date": "2026-07-09"
         },
+        "balrog": {
+          "value": 0.456,
+          "date": "2026-09-18"
+        },
         "blueprint_bench_2": {
           "value": 0.22559652928416485,
           "date": "2026-07-09"
@@ -1794,11 +2143,11 @@
           "date": "2026-07-09"
         },
         "critpt": {
-          "value": 0.206,
+          "value": 0.205714285714286,
           "date": "2026-07-09"
         },
         "cursorbench": {
-          "value": 0.611,
+          "value": 0.359,
           "date": "2026-07-09"
         },
         "deepswe": {
@@ -1842,7 +2191,7 @@
           "date": "2026-07-09"
         },
         "scicode": {
-          "value": 0.525462962962963,
+          "value": 0.53587962962963,
           "date": "2026-07-09"
         },
         "simplebench": {
@@ -1879,10 +2228,6 @@
           "value": 2176.88,
           "date": "2026-07-09"
         },
-        "apex_agents": {
-          "value": 0.399,
-          "date": "2026-07-09"
-        },
         "arc_agi": {
           "value": 0.975,
           "date": "2026-07-09"
@@ -1890,6 +2235,10 @@
         "arc_agi_2": {
           "value": 0.925,
           "date": "2026-07-09"
+        },
+        "balrog": {
+          "value": 0.6,
+          "date": "2026-09-18"
         },
         "blueprint_bench_2": {
           "value": 0.336225596529284,
@@ -1904,11 +2253,11 @@
           "date": "2026-07-09"
         },
         "critpt": {
-          "value": 0.323,
+          "value": 0.322857142857143,
           "date": "2026-07-09"
         },
         "cursorbench": {
-          "value": 0.672,
+          "value": 0.41700000000000004,
           "date": "2026-07-09"
         },
         "deepswe": {
@@ -1916,7 +2265,7 @@
           "date": "2026-07-09"
         },
         "dtbench": {
-          "value": 0.9547,
+          "value": 0.9573,
           "date": "2026-07-09"
         },
         "ebr_bench": {
@@ -1952,7 +2301,7 @@
           "date": "2026-07-09"
         },
         "lmca": {
-          "value": 58.43,
+          "value": 58.49,
           "date": "2026-07-09"
         },
         "mirrorcode": {
@@ -1980,7 +2329,7 @@
           "date": "2026-07-09"
         },
         "scicode": {
-          "value": 0.569444444444444,
+          "value": 0.570601851851852,
           "date": "2026-07-09"
         },
         "simplebench": {
@@ -2014,7 +2363,7 @@
       "release_date": "2026-07-09",
       "scores": {
         "apex_agents": {
-          "value": 0.4,
+          "value": 0.514,
           "date": "2026-07-09"
         },
         "chess_puzzles": {
@@ -2079,6 +2428,10 @@
           "value": 1951.42,
           "date": "2026-07-09"
         },
+        "apex_agents": {
+          "value": 0.5820000000000001,
+          "date": "2026-07-09"
+        },
         "arc_agi": {
           "value": 0.965,
           "date": "2026-07-09"
@@ -2086,6 +2439,10 @@
         "arc_agi_2": {
           "value": 0.839,
           "date": "2026-07-09"
+        },
+        "balrog": {
+          "value": 0.532,
+          "date": "2026-09-20"
         },
         "blueprint_bench_2": {
           "value": 0.30802603036876364,
@@ -2100,7 +2457,7 @@
           "date": "2026-07-09"
         },
         "cursorbench": {
-          "value": 0.649,
+          "value": 0.413,
           "date": "2026-07-09"
         },
         "deepswe": {
@@ -2108,7 +2465,7 @@
           "date": "2026-07-09"
         },
         "dtbench": {
-          "value": 0.9253,
+          "value": 0.9333,
           "date": "2026-07-09"
         },
         "frontiercode": {
@@ -2128,7 +2485,7 @@
           "date": "2026-07-09"
         },
         "lmca": {
-          "value": 52.23,
+          "value": 54.95,
           "date": "2026-07-09"
         },
         "mystery_game_puzzles": {
@@ -2144,7 +2501,7 @@
           "date": "2026-07-09"
         },
         "scicode": {
-          "value": 0.539351851851852,
+          "value": 0.549768518518518,
           "date": "2026-07-09"
         },
         "simplebench": {
@@ -2177,10 +2534,6 @@
       "creator_name": "Meta AI",
       "release_date": "2026-07-09",
       "scores": {
-        "apex_agents": {
-          "value": 0.419,
-          "date": "2026-07-09"
-        },
         "critpt": {
           "value": 0.151,
           "date": "2026-07-09"
@@ -2206,7 +2559,7 @@
           "date": "2026-07-09"
         },
         "scicode": {
-          "value": 0.582175925925926,
+          "value": 0.587962962962963,
           "date": "2026-07-09"
         },
         "simpleqa_verified": {
@@ -2236,7 +2589,7 @@
           "date": "2026-07-08"
         },
         "apex_agents": {
-          "value": 0.342,
+          "value": 0.562,
           "date": "2026-07-08"
         },
         "arc_agi": {
@@ -2356,7 +2709,7 @@
           "date": "2026-06-30"
         },
         "apex_agents": {
-          "value": 0.325,
+          "value": 0.545,
           "date": "2026-06-30"
         },
         "blueprint_bench_2": {
@@ -2364,7 +2717,7 @@
           "date": "2026-06-30"
         },
         "btf3": {
-          "value": 0.154,
+          "value": 0.142,
           "date": "2026-06-30"
         },
         "chess_puzzles": {
@@ -2376,7 +2729,7 @@
           "date": "2026-06-30"
         },
         "cursorbench": {
-          "value": 0.615,
+          "value": 0.341,
           "date": "2026-06-30"
         },
         "deepswe": {
@@ -2408,7 +2761,7 @@
           "date": "2026-07-01"
         },
         "lmca": {
-          "value": 49.31,
+          "value": 50.02,
           "date": "2026-06-30"
         },
         "mystery_game_puzzles": {
@@ -2461,10 +2814,6 @@
           "value": 1046.95,
           "date": "2026-06-16"
         },
-        "apex_agents": {
-          "value": 0.35600000000000004,
-          "date": "2026-06-16"
-        },
         "arc_agi": {
           "value": 0.77,
           "date": "2026-06-16"
@@ -2479,10 +2828,6 @@
         },
         "critpt": {
           "value": 0.20857142857142902,
-          "date": "2026-06-16"
-        },
-        "cursorbench": {
-          "value": 0.55,
           "date": "2026-06-16"
         },
         "deepswe": {
@@ -2576,7 +2921,7 @@
           "date": "2026-06-12"
         },
         "apex_agents": {
-          "value": 0.276,
+          "value": 0.376,
           "date": "2026-06-12"
         },
         "chess_puzzles": {
@@ -2585,10 +2930,6 @@
         },
         "critpt": {
           "value": 0.1,
-          "date": "2026-06-12"
-        },
-        "cursorbench": {
-          "value": 0.49700000000000005,
           "date": "2026-06-12"
         },
         "deepswe": {
@@ -2658,7 +2999,7 @@
           "date": "2026-06-09"
         },
         "apex_agents": {
-          "value": 0.45,
+          "value": 0.636,
           "date": "2026-06-09"
         },
         "arc_agi": {
@@ -2683,10 +3024,6 @@
         },
         "critpt": {
           "value": 0.2857142857,
-          "date": "2026-06-09"
-        },
-        "cursorbench": {
-          "value": 0.705,
           "date": "2026-06-09"
         },
         "deepswe": {
@@ -2717,6 +3054,10 @@
           "value": 0.8701754385964913,
           "date": "2026-06-09"
         },
+        "frontierswe": {
+          "value": 0.4696449352941177,
+          "date": "2026-06-09"
+        },
         "gbaeval": {
           "value": 0.7447198828312318,
           "date": "2026-06-09"
@@ -2726,7 +3067,7 @@
           "date": "2026-08-06"
         },
         "lmca": {
-          "value": 60.34,
+          "value": 61.15,
           "date": "2026-06-09"
         },
         "mirrorcode": {
@@ -2754,7 +3095,7 @@
           "date": "2026-06-09"
         },
         "scicode": {
-          "value": 0.601851851851852,
+          "value": 0.609953703703704,
           "date": "2026-06-09"
         },
         "simplebench": {
@@ -2787,10 +3128,6 @@
       "creator_name": "NVIDIA",
       "release_date": "2026-06-04",
       "scores": {
-        "apex_agents": {
-          "value": 0.115,
-          "date": "2026-06-04"
-        },
         "chess_puzzles": {
           "value": 0.12,
           "date": "2026-08-10"
@@ -2801,6 +3138,10 @@
         },
         "dtbench": {
           "value": 0.9013,
+          "date": "2026-06-04"
+        },
+        "frontiercode": {
+          "value": 0.1361,
           "date": "2026-06-04"
         },
         "gpqa_diamond": {
@@ -2824,7 +3165,7 @@
           "date": "2026-06-04"
         },
         "scicode": {
-          "value": 0.399305555555556,
+          "value": 0.402777777777778,
           "date": "2026-06-04"
         },
         "weirdml": {
@@ -2899,6 +3240,10 @@
           "value": 640.02,
           "date": "2026-06-01"
         },
+        "apex_agents": {
+          "value": 0.37700000000000006,
+          "date": "2026-06-01"
+        },
         "chess_puzzles": {
           "value": 0.14,
           "date": "2026-08-10"
@@ -2944,7 +3289,7 @@
           "date": "2026-06-01"
         },
         "scicode": {
-          "value": 0.45370370370370405,
+          "value": 0.47106481481481505,
           "date": "2026-06-01"
         },
         "simplebench": {
@@ -3018,7 +3363,7 @@
           "date": "2026-05-28"
         },
         "apex_agents": {
-          "value": 0.425,
+          "value": 0.489,
           "date": "2026-05-28"
         },
         "arc_agi": {
@@ -3043,10 +3388,6 @@
         },
         "critpt": {
           "value": 0.20857142857142902,
-          "date": "2026-05-28"
-        },
-        "cursorbench": {
-          "value": 0.623,
           "date": "2026-05-28"
         },
         "deepswe": {
@@ -3165,6 +3506,10 @@
           "value": 911.02,
           "date": "2026-05-19"
         },
+        "apex_agents": {
+          "value": 0.275,
+          "date": "2026-05-19"
+        },
         "arc_agi": {
           "value": 0.925,
           "date": "2026-05-19"
@@ -3183,10 +3528,6 @@
         },
         "critpt": {
           "value": 0.131428571428571,
-          "date": "2026-05-19"
-        },
-        "cursorbench": {
-          "value": 0.498,
           "date": "2026-05-19"
         },
         "deepswe": {
@@ -3342,7 +3683,7 @@
       "release_date": "2026-05-18",
       "scores": {
         "cursorbench": {
-          "value": 0.561,
+          "value": 0.277,
           "date": "2026-05-18"
         },
         "frontiercode": {
@@ -3508,7 +3849,7 @@
           "date": "2026-04-28"
         },
         "scicode": {
-          "value": 0.39583333333333304,
+          "value": 0.40162037037037,
           "date": "2026-04-28"
         },
         "surface_evolver_bench": {
@@ -3700,7 +4041,7 @@
           "date": "2026-04-23"
         },
         "apex_agents": {
-          "value": 0.385,
+          "value": 0.551,
           "date": "2026-04-23"
         },
         "arc_agi": {
@@ -3725,10 +4066,6 @@
         },
         "critpt": {
           "value": 0.271428571428571,
-          "date": "2026-04-23"
-        },
-        "cursorbench": {
-          "value": 0.584,
           "date": "2026-04-23"
         },
         "deepswe": {
@@ -3971,10 +4308,6 @@
           "value": 1092.67,
           "date": "2026-04-20"
         },
-        "apex_agents": {
-          "value": 0.189,
-          "date": "2026-04-20"
-        },
         "blueprint_bench_2": {
           "value": 0.03904555314533626,
           "date": "2026-04-20"
@@ -3985,10 +4318,6 @@
         },
         "critpt": {
           "value": 0.08,
-          "date": "2026-04-20"
-        },
-        "cursorbench": {
-          "value": 0.47600000000000003,
           "date": "2026-04-20"
         },
         "dtbench": {
@@ -4182,7 +4511,7 @@
           "date": "2026-04-16"
         },
         "apex_agents": {
-          "value": 0.339,
+          "value": 0.49200000000000005,
           "date": "2026-04-16"
         },
         "arc_agi": {
@@ -4203,10 +4532,6 @@
         },
         "critpt": {
           "value": 0.12,
-          "date": "2026-04-16"
-        },
-        "cursorbench": {
-          "value": 0.648,
           "date": "2026-04-16"
         },
         "dtbench": {
@@ -4403,6 +4728,10 @@
       "scores": {
         "ale_bench": {
           "value": 887.1,
+          "date": "2026-04-07"
+        },
+        "apex_agents": {
+          "value": 0.409,
           "date": "2026-04-07"
         },
         "chess_puzzles": {
@@ -4706,10 +5035,6 @@
           "value": 1188.58,
           "date": "2026-03-17"
         },
-        "apex_agents": {
-          "value": 0.24600000000000002,
-          "date": "2026-03-17"
-        },
         "arc_agi": {
           "value": 0.6367,
           "date": "2026-03-17"
@@ -4786,10 +5111,6 @@
       "scores": {
         "ale_bench": {
           "value": 1004.52,
-          "date": "2026-03-17"
-        },
-        "apex_agents": {
-          "value": 0.16899999999999998,
           "date": "2026-03-17"
         },
         "arc_agi": {
@@ -4915,7 +5236,7 @@
           "date": "2026-03-05"
         },
         "apex_agents": {
-          "value": 0.36,
+          "value": 0.524,
           "date": "2026-03-05"
         },
         "arc_agi": {
@@ -5076,10 +5397,6 @@
       "scores": {
         "ale_bench": {
           "value": 797.73,
-          "date": "2026-03-03"
-        },
-        "apex_agents": {
-          "value": 0.13,
           "date": "2026-03-03"
         },
         "chess_puzzles": {
@@ -5351,7 +5668,7 @@
           "date": "2026-02-19"
         },
         "apex_agents": {
-          "value": 0.335,
+          "value": 0.353,
           "date": "2026-02-19"
         },
         "arc_agi": {
@@ -5361,6 +5678,10 @@
         "arc_agi_2": {
           "value": 0.771,
           "date": "2026-02-19"
+        },
+        "balrog": {
+          "value": 0.57,
+          "date": "2026-02-25"
         },
         "blueprint_bench_2": {
           "value": 0.2646420824295011,
@@ -5379,7 +5700,7 @@
           "date": "2026-02-19"
         },
         "dtbench": {
-          "value": 0.9547,
+          "value": 0.9707,
           "date": "2026-02-19"
         },
         "ebr_bench": {
@@ -5479,7 +5800,7 @@
           "date": "2026-02-17"
         },
         "apex_agents": {
-          "value": 0.237,
+          "value": 0.43,
           "date": "2026-02-17"
         },
         "arc_agi": {
@@ -5500,10 +5821,6 @@
         },
         "critpt": {
           "value": 0.0314285714285714,
-          "date": "2026-02-17"
-        },
-        "cursorbench": {
-          "value": 0.49,
           "date": "2026-02-17"
         },
         "deepswe": {
@@ -5656,10 +5973,6 @@
           "value": 621.92,
           "date": "2026-02-16"
         },
-        "apex_agents": {
-          "value": 0.136,
-          "date": "2026-02-16"
-        },
         "chess_puzzles": {
           "value": 0.22,
           "date": "2026-08-07"
@@ -5702,6 +6015,10 @@
       "creator_name": "Alibaba",
       "release_date": "2026-02-13",
       "scores": {
+        "apex_agents": {
+          "value": 0.249,
+          "date": "2026-02-13"
+        },
         "chess_puzzles": {
           "value": 0.13,
           "date": "2026-08-07"
@@ -5742,10 +6059,6 @@
       "scores": {
         "ale_bench": {
           "value": 618.17,
-          "date": "2026-02-12"
-        },
-        "apex_agents": {
-          "value": 0.062000000000000006,
           "date": "2026-02-12"
         },
         "arc_agi": {
@@ -5800,10 +6113,6 @@
           "value": 765.62,
           "date": "2026-02-11"
         },
-        "apex_agents": {
-          "value": 0.172,
-          "date": "2026-02-11"
-        },
         "arc_agi": {
           "value": 0.44670000000000004,
           "date": "2026-02-11"
@@ -5851,7 +6160,7 @@
           "date": "2026-02-05"
         },
         "apex_agents": {
-          "value": 0.324,
+          "value": 0.46299999999999997,
           "date": "2026-02-05"
         },
         "arc_agi": {
@@ -5948,10 +6257,6 @@
           "value": 1655.22,
           "date": "2026-02-05"
         },
-        "apex_agents": {
-          "value": 0.318,
-          "date": "2026-02-05"
-        },
         "vending_bench_2": {
           "value": 5940.124000000002,
           "date": "2026-02-05"
@@ -6018,10 +6323,6 @@
           "value": 821.65,
           "date": "2026-01-27"
         },
-        "apex_agents": {
-          "value": 0.14400000000000002,
-          "date": "2026-01-27"
-        },
         "arc_agi": {
           "value": 0.6533,
           "date": "2026-01-27"
@@ -6032,10 +6333,6 @@
         },
         "critpt": {
           "value": 0.0314285714285714,
-          "date": "2026-01-27"
-        },
-        "cursorbench": {
-          "value": 0.319,
           "date": "2026-01-27"
         },
         "hle": {
@@ -6108,10 +6405,6 @@
           "value": 399.48,
           "date": "2025-12-22"
         },
-        "apex_agents": {
-          "value": 0.087,
-          "date": "2025-12-22"
-        },
         "chess_puzzles": {
           "value": 0.06,
           "date": "2026-01-29"
@@ -6158,10 +6451,6 @@
       "creator_name": "Z.ai (Zhipu AI)",
       "release_date": "2025-12-22",
       "scores": {
-        "apex_agents": {
-          "value": 0.087,
-          "date": "2025-12-22"
-        },
         "simplebench": {
           "value": 0.47700000000000004,
           "date": "2025-12-22"
@@ -6179,10 +6468,6 @@
         "ale_bench": {
           "value": 1299.9,
           "date": "2025-12-18"
-        },
-        "apex_agents": {
-          "value": 0.276,
-          "date": "2025-12-18"
         }
       }
     },
@@ -6198,10 +6483,6 @@
           "value": 1367.2,
           "date": "2025-12-17"
         },
-        "apex_agents": {
-          "value": 0.24,
-          "date": "2025-12-17"
-        },
         "arc_agi": {
           "value": 0.8467,
           "date": "2025-12-17"
@@ -6209,6 +6490,10 @@
         "arc_agi_2": {
           "value": 0.3361,
           "date": "2025-12-17"
+        },
+        "balrog": {
+          "value": 0.48100000000000004,
+          "date": "2026-02-13"
         },
         "blueprint_bench_2": {
           "value": 0.0,
@@ -6278,10 +6563,6 @@
       "scores": {
         "ale_bench": {
           "value": 1293.55,
-          "date": "2025-12-11"
-        },
-        "apex_agents": {
-          "value": 0.344,
           "date": "2025-12-11"
         },
         "arc_agi": {
@@ -6532,10 +6813,6 @@
       "creator_name": "DeepSeek",
       "release_date": "2025-12-01",
       "scores": {
-        "apex_agents": {
-          "value": 0.07,
-          "date": "2025-12-01"
-        },
         "arc_agi": {
           "value": 0.57,
           "date": "2025-12-01"
@@ -6580,10 +6857,6 @@
           "value": 1025.38,
           "date": "2025-11-24"
         },
-        "apex_agents": {
-          "value": 0.207,
-          "date": "2025-11-24"
-        },
         "arc_agi": {
           "value": 0.8,
           "date": "2025-11-24"
@@ -6591,6 +6864,10 @@
         "arc_agi_2": {
           "value": 0.3764,
           "date": "2025-11-24"
+        },
+        "balrog": {
+          "value": 0.435,
+          "date": "2026-02-24"
         },
         "chess_puzzles": {
           "value": 0.12,
@@ -6750,10 +7027,6 @@
           "value": 1176.75,
           "date": "2025-11-18"
         },
-        "apex_agents": {
-          "value": 0.315,
-          "date": "2025-11-18"
-        },
         "arc_agi": {
           "value": 0.75,
           "date": "2025-11-18"
@@ -6761,6 +7034,10 @@
         "arc_agi_2": {
           "value": 0.3111,
           "date": "2025-11-18"
+        },
+        "balrog": {
+          "value": 0.5810000000000001,
+          "date": "2026-02-03"
         },
         "chess_puzzles": {
           "value": 0.31,
@@ -6805,20 +7082,6 @@
       }
     },
     {
-      "id": "grok-4-1",
-      "name": "grok-4-1",
-      "display_name": "grok-4-1",
-      "creator": "xai",
-      "creator_name": "xAI",
-      "release_date": "2025-11-17",
-      "scores": {
-        "apex_agents": {
-          "value": 0.128,
-          "date": "2025-11-17"
-        }
-      }
-    },
-    {
       "id": "gpt-5.1-2025-11-13",
       "name": "gpt-5.1-2025-11-13",
       "display_name": "gpt-5.1-2025-11-13",
@@ -6828,10 +7091,6 @@
       "scores": {
         "ale_bench": {
           "value": 1192.15,
-          "date": "2025-11-13"
-        },
-        "apex_agents": {
-          "value": 0.17500000000000002,
           "date": "2025-11-13"
         },
         "arc_agi": {
@@ -6907,10 +7166,6 @@
         "ale_bench": {
           "value": 1244.92,
           "date": "2025-11-12"
-        },
-        "apex_agents": {
-          "value": 0.207,
-          "date": "2025-11-12"
         }
       }
     },
@@ -6924,10 +7179,6 @@
       "scores": {
         "ale_bench": {
           "value": 597.5,
-          "date": "2025-11-06"
-        },
-        "apex_agents": {
-          "value": 0.040999999999999995,
           "date": "2025-11-06"
         },
         "weirdml": {
@@ -7028,10 +7279,6 @@
           "value": 653.48,
           "date": "2025-10-15"
         },
-        "apex_agents": {
-          "value": 0.08900000000000001,
-          "date": "2025-10-15"
-        },
         "arc_agi": {
           "value": 0.4767,
           "date": "2025-10-15"
@@ -7039,6 +7286,10 @@
         "arc_agi_2": {
           "value": 0.0403,
           "date": "2025-10-15"
+        },
+        "balrog": {
+          "value": 0.312,
+          "date": "2026-02-24"
         },
         "blueprint_bench_2": {
           "value": 0.0,
@@ -7174,10 +7425,6 @@
       "scores": {
         "ale_bench": {
           "value": 340.82,
-          "date": "2025-09-30"
-        },
-        "apex_agents": {
-          "value": 0.04,
           "date": "2025-09-30"
         },
         "critpt": {
@@ -7514,10 +7761,6 @@
       "creator_name": "OpenAI",
       "release_date": "2025-09-15",
       "scores": {
-        "apex_agents": {
-          "value": 0.201,
-          "date": "2025-09-15"
-        },
         "weirdml": {
           "value": 0.5453,
           "date": "2025-09-15"
@@ -7665,10 +7908,6 @@
           "value": 1162.45,
           "date": "2025-08-07"
         },
-        "apex_agents": {
-          "value": 0.18300000000000002,
-          "date": "2025-08-07"
-        },
         "arc_agi": {
           "value": 0.6567000000000001,
           "date": "2025-08-07"
@@ -7676,6 +7915,10 @@
         "arc_agi_2": {
           "value": 0.0986,
           "date": "2025-08-07"
+        },
+        "balrog": {
+          "value": 0.32799999999999996,
+          "date": "2025-08-19"
         },
         "chess_puzzles": {
           "value": 0.37,
@@ -7992,7 +8235,7 @@
           "date": "2025-08-05"
         },
         "apex_agents": {
-          "value": 0.047,
+          "value": 0.044000000000000004,
           "date": "2025-08-05"
         },
         "dtbench": {
@@ -8096,7 +8339,7 @@
           "date": "2025-12-11"
         },
         "scicode": {
-          "value": 0.388888888888889,
+          "value": 0.35995370370370405,
           "date": "2025-08-05"
         },
         "weirdml": {
@@ -8380,10 +8623,6 @@
       "creator_name": "xAI",
       "release_date": "2025-07-09",
       "scores": {
-        "apex_agents": {
-          "value": 0.152,
-          "date": "2025-07-09"
-        },
         "arc_agi": {
           "value": 0.6667000000000001,
           "date": "2025-07-09"
@@ -8391,6 +8630,10 @@
         "arc_agi_2": {
           "value": 0.15975,
           "date": "2025-07-09"
+        },
+        "balrog": {
+          "value": 0.436,
+          "date": "2025-07-23"
         },
         "chess_puzzles": {
           "value": 0.28,
@@ -8492,9 +8735,9 @@
           "value": 661.88,
           "date": "2025-06-17"
         },
-        "apex_agents": {
-          "value": 0.018000000000000002,
-          "date": "2025-06-17"
+        "balrog": {
+          "value": 0.335,
+          "date": "2025-07-22"
         },
         "critpt": {
           "value": 0.011000000000000001,
@@ -8569,10 +8812,6 @@
       "scores": {
         "ale_bench": {
           "value": 785.52,
-          "date": "2025-06-17"
-        },
-        "apex_agents": {
-          "value": 0.066,
           "date": "2025-06-17"
         },
         "arc_agi": {
@@ -8857,10 +9096,6 @@
       "scores": {
         "ale_bench": {
           "value": 655.35,
-          "date": "2025-05-22"
-        },
-        "apex_agents": {
-          "value": 0.09300000000000001,
           "date": "2025-05-22"
         },
         "arc_agi": {
@@ -9305,10 +9540,6 @@
           "value": 933.55,
           "date": "2025-04-16"
         },
-        "apex_agents": {
-          "value": 0.172,
-          "date": "2025-04-16"
-        },
         "arc_agi": {
           "value": 0.6083,
           "date": "2025-04-16"
@@ -9623,10 +9854,6 @@
       "creator_name": "xAI",
       "release_date": "2025-04-09",
       "scores": {
-        "apex_agents": {
-          "value": 0.021,
-          "date": "2025-04-09"
-        },
         "arc_agi": {
           "value": 0.055,
           "date": "2025-04-09"
@@ -9653,6 +9880,10 @@
       "creator_name": "xAI",
       "release_date": "2025-04-09",
       "scores": {
+        "balrog": {
+          "value": 0.295,
+          "date": "2025-04-25"
+        },
         "gpqa_diamond": {
           "value": 0.6758207070707071,
           "date": "2025-05-26"
@@ -9853,6 +10084,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-03-25",
       "scores": {
+        "balrog": {
+          "value": 0.433,
+          "date": "2025-04-25"
+        },
         "gpqa_diamond": {
           "value": 0.8383838383838383,
           "date": "2025-03-31"
@@ -10122,6 +10357,20 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.075,
           "date": "2026-08-28"
+        }
+      }
+    },
+    {
+      "id": "reka-flash-3",
+      "name": "reka-flash-3",
+      "display_name": "reka-flash-3",
+      "creator": "reka-ai",
+      "creator_name": "Reka AI",
+      "release_date": "2025-03-10",
+      "scores": {
+        "balrog": {
+          "value": 0.292,
+          "date": "2025-03-13"
         }
       }
     },
@@ -10483,6 +10732,10 @@
           "value": 0.013000000000000001,
           "date": "2025-01-20"
         },
+        "balrog": {
+          "value": 0.349,
+          "date": "2025-04-10"
+        },
         "critpt": {
           "value": 0.011000000000000001,
           "date": "2025-01-20"
@@ -10579,6 +10832,10 @@
       "creator_name": "DeepSeek",
       "release_date": "2025-01-20",
       "scores": {
+        "balrog": {
+          "value": 0.195,
+          "date": "2025-01-26"
+        },
         "chess_puzzles": {
           "value": 0.01,
           "date": "2026-08-28"
@@ -10645,10 +10902,6 @@
       "creator_name": "OpenAI",
       "release_date": "2024-12-17",
       "scores": {
-        "apex_agents": {
-          "value": 0.011000000000000001,
-          "date": "2024-12-17"
-        },
         "arc_agi": {
           "value": 0.307,
           "date": "2024-12-17"
@@ -10733,6 +10986,10 @@
       "creator_name": "Microsoft Research",
       "release_date": "2024-12-12",
       "scores": {
+        "balrog": {
+          "value": 0.11599999999999999,
+          "date": "2025-01-13"
+        },
         "chess_puzzles": {
           "value": 0.01,
           "date": "2026-08-28"
@@ -10769,6 +11026,10 @@
       "creator_name": "Meta AI",
       "release_date": "2024-12-06",
       "scores": {
+        "balrog": {
+          "value": 0.23,
+          "date": "2024-12-09"
+        },
         "critpt": {
           "value": 0.0,
           "date": "2024-12-06"
@@ -10875,10 +11136,6 @@
       "creator_name": "OpenAI",
       "release_date": "2024-11-20",
       "scores": {
-        "apex_agents": {
-          "value": 0.011000000000000001,
-          "date": "2024-11-20"
-        },
         "arc_agi": {
           "value": 0.045,
           "date": "2024-11-20"
@@ -10957,6 +11214,10 @@
       "creator_name": "Anthropic",
       "release_date": "2024-10-22",
       "scores": {
+        "balrog": {
+          "value": 0.193,
+          "date": "2024-12-11"
+        },
         "critpt": {
           "value": 0.0,
           "date": "2024-10-22"
@@ -10991,6 +11252,10 @@
       "creator_name": "Anthropic",
       "release_date": "2024-10-22",
       "scores": {
+        "balrog": {
+          "value": 0.326,
+          "date": "2024-11-11"
+        },
         "dtbench": {
           "value": 0.6784,
           "date": "2024-10-22"
@@ -11080,6 +11345,20 @@
       }
     },
     {
+      "id": "Llama-3.2-11B-Vision-Instruct",
+      "name": "Llama-3.2-11B-Vision-Instruct",
+      "display_name": "Llama-3.2-11B-Vision-Instruct",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
+      "release_date": "2024-09-24",
+      "scores": {
+        "balrog": {
+          "value": 0.168,
+          "date": "2024-11-11"
+        }
+      }
+    },
+    {
       "id": "Llama-3.2-1B-Instruct",
       "name": "Llama-3.2-1B-Instruct",
       "display_name": "Llama-3.2-1B-Instruct",
@@ -11087,6 +11366,10 @@
       "creator_name": "Meta AI",
       "release_date": "2024-09-24",
       "scores": {
+        "balrog": {
+          "value": 0.066,
+          "date": "2024-11-11"
+        },
         "chess_puzzles": {
           "value": 0.0,
           "date": "2026-08-30"
@@ -11102,6 +11385,20 @@
       }
     },
     {
+      "id": "Llama-3.2-3B-Instruct",
+      "name": "Llama-3.2-3B-Instruct",
+      "display_name": "Llama-3.2-3B-Instruct",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
+      "release_date": "2024-09-24",
+      "scores": {
+        "balrog": {
+          "value": 0.10099999999999999,
+          "date": "2024-11-11"
+        }
+      }
+    },
+    {
       "id": "Llama-3.2-90B-Vision-Instruct",
       "name": "Llama-3.2-90B-Vision-Instruct",
       "display_name": "Llama-3.2-90B-Vision-Instruct",
@@ -11109,6 +11406,10 @@
       "creator_name": "Meta AI",
       "release_date": "2024-09-24",
       "scores": {
+        "balrog": {
+          "value": 0.273,
+          "date": "2024-11-11"
+        },
         "gpqa_diamond": {
           "value": 0.41035353535353536,
           "date": "2025-01-27"
@@ -11127,6 +11428,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2024-09-24",
       "scores": {
+        "balrog": {
+          "value": 0.146,
+          "date": "2024-11-11"
+        },
         "dtbench": {
           "value": 0.5379,
           "date": "2024-09-24"
@@ -11156,6 +11461,10 @@
         "arc_agi_2": {
           "value": 0.008,
           "date": "2024-09-24"
+        },
+        "balrog": {
+          "value": 0.21,
+          "date": "2024-11-11"
         },
         "dtbench": {
           "value": 0.5898,
@@ -11191,6 +11500,10 @@
       "creator_name": "Alibaba",
       "release_date": "2024-09-19",
       "scores": {
+        "balrog": {
+          "value": 0.162,
+          "date": "2024-11-25"
+        },
         "dtbench": {
           "value": 0.6293,
           "date": "2024-09-19"
@@ -11221,6 +11534,10 @@
       "creator_name": "Alibaba",
       "release_date": "2024-09-19",
       "scores": {
+        "balrog": {
+          "value": 0.078,
+          "date": "2024-11-25"
+        },
         "chess_puzzles": {
           "value": 0.0,
           "date": "2026-08-30"
@@ -11384,6 +11701,34 @@
       }
     },
     {
+      "id": "Qwen2-VL-72B-Instruct",
+      "name": "Qwen2-VL-72B-Instruct",
+      "display_name": "Qwen2-VL-72B-Instruct",
+      "creator": "",
+      "creator_name": "",
+      "release_date": "2024-08-29",
+      "scores": {
+        "balrog": {
+          "value": 0.128,
+          "date": "2024-11-25"
+        }
+      }
+    },
+    {
+      "id": "Qwen2-VL-7B-Instruct",
+      "name": "Qwen2-VL-7B-Instruct",
+      "display_name": "Qwen2-VL-7B-Instruct",
+      "creator": "",
+      "creator_name": "",
+      "release_date": "2024-08-29",
+      "scores": {
+        "balrog": {
+          "value": 0.037000000000000005,
+          "date": "2024-11-25"
+        }
+      }
+    },
+    {
       "id": "gpt-4o-2024-08-06",
       "name": "gpt-4o-2024-08-06",
       "display_name": "gpt-4o-2024-08-06",
@@ -11481,6 +11826,10 @@
       "creator_name": "Meta AI",
       "release_date": "2024-07-23",
       "scores": {
+        "balrog": {
+          "value": 0.27899999999999997,
+          "date": "2024-11-11"
+        },
         "dtbench": {
           "value": 0.6,
           "date": "2024-07-23"
@@ -11511,6 +11860,10 @@
       "creator_name": "Meta AI",
       "release_date": "2024-07-23",
       "scores": {
+        "balrog": {
+          "value": 0.151,
+          "date": "2024-11-11"
+        },
         "chess_puzzles": {
           "value": 0.0,
           "date": "2026-08-27"
@@ -11553,6 +11906,10 @@
       "creator_name": "Mistral AI",
       "release_date": "2024-07-18",
       "scores": {
+        "balrog": {
+          "value": 0.17600000000000002,
+          "date": "2024-12-09"
+        },
         "dtbench": {
           "value": 0.48610000000000003,
           "date": "2024-07-18"
@@ -11570,6 +11927,10 @@
         "arc_agi_2": {
           "value": 0.0,
           "date": "2024-07-18"
+        },
+        "balrog": {
+          "value": 0.174,
+          "date": "2024-11-11"
         },
         "chess_puzzles": {
           "value": 0.0,
@@ -11817,6 +12178,10 @@
       "creator_name": "OpenAI",
       "release_date": "2024-05-13",
       "scores": {
+        "balrog": {
+          "value": 0.32299999999999995,
+          "date": "2024-11-11"
+        },
         "dtbench": {
           "value": 0.6453,
           "date": "2024-05-13"
