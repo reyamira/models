@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-09-23T06:18:24.507596852+00:00",
+    "fetched_at": "2026-09-23T18:18:28.343011771+00:00",
     "verified": true
   },
   "metrics": [
@@ -119,7 +119,7 @@
       "label": "Ebr Bench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-08"
+      "last_updated": "2026-09-22"
     },
     {
       "id": "frontiercode",
@@ -155,6 +155,13 @@
       "kind": "percentage",
       "group": "Academic",
       "last_updated": "2026-09-03"
+    },
+    {
+      "id": "furniture_assembly",
+      "label": "Furniture Assembly",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-09-11"
     },
     {
       "id": "gpqa_diamond",
@@ -250,6 +257,21 @@
     }
   ],
   "models": [
+    {
+      "id": "gpt-6-sol",
+      "name": "gpt-6-sol_max",
+      "display_name": "gpt-6-sol",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "effort_level": "max",
+      "scores": {
+        "ebr_bench": {
+          "value": 0.5333333333333333,
+          "date": "2026-09-22"
+        }
+      }
+    },
     {
       "id": "grok-4.7",
       "name": "grok-4.7",
@@ -441,6 +463,10 @@
           "value": 0.6550757455882352,
           "date": "2026-09-03"
         },
+        "furniture_assembly": {
+          "value": 0.8,
+          "date": "2026-09-10"
+        },
         "gpqa_diamond": {
           "value": 0.9577020202020202,
           "date": "2026-08-30"
@@ -560,6 +586,10 @@
         "frontierswe": {
           "value": 0.19626902941176463,
           "date": "2026-09-02"
+        },
+        "furniture_assembly": {
+          "value": 0.31666666666666665,
+          "date": "2026-09-10"
         },
         "gpqa_diamond": {
           "value": 0.9539141414141414,
@@ -729,6 +759,10 @@
           "value": 0.5629078999999999,
           "date": "2026-09-01"
         },
+        "furniture_assembly": {
+          "value": 0.7,
+          "date": "2026-09-10"
+        },
         "hle": {
           "value": 0.465,
           "date": "2026-09-01"
@@ -798,6 +832,10 @@
         "frontiermath_tiers_1_3_v2": {
           "value": 0.656140350877193,
           "date": "2026-09-02"
+        },
+        "furniture_assembly": {
+          "value": 0.2,
+          "date": "2026-09-10"
         },
         "gpqa_diamond": {
           "value": 0.922979797979798,
@@ -1162,6 +1200,10 @@
         "frontierswe": {
           "value": 0.20260590588235297,
           "date": "2026-08-13"
+        },
+        "furniture_assembly": {
+          "value": 0.26666666666666666,
+          "date": "2026-09-10"
         },
         "gpqa_diamond": {
           "value": 0.9482323232323232,
@@ -1615,6 +1657,10 @@
           "value": 0.5201176764705882,
           "date": "2026-07-24"
         },
+        "furniture_assembly": {
+          "value": 0.6083333333333333,
+          "date": "2026-09-10"
+        },
         "gpqa_diamond": {
           "value": 0.9387626262626263,
           "date": "2026-07-24"
@@ -1783,6 +1829,10 @@
           "value": 0.5894736842105263,
           "date": "2026-08-02"
         },
+        "furniture_assembly": {
+          "value": 0.23333333333333334,
+          "date": "2026-09-10"
+        },
         "gpqa_diamond": {
           "value": 0.9412878787878788,
           "date": "2026-08-02"
@@ -1876,6 +1926,10 @@
         "frontierswe": {
           "value": 0.25865032058823534,
           "date": "2026-07-16"
+        },
+        "furniture_assembly": {
+          "value": 0.3416666666666667,
+          "date": "2026-09-11"
         },
         "gpqa_diamond": {
           "value": 0.9311868686868687,
@@ -2127,6 +2181,10 @@
           "value": 0.8210526315789474,
           "date": "2026-07-09"
         },
+        "furniture_assembly": {
+          "value": 0.425,
+          "date": "2026-09-10"
+        },
         "gpqa_diamond": {
           "value": 0.9160353535353535,
           "date": "2026-07-09"
@@ -2248,6 +2306,10 @@
         "frontierswe": {
           "value": 0.3220246705882353,
           "date": "2026-07-09"
+        },
+        "furniture_assembly": {
+          "value": 0.5666666666666667,
+          "date": "2026-09-10"
         },
         "gpqa_diamond": {
           "value": 0.9349747474747475,
@@ -2424,6 +2486,10 @@
         "frontiermath_tiers_1_3_v2": {
           "value": 0.8596491228070176,
           "date": "2026-07-09"
+        },
+        "furniture_assembly": {
+          "value": 0.5416666666666666,
+          "date": "2026-09-10"
         },
         "gpqa_diamond": {
           "value": 0.9330808080808081,
@@ -2975,6 +3041,10 @@
           "value": 0.4696449352941177,
           "date": "2026-06-09"
         },
+        "furniture_assembly": {
+          "value": 0.35833333333333334,
+          "date": "2026-09-10"
+        },
         "gpqa_diamond": {
           "value": 0.8585858585858586,
           "date": "2026-08-06"
@@ -3034,7 +3104,7 @@
       "name": "nemotron-3-ultra",
       "display_name": "nemotron-3-ultra",
       "creator": "nvidia",
-      "creator_name": "NVIDIA",
+      "creator_name": "Nvidia",
       "release_date": "2026-06-04",
       "scores": {
         "chess_puzzles": {
@@ -3306,6 +3376,10 @@
         "frontiermath_tiers_1_3_v2": {
           "value": 0.8,
           "date": "2026-06-10"
+        },
+        "furniture_assembly": {
+          "value": 0.425,
+          "date": "2026-09-10"
         },
         "gpqa_diamond": {
           "value": 0.9103535353535354,
@@ -3969,6 +4043,10 @@
           "value": 0.8526315789473684,
           "date": "2026-06-11"
         },
+        "furniture_assembly": {
+          "value": 0.44166666666666665,
+          "date": "2026-09-10"
+        },
         "gpqa_diamond": {
           "value": 0.9065656565656566,
           "date": "2026-05-05"
@@ -4197,6 +4275,10 @@
           "value": 0.5719298245614035,
           "date": "2026-06-10"
         },
+        "furniture_assembly": {
+          "value": 0.21666666666666667,
+          "date": "2026-09-11"
+        },
         "gpqa_diamond": {
           "value": 0.9078282828282829,
           "date": "2026-05-01"
@@ -4406,6 +4488,10 @@
         "frontiermath_tiers_1_3_v2": {
           "value": 0.7017543859649122,
           "date": "2026-06-10"
+        },
+        "furniture_assembly": {
+          "value": 0.3333333333333333,
+          "date": "2026-09-10"
         },
         "gpqa_diamond": {
           "value": 0.9015151515151515,
@@ -5035,7 +5121,7 @@
       "name": "nemotron-3-super",
       "display_name": "nemotron-3-super",
       "creator": "nvidia",
-      "creator_name": "NVIDIA",
+      "creator_name": "Nvidia",
       "release_date": "2026-03-11",
       "scores": {
         "ale_bench": {
@@ -5111,6 +5197,10 @@
         "frontiermath_tiers_1_3_v2": {
           "value": 0.7859649122807018,
           "date": "2026-06-11"
+        },
+        "furniture_assembly": {
+          "value": 0.375,
+          "date": "2026-09-10"
         },
         "gpqa_diamond": {
           "value": 0.933,
@@ -5539,6 +5629,10 @@
         "frontiermath_tiers_1_3_v2": {
           "value": 0.5964912280701754,
           "date": "2026-06-11"
+        },
+        "furniture_assembly": {
+          "value": 0.26666666666666666,
+          "date": "2026-09-10"
         },
         "gpqa_diamond": {
           "value": 0.9444444444444444,
@@ -6004,6 +6098,10 @@
           "value": 0.6596491228070176,
           "date": "2026-06-11"
         },
+        "furniture_assembly": {
+          "value": 0.2833333333333333,
+          "date": "2026-09-10"
+        },
         "gpqa_diamond": {
           "value": 0.9053030303030303,
           "date": "2026-02-06"
@@ -6398,6 +6496,10 @@
           "value": 0.674,
           "date": "2026-06-11"
         },
+        "furniture_assembly": {
+          "value": 0.38333333333333336,
+          "date": "2026-09-10"
+        },
         "gpqa_diamond": {
           "value": 0.914,
           "date": "2025-12-13"
@@ -6693,6 +6795,10 @@
         "frontiermath_tiers_1_3_v2": {
           "value": 0.34385964912280703,
           "date": "2026-06-11"
+        },
+        "furniture_assembly": {
+          "value": 0.2833333333333333,
+          "date": "2026-09-10"
         },
         "gpqa_diamond": {
           "value": 0.860479797979798,
