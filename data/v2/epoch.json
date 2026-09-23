@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-09-22T18:18:12.700608472+00:00",
+    "fetched_at": "2026-09-23T06:18:24.507596852+00:00",
     "verified": true
   },
   "metrics": [
@@ -40,15 +40,6 @@
       "last_updated": "2026-09-03",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
-    },
-    {
-      "id": "posttrainbench",
-      "label": "PostTrainBench",
-      "kind": "percentage",
-      "group": "Agentic",
-      "last_updated": "2026-07-24",
-      "description": "AI R&D automation: a CLI agent must post-train a small base LLM on a single GPU within a time budget to raise its downstream scores. Scored as the average improvement across base models and evaluations; higher is better.",
-      "short_label": "PTBench"
     },
     {
       "id": "weirdml",
@@ -175,13 +166,6 @@
       "short_label": "GPQA"
     },
     {
-      "id": "gbaeval",
-      "label": "Gbaeval",
-      "kind": "percentage",
-      "group": "Academic",
-      "last_updated": "2026-07-24"
-    },
-    {
       "id": "lmca",
       "label": "Lmca",
       "kind": "index",
@@ -210,13 +194,6 @@
       "last_updated": "2026-09-17",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
-    },
-    {
-      "id": "osworld_2",
-      "label": "Osworld 2",
-      "kind": "percentage",
-      "group": "Academic",
-      "last_updated": "2026-07-24"
     },
     {
       "id": "proofbench",
@@ -1638,10 +1615,6 @@
           "value": 0.5201176764705882,
           "date": "2026-07-24"
         },
-        "gbaeval": {
-          "value": 0.7959852171423216,
-          "date": "2026-07-24"
-        },
         "gpqa_diamond": {
           "value": 0.9387626262626263,
           "date": "2026-07-24"
@@ -1654,16 +1627,8 @@
           "value": 0.59,
           "date": "2026-07-25"
         },
-        "osworld_2": {
-          "value": 0.3143,
-          "date": "2026-07-24"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9888888888888889,
-          "date": "2026-07-24"
-        },
-        "posttrainbench": {
-          "value": 0.3504,
           "date": "2026-07-24"
         },
         "proofbench": {
@@ -1912,10 +1877,6 @@
           "value": 0.25865032058823534,
           "date": "2026-07-16"
         },
-        "gbaeval": {
-          "value": 0.48346855379537595,
-          "date": "2026-07-16"
-        },
         "gpqa_diamond": {
           "value": 0.9311868686868687,
           "date": "2026-07-16"
@@ -1930,10 +1891,6 @@
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9722222222222222,
-          "date": "2026-07-16"
-        },
-        "posttrainbench": {
-          "value": 0.3196,
           "date": "2026-07-16"
         },
         "proofbench": {
@@ -2292,10 +2249,6 @@
           "value": 0.3220246705882353,
           "date": "2026-07-09"
         },
-        "gbaeval": {
-          "value": 0.5259227864005247,
-          "date": "2026-07-09"
-        },
         "gpqa_diamond": {
           "value": 0.9349747474747475,
           "date": "2026-07-09"
@@ -2312,16 +2265,8 @@
           "value": 0.58,
           "date": "2026-07-28"
         },
-        "osworld_2": {
-          "value": 0.27340000000000003,
-          "date": "2026-07-09"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 1.0,
-          "date": "2026-07-09"
-        },
-        "posttrainbench": {
-          "value": 0.36229999999999996,
           "date": "2026-07-09"
         },
         "proofbench": {
@@ -2546,10 +2491,6 @@
           "value": 0.9440000000000001,
           "date": "2026-07-09"
         },
-        "gbaeval": {
-          "value": 0.07917257714954119,
-          "date": "2026-07-09"
-        },
         "lmca": {
           "value": 49.91,
           "date": "2026-07-09"
@@ -2632,10 +2573,6 @@
           "value": 0.5719298245614035,
           "date": "2026-07-09"
         },
-        "gbaeval": {
-          "value": 0.6541267565853209,
-          "date": "2026-07-08"
-        },
         "gpqa_diamond": {
           "value": 0.9343434343434344,
           "date": "2026-07-08"
@@ -2646,10 +2583,6 @@
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9777777777777777,
-          "date": "2026-07-08"
-        },
-        "posttrainbench": {
-          "value": 0.2345,
           "date": "2026-07-08"
         },
         "proofbench": {
@@ -2752,10 +2685,6 @@
           "value": 0.656140350877193,
           "date": "2026-06-30"
         },
-        "gbaeval": {
-          "value": 0.6526299757455419,
-          "date": "2026-06-30"
-        },
         "gpqa_diamond": {
           "value": 0.9053030303030303,
           "date": "2026-07-01"
@@ -2854,10 +2783,6 @@
           "value": 0.592057761732852,
           "date": "2026-06-19"
         },
-        "gbaeval": {
-          "value": 0.00017218231881747017,
-          "date": "2026-06-16"
-        },
         "gpqa_diamond": {
           "value": 0.9185606060606061,
           "date": "2026-06-24"
@@ -2873,10 +2798,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.8638888888888889,
           "date": "2026-06-25"
-        },
-        "posttrainbench": {
-          "value": 0.317,
-          "date": "2026-06-16"
         },
         "proofbench": {
           "value": 0.35000000000000003,
@@ -2947,10 +2868,6 @@
         "frontiermath_tiers_1_3_v2": {
           "value": 0.5403508771929825,
           "date": "2026-06-13"
-        },
-        "gbaeval": {
-          "value": 0.008526563108968812,
-          "date": "2026-06-12"
         },
         "gpqa_diamond": {
           "value": 0.8787878787878788,
@@ -3058,10 +2975,6 @@
           "value": 0.4696449352941177,
           "date": "2026-06-09"
         },
-        "gbaeval": {
-          "value": 0.7447198828312318,
-          "date": "2026-06-09"
-        },
         "gpqa_diamond": {
           "value": 0.8585858585858586,
           "date": "2026-08-06"
@@ -3081,10 +2994,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 1.0,
           "date": "2026-08-06"
-        },
-        "posttrainbench": {
-          "value": 0.4179,
-          "date": "2026-06-09"
         },
         "proofbench": {
           "value": 0.9500000000000001,
@@ -3214,10 +3123,6 @@
           "value": 0.17,
           "date": "2026-08-28"
         },
-        "osworld_2": {
-          "value": 0.027999999999999997,
-          "date": "2026-06-02"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9333333333333333,
           "date": "2026-08-07"
@@ -3260,10 +3165,6 @@
           "value": 0.147,
           "date": "2026-06-01"
         },
-        "gbaeval": {
-          "value": 0.009136320401503086,
-          "date": "2026-06-01"
-        },
         "gpqa_diamond": {
           "value": 0.9090909090909091,
           "date": "2026-08-10"
@@ -3275,10 +3176,6 @@
         "mystery_game_puzzles": {
           "value": 0.08,
           "date": "2026-08-27"
-        },
-        "osworld_2": {
-          "value": 0.046,
-          "date": "2026-06-01"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.7111111111111111,
@@ -3316,10 +3213,6 @@
       "scores": {
         "critpt": {
           "value": 0.0914285714285714,
-          "date": "2026-05-29"
-        },
-        "gbaeval": {
-          "value": 0.023812535358844113,
           "date": "2026-05-29"
         },
         "scicode": {
@@ -3414,10 +3307,6 @@
           "value": 0.8,
           "date": "2026-06-10"
         },
-        "gbaeval": {
-          "value": 0.7090450062635527,
-          "date": "2026-05-28"
-        },
         "gpqa_diamond": {
           "value": 0.9103535353535354,
           "date": "2026-06-07"
@@ -3430,17 +3319,9 @@
           "value": 0.36,
           "date": "2026-07-25"
         },
-        "osworld_2": {
-          "value": 0.20600000000000002,
-          "date": "2026-05-28"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.9833333333333333,
           "date": "2026-06-07"
-        },
-        "posttrainbench": {
-          "value": 0.33840000000000003,
-          "date": "2026-05-28"
         },
         "proofbench": {
           "value": 0.6900000000000001,
@@ -3550,10 +3431,6 @@
           "value": 0.6280701754385964,
           "date": "2026-06-10"
         },
-        "gbaeval": {
-          "value": 0.06701366402557545,
-          "date": "2026-05-19"
-        },
         "gpqa_diamond": {
           "value": 0.928030303030303,
           "date": "2026-05-22"
@@ -3635,10 +3512,6 @@
         "frontiermath_tiers_1_3_v2": {
           "value": 0.6456140350877193,
           "date": "2026-06-13"
-        },
-        "gbaeval": {
-          "value": 0.004066608893369503,
-          "date": "2026-05-19"
         },
         "gpqa_diamond": {
           "value": 0.9090909090909091,
@@ -4096,10 +3969,6 @@
           "value": 0.8526315789473684,
           "date": "2026-06-11"
         },
-        "gbaeval": {
-          "value": 0.5322037178151383,
-          "date": "2026-04-23"
-        },
         "gpqa_diamond": {
           "value": 0.9065656565656566,
           "date": "2026-05-05"
@@ -4116,17 +3985,9 @@
           "value": 0.56,
           "date": "2026-07-24"
         },
-        "osworld_2": {
-          "value": 0.13,
-          "date": "2026-04-23"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.8444444444444444,
           "date": "2026-08-07"
-        },
-        "posttrainbench": {
-          "value": 0.2723,
-          "date": "2026-04-23"
         },
         "proofbench": {
           "value": 0.5,
@@ -4336,10 +4197,6 @@
           "value": 0.5719298245614035,
           "date": "2026-06-10"
         },
-        "gbaeval": {
-          "value": 0.008624932115315736,
-          "date": "2026-04-20"
-        },
         "gpqa_diamond": {
           "value": 0.9078282828282829,
           "date": "2026-05-01"
@@ -4351,10 +4208,6 @@
         "mystery_game_puzzles": {
           "value": 0.18,
           "date": "2026-07-17"
-        },
-        "osworld_2": {
-          "value": 0.046,
-          "date": "2026-04-20"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9611111111111111,
@@ -4554,10 +4407,6 @@
           "value": 0.7017543859649122,
           "date": "2026-06-10"
         },
-        "gbaeval": {
-          "value": 0.43811361876085897,
-          "date": "2026-04-16"
-        },
         "gpqa_diamond": {
           "value": 0.9015151515151515,
           "date": "2026-04-17"
@@ -4578,17 +4427,9 @@
           "value": 0.28,
           "date": "2026-07-25"
         },
-        "osworld_2": {
-          "value": 0.182,
-          "date": "2026-04-16"
-        },
         "otis_mock_aime_2024_2025": {
           "value": 0.978,
           "date": "2026-04-17"
-        },
-        "posttrainbench": {
-          "value": 0.2856,
-          "date": "2026-04-16"
         },
         "proofbench": {
           "value": 0.54,
@@ -4745,10 +4586,6 @@
         "frontiermath_tiers_1_3_v2": {
           "value": 0.3684210526315789,
           "date": "2026-08-29"
-        },
-        "gbaeval": {
-          "value": 0.0,
-          "date": "2026-04-07"
         },
         "gpqa_diamond": {
           "value": 0.898989898989899,
@@ -5003,10 +4840,6 @@
         },
         "critpt": {
           "value": 0.00571428571428571,
-          "date": "2026-03-18"
-        },
-        "gbaeval": {
-          "value": 0.0,
           "date": "2026-03-18"
         },
         "proofbench": {
@@ -5279,10 +5112,6 @@
           "value": 0.7859649122807018,
           "date": "2026-06-11"
         },
-        "gbaeval": {
-          "value": 0.4514817826662626,
-          "date": "2026-03-05"
-        },
         "gpqa_diamond": {
           "value": 0.933,
           "date": "2026-03-06"
@@ -5306,10 +5135,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.9777777777777777,
           "date": "2026-07-15"
-        },
-        "posttrainbench": {
-          "value": 0.19,
-          "date": "2026-03-05"
         },
         "proofbench": {
           "value": 0.56,
@@ -5715,10 +5540,6 @@
           "value": 0.5964912280701754,
           "date": "2026-06-11"
         },
-        "gbaeval": {
-          "value": 0.008462790979968672,
-          "date": "2026-02-19"
-        },
         "gpqa_diamond": {
           "value": 0.9444444444444444,
           "date": "2026-08-06"
@@ -5742,10 +5563,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.956,
           "date": "2026-02-20"
-        },
-        "posttrainbench": {
-          "value": 0.21989999999999998,
-          "date": "2026-02-19"
         },
         "proofbench": {
           "value": 0.26,
@@ -5835,10 +5652,6 @@
           "value": 0.24310000000000004,
           "date": "2026-02-17"
         },
-        "gbaeval": {
-          "value": 0.4875663483204475,
-          "date": "2026-02-17"
-        },
         "gpqa_diamond": {
           "value": 0.8737373737373737,
           "date": "2026-02-20"
@@ -5850,10 +5663,6 @@
         "mystery_game_puzzles": {
           "value": 0.16,
           "date": "2026-08-06"
-        },
-        "osworld_2": {
-          "value": 0.09300000000000001,
-          "date": "2026-02-17"
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.857936507936508,
@@ -6194,10 +6003,6 @@
         "frontiermath_tiers_1_3_v2": {
           "value": 0.6596491228070176,
           "date": "2026-06-11"
-        },
-        "gbaeval": {
-          "value": 0.4411559216788414,
-          "date": "2026-02-05"
         },
         "gpqa_diamond": {
           "value": 0.9053030303030303,
