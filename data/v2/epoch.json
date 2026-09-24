@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-09-23T18:18:28.343011771+00:00",
+    "fetched_at": "2026-09-24T06:18:12.694981354+00:00",
     "verified": true
   },
   "metrics": [
@@ -161,7 +161,7 @@
       "label": "Furniture Assembly",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-11"
+      "last_updated": "2026-09-23"
     },
     {
       "id": "gpqa_diamond",
@@ -258,6 +258,36 @@
   ],
   "models": [
     {
+      "id": "claude-opus-5-5",
+      "name": "claude-opus-5-5_max",
+      "display_name": "claude-opus-5-5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-09-22",
+      "effort_level": "max",
+      "scores": {
+        "furniture_assembly": {
+          "value": 0.8333333333333334,
+          "date": "2026-09-22"
+        }
+      }
+    },
+    {
+      "id": "gpt-6-luna",
+      "name": "gpt-6-luna_max",
+      "display_name": "gpt-6-luna",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "effort_level": "max",
+      "scores": {
+        "furniture_assembly": {
+          "value": 0.2833333333333333,
+          "date": "2026-09-23"
+        }
+      }
+    },
+    {
       "id": "gpt-6-sol",
       "name": "gpt-6-sol_max",
       "display_name": "gpt-6-sol",
@@ -269,6 +299,10 @@
         "ebr_bench": {
           "value": 0.5333333333333333,
           "date": "2026-09-22"
+        },
+        "furniture_assembly": {
+          "value": 0.5833333333333334,
+          "date": "2026-09-23"
         }
       }
     },
