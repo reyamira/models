@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-09-28T21:48:14.912903440+00:00",
+    "fetched_at": "2026-09-28T23:48:31.240616365+00:00",
     "verified": true
   },
   "metrics": [
@@ -14073,62 +14073,6 @@
       }
     },
     {
-      "id": "qwen3-5-9b",
-      "name": "Qwen3.5 9B (Reasoning)",
-      "display_name": "Qwen3.5 9B",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "release_date": "2026-03-02",
-      "reasoning_status": "Reasoning",
-      "scores": {
-        "coding_index": {
-          "value": 28.7
-        },
-        "gpqa": {
-          "value": 0.806
-        },
-        "hle": {
-          "value": 0.149
-        },
-        "ifbench": {
-          "value": 0.66734693877551
-        },
-        "intelligence_index": {
-          "value": 13.7
-        },
-        "lcr": {
-          "value": 0.7
-        },
-        "output_tps": {
-          "value": 33.337
-        },
-        "price_blended": {
-          "value": 0.151
-        },
-        "price_input": {
-          "value": 0.135
-        },
-        "price_output": {
-          "value": 0.2
-        },
-        "scicode": {
-          "value": 0.295
-        },
-        "tau2": {
-          "value": 0.868421052631579
-        },
-        "terminalbench_hard": {
-          "value": 0.242424242424242
-        },
-        "ttfat": {
-          "value": 61.141
-        },
-        "ttft": {
-          "value": 1.148
-        }
-      }
-    },
-    {
       "id": "nova-2-0-omni-reasoning-medium",
       "name": "Nova 2.0 Omni (medium)",
       "display_name": "Nova 2.0 Omni",
@@ -17039,6 +16983,62 @@
         },
         "ttft": {
           "value": 1.182
+        }
+      }
+    },
+    {
+      "id": "qwen3-5-9b",
+      "name": "Qwen3.5 9B (Reasoning)",
+      "display_name": "Qwen3.5 9B",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-03-02",
+      "reasoning_status": "Reasoning",
+      "scores": {
+        "coding_index": {
+          "value": 28.7
+        },
+        "gpqa": {
+          "value": 0.806
+        },
+        "hle": {
+          "value": 0.149
+        },
+        "ifbench": {
+          "value": 0.66734693877551
+        },
+        "intelligence_index": {
+          "value": 11.2
+        },
+        "lcr": {
+          "value": 0.7
+        },
+        "output_tps": {
+          "value": 33.337
+        },
+        "price_blended": {
+          "value": 0.151
+        },
+        "price_input": {
+          "value": 0.135
+        },
+        "price_output": {
+          "value": 0.2
+        },
+        "scicode": {
+          "value": 0.295
+        },
+        "tau2": {
+          "value": 0.868421052631579
+        },
+        "terminalbench_hard": {
+          "value": 0.242424242424242
+        },
+        "ttfat": {
+          "value": 61.141
+        },
+        "ttft": {
+          "value": 1.148
         }
       }
     },
