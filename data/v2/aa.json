@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-09-29T16:48:25.070008214+00:00",
+    "fetched_at": "2026-09-29T17:18:42.253145062+00:00",
     "verified": true
   },
   "metrics": [
@@ -6792,52 +6792,6 @@
       }
     },
     {
-      "id": "ling-3-0-flash",
-      "name": "Ling 3.0 Flash",
-      "display_name": "Ling 3.0 Flash",
-      "creator": "inclusionai",
-      "creator_name": "InclusionAI",
-      "release_date": "2026-08-04",
-      "scores": {
-        "coding_index": {
-          "value": 50.6
-        },
-        "gpqa": {
-          "value": 0.855
-        },
-        "hle": {
-          "value": 0.237
-        },
-        "intelligence_index": {
-          "value": 24.9
-        },
-        "lcr": {
-          "value": 0.73
-        },
-        "output_tps": {
-          "value": 361.579
-        },
-        "price_blended": {
-          "value": 0.111
-        },
-        "price_input": {
-          "value": 0.075
-        },
-        "price_output": {
-          "value": 0.22
-        },
-        "scicode": {
-          "value": 0.42
-        },
-        "ttfat": {
-          "value": 7.335
-        },
-        "ttft": {
-          "value": 1.804
-        }
-      }
-    },
-    {
       "id": "gpt-5-codex",
       "name": "GPT-5 Codex (high)",
       "display_name": "GPT-5 Codex",
@@ -9928,6 +9882,52 @@
         },
         "ttft": {
           "value": 1.21
+        }
+      }
+    },
+    {
+      "id": "ling-3-0-flash",
+      "name": "Ling 3.0 Flash",
+      "display_name": "Ling 3.0 Flash",
+      "creator": "inclusionai",
+      "creator_name": "InclusionAI",
+      "release_date": "2026-08-04",
+      "scores": {
+        "coding_index": {
+          "value": 50.6
+        },
+        "gpqa": {
+          "value": 0.855
+        },
+        "hle": {
+          "value": 0.237
+        },
+        "intelligence_index": {
+          "value": 20.1
+        },
+        "lcr": {
+          "value": 0.73
+        },
+        "output_tps": {
+          "value": 361.579
+        },
+        "price_blended": {
+          "value": 0.111
+        },
+        "price_input": {
+          "value": 0.075
+        },
+        "price_output": {
+          "value": 0.22
+        },
+        "scicode": {
+          "value": 0.42
+        },
+        "ttfat": {
+          "value": 7.335
+        },
+        "ttft": {
+          "value": 1.804
         }
       }
     },
