@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-09-28T18:18:18.798293093+00:00",
+    "fetched_at": "2026-09-29T06:18:18.340467714+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "ARC-AGI",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-09-03",
+      "last_updated": "2026-09-22",
       "description": "Abstract visual grid puzzles where the model must infer a transformation rule from a few input-output demonstrations and apply it to a novel case. Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -20,7 +20,7 @@
       "label": "ARC-AGI-2",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-09-03",
+      "last_updated": "2026-09-22",
       "description": "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing compositional and symbolic reasoning, two attempts per task (pass@2). Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -37,7 +37,7 @@
       "label": "APEX Agents",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-09-03",
+      "last_updated": "2026-09-22",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
     },
@@ -54,7 +54,7 @@
       "label": "Ale Bench",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-09-09"
+      "last_updated": "2026-09-22"
     },
     {
       "id": "balrog",
@@ -91,14 +91,14 @@
       "label": "Critpt",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-21"
+      "last_updated": "2026-09-22"
     },
     {
       "id": "cursorbench",
       "label": "Cursorbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-21"
+      "last_updated": "2026-09-22"
     },
     {
       "id": "deepswe",
@@ -112,7 +112,7 @@
       "label": "Dtbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-09"
+      "last_updated": "2026-09-22"
     },
     {
       "id": "ebr_bench",
@@ -126,7 +126,7 @@
       "label": "Frontiercode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-10"
+      "last_updated": "2026-09-22"
     },
     {
       "id": "frontiermath_erdos",
@@ -154,7 +154,7 @@
       "label": "Frontierswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-03"
+      "last_updated": "2026-09-22"
     },
     {
       "id": "furniture_assembly",
@@ -177,7 +177,7 @@
       "label": "Lmca",
       "kind": "index",
       "group": "Academic",
-      "last_updated": "2026-09-09"
+      "last_updated": "2026-09-22"
     },
     {
       "id": "mirrorcode",
@@ -207,7 +207,7 @@
       "label": "Proofbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-21"
+      "last_updated": "2026-09-22"
     },
     {
       "id": "rli",
@@ -221,7 +221,7 @@
       "label": "Scicode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-21"
+      "last_updated": "2026-09-22"
     },
     {
       "id": "simplebench",
@@ -254,59 +254,183 @@
       "kind": "elo",
       "group": "Academic",
       "last_updated": "2026-09-03"
+    },
+    {
+      "id": "weirdml_v3",
+      "label": "Weirdml V3",
+      "kind": "percentage",
+      "group": "Academic",
+      "last_updated": "2026-09-22"
     }
   ],
   "models": [
     {
       "id": "claude-opus-5-5",
-      "name": "claude-opus-5-5_max",
+      "name": "claude-opus-5-5",
       "display_name": "claude-opus-5-5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-22",
-      "effort_level": "max",
       "scores": {
+        "apex_agents": {
+          "value": 0.735,
+          "date": "2026-09-22"
+        },
+        "arc_agi": {
+          "value": 0.975,
+          "date": "2026-09-22"
+        },
+        "arc_agi_2": {
+          "value": 0.9166666666666666,
+          "date": "2026-09-22"
+        },
+        "critpt": {
+          "value": 0.317142857142857,
+          "date": "2026-09-22"
+        },
+        "cursorbench": {
+          "value": 0.578,
+          "date": "2026-09-22"
+        },
+        "dtbench": {
+          "value": 0.9893000000000001,
+          "date": "2026-09-22"
+        },
         "ebr_bench": {
           "value": 0.7142857142857142,
           "date": "2026-09-22"
         },
+        "frontierswe": {
+          "value": 0.623309882352941,
+          "date": "2026-09-22"
+        },
         "furniture_assembly": {
           "value": 0.8333333333333334,
+          "date": "2026-09-22"
+        },
+        "lmca": {
+          "value": 68.23,
+          "date": "2026-09-22"
+        },
+        "proofbench": {
+          "value": 1.0,
+          "date": "2026-09-22"
+        },
+        "scicode": {
+          "value": 0.668981481481482,
+          "date": "2026-09-22"
+        },
+        "weirdml_v3": {
+          "value": 0.3120028142857143,
           "date": "2026-09-22"
         }
       }
     },
     {
       "id": "gpt-6-luna",
-      "name": "gpt-6-luna_max",
+      "name": "gpt-6-luna",
       "display_name": "gpt-6-luna",
       "creator": "openai",
       "creator_name": "OpenAI",
       "release_date": "2026-09-22",
-      "effort_level": "max",
       "scores": {
+        "apex_agents": {
+          "value": 0.443,
+          "date": "2026-09-22"
+        },
+        "arc_agi": {
+          "value": 0.8666666666666667,
+          "date": "2026-09-22"
+        },
+        "arc_agi_2": {
+          "value": 0.5930555555555556,
+          "date": "2026-09-22"
+        },
+        "critpt": {
+          "value": 0.19428571428571403,
+          "date": "2026-09-22"
+        },
+        "dtbench": {
+          "value": 0.9013,
+          "date": "2026-09-22"
+        },
+        "frontiercode": {
+          "value": 0.4242,
+          "date": "2026-09-22"
+        },
         "furniture_assembly": {
           "value": 0.44166666666666665,
           "date": "2026-09-28"
+        },
+        "lmca": {
+          "value": 44.49,
+          "date": "2026-09-22"
+        },
+        "scicode": {
+          "value": 0.546296296296296,
+          "date": "2026-09-22"
+        },
+        "weirdml_v3": {
+          "value": 0.07658146212121213,
+          "date": "2026-09-22"
         }
       }
     },
     {
       "id": "gpt-6-sol",
-      "name": "gpt-6-sol_max",
+      "name": "gpt-6-sol",
       "display_name": "gpt-6-sol",
       "creator": "openai",
       "creator_name": "OpenAI",
       "release_date": "2026-09-22",
-      "effort_level": "max",
       "scores": {
+        "ale_bench": {
+          "value": 2462.0,
+          "date": "2026-09-22"
+        },
+        "apex_agents": {
+          "value": 0.543,
+          "date": "2026-09-22"
+        },
+        "arc_agi": {
+          "value": 0.9550000000000001,
+          "date": "2026-09-22"
+        },
+        "arc_agi_2": {
+          "value": 0.8958333333333335,
+          "date": "2026-09-22"
+        },
+        "critpt": {
+          "value": 0.308571428571429,
+          "date": "2026-09-22"
+        },
+        "dtbench": {
+          "value": 0.9733,
+          "date": "2026-09-22"
+        },
         "ebr_bench": {
           "value": 0.5333333333333333,
+          "date": "2026-09-22"
+        },
+        "frontiercode": {
+          "value": 0.4927,
           "date": "2026-09-22"
         },
         "furniture_assembly": {
           "value": 0.5833333333333334,
           "date": "2026-09-23"
+        },
+        "lmca": {
+          "value": 59.08,
+          "date": "2026-09-22"
+        },
+        "scicode": {
+          "value": 0.576388888888889,
+          "date": "2026-09-22"
+        },
+        "weirdml_v3": {
+          "value": 0.19731756666666667,
+          "date": "2026-09-22"
         }
       }
     },
@@ -324,6 +448,10 @@
         },
         "cursorbench": {
           "value": 0.46299999999999997,
+          "date": "2026-09-21"
+        },
+        "frontierswe": {
+          "value": 0.2950476117647059,
           "date": "2026-09-21"
         },
         "furniture_assembly": {
@@ -407,6 +535,10 @@
         },
         "surface_evolver_bench": {
           "value": 0.4625,
+          "date": "2026-09-09"
+        },
+        "weirdml_v3": {
+          "value": 0.05946331818181818,
           "date": "2026-09-09"
         }
       }
@@ -556,6 +688,10 @@
         "weirdml": {
           "value": 0.9328000000000001,
           "date": "2026-09-03"
+        },
+        "weirdml_v3": {
+          "value": 0.4222023136363637,
+          "date": "2026-09-03"
         }
       }
     },
@@ -671,6 +807,10 @@
         },
         "vending_bench_2": {
           "value": 5093.793333333332,
+          "date": "2026-09-02"
+        },
+        "weirdml_v3": {
+          "value": 0.07378749090909091,
           "date": "2026-09-02"
         }
       }
@@ -847,6 +987,10 @@
         },
         "weirdml": {
           "value": 0.929,
+          "date": "2026-09-01"
+        },
+        "weirdml_v3": {
+          "value": 0.2597021272727273,
           "date": "2026-09-01"
         }
       }
@@ -1746,6 +1890,10 @@
         "weirdml": {
           "value": 0.9178000000000001,
           "date": "2026-07-24"
+        },
+        "weirdml_v3": {
+          "value": 0.19011175378787878,
+          "date": "2026-07-24"
         }
       }
     },
@@ -2020,6 +2168,10 @@
         "weirdml": {
           "value": 0.8257,
           "date": "2026-07-16"
+        },
+        "weirdml_v3": {
+          "value": 0.07268865151515151,
+          "date": "2026-07-16"
         }
       }
     },
@@ -2274,6 +2426,10 @@
         "weirdml": {
           "value": 0.6086,
           "date": "2026-07-09"
+        },
+        "weirdml_v3": {
+          "value": 0.05157952272727273,
+          "date": "2026-07-09"
         }
       }
     },
@@ -2403,6 +2559,10 @@
         },
         "weirdml": {
           "value": 0.8876000000000001,
+          "date": "2026-07-09"
+        },
+        "weirdml_v3": {
+          "value": 0.14992224545454547,
           "date": "2026-07-09"
         }
       }
@@ -3145,6 +3305,10 @@
         },
         "weirdml": {
           "value": 0.9194,
+          "date": "2026-06-09"
+        },
+        "weirdml_v3": {
+          "value": 0.1552890606060606,
           "date": "2026-06-09"
         }
       }
@@ -6892,6 +7056,10 @@
         },
         "weirdml": {
           "value": 0.6374000000000001,
+          "date": "2025-11-24"
+        },
+        "weirdml_v3": {
+          "value": 0.06517475,
           "date": "2025-11-24"
         }
       }
