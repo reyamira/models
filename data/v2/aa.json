@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-09-29T18:48:25.281384701+00:00",
+    "fetched_at": "2026-09-29T20:48:23.787211566+00:00",
     "verified": true
   },
   "metrics": [
@@ -3442,48 +3442,6 @@
         },
         "ttft": {
           "value": 1.124
-        }
-      }
-    },
-    {
-      "id": "claude-sonnet-5-5-low",
-      "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Low Effort, Default Fallback)",
-      "display_name": "Claude Sonnet 5.5",
-      "creator": "anthropic",
-      "creator_name": "Anthropic",
-      "release_date": "2026-09-28",
-      "reasoning_status": "Adaptive",
-      "effort_level": "low",
-      "scores": {
-        "hle": {
-          "value": 0.362
-        },
-        "intelligence_index": {
-          "value": 35.8
-        },
-        "lcr": {
-          "value": 0.76
-        },
-        "output_tps": {
-          "value": 90.718
-        },
-        "price_blended": {
-          "value": 4.0
-        },
-        "price_input": {
-          "value": 2.0
-        },
-        "price_output": {
-          "value": 10.0
-        },
-        "scicode": {
-          "value": 0.491
-        },
-        "ttfat": {
-          "value": 0.86
-        },
-        "ttft": {
-          "value": 0.86
         }
       }
     },
@@ -32760,6 +32718,45 @@
         },
         "scicode": {
           "value": 0.069
+        }
+      }
+    },
+    {
+      "id": "claude-sonnet-5-5-low",
+      "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Low Effort, Default Fallback)",
+      "display_name": "Claude Sonnet 5.5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-09-28",
+      "reasoning_status": "Adaptive",
+      "effort_level": "low",
+      "scores": {
+        "hle": {
+          "value": 0.362
+        },
+        "lcr": {
+          "value": 0.76
+        },
+        "output_tps": {
+          "value": 90.718
+        },
+        "price_blended": {
+          "value": 4.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 10.0
+        },
+        "scicode": {
+          "value": 0.491
+        },
+        "ttfat": {
+          "value": 0.86
+        },
+        "ttft": {
+          "value": 0.86
         }
       }
     },
