@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-09-30T00:18:19.576562270+00:00",
+    "fetched_at": "2026-09-30T02:18:19.264993309+00:00",
     "verified": true
   },
   "metrics": [
@@ -3581,54 +3581,6 @@
       }
     },
     {
-      "id": "kimi-k3-low",
-      "name": "Kimi K3 (low)",
-      "display_name": "Kimi K3",
-      "creator": "kimi",
-      "creator_name": "Kimi",
-      "release_date": "2026-07-16",
-      "reasoning_status": "Reasoning",
-      "effort_level": "low",
-      "scores": {
-        "coding_index": {
-          "value": 72.0
-        },
-        "gpqa": {
-          "value": 0.842
-        },
-        "hle": {
-          "value": 0.25
-        },
-        "intelligence_index": {
-          "value": 34.5
-        },
-        "lcr": {
-          "value": 0.793333333333333
-        },
-        "output_tps": {
-          "value": 39.899
-        },
-        "price_blended": {
-          "value": 6.0
-        },
-        "price_input": {
-          "value": 3.0
-        },
-        "price_output": {
-          "value": 15.0
-        },
-        "scicode": {
-          "value": 0.527
-        },
-        "ttfat": {
-          "value": 53.088
-        },
-        "ttft": {
-          "value": 2.961
-        }
-      }
-    },
-    {
       "id": "claude-sonnet-5-xhigh",
       "name": "Claude Sonnet 5 (Adaptive Reasoning, Xhigh Effort)",
       "display_name": "Claude Sonnet 5",
@@ -4948,6 +4900,54 @@
       }
     },
     {
+      "id": "kimi-k3-low",
+      "name": "Kimi K3 (low)",
+      "display_name": "Kimi K3",
+      "creator": "kimi",
+      "creator_name": "Kimi",
+      "release_date": "2026-07-16",
+      "reasoning_status": "Reasoning",
+      "effort_level": "low",
+      "scores": {
+        "coding_index": {
+          "value": 72.0
+        },
+        "gpqa": {
+          "value": 0.842
+        },
+        "hle": {
+          "value": 0.25
+        },
+        "intelligence_index": {
+          "value": 30.1
+        },
+        "lcr": {
+          "value": 0.793333333333333
+        },
+        "output_tps": {
+          "value": 39.899
+        },
+        "price_blended": {
+          "value": 6.0
+        },
+        "price_input": {
+          "value": 3.0
+        },
+        "price_output": {
+          "value": 15.0
+        },
+        "scicode": {
+          "value": 0.527
+        },
+        "ttfat": {
+          "value": 53.088
+        },
+        "ttft": {
+          "value": 2.961
+        }
+      }
+    },
+    {
       "id": "claude-sonnet-4-6-adaptive",
       "name": "Claude Sonnet 4.6 (Adaptive Reasoning, Max Effort)",
       "display_name": "Claude Sonnet 4.6",
@@ -5662,52 +5662,6 @@
         },
         "terminalbench_hard": {
           "value": 0.431818181818182
-        }
-      }
-    },
-    {
-      "id": "inkling-small",
-      "name": "Inkling Small",
-      "display_name": "Inkling Small",
-      "creator": "thinking-machines",
-      "creator_name": "Thinking Machines",
-      "release_date": "2026-07-30",
-      "scores": {
-        "coding_index": {
-          "value": 52.9
-        },
-        "gpqa": {
-          "value": 0.895
-        },
-        "hle": {
-          "value": 0.333
-        },
-        "intelligence_index": {
-          "value": 27.8
-        },
-        "lcr": {
-          "value": 0.756666666666667
-        },
-        "output_tps": {
-          "value": 218.927
-        },
-        "price_blended": {
-          "value": 0.525
-        },
-        "price_input": {
-          "value": 0.3
-        },
-        "price_output": {
-          "value": 1.2
-        },
-        "scicode": {
-          "value": 0.497
-        },
-        "ttfat": {
-          "value": 10.882
-        },
-        "ttft": {
-          "value": 1.747
         }
       }
     },
@@ -6430,54 +6384,6 @@
       }
     },
     {
-      "id": "deepseek-v4-flash-0420-high",
-      "name": "DeepSeek V4 Flash 0420 (Reasoning, High Effort)",
-      "display_name": "DeepSeek V4 Flash 0420",
-      "creator": "deepseek",
-      "creator_name": "DeepSeek",
-      "release_date": "2026-04-24",
-      "reasoning_status": "Reasoning",
-      "effort_level": "high",
-      "scores": {
-        "coding_index": {
-          "value": 52.0
-        },
-        "gpqa": {
-          "value": 0.867
-        },
-        "hle": {
-          "value": 0.303
-        },
-        "ifbench": {
-          "value": 0.734693877551021
-        },
-        "intelligence_index": {
-          "value": 26.0
-        },
-        "lcr": {
-          "value": 0.72
-        },
-        "price_blended": {
-          "value": 0.143
-        },
-        "price_input": {
-          "value": 0.112
-        },
-        "price_output": {
-          "value": 0.238
-        },
-        "scicode": {
-          "value": 0.402
-        },
-        "tau2": {
-          "value": 0.956140350877193
-        },
-        "terminalbench_hard": {
-          "value": 0.386363636363636
-        }
-      }
-    },
-    {
       "id": "mimo-v2-5-pro",
       "name": "MiMo-V2.5-Pro",
       "display_name": "MiMo-V2.5-Pro",
@@ -6584,6 +6490,52 @@
         },
         "ttft": {
           "value": 0.991
+        }
+      }
+    },
+    {
+      "id": "inkling-small",
+      "name": "Inkling Small",
+      "display_name": "Inkling Small",
+      "creator": "thinking-machines",
+      "creator_name": "Thinking Machines",
+      "release_date": "2026-07-30",
+      "scores": {
+        "coding_index": {
+          "value": 52.9
+        },
+        "gpqa": {
+          "value": 0.895
+        },
+        "hle": {
+          "value": 0.333
+        },
+        "intelligence_index": {
+          "value": 25.7
+        },
+        "lcr": {
+          "value": 0.756666666666667
+        },
+        "output_tps": {
+          "value": 218.927
+        },
+        "price_blended": {
+          "value": 0.525
+        },
+        "price_input": {
+          "value": 0.3
+        },
+        "price_output": {
+          "value": 1.2
+        },
+        "scicode": {
+          "value": 0.497
+        },
+        "ttfat": {
+          "value": 10.882
+        },
+        "ttft": {
+          "value": 1.747
         }
       }
     },
@@ -7350,6 +7302,54 @@
         },
         "ttft": {
           "value": 1.377
+        }
+      }
+    },
+    {
+      "id": "deepseek-v4-flash-0420-high",
+      "name": "DeepSeek V4 Flash 0420 (Reasoning, High Effort)",
+      "display_name": "DeepSeek V4 Flash 0420",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2026-04-24",
+      "reasoning_status": "Reasoning",
+      "effort_level": "high",
+      "scores": {
+        "coding_index": {
+          "value": 52.0
+        },
+        "gpqa": {
+          "value": 0.867
+        },
+        "hle": {
+          "value": 0.303
+        },
+        "ifbench": {
+          "value": 0.734693877551021
+        },
+        "intelligence_index": {
+          "value": 24.4
+        },
+        "lcr": {
+          "value": 0.72
+        },
+        "price_blended": {
+          "value": 0.143
+        },
+        "price_input": {
+          "value": 0.112
+        },
+        "price_output": {
+          "value": 0.238
+        },
+        "scicode": {
+          "value": 0.402
+        },
+        "tau2": {
+          "value": 0.956140350877193
+        },
+        "terminalbench_hard": {
+          "value": 0.386363636363636
         }
       }
     },
@@ -10560,62 +10560,6 @@
       }
     },
     {
-      "id": "gemma-4-31b",
-      "name": "Gemma 4 31B (Reasoning)",
-      "display_name": "Gemma 4 31B",
-      "creator": "google",
-      "creator_name": "Google",
-      "release_date": "2026-04-02",
-      "reasoning_status": "Reasoning",
-      "scores": {
-        "coding_index": {
-          "value": 43.4
-        },
-        "gpqa": {
-          "value": 0.857
-        },
-        "hle": {
-          "value": 0.236
-        },
-        "ifbench": {
-          "value": 0.75578231292517
-        },
-        "intelligence_index": {
-          "value": 19.0
-        },
-        "lcr": {
-          "value": 0.696666666666667
-        },
-        "output_tps": {
-          "value": 34.993
-        },
-        "price_blended": {
-          "value": 0.0
-        },
-        "price_input": {
-          "value": 0.0
-        },
-        "price_output": {
-          "value": 0.0
-        },
-        "scicode": {
-          "value": 0.455
-        },
-        "tau2": {
-          "value": 0.599415204678363
-        },
-        "terminalbench_hard": {
-          "value": 0.363636363636364
-        },
-        "ttfat": {
-          "value": 50.584
-        },
-        "ttft": {
-          "value": 0.974
-        }
-      }
-    },
-    {
       "id": "claude-4-sonnet-thinking",
       "name": "Claude 4 Sonnet (Reasoning)",
       "display_name": "Claude 4 Sonnet",
@@ -13295,6 +13239,62 @@
         },
         "terminalbench_hard": {
           "value": 0.303030303030303
+        }
+      }
+    },
+    {
+      "id": "gemma-4-31b",
+      "name": "Gemma 4 31B (Reasoning)",
+      "display_name": "Gemma 4 31B",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-04-02",
+      "reasoning_status": "Reasoning",
+      "scores": {
+        "coding_index": {
+          "value": 43.4
+        },
+        "gpqa": {
+          "value": 0.857
+        },
+        "hle": {
+          "value": 0.236
+        },
+        "ifbench": {
+          "value": 0.75578231292517
+        },
+        "intelligence_index": {
+          "value": 14.7
+        },
+        "lcr": {
+          "value": 0.696666666666667
+        },
+        "output_tps": {
+          "value": 34.993
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.455
+        },
+        "tau2": {
+          "value": 0.599415204678363
+        },
+        "terminalbench_hard": {
+          "value": 0.363636363636364
+        },
+        "ttfat": {
+          "value": 50.584
+        },
+        "ttft": {
+          "value": 0.974
         }
       }
     },
