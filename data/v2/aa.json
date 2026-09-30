@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-09-30T02:48:32.352834130+00:00",
+    "fetched_at": "2026-09-30T03:18:27.681483665+00:00",
     "verified": true
   },
   "metrics": [
@@ -3800,6 +3800,37 @@
       }
     },
     {
+      "id": "jt236b",
+      "name": "JT-4.1 Flash 236B A21B",
+      "display_name": "JT-4.1 Flash 236B A21B",
+      "creator": "china-mobile",
+      "creator_name": "China Mobile",
+      "release_date": "2026-07-09",
+      "scores": {
+        "hle": {
+          "value": 0.436
+        },
+        "intelligence_index": {
+          "value": 33.9
+        },
+        "lcr": {
+          "value": 0.783333333333333
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.52
+        }
+      }
+    },
+    {
       "id": "gpt-6-sol-low",
       "name": "GPT-6 Sol (low)",
       "display_name": "GPT-6 Sol",
@@ -5814,11 +5845,12 @@
     },
     {
       "id": "jt-4-1-flash-236b-a21b",
-      "name": "JT-4.1 Flash 236B A21B",
+      "name": "JT-4.1 Flash 236B A21B (non-reasoning)",
       "display_name": "JT-4.1 Flash 236B A21B",
       "creator": "china-mobile",
       "creator_name": "China Mobile",
       "release_date": "2026-07-09",
+      "reasoning_status": "NonReasoning",
       "scores": {
         "coding_index": {
           "value": 52.4
@@ -9985,7 +10017,7 @@
           "value": 0.506666666666667
         },
         "output_tps": {
-          "value": 206.952
+          "value": 203.386
         },
         "price_blended": {
           "value": 1.98
@@ -10000,10 +10032,10 @@
           "value": 0.399
         },
         "ttfat": {
-          "value": 0.914
+          "value": 0.915
         },
         "ttft": {
-          "value": 0.914
+          "value": 0.915
         }
       }
     },
