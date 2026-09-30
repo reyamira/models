@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-09-29T18:18:25.262970854+00:00",
+    "fetched_at": "2026-09-30T06:18:32.068835920+00:00",
     "verified": true
   },
   "metrics": [
@@ -54,7 +54,7 @@
       "label": "Ale Bench",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-09-22"
+      "last_updated": "2026-09-28"
     },
     {
       "id": "balrog",
@@ -140,14 +140,14 @@
       "label": "Frontiermath Tier 4 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-22"
+      "last_updated": "2026-09-29"
     },
     {
       "id": "frontiermath_tiers_1_3_v2",
       "label": "Frontiermath Tiers 1 3 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-22"
+      "last_updated": "2026-09-29"
     },
     {
       "id": "frontierswe",
@@ -161,14 +161,14 @@
       "label": "Furniture Assembly",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-28"
+      "last_updated": "2026-09-29"
     },
     {
       "id": "gpqa_diamond",
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-22",
+      "last_updated": "2026-09-29",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -191,14 +191,14 @@
       "label": "Mystery Game Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-18"
+      "last_updated": "2026-09-29"
     },
     {
       "id": "otis_mock_aime_2024_2025",
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-22",
+      "last_updated": "2026-09-29",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -237,7 +237,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-22",
+      "last_updated": "2026-09-29",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -272,6 +272,10 @@
       "creator_name": "Anthropic",
       "release_date": "2026-09-28",
       "scores": {
+        "ale_bench": {
+          "value": 1819.12,
+          "date": "2026-09-28"
+        },
         "apex_agents": {
           "value": 0.755,
           "date": "2026-09-28"
@@ -288,9 +292,33 @@
           "value": 0.5209,
           "date": "2026-09-28"
         },
+        "frontiermath_tier_4_v2": {
+          "value": 0.8048780487804879,
+          "date": "2026-09-29"
+        },
+        "frontiermath_tiers_1_3_v2": {
+          "value": 0.887719298245614,
+          "date": "2026-09-29"
+        },
         "frontierswe": {
           "value": 0.618892994117647,
           "date": "2026-09-28"
+        },
+        "furniture_assembly": {
+          "value": 0.75,
+          "date": "2026-09-29"
+        },
+        "gpqa_diamond": {
+          "value": 0.9558080808080808,
+          "date": "2026-09-29"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.65,
+          "date": "2026-09-29"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 1.0,
+          "date": "2026-09-29"
         },
         "proofbench": {
           "value": 1.0,
@@ -299,6 +327,10 @@
         "scicode": {
           "value": 0.609953703703704,
           "date": "2026-09-28"
+        },
+        "simpleqa_verified": {
+          "value": 0.465,
+          "date": "2026-09-29"
         }
       }
     },
@@ -366,6 +398,10 @@
           "value": 0.774,
           "date": "2026-09-22"
         },
+        "mystery_game_puzzles": {
+          "value": 0.71,
+          "date": "2026-09-29"
+        },
         "otis_mock_aime_2024_2025": {
           "value": 1.0,
           "date": "2026-09-22"
@@ -390,113 +426,35 @@
     },
     {
       "id": "gpt-6-luna",
-      "name": "gpt-6-luna",
+      "name": "gpt-6-luna_max",
       "display_name": "gpt-6-luna",
       "creator": "openai",
       "creator_name": "OpenAI",
       "release_date": "2026-09-22",
+      "effort_level": "max",
       "scores": {
-        "ale_bench": {
-          "value": 1576.92,
-          "date": "2026-09-22"
-        },
-        "apex_agents": {
-          "value": 0.443,
-          "date": "2026-09-22"
-        },
-        "arc_agi": {
-          "value": 0.8666666666666667,
-          "date": "2026-09-22"
-        },
-        "arc_agi_2": {
-          "value": 0.5930555555555556,
-          "date": "2026-09-22"
-        },
-        "critpt": {
-          "value": 0.19428571428571403,
-          "date": "2026-09-22"
-        },
-        "dtbench": {
-          "value": 0.9013,
-          "date": "2026-09-22"
-        },
-        "frontiercode": {
-          "value": 0.4242,
-          "date": "2026-09-22"
-        },
         "furniture_assembly": {
           "value": 0.44166666666666665,
           "date": "2026-09-28"
-        },
-        "lmca": {
-          "value": 44.49,
-          "date": "2026-09-22"
-        },
-        "scicode": {
-          "value": 0.546296296296296,
-          "date": "2026-09-22"
-        },
-        "weirdml_v3": {
-          "value": 0.07658146212121213,
-          "date": "2026-09-22"
         }
       }
     },
     {
       "id": "gpt-6-sol",
-      "name": "gpt-6-sol",
+      "name": "gpt-6-sol_max",
       "display_name": "gpt-6-sol",
       "creator": "openai",
       "creator_name": "OpenAI",
       "release_date": "2026-09-22",
+      "effort_level": "max",
       "scores": {
-        "ale_bench": {
-          "value": 2462.0,
-          "date": "2026-09-22"
-        },
-        "apex_agents": {
-          "value": 0.543,
-          "date": "2026-09-22"
-        },
-        "arc_agi": {
-          "value": 0.9550000000000001,
-          "date": "2026-09-22"
-        },
-        "arc_agi_2": {
-          "value": 0.8958333333333335,
-          "date": "2026-09-22"
-        },
-        "critpt": {
-          "value": 0.308571428571429,
-          "date": "2026-09-22"
-        },
-        "dtbench": {
-          "value": 0.9733,
-          "date": "2026-09-22"
-        },
         "ebr_bench": {
           "value": 0.5333333333333333,
-          "date": "2026-09-22"
-        },
-        "frontiercode": {
-          "value": 0.4927,
           "date": "2026-09-22"
         },
         "furniture_assembly": {
           "value": 0.5833333333333334,
           "date": "2026-09-23"
-        },
-        "lmca": {
-          "value": 59.08,
-          "date": "2026-09-22"
-        },
-        "scicode": {
-          "value": 0.576388888888889,
-          "date": "2026-09-22"
-        },
-        "weirdml_v3": {
-          "value": 0.19731756666666667,
-          "date": "2026-09-22"
         }
       }
     },
