@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-10-02T06:18:06.495103013+00:00",
+    "fetched_at": "2026-10-02T07:18:06.333523774+00:00",
     "verified": true
   },
   "metrics": [
@@ -215,48 +215,6 @@
       }
     },
     {
-      "id": "claude-opus-5-5-xhigh",
-      "name": "Claude Opus 5.5 (Adaptive Reasoning, Xhigh Effort, Default Fallback)",
-      "display_name": "Claude Opus 5.5",
-      "creator": "anthropic",
-      "creator_name": "Anthropic",
-      "release_date": "2026-09-22",
-      "reasoning_status": "Adaptive",
-      "effort_level": "xhigh",
-      "scores": {
-        "hle": {
-          "value": 0.575
-        },
-        "intelligence_index": {
-          "value": 56.0
-        },
-        "lcr": {
-          "value": 0.846666666666667
-        },
-        "output_tps": {
-          "value": 81.109
-        },
-        "price_blended": {
-          "value": 8.0
-        },
-        "price_input": {
-          "value": 4.0
-        },
-        "price_output": {
-          "value": 20.0
-        },
-        "scicode": {
-          "value": 0.65
-        },
-        "ttfat": {
-          "value": 50.457
-        },
-        "ttft": {
-          "value": 50.457
-        }
-      }
-    },
-    {
       "id": "claude-sonnet-5-5",
       "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Max Effort, Default Fallback)",
       "display_name": "Claude Sonnet 5.5",
@@ -295,6 +253,48 @@
         },
         "ttft": {
           "value": 265.2
+        }
+      }
+    },
+    {
+      "id": "claude-opus-5-5-xhigh",
+      "name": "Claude Opus 5.5 (Adaptive Reasoning, Xhigh Effort, Default Fallback)",
+      "display_name": "Claude Opus 5.5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Adaptive",
+      "effort_level": "xhigh",
+      "scores": {
+        "hle": {
+          "value": 0.575
+        },
+        "intelligence_index": {
+          "value": 56.0
+        },
+        "lcr": {
+          "value": 0.846666666666667
+        },
+        "output_tps": {
+          "value": 81.109
+        },
+        "price_blended": {
+          "value": 8.0
+        },
+        "price_input": {
+          "value": 4.0
+        },
+        "price_output": {
+          "value": 20.0
+        },
+        "scicode": {
+          "value": 0.65
+        },
+        "ttfat": {
+          "value": 50.457
+        },
+        "ttft": {
+          "value": 50.457
         }
       }
     },
@@ -1374,7 +1374,7 @@
           "value": 0.458
         },
         "intelligence_index": {
-          "value": 46.7
+          "value": 46.8
         },
         "lcr": {
           "value": 0.78
@@ -2489,7 +2489,7 @@
           "value": 0.398
         },
         "intelligence_index": {
-          "value": 40.7
+          "value": 40.8
         },
         "lcr": {
           "value": 0.763333333333333
@@ -3499,6 +3499,48 @@
         },
         "ttft": {
           "value": 1.174
+        }
+      }
+    },
+    {
+      "id": "claude-sonnet-5-5-low",
+      "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Low Effort, Default Fallback)",
+      "display_name": "Claude Sonnet 5.5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-09-28",
+      "reasoning_status": "Adaptive",
+      "effort_level": "low",
+      "scores": {
+        "hle": {
+          "value": 0.362
+        },
+        "intelligence_index": {
+          "value": 35.9
+        },
+        "lcr": {
+          "value": 0.76
+        },
+        "output_tps": {
+          "value": 110.722
+        },
+        "price_blended": {
+          "value": 4.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 10.0
+        },
+        "scicode": {
+          "value": 0.491
+        },
+        "ttfat": {
+          "value": 0.917
+        },
+        "ttft": {
+          "value": 0.917
         }
       }
     },
@@ -32904,45 +32946,6 @@
         },
         "scicode": {
           "value": 0.069
-        }
-      }
-    },
-    {
-      "id": "claude-sonnet-5-5-low",
-      "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Low Effort, Default Fallback)",
-      "display_name": "Claude Sonnet 5.5",
-      "creator": "anthropic",
-      "creator_name": "Anthropic",
-      "release_date": "2026-09-28",
-      "reasoning_status": "Adaptive",
-      "effort_level": "low",
-      "scores": {
-        "hle": {
-          "value": 0.362
-        },
-        "lcr": {
-          "value": 0.76
-        },
-        "output_tps": {
-          "value": 110.722
-        },
-        "price_blended": {
-          "value": 4.0
-        },
-        "price_input": {
-          "value": 2.0
-        },
-        "price_output": {
-          "value": 10.0
-        },
-        "scicode": {
-          "value": 0.491
-        },
-        "ttfat": {
-          "value": 0.917
-        },
-        "ttft": {
-          "value": 0.917
         }
       }
     },
