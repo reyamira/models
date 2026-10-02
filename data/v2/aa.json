@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-10-02T18:18:12.255434291+00:00",
+    "fetched_at": "2026-10-02T19:18:06.136923516+00:00",
     "verified": true
   },
   "metrics": [
@@ -174,13 +174,12 @@
   "models": [
     {
       "id": "claude-opus-5-5",
-      "name": "Claude Opus 5.5 (Adaptive Reasoning, Max Effort, Default Fallback)",
+      "name": "Claude Opus 5.5 (Max, Default Fallback)",
       "display_name": "Claude Opus 5.5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-22",
-      "reasoning_status": "Adaptive",
-      "effort_level": "max",
+      "variant_tag": "Max, Default Fallback",
       "scores": {
         "hle": {
           "value": 0.614
@@ -216,13 +215,12 @@
     },
     {
       "id": "claude-sonnet-5-5",
-      "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Max Effort, Default Fallback)",
+      "name": "Claude Sonnet 5.5 (Max, Default Fallback)",
       "display_name": "Claude Sonnet 5.5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-28",
-      "reasoning_status": "Adaptive",
-      "effort_level": "max",
+      "variant_tag": "Max, Default Fallback",
       "scores": {
         "hle": {
           "value": 0.55
@@ -258,13 +256,12 @@
     },
     {
       "id": "claude-opus-5-5-xhigh",
-      "name": "Claude Opus 5.5 (Adaptive Reasoning, Xhigh Effort, Default Fallback)",
+      "name": "Claude Opus 5.5 (Xhigh, Default Fallback)",
       "display_name": "Claude Opus 5.5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-22",
-      "reasoning_status": "Adaptive",
-      "effort_level": "xhigh",
+      "variant_tag": "Xhigh, Default Fallback",
       "scores": {
         "hle": {
           "value": 0.575
@@ -300,13 +297,12 @@
     },
     {
       "id": "claude-opus-5-5-high",
-      "name": "Claude Opus 5.5 (Adaptive Reasoning, High Effort, Default Fallback)",
+      "name": "Claude Opus 5.5 (High, Default Fallback)",
       "display_name": "Claude Opus 5.5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-22",
-      "reasoning_status": "Adaptive",
-      "effort_level": "high",
+      "variant_tag": "High, Default Fallback",
       "scores": {
         "hle": {
           "value": 0.556
@@ -342,13 +338,12 @@
     },
     {
       "id": "claude-fable-5-1",
-      "name": "Claude Fable 5.1 (Adaptive Reasoning, Max Effort, Default Fallback)",
+      "name": "Claude Fable 5.1 (Max, Default Fallback)",
       "display_name": "Claude Fable 5.1",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-01",
-      "reasoning_status": "Adaptive",
-      "effort_level": "max",
+      "variant_tag": "Max, Default Fallback",
       "scores": {
         "coding_index": {
           "value": 81.6
@@ -390,13 +385,12 @@
     },
     {
       "id": "claude-fable-5-1-xhigh",
-      "name": "Claude Fable 5.1 (Adaptive Reasoning, Xhigh Effort, Default Fallback)",
+      "name": "Claude Fable 5.1 (Xhigh, Default Fallback)",
       "display_name": "Claude Fable 5.1",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-01",
-      "reasoning_status": "Adaptive",
-      "effort_level": "xhigh",
+      "variant_tag": "Xhigh, Default Fallback",
       "scores": {
         "coding_index": {
           "value": 80.7
@@ -567,13 +561,12 @@
     },
     {
       "id": "claude-sonnet-5-5-xhigh",
-      "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Xhigh Effort, Default Fallback)",
+      "name": "Claude Sonnet 5.5 (Xhigh, Default Fallback)",
       "display_name": "Claude Sonnet 5.5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-28",
-      "reasoning_status": "Adaptive",
-      "effort_level": "xhigh",
+      "variant_tag": "Xhigh, Default Fallback",
       "scores": {
         "hle": {
           "value": 0.5
@@ -651,13 +644,12 @@
     },
     {
       "id": "claude-opus-5-5-medium",
-      "name": "Claude Opus 5.5 (Adaptive Reasoning, Medium Effort, Default Fallback)",
+      "name": "Claude Opus 5.5 (Medium, Default Fallback)",
       "display_name": "Claude Opus 5.5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-22",
-      "reasoning_status": "Adaptive",
-      "effort_level": "medium",
+      "variant_tag": "Medium, Default Fallback",
       "scores": {
         "hle": {
           "value": 0.547
@@ -693,13 +685,12 @@
     },
     {
       "id": "claude-fable-5-1-high",
-      "name": "Claude Fable 5.1 (Adaptive Reasoning, High Effort, Default Fallback)",
+      "name": "Claude Fable 5.1 (High, Default Fallback)",
       "display_name": "Claude Fable 5.1",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-01",
-      "reasoning_status": "Adaptive",
-      "effort_level": "high",
+      "variant_tag": "High, Default Fallback",
       "scores": {
         "coding_index": {
           "value": 79.1
@@ -831,12 +822,12 @@
     },
     {
       "id": "claude-opus-5",
-      "name": "Claude Opus 5 (Adaptive Reasoning, Max Effort)",
+      "name": "Claude Opus 5 (Max)",
       "display_name": "Claude Opus 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-07-24",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "max",
       "scores": {
         "coding_index": {
@@ -912,12 +903,12 @@
     },
     {
       "id": "claude-opus-5-xhigh",
-      "name": "Claude Opus 5 (Adaptive Reasoning, Xhigh Effort)",
+      "name": "Claude Opus 5 (Xhigh)",
       "display_name": "Claude Opus 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-07-24",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "xhigh",
       "scores": {
         "coding_index": {
@@ -951,13 +942,12 @@
     },
     {
       "id": "claude-fable-5",
-      "name": "Claude Fable 5 (Adaptive Reasoning, Max Effort, Opus 4.8 Fallback)",
+      "name": "Claude Fable 5 (Max, Opus 4.8 Fallback)",
       "display_name": "Claude Fable 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-06-09",
-      "reasoning_status": "Adaptive",
-      "effort_level": "max",
+      "variant_tag": "Max, Opus 4.8 Fallback",
       "scores": {
         "coding_index": {
           "value": 76.5
@@ -1047,13 +1037,12 @@
     },
     {
       "id": "claude-fable-5-1-medium",
-      "name": "Claude Fable 5.1 (Adaptive Reasoning, Medium Effort, Default Fallback)",
+      "name": "Claude Fable 5.1 (Medium, Default Fallback)",
       "display_name": "Claude Fable 5.1",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-01",
-      "reasoning_status": "Adaptive",
-      "effort_level": "medium",
+      "variant_tag": "Medium, Default Fallback",
       "scores": {
         "coding_index": {
           "value": 77.1
@@ -1095,12 +1084,12 @@
     },
     {
       "id": "claude-opus-5-high",
-      "name": "Claude Opus 5 (Adaptive Reasoning, High Effort)",
+      "name": "Claude Opus 5 (High)",
       "display_name": "Claude Opus 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-07-24",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "high",
       "scores": {
         "coding_index": {
@@ -1314,13 +1303,12 @@
     },
     {
       "id": "claude-fable-5-1-low",
-      "name": "Claude Fable 5.1 (Adaptive Reasoning, Low Effort, Default Fallback)",
+      "name": "Claude Fable 5.1 (Low, Default Fallback)",
       "display_name": "Claude Fable 5.1",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-01",
-      "reasoning_status": "Adaptive",
-      "effort_level": "low",
+      "variant_tag": "Low, Default Fallback",
       "scores": {
         "coding_index": {
           "value": 75.2
@@ -1362,13 +1350,12 @@
     },
     {
       "id": "claude-sonnet-5-5-high",
-      "name": "Claude Sonnet 5.5 (Adaptive Reasoning, High Effort, Default Fallback)",
+      "name": "Claude Sonnet 5.5 (High, Default Fallback)",
       "display_name": "Claude Sonnet 5.5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-28",
-      "reasoning_status": "Adaptive",
-      "effort_level": "high",
+      "variant_tag": "High, Default Fallback",
       "scores": {
         "hle": {
           "value": 0.458
@@ -1671,12 +1658,12 @@
     },
     {
       "id": "claude-opus-5-medium",
-      "name": "Claude Opus 5 (Adaptive Reasoning, Medium Effort)",
+      "name": "Claude Opus 5 (Medium)",
       "display_name": "Claude Opus 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-07-24",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "medium",
       "scores": {
         "coding_index": {
@@ -2152,13 +2139,12 @@
     },
     {
       "id": "claude-opus-5-5-low",
-      "name": "Claude Opus 5.5 (Adaptive Reasoning, Low Effort, Default Fallback)",
+      "name": "Claude Opus 5.5 (Low, Default Fallback)",
       "display_name": "Claude Opus 5.5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-22",
-      "reasoning_status": "Adaptive",
-      "effort_level": "low",
+      "variant_tag": "Low, Default Fallback",
       "scores": {
         "hle": {
           "value": 0.483
@@ -2381,12 +2367,12 @@
     },
     {
       "id": "claude-opus-4-8",
-      "name": "Claude Opus 4.8 (Adaptive Reasoning, Max Effort)",
+      "name": "Claude Opus 4.8 (Max)",
       "display_name": "Claude Opus 4.8",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-05-28",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "max",
       "scores": {
         "coding_index": {
@@ -2477,13 +2463,12 @@
     },
     {
       "id": "claude-sonnet-5-5-medium",
-      "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Medium Effort, Default Fallback)",
+      "name": "Claude Sonnet 5.5 (Medium, Default Fallback)",
       "display_name": "Claude Sonnet 5.5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-28",
-      "reasoning_status": "Adaptive",
-      "effort_level": "medium",
+      "variant_tag": "Medium, Default Fallback",
       "scores": {
         "hle": {
           "value": 0.398
@@ -2519,12 +2504,12 @@
     },
     {
       "id": "claude-opus-4-7",
-      "name": "Claude Opus 4.7 (Adaptive Reasoning, Max Effort)",
+      "name": "Claude Opus 4.7 (Max)",
       "display_name": "Claude Opus 4.7",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-04-16",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "max",
       "scores": {
         "coding_index": {
@@ -2885,12 +2870,12 @@
     },
     {
       "id": "claude-opus-5-low",
-      "name": "Claude Opus 5 (Adaptive Reasoning, Low Effort)",
+      "name": "Claude Opus 5 (Low)",
       "display_name": "Claude Opus 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-07-24",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "low",
       "scores": {
         "coding_index": {
@@ -3143,12 +3128,12 @@
     },
     {
       "id": "claude-sonnet-5",
-      "name": "Claude Sonnet 5 (Adaptive Reasoning, Max Effort)",
+      "name": "Claude Sonnet 5 (Max)",
       "display_name": "Claude Sonnet 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-06-30",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "max",
       "scores": {
         "coding_index": {
@@ -3504,13 +3489,12 @@
     },
     {
       "id": "claude-sonnet-5-5-low",
-      "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Low Effort, Default Fallback)",
+      "name": "Claude Sonnet 5.5 (Low, Default Fallback)",
       "display_name": "Claude Sonnet 5.5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-09-28",
-      "reasoning_status": "Adaptive",
-      "effort_level": "low",
+      "variant_tag": "Low, Default Fallback",
       "scores": {
         "hle": {
           "value": 0.362
@@ -3723,12 +3707,12 @@
     },
     {
       "id": "claude-sonnet-5-xhigh",
-      "name": "Claude Sonnet 5 (Adaptive Reasoning, Xhigh Effort)",
+      "name": "Claude Sonnet 5 (Xhigh)",
       "display_name": "Claude Sonnet 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-06-30",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "xhigh",
       "scores": {
         "hle": {
@@ -4580,12 +4564,12 @@
     },
     {
       "id": "claude-opus-4-6-adaptive",
-      "name": "Claude Opus 4.6 (Adaptive Reasoning, Max Effort)",
+      "name": "Claude Opus 4.6 (Max)",
       "display_name": "Claude Opus 4.6",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-02-05",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "max",
       "scores": {
         "gpqa": {
@@ -4622,12 +4606,12 @@
     },
     {
       "id": "claude-sonnet-5-high",
-      "name": "Claude Sonnet 5 (Adaptive Reasoning, High Effort)",
+      "name": "Claude Sonnet 5 (High)",
       "display_name": "Claude Sonnet 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-06-30",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "high",
       "scores": {
         "hle": {
@@ -4707,7 +4691,7 @@
     },
     {
       "id": "claude-opus-4-7-non-reasoning",
-      "name": "Claude Opus 4.7 (Non-reasoning, High Effort)",
+      "name": "Claude Opus 4.7 (Non-reasoning, High)",
       "display_name": "Claude Opus 4.7",
       "creator": "anthropic",
       "creator_name": "Anthropic",
@@ -5089,12 +5073,12 @@
     },
     {
       "id": "claude-sonnet-4-6-adaptive",
-      "name": "Claude Sonnet 4.6 (Adaptive Reasoning, Max Effort)",
+      "name": "Claude Sonnet 4.6 (Max)",
       "display_name": "Claude Sonnet 4.6",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-02-17",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "max",
       "scores": {
         "coding_index": {
@@ -5670,12 +5654,12 @@
     },
     {
       "id": "claude-sonnet-5-medium",
-      "name": "Claude Sonnet 5 (Adaptive Reasoning, Medium Effort)",
+      "name": "Claude Sonnet 5 (Medium)",
       "display_name": "Claude Sonnet 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-06-30",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "medium",
       "scores": {
         "hle": {
@@ -6291,7 +6275,7 @@
     },
     {
       "id": "claude-opus-4-6",
-      "name": "Claude Opus 4.6 (Non-reasoning, High Effort)",
+      "name": "Claude Opus 4.6 (Non-reasoning, High)",
       "display_name": "Claude Opus 4.6",
       "creator": "anthropic",
       "creator_name": "Anthropic",
@@ -7312,7 +7296,7 @@
     },
     {
       "id": "claude-sonnet-4-6",
-      "name": "Claude Sonnet 4.6 (Non-reasoning, High Effort)",
+      "name": "Claude Sonnet 4.6 (Non-reasoning, High)",
       "display_name": "Claude Sonnet 4.6",
       "creator": "anthropic",
       "creator_name": "Anthropic",
@@ -7522,12 +7506,12 @@
     },
     {
       "id": "claude-sonnet-5-low",
-      "name": "Claude Sonnet 5 (Adaptive Reasoning, Low Effort)",
+      "name": "Claude Sonnet 5 (Low)",
       "display_name": "Claude Sonnet 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
       "release_date": "2026-06-30",
-      "reasoning_status": "Adaptive",
+      "reasoning_status": "Reasoning",
       "effort_level": "low",
       "scores": {
         "hle": {
@@ -8056,7 +8040,7 @@
     },
     {
       "id": "claude-sonnet-4-6-non-reasoning-low-effort",
-      "name": "Claude Sonnet 4.6 (Non-reasoning, Low Effort)",
+      "name": "Claude Sonnet 4.6 (Non-reasoning, Low)",
       "display_name": "Claude Sonnet 4.6",
       "creator": "anthropic",
       "creator_name": "Anthropic",
@@ -8098,7 +8082,7 @@
     },
     {
       "id": "claude-sonnet-5-non-reasoning",
-      "name": "Claude Sonnet 5 (Non-reasoning, High Effort)",
+      "name": "Claude Sonnet 5 (Non-reasoning, High)",
       "display_name": "Claude Sonnet 5",
       "creator": "anthropic",
       "creator_name": "Anthropic",
