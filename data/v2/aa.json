@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-10-03T01:18:03.196901113+00:00",
+    "fetched_at": "2026-10-03T03:18:08.340495242+00:00",
     "verified": true
   },
   "metrics": [
@@ -10053,7 +10053,7 @@
           "value": 0.506666666666667
         },
         "output_tps": {
-          "value": 109.119
+          "value": 117.933
         },
         "price_blended": {
           "value": 1.427
@@ -10068,10 +10068,10 @@
           "value": 0.399
         },
         "ttfat": {
-          "value": 1.056
+          "value": 1.05
         },
         "ttft": {
-          "value": 1.056
+          "value": 1.05
         }
       }
     },
@@ -24350,52 +24350,6 @@
       }
     },
     {
-      "id": "nvidia-nemotron-3-nano-4b",
-      "name": "NVIDIA Nemotron 3 Nano 4B",
-      "display_name": "NVIDIA Nemotron 3 Nano 4B",
-      "creator": "nvidia",
-      "creator_name": "NVIDIA",
-      "release_date": "2026-03-16",
-      "scores": {
-        "coding_index": {
-          "value": 8.0
-        },
-        "gpqa": {
-          "value": 0.513
-        },
-        "hle": {
-          "value": 0.049
-        },
-        "ifbench": {
-          "value": 0.582312925170068
-        },
-        "intelligence_index": {
-          "value": 7.4
-        },
-        "lcr": {
-          "value": 0.216666666666667
-        },
-        "price_blended": {
-          "value": 0.0
-        },
-        "price_input": {
-          "value": 0.0
-        },
-        "price_output": {
-          "value": 0.0
-        },
-        "scicode": {
-          "value": 0.161
-        },
-        "tau2": {
-          "value": 0.280701754385965
-        },
-        "terminalbench_hard": {
-          "value": 0.0681818181818182
-        }
-      }
-    },
-    {
       "id": "llama-nemotron-super-49b-v1-5",
       "name": "Llama Nemotron Super 49B v1.5 (Non-reasoning)",
       "display_name": "Llama Nemotron Super 49B v1.5",
@@ -32730,6 +32684,52 @@
         },
         "ttft": {
           "value": 0.217
+        }
+      }
+    },
+    {
+      "id": "nvidia-nemotron-3-nano-4b",
+      "name": "NVIDIA Nemotron 3 Nano 4B",
+      "display_name": "NVIDIA Nemotron 3 Nano 4B",
+      "creator": "nvidia",
+      "creator_name": "NVIDIA",
+      "release_date": "2026-03-16",
+      "scores": {
+        "coding_index": {
+          "value": 8.0
+        },
+        "gpqa": {
+          "value": 0.513
+        },
+        "hle": {
+          "value": 0.049
+        },
+        "ifbench": {
+          "value": 0.582312925170068
+        },
+        "intelligence_index": {
+          "value": 4.8
+        },
+        "lcr": {
+          "value": 0.216666666666667
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.161
+        },
+        "tau2": {
+          "value": 0.280701754385965
+        },
+        "terminalbench_hard": {
+          "value": 0.0681818181818182
         }
       }
     },
