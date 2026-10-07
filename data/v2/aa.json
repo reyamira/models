@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-10-07T18:18:09.241074813+00:00",
+    "fetched_at": "2026-10-07T19:18:27.282893677+00:00",
     "verified": true
   },
   "metrics": [
@@ -1982,6 +1982,38 @@
       }
     },
     {
+      "id": "claude-haiku-5-5",
+      "name": "Claude Haiku 5.5 (Max, Default Fallback)",
+      "display_name": "Claude Haiku 5.5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-10-07",
+      "variant_tag": "Max, Default Fallback",
+      "scores": {
+        "hle": {
+          "value": 0.444
+        },
+        "intelligence_index": {
+          "value": 43.4
+        },
+        "lcr": {
+          "value": 0.826666666666667
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.55
+        }
+      }
+    },
+    {
       "id": "grok-4-6-medium",
       "name": "Grok 4.6 (Medium)",
       "display_name": "Grok 4.6",
@@ -2374,6 +2406,38 @@
         },
         "terminalbench_hard": {
           "value": 0.583333333333333
+        }
+      }
+    },
+    {
+      "id": "claude-haiku-5-5-xhigh",
+      "name": "Claude Haiku 5.5 (Xhigh, Default Fallback)",
+      "display_name": "Claude Haiku 5.5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-10-07",
+      "variant_tag": "Xhigh, Default Fallback",
+      "scores": {
+        "hle": {
+          "value": 0.427
+        },
+        "intelligence_index": {
+          "value": 41.2
+        },
+        "lcr": {
+          "value": 0.783333333333333
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.517
         }
       }
     },
@@ -3349,6 +3413,38 @@
       }
     },
     {
+      "id": "claude-haiku-5-5-high",
+      "name": "Claude Haiku 5.5 (High, Default Fallback)",
+      "display_name": "Claude Haiku 5.5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-10-07",
+      "variant_tag": "High, Default Fallback",
+      "scores": {
+        "hle": {
+          "value": 0.373
+        },
+        "intelligence_index": {
+          "value": 37.8
+        },
+        "lcr": {
+          "value": 0.773333333333333
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.487
+        }
+      }
+    },
+    {
       "id": "gpt-5-6-luna",
       "name": "GPT-5.6 Luna (Max)",
       "display_name": "GPT-5.6 Luna",
@@ -3728,6 +3824,38 @@
         },
         "scicode": {
           "value": 0.505
+        }
+      }
+    },
+    {
+      "id": "claude-haiku-5-5-medium",
+      "name": "Claude Haiku 5.5 (Medium, Default Fallback)",
+      "display_name": "Claude Haiku 5.5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-10-07",
+      "variant_tag": "Medium, Default Fallback",
+      "scores": {
+        "hle": {
+          "value": 0.338
+        },
+        "intelligence_index": {
+          "value": 34.5
+        },
+        "lcr": {
+          "value": 0.773333333333333
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.49
         }
       }
     },
@@ -5249,6 +5377,38 @@
         },
         "terminalbench_hard": {
           "value": 0.507575757575758
+        }
+      }
+    },
+    {
+      "id": "claude-haiku-5-5-low",
+      "name": "Claude Haiku 5.5 (Low, Default Fallback)",
+      "display_name": "Claude Haiku 5.5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-10-07",
+      "variant_tag": "Low, Default Fallback",
+      "scores": {
+        "hle": {
+          "value": 0.27
+        },
+        "intelligence_index": {
+          "value": 29.4
+        },
+        "lcr": {
+          "value": 0.72
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.492
         }
       }
     },
