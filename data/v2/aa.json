@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-10-08T21:48:16.840652847+00:00",
+    "fetched_at": "2026-10-08T23:18:21.742725406+00:00",
     "verified": true
   },
   "metrics": [
@@ -13483,52 +13483,6 @@
       }
     },
     {
-      "id": "granite-4-2-30b",
-      "name": "Granite 4.2 30B",
-      "display_name": "Granite 4.2 30B",
-      "creator": "ibm",
-      "creator_name": "IBM",
-      "release_date": "2026-08-25",
-      "scores": {
-        "coding_index": {
-          "value": 29.9
-        },
-        "gpqa": {
-          "value": 0.644
-        },
-        "hle": {
-          "value": 0.112
-        },
-        "intelligence_index": {
-          "value": 14.8
-        },
-        "lcr": {
-          "value": 0.49
-        },
-        "output_tps": {
-          "value": 75.948
-        },
-        "price_blended": {
-          "value": 0.282
-        },
-        "price_input": {
-          "value": 0.16
-        },
-        "price_output": {
-          "value": 0.65
-        },
-        "scicode": {
-          "value": 0.378
-        },
-        "ttfat": {
-          "value": 26.629
-        },
-        "ttft": {
-          "value": 0.296
-        }
-      }
-    },
-    {
       "id": "deepseek-v3-1-terminus-reasoning",
       "name": "DeepSeek V3.1 Terminus (Reasoning)",
       "display_name": "DeepSeek V3.1 Terminus",
@@ -15725,6 +15679,52 @@
         },
         "terminalbench_hard": {
           "value": 0.136363636363636
+        }
+      }
+    },
+    {
+      "id": "granite-4-2-30b",
+      "name": "Granite 4.2 30B",
+      "display_name": "Granite 4.2 30B",
+      "creator": "ibm",
+      "creator_name": "IBM",
+      "release_date": "2026-08-25",
+      "scores": {
+        "coding_index": {
+          "value": 29.9
+        },
+        "gpqa": {
+          "value": 0.644
+        },
+        "hle": {
+          "value": 0.112
+        },
+        "intelligence_index": {
+          "value": 12.7
+        },
+        "lcr": {
+          "value": 0.49
+        },
+        "output_tps": {
+          "value": 75.948
+        },
+        "price_blended": {
+          "value": 0.282
+        },
+        "price_input": {
+          "value": 0.16
+        },
+        "price_output": {
+          "value": 0.65
+        },
+        "scicode": {
+          "value": 0.378
+        },
+        "ttfat": {
+          "value": 26.629
+        },
+        "ttft": {
+          "value": 0.296
         }
       }
     },
