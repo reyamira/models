@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-10-09T18:18:24.472818234+00:00",
+    "fetched_at": "2026-10-10T06:18:13.447530422+00:00",
     "verified": true
   },
   "metrics": [
@@ -148,14 +148,14 @@
       "label": "Frontiermath Tier 4 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-29"
+      "last_updated": "2026-10-08"
     },
     {
       "id": "frontiermath_tiers_1_3_v2",
       "label": "Frontiermath Tiers 1 3 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-29"
+      "last_updated": "2026-10-08"
     },
     {
       "id": "frontierswe",
@@ -169,14 +169,14 @@
       "label": "Furniture Assembly",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-29"
+      "last_updated": "2026-10-08"
     },
     {
       "id": "gpqa_diamond",
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-29",
+      "last_updated": "2026-10-09",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -199,14 +199,14 @@
       "label": "Mystery Game Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-29"
+      "last_updated": "2026-10-08"
     },
     {
       "id": "otis_mock_aime_2024_2025",
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-29",
+      "last_updated": "2026-10-08",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -245,7 +245,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-29",
+      "last_updated": "2026-10-09",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -272,6 +272,59 @@
     }
   ],
   "models": [
+    {
+      "id": "claude-haiku-5-5",
+      "name": "claude-haiku-5-5",
+      "display_name": "claude-haiku-5-5",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-10-07",
+      "scores": {
+        "frontiermath_tier_4_v2": {
+          "value": 0.4634146341463415,
+          "date": "2026-10-07"
+        },
+        "frontiermath_tiers_1_3_v2": {
+          "value": 0.7508771929824561,
+          "date": "2026-10-07"
+        },
+        "furniture_assembly": {
+          "value": 0.475,
+          "date": "2026-10-07"
+        },
+        "gpqa_diamond": {
+          "value": 0.8964646464646465,
+          "date": "2026-10-09"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.3,
+          "date": "2026-10-07"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9888888888888889,
+          "date": "2026-10-07"
+        },
+        "simpleqa_verified": {
+          "value": 0.238,
+          "date": "2026-10-09"
+        }
+      }
+    },
+    {
+      "id": "mistral-large-4-0",
+      "name": "mistral-large-4-0_high",
+      "display_name": "mistral-large-4-0",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2026-10-06",
+      "effort_level": "high",
+      "scores": {
+        "simpleqa_verified": {
+          "value": 0.2,
+          "date": "2026-10-09"
+        }
+      }
+    },
     {
       "id": "gemini-4-argon",
       "name": "gemini-4-argon",
@@ -963,9 +1016,33 @@
           "value": 0.8987,
           "date": "2026-09-09"
         },
+        "frontiermath_tier_4_v2": {
+          "value": 0.2682926829268293,
+          "date": "2026-10-08"
+        },
+        "frontiermath_tiers_1_3_v2": {
+          "value": 0.6736842105263158,
+          "date": "2026-10-08"
+        },
+        "furniture_assembly": {
+          "value": 0.3416666666666667,
+          "date": "2026-10-08"
+        },
+        "gpqa_diamond": {
+          "value": 0.8983585858585859,
+          "date": "2026-10-09"
+        },
         "lmca": {
           "value": 46.97,
           "date": "2026-09-09"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.43,
+          "date": "2026-10-08"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9833333333333333,
+          "date": "2026-10-08"
         },
         "proofbench": {
           "value": 0.54,
