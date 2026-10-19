@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-10-19T23:18:06.608873145+00:00",
+    "fetched_at": "2026-10-19T23:48:01.646414287+00:00",
     "verified": true
   },
   "metrics": [
@@ -2189,6 +2189,46 @@
       }
     },
     {
+      "id": "minimax-m3-1-flash",
+      "name": "MiniMax-M3.1-Flash",
+      "display_name": "MiniMax-M3.1-Flash",
+      "creator": "minimax",
+      "creator_name": "MiniMax",
+      "release_date": "2026-10-19",
+      "scores": {
+        "hle": {
+          "value": 0.48
+        },
+        "intelligence_index": {
+          "value": 42.7
+        },
+        "lcr": {
+          "value": 0.796666666666667
+        },
+        "output_tps": {
+          "value": 142.922
+        },
+        "price_blended": {
+          "value": 0.262
+        },
+        "price_input": {
+          "value": 0.15
+        },
+        "price_output": {
+          "value": 0.6
+        },
+        "scicode": {
+          "value": 0.534
+        },
+        "ttfat": {
+          "value": 14.883
+        },
+        "ttft": {
+          "value": 0.889
+        }
+      }
+    },
+    {
       "id": "gpt-6-sol-high",
       "name": "GPT-6 Sol (High)",
       "display_name": "GPT-6 Sol",
@@ -2218,46 +2258,6 @@
         },
         "scicode": {
           "value": 0.549
-        }
-      }
-    },
-    {
-      "id": "minimax-m3-1-flash",
-      "name": "MiniMax-M3.1-Flash",
-      "display_name": "MiniMax-M3.1-Flash",
-      "creator": "minimax",
-      "creator_name": "MiniMax",
-      "release_date": "2026-10-19",
-      "scores": {
-        "hle": {
-          "value": 0.48
-        },
-        "intelligence_index": {
-          "value": 42.4
-        },
-        "lcr": {
-          "value": 0.796666666666667
-        },
-        "output_tps": {
-          "value": 142.922
-        },
-        "price_blended": {
-          "value": 0.262
-        },
-        "price_input": {
-          "value": 0.15
-        },
-        "price_output": {
-          "value": 0.6
-        },
-        "scicode": {
-          "value": 0.534
-        },
-        "ttfat": {
-          "value": 14.883
-        },
-        "ttft": {
-          "value": 0.889
         }
       }
     },
