@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-10-19T18:18:06.968075645+00:00",
+    "fetched_at": "2026-10-20T06:17:50.682622375+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "ARC-AGI",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-09-29",
+      "last_updated": "2026-10-07",
       "description": "Abstract visual grid puzzles where the model must infer a transformation rule from a few input-output demonstrations and apply it to a novel case. Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -20,7 +20,7 @@
       "label": "ARC-AGI-2",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-09-29",
+      "last_updated": "2026-10-07",
       "description": "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing compositional and symbolic reasoning, two attempts per task (pass@2). Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -37,7 +37,7 @@
       "label": "APEX Agents",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-10-07",
+      "last_updated": "2026-10-15",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
     },
@@ -62,7 +62,7 @@
       "label": "Ale Bench",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-10-06"
+      "last_updated": "2026-10-15"
     },
     {
       "id": "balrog",
@@ -99,14 +99,14 @@
       "label": "Critpt",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-12"
+      "last_updated": "2026-10-15"
     },
     {
       "id": "cursorbench",
       "label": "Cursorbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-07"
+      "last_updated": "2026-10-12"
     },
     {
       "id": "deepswe",
@@ -120,7 +120,7 @@
       "label": "Dtbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-22"
+      "last_updated": "2026-10-12"
     },
     {
       "id": "ebr_bench",
@@ -185,7 +185,7 @@
       "label": "Lmca",
       "kind": "index",
       "group": "Academic",
-      "last_updated": "2026-09-22"
+      "last_updated": "2026-10-12"
     },
     {
       "id": "mirrorcode",
@@ -229,7 +229,7 @@
       "label": "Scicode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-12"
+      "last_updated": "2026-10-15"
     },
     {
       "id": "simpleqa_verified",
@@ -280,19 +280,30 @@
       "label": "Weirdml V3",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-29"
+      "last_updated": "2026-10-12"
     }
   ],
   "models": [
     {
       "id": "Muse-Spark-Open-816B-A42B",
-      "name": "Muse-Spark-Open-816B-A42B_xhigh",
+      "name": "Muse-Spark-Open-816B-A42B",
       "display_name": "Muse-Spark-Open-816B-A42B",
       "creator": "meta-ai",
       "creator_name": "Meta AI",
       "release_date": "2026-10-15",
-      "effort_level": "xhigh",
       "scores": {
+        "ale_bench": {
+          "value": 1590.12,
+          "date": "2026-10-15"
+        },
+        "apex_agents": {
+          "value": 0.334,
+          "date": "2026-10-15"
+        },
+        "critpt": {
+          "value": 0.148571428571429,
+          "date": "2026-10-15"
+        },
         "frontiermath_tier_4_v2": {
           "value": 0.3170731707317073,
           "date": "2026-10-15"
@@ -307,6 +318,10 @@
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.9805555555555555,
+          "date": "2026-10-15"
+        },
+        "scicode": {
+          "value": 0.584490740740741,
           "date": "2026-10-15"
         },
         "simpleqa_verified": {
@@ -327,6 +342,14 @@
           "value": 0.282857142857143,
           "date": "2026-10-12"
         },
+        "cursorbench": {
+          "value": 0.504,
+          "date": "2026-10-12"
+        },
+        "dtbench": {
+          "value": 0.9520000000000001,
+          "date": "2026-10-12"
+        },
         "ebr_bench": {
           "value": 0.3142857142857143,
           "date": "2026-10-12"
@@ -342,6 +365,10 @@
         "furniture_assembly": {
           "value": 0.5416666666666666,
           "date": "2026-10-15"
+        },
+        "lmca": {
+          "value": 56.84,
+          "date": "2026-10-12"
         },
         "mystery_game_puzzles": {
           "value": 0.51,
@@ -362,6 +389,10 @@
         "vending_bench_2": {
           "value": 9432.18,
           "date": "2026-10-12"
+        },
+        "weirdml_v3": {
+          "value": 0.15191042532467533,
+          "date": "2026-10-12"
         }
       }
     },
@@ -375,6 +406,14 @@
       "scores": {
         "apex_agents": {
           "value": 0.561,
+          "date": "2026-10-07"
+        },
+        "arc_agi": {
+          "value": 0.89,
+          "date": "2026-10-07"
+        },
+        "arc_agi_2": {
+          "value": 0.6125,
           "date": "2026-10-07"
         },
         "blueprint_bench_2": {
@@ -391,6 +430,10 @@
         },
         "cursorbench": {
           "value": 0.484,
+          "date": "2026-10-07"
+        },
+        "dtbench": {
+          "value": 0.9499,
           "date": "2026-10-07"
         },
         "ebr_bench": {
@@ -425,6 +468,10 @@
           "value": 0.3012,
           "date": "2026-10-07"
         },
+        "lmca": {
+          "value": 51.06,
+          "date": "2026-10-07"
+        },
         "mystery_game_puzzles": {
           "value": 0.3,
           "date": "2026-10-07"
@@ -447,6 +494,10 @@
         },
         "vending_bench_2": {
           "value": 3602.4633333333345,
+          "date": "2026-10-07"
+        },
+        "weirdml_v3": {
+          "value": 0.11695232727272727,
           "date": "2026-10-07"
         }
       }
@@ -471,6 +522,10 @@
           "value": 0.105714285714286,
           "date": "2026-10-06"
         },
+        "dtbench": {
+          "value": 0.8824,
+          "date": "2026-10-06"
+        },
         "frontiercode": {
           "value": 0.3943,
           "date": "2026-10-06"
@@ -490,6 +545,10 @@
         "gpqa_diamond": {
           "value": 0.8806818181818182,
           "date": "2026-10-12"
+        },
+        "lmca": {
+          "value": 35.79,
+          "date": "2026-10-06"
         },
         "mystery_game_puzzles": {
           "value": 0.17,
@@ -514,6 +573,10 @@
         "surface_evolver_bench": {
           "value": 0.28125,
           "date": "2026-10-06"
+        },
+        "weirdml_v3": {
+          "value": 0.044459372727272725,
+          "date": "2026-10-06"
         }
       }
     },
@@ -525,8 +588,20 @@
       "creator_name": "Google DeepMind",
       "release_date": "2026-09-30",
       "scores": {
+        "ale_bench": {
+          "value": 2100.1,
+          "date": "2026-09-30"
+        },
         "apex_agents": {
           "value": 0.8240000000000001,
+          "date": "2026-09-30"
+        },
+        "arc_agi": {
+          "value": 0.985,
+          "date": "2026-09-30"
+        },
+        "arc_agi_2": {
+          "value": 0.9125,
           "date": "2026-09-30"
         },
         "blueprint_bench_2": {
@@ -543,6 +618,10 @@
         },
         "cursorbench": {
           "value": 0.529,
+          "date": "2026-09-30"
+        },
+        "dtbench": {
+          "value": 0.976,
           "date": "2026-09-30"
         },
         "ebr_bench": {
@@ -573,6 +652,10 @@
           "value": 0.9640151515151515,
           "date": "2026-10-13"
         },
+        "lmca": {
+          "value": 63.69,
+          "date": "2026-09-30"
+        },
         "mystery_game_puzzles": {
           "value": 0.64,
           "date": "2026-10-13"
@@ -595,6 +678,10 @@
         },
         "vending_bench_2": {
           "value": 13718.158333333333,
+          "date": "2026-09-30"
+        },
+        "weirdml_v3": {
+          "value": 0.2021636840909091,
           "date": "2026-09-30"
         }
       }
@@ -631,6 +718,10 @@
           "value": 0.317142857142857,
           "date": "2026-09-29"
         },
+        "dtbench": {
+          "value": 0.9653,
+          "date": "2026-09-29"
+        },
         "ebr_bench": {
           "value": 0.5428571428571429,
           "date": "2026-09-29"
@@ -653,6 +744,10 @@
         },
         "gpqa_diamond": {
           "value": 0.9539141414141414,
+          "date": "2026-09-29"
+        },
+        "lmca": {
+          "value": 62.78,
           "date": "2026-09-29"
         },
         "mystery_game_puzzles": {
@@ -725,6 +820,10 @@
           "value": 0.555,
           "date": "2026-09-28"
         },
+        "dtbench": {
+          "value": 0.9733,
+          "date": "2026-09-28"
+        },
         "frontiercode": {
           "value": 0.5209,
           "date": "2026-09-28"
@@ -755,6 +854,10 @@
         },
         "hle": {
           "value": 0.4612,
+          "date": "2026-09-28"
+        },
+        "lmca": {
+          "value": 68.26,
           "date": "2026-09-28"
         },
         "mystery_game_puzzles": {
@@ -1218,7 +1321,7 @@
           "date": "2026-09-22"
         },
         "proofbench": {
-          "value": 0.34,
+          "value": 0.26,
           "date": "2026-09-21"
         },
         "scicode": {
@@ -1234,7 +1337,7 @@
           "date": "2026-09-21"
         },
         "weirdml_v3": {
-          "value": 0.08617809696969697,
+          "value": 0.08452663636363637,
           "date": "2026-09-21"
         }
       }
@@ -1278,7 +1381,7 @@
           "date": "2026-09-21"
         },
         "apex_agents": {
-          "value": 0.595,
+          "value": 0.544,
           "date": "2026-09-21"
         },
         "critpt": {
@@ -1751,7 +1854,7 @@
           "date": "2026-09-02"
         },
         "apex_agents": {
-          "value": 0.578,
+          "value": 0.5860000000000001,
           "date": "2026-09-02"
         },
         "btf3": {
@@ -1807,7 +1910,7 @@
           "date": "2026-09-02"
         },
         "weirdml_v3": {
-          "value": 0.06949869772727273,
+          "value": 0.0665496840909091,
           "date": "2026-09-02"
         }
       }
@@ -2554,7 +2657,7 @@
       "release_date": "2026-08-05",
       "scores": {
         "apex_agents": {
-          "value": 0.364,
+          "value": 0.454,
           "date": "2026-08-05"
         },
         "chess_puzzles": {
@@ -3076,7 +3179,7 @@
           "date": "2026-07-16"
         },
         "apex_agents": {
-          "value": 0.506,
+          "value": 0.478,
           "date": "2026-07-16"
         },
         "arc_agi": {
@@ -3168,7 +3271,7 @@
           "date": "2026-07-16"
         },
         "weirdml_v3": {
-          "value": 0.07268865151515151,
+          "value": 0.07544402727272727,
           "date": "2026-07-16"
         }
       }
@@ -3251,6 +3354,10 @@
         },
         "weirdml": {
           "value": 0.3229,
+          "date": "2026-07-15"
+        },
+        "weirdml_v3": {
+          "value": 0.03902983636363636,
           "date": "2026-07-15"
         }
       }
@@ -5953,7 +6060,7 @@
           "date": "2026-04-01"
         },
         "scicode": {
-          "value": 0.361111111111111,
+          "value": 0.40625,
           "date": "2026-04-01"
         },
         "surface_evolver_bench": {
@@ -6665,7 +6772,7 @@
           "date": "2026-02-19"
         },
         "apex_agents": {
-          "value": 0.353,
+          "value": 0.35100000000000003,
           "date": "2026-02-19"
         },
         "arc_agi": {
@@ -7253,7 +7360,7 @@
           "date": "2026-02-02"
         },
         "scicode": {
-          "value": 0.322916666666667,
+          "value": 0.362268518518519,
           "date": "2026-02-02"
         },
         "weirdml": {
@@ -7586,6 +7693,10 @@
         },
         "weirdml": {
           "value": 0.7219,
+          "date": "2025-12-11"
+        },
+        "weirdml_v3": {
+          "value": 0.0500787722943723,
           "date": "2025-12-11"
         }
       }
@@ -9182,7 +9293,7 @@
           "date": "2026-08-27"
         },
         "scicode": {
-          "value": 0.34375,
+          "value": 0.388888888888889,
           "date": "2025-08-05"
         },
         "weirdml": {
@@ -10794,7 +10905,7 @@
           "date": "2025-04-05"
         },
         "scicode": {
-          "value": 0.331018518518519,
+          "value": 0.31712962962963,
           "date": "2025-04-05"
         },
         "weirdml": {
@@ -10862,7 +10973,7 @@
           "date": "2025-04-08"
         },
         "scicode": {
-          "value": 0.170138888888889,
+          "value": 0.212962962962963,
           "date": "2025-04-05"
         }
       }
