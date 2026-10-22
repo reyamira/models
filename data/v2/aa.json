@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-10-22T11:48:12.999198865+00:00",
+    "fetched_at": "2026-10-22T14:18:16.556463915+00:00",
     "verified": true
   },
   "metrics": [
@@ -6652,6 +6652,49 @@
         },
         "terminalbench_hard": {
           "value": 0.333333333333333
+        }
+      }
+    },
+    {
+      "id": "solar-pro4",
+      "name": "Solar Pro 4",
+      "display_name": "Solar Pro 4",
+      "creator": "upstage",
+      "creator_name": "Upstage",
+      "release_date": "2026-08-06",
+      "scores": {
+        "gpqa": {
+          "value": 0.891
+        },
+        "hle": {
+          "value": 0.298
+        },
+        "intelligence_index": {
+          "value": 26.6
+        },
+        "lcr": {
+          "value": 0.706666666666667
+        },
+        "output_tps": {
+          "value": 116.703
+        },
+        "price_blended": {
+          "value": 0.525
+        },
+        "price_input": {
+          "value": 0.3
+        },
+        "price_output": {
+          "value": 1.2
+        },
+        "scicode": {
+          "value": 0.48
+        },
+        "ttfat": {
+          "value": 18.121
+        },
+        "ttft": {
+          "value": 0.983
         }
       }
     },
@@ -33684,46 +33727,6 @@
         },
         "terminalbench_hard": {
           "value": 0.0303030303030303
-        }
-      }
-    },
-    {
-      "id": "solar-pro4",
-      "name": "Solar Pro 4",
-      "display_name": "Solar Pro 4",
-      "creator": "upstage",
-      "creator_name": "Upstage",
-      "release_date": "2026-08-06",
-      "scores": {
-        "gpqa": {
-          "value": 0.891
-        },
-        "hle": {
-          "value": 0.298
-        },
-        "lcr": {
-          "value": 0.706666666666667
-        },
-        "output_tps": {
-          "value": 116.703
-        },
-        "price_blended": {
-          "value": 0.525
-        },
-        "price_input": {
-          "value": 0.3
-        },
-        "price_output": {
-          "value": 1.2
-        },
-        "scicode": {
-          "value": 0.48
-        },
-        "ttfat": {
-          "value": 18.121
-        },
-        "ttft": {
-          "value": 0.983
         }
       }
     }
