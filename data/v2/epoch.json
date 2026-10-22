@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-10-21T18:18:08.444793706+00:00",
+    "fetched_at": "2026-10-22T06:18:12.222423733+00:00",
     "verified": true
   },
   "metrics": [
@@ -90,7 +90,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-15",
+      "last_updated": "2026-10-19",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -148,14 +148,14 @@
       "label": "Frontiermath Tier 4 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-15"
+      "last_updated": "2026-10-19"
     },
     {
       "id": "frontiermath_tiers_1_3_v2",
       "label": "Frontiermath Tiers 1 3 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-15"
+      "last_updated": "2026-10-19"
     },
     {
       "id": "frontierswe",
@@ -176,7 +176,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-15",
+      "last_updated": "2026-10-19",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -192,21 +192,21 @@
       "label": "Mirrorcode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-22"
+      "last_updated": "2026-10-14"
     },
     {
       "id": "mystery_game_puzzles",
       "label": "Mystery Game Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-14"
+      "last_updated": "2026-10-19"
     },
     {
       "id": "otis_mock_aime_2024_2025",
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-15",
+      "last_updated": "2026-10-19",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -236,7 +236,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-15",
+      "last_updated": "2026-10-19",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -284,6 +284,45 @@
     }
   ],
   "models": [
+    {
+      "id": "deepseek-v4.1-flash-1017",
+      "name": "deepseek-v4.1-flash-1017_max",
+      "display_name": "deepseek-v4.1-flash-1017",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2026-10-17",
+      "effort_level": "max",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.46,
+          "date": "2026-10-19"
+        },
+        "frontiermath_tier_4_v2": {
+          "value": 0.4634146341463415,
+          "date": "2026-10-19"
+        },
+        "frontiermath_tiers_1_3_v2": {
+          "value": 0.712280701754386,
+          "date": "2026-10-19"
+        },
+        "gpqa_diamond": {
+          "value": 0.9318181818181818,
+          "date": "2026-10-19"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.49,
+          "date": "2026-10-19"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9944444444444445,
+          "date": "2026-10-19"
+        },
+        "simpleqa_verified": {
+          "value": 0.425,
+          "date": "2026-10-19"
+        }
+      }
+    },
     {
       "id": "Muse-Spark-Open-816B-A42B",
       "name": "Muse-Spark-Open-816B-A42B",
@@ -655,6 +694,10 @@
         "lmca": {
           "value": 63.69,
           "date": "2026-09-30"
+        },
+        "mirrorcode": {
+          "value": 0.5888888888888889,
+          "date": "2026-10-14"
         },
         "mystery_game_puzzles": {
           "value": 0.64,
