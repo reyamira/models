@@ -547,8 +547,9 @@ mod tests {
         assert_eq!(file.metrics.len(), 21);
         // Sanity range, not an exact pin: the AA model roster drifts on every
         // refresh, so assert a plausible band instead of a brittle count.
+        // The October roster has 706 distinct ids with valid registry scores.
         assert!(
-            (450..=650).contains(&file.models.len()),
+            (450..=800).contains(&file.models.len()),
             "aa model count {} outside expected band",
             file.models.len()
         );
