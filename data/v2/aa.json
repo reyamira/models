@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-10-29T20:47:49.548473134+00:00",
+    "fetched_at": "2026-10-29T21:17:43.893063045+00:00",
     "verified": true
   },
   "metrics": [
@@ -3067,6 +3067,132 @@
       }
     },
     {
+      "id": "qwen3-8-27b-medium",
+      "name": "Qwen3.8 27B (Medium)",
+      "display_name": "Qwen3.8 27B",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-08-14",
+      "reasoning_status": "Reasoning",
+      "effort_level": "medium",
+      "scores": {
+        "gpqa": {
+          "value": 0.845
+        },
+        "hle": {
+          "value": 0.141
+        },
+        "intelligence_index": {
+          "value": 17.5
+        },
+        "lcr": {
+          "value": 0.796666666666667
+        },
+        "output_tps": {
+          "value": 43.18
+        },
+        "price_blended": {
+          "value": 1.125
+        },
+        "price_input": {
+          "value": 0.5
+        },
+        "price_output": {
+          "value": 3.0
+        },
+        "scicode": {
+          "value": 0.39
+        },
+        "ttfat": {
+          "value": 47.545
+        },
+        "ttft": {
+          "value": 1.227
+        }
+      }
+    },
+    {
+      "id": "kimi-k3-low",
+      "name": "Kimi K3 (Low)",
+      "display_name": "Kimi K3",
+      "creator": "kimi",
+      "creator_name": "Kimi",
+      "release_date": "2026-07-16",
+      "reasoning_status": "Reasoning",
+      "effort_level": "low",
+      "scores": {
+        "gpqa": {
+          "value": 0.842
+        },
+        "hle": {
+          "value": 0.25
+        },
+        "intelligence_index": {
+          "value": 17.4
+        },
+        "lcr": {
+          "value": 0.793333333333333
+        },
+        "price_blended": {
+          "value": 6.0
+        },
+        "price_input": {
+          "value": 3.0
+        },
+        "price_output": {
+          "value": 15.0
+        },
+        "scicode": {
+          "value": 0.527
+        }
+      }
+    },
+    {
+      "id": "qwen3-8-27b-low",
+      "name": "Qwen3.8 27B (Low)",
+      "display_name": "Qwen3.8 27B",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-08-14",
+      "reasoning_status": "Reasoning",
+      "effort_level": "low",
+      "scores": {
+        "gpqa": {
+          "value": 0.845
+        },
+        "hle": {
+          "value": 0.14
+        },
+        "intelligence_index": {
+          "value": 15.7
+        },
+        "lcr": {
+          "value": 0.773333333333333
+        },
+        "output_tps": {
+          "value": 40.701
+        },
+        "price_blended": {
+          "value": 1.125
+        },
+        "price_input": {
+          "value": 0.5
+        },
+        "price_output": {
+          "value": 3.0
+        },
+        "scicode": {
+          "value": 0.4
+        },
+        "ttfat": {
+          "value": 50.353
+        },
+        "ttft": {
+          "value": 1.214
+        }
+      }
+    },
+    {
       "id": "nemotron-3-5-super-vl",
       "name": "Nemotron 3.5 Super VL",
       "display_name": "Nemotron 3.5 Super VL",
@@ -3467,6 +3593,102 @@
         },
         "ttft": {
           "value": 0.202
+        }
+      }
+    },
+    {
+      "id": "nemotron-3-5-lightning",
+      "name": "Nemotron 3.5 Lightning",
+      "display_name": "Nemotron 3.5 Lightning",
+      "creator": "nvidia",
+      "creator_name": "NVIDIA",
+      "release_date": "2026-08-11",
+      "scores": {
+        "gpqa": {
+          "value": 0.743
+        },
+        "hle": {
+          "value": 0.106
+        },
+        "intelligence_index": {
+          "value": 5.5
+        },
+        "lcr": {
+          "value": 0.603333333333333
+        },
+        "output_tps": {
+          "value": 276.848
+        },
+        "price_blended": {
+          "value": 0.095
+        },
+        "price_input": {
+          "value": 0.06
+        },
+        "price_output": {
+          "value": 0.2
+        },
+        "scicode": {
+          "value": 0.321
+        },
+        "ttfat": {
+          "value": 7.645
+        },
+        "ttft": {
+          "value": 0.42
+        }
+      }
+    },
+    {
+      "id": "mistral-small-4",
+      "name": "Mistral Small 4 (Reasoning)",
+      "display_name": "Mistral Small 4",
+      "creator": "mistral",
+      "creator_name": "Mistral",
+      "release_date": "2026-03-16",
+      "reasoning_status": "Reasoning",
+      "scores": {
+        "gpqa": {
+          "value": 0.769
+        },
+        "hle": {
+          "value": 0.099
+        },
+        "ifbench": {
+          "value": 0.481632653061224
+        },
+        "intelligence_index": {
+          "value": 4.3
+        },
+        "lcr": {
+          "value": 0.496666666666667
+        },
+        "output_tps": {
+          "value": 171.756
+        },
+        "price_blended": {
+          "value": 0.262
+        },
+        "price_input": {
+          "value": 0.15
+        },
+        "price_output": {
+          "value": 0.6
+        },
+        "scicode": {
+          "value": 0.388
+        },
+        "tau2": {
+          "value": 0.412280701754386
+        },
+        "terminalbench_hard": {
+          "value": 0.174242424242424
+        },
+        "ttfat": {
+          "value": 12.285
+        },
+        "ttft": {
+          "value": 0.64
         }
       }
     },
@@ -18256,39 +18478,6 @@
       }
     },
     {
-      "id": "kimi-k3-low",
-      "name": "Kimi K3 (Low)",
-      "display_name": "Kimi K3",
-      "creator": "kimi",
-      "creator_name": "Kimi",
-      "release_date": "2026-07-16",
-      "reasoning_status": "Reasoning",
-      "effort_level": "low",
-      "scores": {
-        "gpqa": {
-          "value": 0.842
-        },
-        "hle": {
-          "value": 0.25
-        },
-        "lcr": {
-          "value": 0.793333333333333
-        },
-        "price_blended": {
-          "value": 6.0
-        },
-        "price_input": {
-          "value": 3.0
-        },
-        "price_output": {
-          "value": 15.0
-        },
-        "scicode": {
-          "value": 0.527
-        }
-      }
-    },
-    {
       "id": "kimi-k3",
       "name": "Kimi K3 (Max)",
       "display_name": "Kimi K3",
@@ -22421,56 +22610,6 @@
       }
     },
     {
-      "id": "mistral-small-4",
-      "name": "Mistral Small 4 (Reasoning)",
-      "display_name": "Mistral Small 4",
-      "creator": "mistral",
-      "creator_name": "Mistral",
-      "release_date": "2026-03-16",
-      "reasoning_status": "Reasoning",
-      "scores": {
-        "gpqa": {
-          "value": 0.769
-        },
-        "hle": {
-          "value": 0.099
-        },
-        "ifbench": {
-          "value": 0.481632653061224
-        },
-        "lcr": {
-          "value": 0.496666666666667
-        },
-        "output_tps": {
-          "value": 171.756
-        },
-        "price_blended": {
-          "value": 0.262
-        },
-        "price_input": {
-          "value": 0.15
-        },
-        "price_output": {
-          "value": 0.6
-        },
-        "scicode": {
-          "value": 0.388
-        },
-        "tau2": {
-          "value": 0.412280701754386
-        },
-        "terminalbench_hard": {
-          "value": 0.174242424242424
-        },
-        "ttfat": {
-          "value": 12.285
-        },
-        "ttft": {
-          "value": 0.64
-        }
-      }
-    },
-    {
       "id": "mistral-8x22b-instruct",
       "name": "Mixtral 8x22B Instruct",
       "display_name": "Mixtral 8x22B Instruct",
@@ -23043,46 +23182,6 @@
         },
         "price_output": {
           "value": 0.0
-        }
-      }
-    },
-    {
-      "id": "nemotron-3-5-lightning",
-      "name": "Nemotron 3.5 Lightning",
-      "display_name": "Nemotron 3.5 Lightning",
-      "creator": "nvidia",
-      "creator_name": "NVIDIA",
-      "release_date": "2026-08-11",
-      "scores": {
-        "gpqa": {
-          "value": 0.743
-        },
-        "hle": {
-          "value": 0.106
-        },
-        "lcr": {
-          "value": 0.603333333333333
-        },
-        "output_tps": {
-          "value": 276.848
-        },
-        "price_blended": {
-          "value": 0.095
-        },
-        "price_input": {
-          "value": 0.06
-        },
-        "price_output": {
-          "value": 0.2
-        },
-        "scicode": {
-          "value": 0.321
-        },
-        "ttfat": {
-          "value": 7.645
-        },
-        "ttft": {
-          "value": 0.42
         }
       }
     },
@@ -28969,90 +29068,6 @@
         },
         "ttft": {
           "value": 1.996
-        }
-      }
-    },
-    {
-      "id": "qwen3-8-27b-low",
-      "name": "Qwen3.8 27B (Low)",
-      "display_name": "Qwen3.8 27B",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "release_date": "2026-08-14",
-      "reasoning_status": "Reasoning",
-      "effort_level": "low",
-      "scores": {
-        "gpqa": {
-          "value": 0.845
-        },
-        "hle": {
-          "value": 0.14
-        },
-        "lcr": {
-          "value": 0.773333333333333
-        },
-        "output_tps": {
-          "value": 40.701
-        },
-        "price_blended": {
-          "value": 1.125
-        },
-        "price_input": {
-          "value": 0.5
-        },
-        "price_output": {
-          "value": 3.0
-        },
-        "scicode": {
-          "value": 0.4
-        },
-        "ttfat": {
-          "value": 50.353
-        },
-        "ttft": {
-          "value": 1.214
-        }
-      }
-    },
-    {
-      "id": "qwen3-8-27b-medium",
-      "name": "Qwen3.8 27B (Medium)",
-      "display_name": "Qwen3.8 27B",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "release_date": "2026-08-14",
-      "reasoning_status": "Reasoning",
-      "effort_level": "medium",
-      "scores": {
-        "gpqa": {
-          "value": 0.845
-        },
-        "hle": {
-          "value": 0.141
-        },
-        "lcr": {
-          "value": 0.796666666666667
-        },
-        "output_tps": {
-          "value": 43.18
-        },
-        "price_blended": {
-          "value": 1.125
-        },
-        "price_input": {
-          "value": 0.5
-        },
-        "price_output": {
-          "value": 3.0
-        },
-        "scicode": {
-          "value": 0.39
-        },
-        "ttfat": {
-          "value": 47.545
-        },
-        "ttft": {
-          "value": 1.227
         }
       }
     },
