@@ -547,10 +547,22 @@ mod tests {
         assert_eq!(file.metrics.len(), 21);
         // Sanity range, not an exact pin: the AA model roster drifts on every
         // refresh, so assert a plausible band instead of a brittle count.
+        // Upper bound raised 650 -> 1000 on 2026-10-29: the committed file grew
+        // steadily from ~540 (2026-06) to 718 as AA added releases (~30/month).
+        // Checked before widening -- all ids distinct, so this is real growth.
         assert!(
-            (450..=650).contains(&file.models.len()),
+            (450..=1000).contains(&file.models.len()),
             "aa model count {} outside expected band",
             file.models.len()
+        );
+        // The band's upper edge exists to catch the transform duplicating rows;
+        // assert that directly so it holds regardless of roster growth.
+        let ids: std::collections::HashSet<&str> =
+            file.models.iter().map(|m| m.id.as_str()).collect();
+        assert_eq!(
+            ids.len(),
+            file.models.len(),
+            "aa.json has duplicate model ids"
         );
 
         // First-appearance group order on real data.
