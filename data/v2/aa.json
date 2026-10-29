@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-10-29T21:47:45.170972448+00:00",
+    "fetched_at": "2026-10-29T22:17:57.842636486+00:00",
     "verified": true
   },
   "metrics": [
@@ -2336,6 +2336,49 @@
         },
         "ttft": {
           "value": 96.162
+        }
+      }
+    },
+    {
+      "id": "glm-5-3-flash",
+      "name": "GLM-5.3-Flash",
+      "display_name": "GLM-5.3-Flash",
+      "creator": "zai",
+      "creator_name": "Z AI",
+      "release_date": "2026-08-26",
+      "scores": {
+        "gpqa": {
+          "value": 0.912
+        },
+        "hle": {
+          "value": 0.399
+        },
+        "intelligence_index": {
+          "value": 27.8
+        },
+        "lcr": {
+          "value": 0.8
+        },
+        "output_tps": {
+          "value": 66.547
+        },
+        "price_blended": {
+          "value": 0.237
+        },
+        "price_input": {
+          "value": 0.15
+        },
+        "price_output": {
+          "value": 0.5
+        },
+        "scicode": {
+          "value": 0.516
+        },
+        "ttfat": {
+          "value": 31.406
+        },
+        "ttft": {
+          "value": 1.352
         }
       }
     },
@@ -11706,46 +11749,6 @@
         },
         "price_output": {
           "value": 4.4
-        }
-      }
-    },
-    {
-      "id": "glm-5-3-flash",
-      "name": "GLM-5.3-Flash",
-      "display_name": "GLM-5.3-Flash",
-      "creator": "zai",
-      "creator_name": "Z AI",
-      "release_date": "2026-08-26",
-      "scores": {
-        "gpqa": {
-          "value": 0.912
-        },
-        "hle": {
-          "value": 0.399
-        },
-        "lcr": {
-          "value": 0.8
-        },
-        "output_tps": {
-          "value": 66.547
-        },
-        "price_blended": {
-          "value": 0.237
-        },
-        "price_input": {
-          "value": 0.15
-        },
-        "price_output": {
-          "value": 0.5
-        },
-        "scicode": {
-          "value": 0.516
-        },
-        "ttfat": {
-          "value": 31.406
-        },
-        "ttft": {
-          "value": 1.352
         }
       }
     },
