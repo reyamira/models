@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-10-30T13:18:01.476874201+00:00",
+    "fetched_at": "2026-10-30T14:17:54.193487364+00:00",
     "verified": true
   },
   "metrics": [
@@ -3450,6 +3450,50 @@
         },
         "ttft": {
           "value": 4.766
+        }
+      }
+    },
+    {
+      "id": "qwen3-8-27b-non-reasoning",
+      "name": "Qwen3.8 27B (Non-reasoning)",
+      "display_name": "Qwen3.8 27B",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-08-14",
+      "reasoning_status": "NonReasoning",
+      "scores": {
+        "gpqa": {
+          "value": 0.818
+        },
+        "hle": {
+          "value": 0.121
+        },
+        "intelligence_index": {
+          "value": 10.0
+        },
+        "lcr": {
+          "value": 0.693333333333333
+        },
+        "output_tps": {
+          "value": 38.906
+        },
+        "price_blended": {
+          "value": 1.125
+        },
+        "price_input": {
+          "value": 0.5
+        },
+        "price_output": {
+          "value": 3.0
+        },
+        "scicode": {
+          "value": 0.362
+        },
+        "ttfat": {
+          "value": 1.207
+        },
+        "ttft": {
+          "value": 1.207
         }
       }
     },
@@ -29059,47 +29103,6 @@
         },
         "ttft": {
           "value": 1.942
-        }
-      }
-    },
-    {
-      "id": "qwen3-8-27b-non-reasoning",
-      "name": "Qwen3.8 27B (Non-reasoning)",
-      "display_name": "Qwen3.8 27B",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "release_date": "2026-08-14",
-      "reasoning_status": "NonReasoning",
-      "scores": {
-        "gpqa": {
-          "value": 0.818
-        },
-        "hle": {
-          "value": 0.121
-        },
-        "lcr": {
-          "value": 0.693333333333333
-        },
-        "output_tps": {
-          "value": 38.906
-        },
-        "price_blended": {
-          "value": 1.125
-        },
-        "price_input": {
-          "value": 0.5
-        },
-        "price_output": {
-          "value": 3.0
-        },
-        "scicode": {
-          "value": 0.362
-        },
-        "ttfat": {
-          "value": 1.207
-        },
-        "ttft": {
-          "value": 1.207
         }
       }
     },
