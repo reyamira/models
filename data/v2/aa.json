@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-10-30T12:17:51.143096406+00:00",
+    "fetched_at": "2026-10-30T13:18:01.476874201+00:00",
     "verified": true
   },
   "metrics": [
@@ -3673,6 +3673,40 @@
         },
         "ttft": {
           "value": 0.44
+        }
+      }
+    },
+    {
+      "id": "granite-4-2-3b",
+      "name": "Granite 4.2 3B",
+      "display_name": "Granite 4.2 3B",
+      "creator": "ibm",
+      "creator_name": "IBM",
+      "release_date": "2026-08-25",
+      "scores": {
+        "gpqa": {
+          "value": 0.559
+        },
+        "hle": {
+          "value": 0.066
+        },
+        "intelligence_index": {
+          "value": 4.7
+        },
+        "lcr": {
+          "value": 0.243333333333333
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.253
         }
       }
     },
@@ -15599,37 +15633,6 @@
         },
         "scicode": {
           "value": 0.378
-        }
-      }
-    },
-    {
-      "id": "granite-4-2-3b",
-      "name": "Granite 4.2 3B",
-      "display_name": "Granite 4.2 3B",
-      "creator": "ibm",
-      "creator_name": "IBM",
-      "release_date": "2026-08-25",
-      "scores": {
-        "gpqa": {
-          "value": 0.559
-        },
-        "hle": {
-          "value": 0.066
-        },
-        "lcr": {
-          "value": 0.243333333333333
-        },
-        "price_blended": {
-          "value": 0.0
-        },
-        "price_input": {
-          "value": 0.0
-        },
-        "price_output": {
-          "value": 0.0
-        },
-        "scicode": {
-          "value": 0.253
         }
       }
     },
