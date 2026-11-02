@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-11-02T10:17:35.232625797+00:00",
+    "fetched_at": "2026-11-02T14:17:26.439154133+00:00",
     "verified": true
   },
   "metrics": [
@@ -3819,6 +3819,49 @@
         },
         "ttft": {
           "value": 0.393
+        }
+      }
+    },
+    {
+      "id": "granite-4-2-8b",
+      "name": "Granite 4.2 8B",
+      "display_name": "Granite 4.2 8B",
+      "creator": "ibm",
+      "creator_name": "IBM",
+      "release_date": "2026-08-25",
+      "scores": {
+        "gpqa": {
+          "value": 0.631
+        },
+        "hle": {
+          "value": 0.097
+        },
+        "intelligence_index": {
+          "value": 5.1
+        },
+        "lcr": {
+          "value": 0.45
+        },
+        "output_tps": {
+          "value": 72.274
+        },
+        "price_blended": {
+          "value": 0.107
+        },
+        "price_input": {
+          "value": 0.06
+        },
+        "price_output": {
+          "value": 0.25
+        },
+        "scicode": {
+          "value": 0.315
+        },
+        "ttfat": {
+          "value": 28.072
+        },
+        "ttft": {
+          "value": 0.4
         }
       }
     },
@@ -15770,46 +15813,6 @@
         },
         "scicode": {
           "value": 0.378
-        }
-      }
-    },
-    {
-      "id": "granite-4-2-8b",
-      "name": "Granite 4.2 8B",
-      "display_name": "Granite 4.2 8B",
-      "creator": "ibm",
-      "creator_name": "IBM",
-      "release_date": "2026-08-25",
-      "scores": {
-        "gpqa": {
-          "value": 0.631
-        },
-        "hle": {
-          "value": 0.097
-        },
-        "lcr": {
-          "value": 0.45
-        },
-        "output_tps": {
-          "value": 72.274
-        },
-        "price_blended": {
-          "value": 0.107
-        },
-        "price_input": {
-          "value": 0.06
-        },
-        "price_output": {
-          "value": 0.25
-        },
-        "scicode": {
-          "value": 0.315
-        },
-        "ttfat": {
-          "value": 28.072
-        },
-        "ttft": {
-          "value": 0.4
         }
       }
     },
