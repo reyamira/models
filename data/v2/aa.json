@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-11-02T06:17:30.262182530+00:00",
+    "fetched_at": "2026-11-02T07:17:36.925110843+00:00",
     "verified": true
   },
   "metrics": [
@@ -246,6 +246,30 @@
         },
         "ttft": {
           "value": 487.644
+        }
+      }
+    },
+    {
+      "id": "gemini-4-carbon-medium",
+      "name": "Gemini 4 Carbon (Medium)",
+      "display_name": "Gemini 4 Carbon",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-10-28",
+      "reasoning_status": "Reasoning",
+      "effort_level": "medium",
+      "scores": {
+        "intelligence_index": {
+          "value": 57.7
+        },
+        "price_blended": {
+          "value": 8.0
+        },
+        "price_input": {
+          "value": 4.0
+        },
+        "price_output": {
+          "value": 20.0
         }
       }
     },
