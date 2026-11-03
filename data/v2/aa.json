@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-11-03T19:47:49.279919351+00:00",
+    "fetched_at": "2026-11-03T20:48:00.441209747+00:00",
     "verified": true
   },
   "metrics": [
@@ -1187,6 +1187,39 @@
         },
         "ttft": {
           "value": 34.065
+        }
+      }
+    },
+    {
+      "id": "gpt-6-sol",
+      "name": "GPT-6 Sol (Max)",
+      "display_name": "GPT-6 Sol",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-09-22",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
+      "scores": {
+        "hle": {
+          "value": 0.479
+        },
+        "intelligence_index": {
+          "value": 44.1
+        },
+        "lcr": {
+          "value": 0.836666666666667
+        },
+        "price_blended": {
+          "value": 4.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 10.0
+        },
+        "scicode": {
+          "value": 0.576
         }
       }
     },
@@ -15023,36 +15056,6 @@
       }
     },
     {
-      "id": "gpt-6-sol",
-      "name": "GPT-6 Sol (Max)",
-      "display_name": "GPT-6 Sol",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "release_date": "2026-09-22",
-      "reasoning_status": "Reasoning",
-      "effort_level": "max",
-      "scores": {
-        "hle": {
-          "value": 0.479
-        },
-        "lcr": {
-          "value": 0.836666666666667
-        },
-        "price_blended": {
-          "value": 4.0
-        },
-        "price_input": {
-          "value": 2.0
-        },
-        "price_output": {
-          "value": 10.0
-        },
-        "scicode": {
-          "value": 0.576
-        }
-      }
-    },
-    {
       "id": "gpt-6-sol-medium",
       "name": "GPT-6 Sol (Medium)",
       "display_name": "GPT-6 Sol",
@@ -21391,13 +21394,13 @@
           "value": 0.416666666666667
         },
         "price_blended": {
-          "value": 0.585
+          "value": 0.967
         },
         "price_input": {
-          "value": 0.39
+          "value": 0.674
         },
         "price_output": {
-          "value": 1.17
+          "value": 1.848
         },
         "tau2": {
           "value": 0.725146198830409
@@ -21429,13 +21432,13 @@
           "value": 0.796666666666667
         },
         "price_blended": {
-          "value": 0.564
+          "value": 0.544
         },
         "price_input": {
-          "value": 0.412
+          "value": 0.435
         },
         "price_output": {
-          "value": 1.02
+          "value": 0.87
         },
         "scicode": {
           "value": 0.506
