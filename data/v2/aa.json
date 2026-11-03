@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-11-03T18:18:31.724789919+00:00",
+    "fetched_at": "2026-11-03T19:47:49.279919351+00:00",
     "verified": true
   },
   "metrics": [
@@ -1860,6 +1860,51 @@
         },
         "ttft": {
           "value": 0.929
+        }
+      }
+    },
+    {
+      "id": "gpt-5-6-terra",
+      "name": "GPT-5.6 Terra (Max)",
+      "display_name": "GPT-5.6 Terra",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-07-09",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
+      "scores": {
+        "gpqa": {
+          "value": 0.925
+        },
+        "hle": {
+          "value": 0.429
+        },
+        "ifbench": {
+          "value": 0.712244897959184
+        },
+        "intelligence_index": {
+          "value": 32.2
+        },
+        "lcr": {
+          "value": 0.83
+        },
+        "price_blended": {
+          "value": 4.5
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 12.0
+        },
+        "scicode": {
+          "value": 0.55
+        },
+        "tau2": {
+          "value": 0.862573099415205
+        },
+        "terminalbench_hard": {
+          "value": 0.575757575757576
         }
       }
     },
@@ -14781,48 +14826,6 @@
         },
         "terminalbench_hard": {
           "value": 0.439393939393939
-        }
-      }
-    },
-    {
-      "id": "gpt-5-6-terra",
-      "name": "GPT-5.6 Terra (Max)",
-      "display_name": "GPT-5.6 Terra",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "release_date": "2026-07-09",
-      "reasoning_status": "Reasoning",
-      "effort_level": "max",
-      "scores": {
-        "gpqa": {
-          "value": 0.925
-        },
-        "hle": {
-          "value": 0.429
-        },
-        "ifbench": {
-          "value": 0.712244897959184
-        },
-        "lcr": {
-          "value": 0.83
-        },
-        "price_blended": {
-          "value": 4.5
-        },
-        "price_input": {
-          "value": 2.0
-        },
-        "price_output": {
-          "value": 12.0
-        },
-        "scicode": {
-          "value": 0.55
-        },
-        "tau2": {
-          "value": 0.862573099415205
-        },
-        "terminalbench_hard": {
-          "value": 0.575757575757576
         }
       }
     },
