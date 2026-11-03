@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-02T18:17:34.573469532+00:00",
+    "fetched_at": "2026-11-03T06:17:34.100978249+00:00",
     "verified": true
   },
   "metrics": [
@@ -50,14 +50,6 @@
       "description": "Software performance engineering: the model rewrites real GitHub code to speed it up. Scored OPT@K (% of trials reaching at least 95% of the human speed-up); higher is better."
     },
     {
-      "id": "weirdml",
-      "label": "WeirdML",
-      "kind": "percentage",
-      "group": "Agentic",
-      "last_updated": "2026-09-03",
-      "description": "Unconventional machine-learning engineering tasks where the agent must write and run code to train a model on provided data, with several iterations allowed. Scored as accuracy on the held-out task; higher is better."
-    },
-    {
       "id": "ale_bench",
       "label": "Ale Bench",
       "kind": "elo",
@@ -77,13 +69,6 @@
       "kind": "percentage",
       "group": "Academic",
       "last_updated": "2026-10-28"
-    },
-    {
-      "id": "btf3",
-      "label": "Btf3",
-      "kind": "percentage",
-      "group": "Academic",
-      "last_updated": "2026-09-03"
     },
     {
       "id": "chess_puzzles",
@@ -107,13 +92,6 @@
       "kind": "percentage",
       "group": "Academic",
       "last_updated": "2026-10-17"
-    },
-    {
-      "id": "deepswe",
-      "label": "Deepswe",
-      "kind": "percentage",
-      "group": "Academic",
-      "last_updated": "2026-09-03"
     },
     {
       "id": "dtbench",
@@ -1857,20 +1835,12 @@
           "value": 0.4967462039045553,
           "date": "2026-09-03"
         },
-        "btf3": {
-          "value": 0.135,
-          "date": "2026-09-03"
-        },
         "chess_puzzles": {
           "value": 0.74,
           "date": "2026-10-13"
         },
         "critpt": {
           "value": 0.317142857142857,
-          "date": "2026-09-03"
-        },
-        "deepswe": {
-          "value": 0.7411504424778761,
           "date": "2026-09-03"
         },
         "dtbench": {
@@ -1965,10 +1935,6 @@
           "value": 15514.701666666668,
           "date": "2026-09-03"
         },
-        "weirdml": {
-          "value": 0.9328000000000001,
-          "date": "2026-09-03"
-        },
         "weirdml_v3": {
           "value": 0.4222023136363637,
           "date": "2026-09-03"
@@ -1986,10 +1952,6 @@
         "chess_puzzles": {
           "value": 0.76,
           "date": "2026-10-15"
-        },
-        "weirdml": {
-          "value": 0.9357,
-          "date": "2026-09-03"
         }
       }
     },
@@ -2031,10 +1993,6 @@
         },
         "cursorbench": {
           "value": 0.396,
-          "date": "2026-09-02"
-        },
-        "deepswe": {
-          "value": 0.738255033557047,
           "date": "2026-09-02"
         },
         "dtbench": {
@@ -2109,10 +2067,6 @@
           "value": 5093.793333333332,
           "date": "2026-09-02"
         },
-        "weirdml": {
-          "value": 0.8481000000000001,
-          "date": "2026-09-02"
-        },
         "weirdml_v3": {
           "value": 0.07378749090909091,
           "date": "2026-09-02"
@@ -2133,10 +2087,6 @@
         },
         "apex_agents": {
           "value": 0.5860000000000001,
-          "date": "2026-09-02"
-        },
-        "btf3": {
-          "value": 0.141,
           "date": "2026-09-02"
         },
         "chess_puzzles": {
@@ -2321,10 +2271,6 @@
           "value": 5421.556666666666,
           "date": "2026-09-01"
         },
-        "weirdml": {
-          "value": 0.929,
-          "date": "2026-09-01"
-        },
         "weirdml_v3": {
           "value": 0.2597021272727273,
           "date": "2026-09-01"
@@ -2419,10 +2365,6 @@
           "value": 0.6583333333333333,
           "date": "2026-08-20"
         },
-        "btf3": {
-          "value": 0.149,
-          "date": "2026-08-20"
-        },
         "chess_puzzles": {
           "value": 0.21,
           "date": "2026-10-13"
@@ -2433,10 +2375,6 @@
         },
         "cursorbench": {
           "value": 0.368,
-          "date": "2026-08-20"
-        },
-        "deepswe": {
-          "value": 0.6339285714285714,
           "date": "2026-08-20"
         },
         "frontiercode": {
@@ -2497,10 +2435,6 @@
           "value": 0.5660000000000001,
           "date": "2026-08-14"
         },
-        "btf3": {
-          "value": 0.149,
-          "date": "2026-08-14"
-        },
         "chess_puzzles": {
           "value": 0.37,
           "date": "2026-10-13"
@@ -2511,10 +2445,6 @@
         },
         "cursorbench": {
           "value": 0.42600000000000005,
-          "date": "2026-08-14"
-        },
-        "deepswe": {
-          "value": 0.6895787139689579,
           "date": "2026-08-14"
         },
         "dtbench": {
@@ -2567,10 +2497,6 @@
         },
         "vending_bench_2": {
           "value": 8163.609999999998,
-          "date": "2026-08-14"
-        },
-        "weirdml": {
-          "value": 0.7540000000000001,
           "date": "2026-08-14"
         }
       }
@@ -2696,10 +2622,6 @@
         "simpleqa_verified": {
           "value": 0.5290581162324649,
           "date": "2026-08-27"
-        },
-        "weirdml": {
-          "value": 0.6622,
-          "date": "2026-08-13"
         }
       }
     },
@@ -2733,10 +2655,6 @@
         },
         "critpt": {
           "value": 0.142857142857143,
-          "date": "2026-08-13"
-        },
-        "deepswe": {
-          "value": 0.6548672566371682,
           "date": "2026-08-13"
         },
         "dtbench": {
@@ -2841,10 +2759,6 @@
           "value": 0.414,
           "date": "2026-08-12"
         },
-        "deepswe": {
-          "value": 0.6747787610619469,
-          "date": "2026-08-12"
-        },
         "dtbench": {
           "value": 0.9733,
           "date": "2026-08-12"
@@ -2908,10 +2822,6 @@
         "vending_bench_2": {
           "value": 9047.032500000001,
           "date": "2026-08-12"
-        },
-        "weirdml": {
-          "value": 0.6729,
-          "date": "2026-08-12"
         }
       }
     },
@@ -2954,10 +2864,6 @@
           "value": 0.177142857142857,
           "date": "2026-08-05"
         },
-        "deepswe": {
-          "value": 0.5486725663716814,
-          "date": "2026-08-05"
-        },
         "dtbench": {
           "value": 0.9467,
           "date": "2026-08-05"
@@ -2981,10 +2887,6 @@
         "simpleqa_verified": {
           "value": 0.6030150753768844,
           "date": "2026-08-27"
-        },
-        "weirdml": {
-          "value": 0.603,
-          "date": "2026-08-05"
         }
       }
     },
@@ -3006,10 +2908,6 @@
         },
         "critpt": {
           "value": 0.2,
-          "date": "2026-08-02"
-        },
-        "deepswe": {
-          "value": 0.5746102449888641,
           "date": "2026-08-02"
         },
         "dtbench": {
@@ -3129,10 +3027,6 @@
         "simpleqa_verified": {
           "value": 0.33633633633633636,
           "date": "2026-08-27"
-        },
-        "weirdml": {
-          "value": 0.6296,
-          "date": "2026-07-31"
         }
       }
     },
@@ -3194,10 +3088,6 @@
           "value": 0.30368763557483736,
           "date": "2026-07-24"
         },
-        "btf3": {
-          "value": 0.12,
-          "date": "2026-07-24"
-        },
         "chess_puzzles": {
           "value": 0.43,
           "date": "2026-10-13"
@@ -3208,10 +3098,6 @@
         },
         "cursorbench": {
           "value": 0.466,
-          "date": "2026-07-24"
-        },
-        "deepswe": {
-          "value": 0.7364864864864865,
           "date": "2026-07-24"
         },
         "dtbench": {
@@ -3276,10 +3162,6 @@
         },
         "vending_bench_2": {
           "value": 11181.87333333333,
-          "date": "2026-07-24"
-        },
-        "weirdml": {
-          "value": 0.9178000000000001,
           "date": "2026-07-24"
         },
         "weirdml_v3": {
@@ -3355,10 +3237,6 @@
         "scicode": {
           "value": 0.41319444444444403,
           "date": "2026-07-21"
-        },
-        "weirdml": {
-          "value": 0.39,
-          "date": "2026-07-21"
         }
       }
     },
@@ -3396,10 +3274,6 @@
         },
         "critpt": {
           "value": 0.105714285714286,
-          "date": "2026-07-21"
-        },
-        "deepswe": {
-          "value": 0.4668141592920354,
           "date": "2026-07-21"
         },
         "dtbench": {
@@ -3449,10 +3323,6 @@
         "simpleqa_verified": {
           "value": 0.662,
           "date": "2026-08-27"
-        },
-        "weirdml": {
-          "value": 0.561,
-          "date": "2026-07-21"
         }
       }
     },
@@ -3490,10 +3360,6 @@
         },
         "critpt": {
           "value": 0.234,
-          "date": "2026-07-16"
-        },
-        "deepswe": {
-          "value": 0.6851441241685144,
           "date": "2026-07-16"
         },
         "dtbench": {
@@ -3558,10 +3424,6 @@
         },
         "vending_bench_2": {
           "value": 5165.035000000001,
-          "date": "2026-07-16"
-        },
-        "weirdml": {
-          "value": 0.8257,
           "date": "2026-07-16"
         },
         "weirdml_v3": {
@@ -3645,10 +3507,6 @@
         "simpleqa_verified": {
           "value": 0.403,
           "date": "2026-08-27"
-        },
-        "weirdml": {
-          "value": 0.3229,
-          "date": "2026-07-15"
         },
         "weirdml_v3": {
           "value": 0.03902983636363636,
@@ -3754,10 +3612,6 @@
           "value": 0.359,
           "date": "2026-07-09"
         },
-        "deepswe": {
-          "value": 0.671875,
-          "date": "2026-07-09"
-        },
         "dtbench": {
           "value": 0.8906999999999999,
           "date": "2026-07-09"
@@ -3814,10 +3668,6 @@
           "value": 4094.7120000000004,
           "date": "2026-07-09"
         },
-        "weirdml": {
-          "value": 0.6086,
-          "date": "2026-07-09"
-        },
         "weirdml_v3": {
           "value": 0.05157952272727273,
           "date": "2026-07-09"
@@ -3852,10 +3702,6 @@
           "value": 0.336225596529284,
           "date": "2026-07-09"
         },
-        "btf3": {
-          "value": 0.137,
-          "date": "2026-07-09"
-        },
         "chess_puzzles": {
           "value": 0.59,
           "date": "2026-10-13"
@@ -3866,10 +3712,6 @@
         },
         "cursorbench": {
           "value": 0.41700000000000004,
-          "date": "2026-07-09"
-        },
-        "deepswe": {
-          "value": 0.7266666666666667,
           "date": "2026-07-09"
         },
         "dtbench": {
@@ -3948,10 +3790,6 @@
           "value": 9619.367999999999,
           "date": "2026-07-09"
         },
-        "weirdml": {
-          "value": 0.8876000000000001,
-          "date": "2026-07-09"
-        },
         "weirdml_v3": {
           "value": 0.14992224545454547,
           "date": "2026-07-09"
@@ -3984,10 +3822,6 @@
         },
         "lmca": {
           "value": 59.21,
-          "date": "2026-07-09"
-        },
-        "weirdml": {
-          "value": 0.8943000000000001,
           "date": "2026-07-09"
         }
       }
@@ -4034,10 +3868,6 @@
         },
         "cursorbench": {
           "value": 0.413,
-          "date": "2026-07-09"
-        },
-        "deepswe": {
-          "value": 0.6962305986696231,
           "date": "2026-07-09"
         },
         "dtbench": {
@@ -4095,10 +3925,6 @@
         "vending_bench_2": {
           "value": 7343.206,
           "date": "2026-07-09"
-        },
-        "weirdml": {
-          "value": 0.7827,
-          "date": "2026-07-09"
         }
       }
     },
@@ -4120,10 +3946,6 @@
         },
         "critpt": {
           "value": 0.151428571428571,
-          "date": "2026-07-09"
-        },
-        "deepswe": {
-          "value": 0.5331858407079646,
           "date": "2026-07-09"
         },
         "dtbench": {
@@ -4192,10 +4014,6 @@
           "value": 0.154285714285714,
           "date": "2026-07-08"
         },
-        "deepswe": {
-          "value": 0.5376106194690266,
-          "date": "2026-07-08"
-        },
         "dtbench": {
           "value": 0.9653,
           "date": "2026-07-08"
@@ -4251,10 +4069,6 @@
         "vending_bench_2": {
           "value": 3887.4259999999986,
           "date": "2026-07-08"
-        },
-        "weirdml": {
-          "value": 0.4643,
-          "date": "2026-07-08"
         }
       }
     },
@@ -4292,10 +4106,6 @@
           "value": 0.24945770065075923,
           "date": "2026-06-30"
         },
-        "btf3": {
-          "value": 0.142,
-          "date": "2026-06-30"
-        },
         "chess_puzzles": {
           "value": 0.45,
           "date": "2026-10-13"
@@ -4306,10 +4116,6 @@
         },
         "cursorbench": {
           "value": 0.341,
-          "date": "2026-06-30"
-        },
-        "deepswe": {
-          "value": 0.5384615384615384,
           "date": "2026-06-30"
         },
         "dtbench": {
@@ -4367,10 +4173,6 @@
         "vending_bench_2": {
           "value": 6377.701666666665,
           "date": "2026-06-30"
-        },
-        "weirdml": {
-          "value": 0.6878000000000001,
-          "date": "2026-06-30"
         }
       }
     },
@@ -4404,10 +4206,6 @@
         },
         "critpt": {
           "value": 0.20857142857142902,
-          "date": "2026-06-16"
-        },
-        "deepswe": {
-          "value": 0.4377777777777778,
           "date": "2026-06-16"
         },
         "dtbench": {
@@ -4465,10 +4263,6 @@
         "vending_bench_2": {
           "value": 8313.778333333335,
           "date": "2026-06-16"
-        },
-        "weirdml": {
-          "value": 0.7012,
-          "date": "2026-06-16"
         }
       }
     },
@@ -4494,10 +4288,6 @@
         },
         "critpt": {
           "value": 0.1,
-          "date": "2026-06-12"
-        },
-        "deepswe": {
-          "value": 0.3053097345132743,
           "date": "2026-06-12"
         },
         "frontiercode": {
@@ -4535,10 +4325,6 @@
         "vending_bench_2": {
           "value": 5082.936,
           "date": "2026-06-12"
-        },
-        "weirdml": {
-          "value": 0.5412,
-          "date": "2026-06-12"
         }
       }
     },
@@ -4570,20 +4356,12 @@
           "value": 0.3861171366594359,
           "date": "2026-06-09"
         },
-        "btf3": {
-          "value": 0.13,
-          "date": "2026-06-09"
-        },
         "chess_puzzles": {
           "value": 0.47,
           "date": "2026-10-13"
         },
         "critpt": {
           "value": 0.2857142857,
-          "date": "2026-06-09"
-        },
-        "deepswe": {
-          "value": 0.6991150442477876,
           "date": "2026-06-09"
         },
         "dtbench": {
@@ -4666,10 +4444,6 @@
           "value": 5680.258,
           "date": "2026-06-09"
         },
-        "weirdml": {
-          "value": 0.9194,
-          "date": "2026-06-09"
-        },
         "weirdml_v3": {
           "value": 0.15586933333333333,
           "date": "2026-06-09"
@@ -4722,10 +4496,6 @@
         },
         "scicode": {
           "value": 0.402777777777778,
-          "date": "2026-06-04"
-        },
-        "weirdml": {
-          "value": 0.43450000000000005,
           "date": "2026-06-04"
         }
       }
@@ -4910,20 +4680,12 @@
           "value": 0.14533622559652917,
           "date": "2026-05-28"
         },
-        "btf3": {
-          "value": 0.14,
-          "date": "2026-05-28"
-        },
         "chess_puzzles": {
           "value": 0.52,
           "date": "2026-10-13"
         },
         "critpt": {
           "value": 0.20857142857142902,
-          "date": "2026-05-28"
-        },
-        "deepswe": {
-          "value": 0.5897435897435898,
           "date": "2026-05-28"
         },
         "dtbench": {
@@ -4993,10 +4755,6 @@
         "vending_bench_2": {
           "value": 5787.428,
           "date": "2026-05-28"
-        },
-        "weirdml": {
-          "value": 0.8289,
-          "date": "2026-05-28"
         }
       }
     },
@@ -5054,10 +4812,6 @@
           "value": 0.131428571428571,
           "date": "2026-05-19"
         },
-        "deepswe": {
-          "value": 0.37389380530973454,
-          "date": "2026-05-19"
-        },
         "dtbench": {
           "value": 0.9467,
           "date": "2026-05-19"
@@ -5108,10 +4862,6 @@
         },
         "vending_bench_2": {
           "value": 5396.418333333334,
-          "date": "2026-05-19"
-        },
-        "weirdml": {
-          "value": 0.6264000000000001,
           "date": "2026-05-19"
         }
       }
@@ -5359,10 +5109,6 @@
         "surface_evolver_bench": {
           "value": 0.26875,
           "date": "2026-04-28"
-        },
-        "weirdml": {
-          "value": 0.43710000000000004,
-          "date": "2026-04-28"
         }
       }
     },
@@ -5439,10 +5185,6 @@
         "scicode": {
           "value": 0.44907407407407407,
           "date": "2026-04-24"
-        },
-        "weirdml": {
-          "value": 0.45630000000000004,
-          "date": "2026-04-24"
         }
       }
     },
@@ -5517,10 +5259,6 @@
         "vending_bench_2": {
           "value": 3284.519999999999,
           "date": "2026-04-24"
-        },
-        "weirdml": {
-          "value": 0.489,
-          "date": "2026-04-24"
         }
       }
     },
@@ -5552,20 +5290,12 @@
           "value": 0.36225596529284154,
           "date": "2026-04-23"
         },
-        "btf3": {
-          "value": 0.143,
-          "date": "2026-04-23"
-        },
         "chess_puzzles": {
           "value": 0.63,
           "date": "2026-10-13"
         },
         "critpt": {
           "value": 0.271428571428571,
-          "date": "2026-04-23"
-        },
-        "deepswe": {
-          "value": 0.6703539823008849,
           "date": "2026-04-23"
         },
         "dtbench": {
@@ -5642,10 +5372,6 @@
         },
         "vending_bench_2": {
           "value": 7523.843999999999,
-          "date": "2026-04-23"
-        },
-        "weirdml": {
-          "value": 0.8491,
           "date": "2026-04-23"
         }
       }
@@ -5847,10 +5573,6 @@
         "vending_bench_2": {
           "value": 6204.570000000001,
           "date": "2026-04-20"
-        },
-        "weirdml": {
-          "value": 0.5586,
-          "date": "2026-04-20"
         }
       }
     },
@@ -5954,10 +5676,6 @@
         },
         "vending_bench_2": {
           "value": 35.26166666666665,
-          "date": "2026-04-17"
-        },
-        "weirdml": {
-          "value": 0.4989,
           "date": "2026-04-17"
         }
       }
@@ -6065,10 +5783,6 @@
         "vending_bench_2": {
           "value": 10936.763333333334,
           "date": "2026-04-16"
-        },
-        "weirdml": {
-          "value": 0.7644,
-          "date": "2026-04-16"
         }
       }
     },
@@ -6128,10 +5842,6 @@
         },
         "surface_evolver_bench": {
           "value": 0.44375000000000003,
-          "date": "2026-04-14"
-        },
-        "weirdml": {
-          "value": 0.34490000000000004,
           "date": "2026-04-14"
         }
       }
@@ -6221,10 +5931,6 @@
         "vending_bench_2": {
           "value": 5634.406,
           "date": "2026-04-07"
-        },
-        "weirdml": {
-          "value": 0.5710000000000001,
-          "date": "2026-04-07"
         }
       }
     },
@@ -6268,10 +5974,6 @@
         },
         "scicode": {
           "value": 0.4004629629629631,
-          "date": "2026-04-02"
-        },
-        "weirdml": {
-          "value": 0.3517,
           "date": "2026-04-02"
         }
       }
@@ -6337,10 +6039,6 @@
         },
         "surface_evolver_bench": {
           "value": 0.30624999999999997,
-          "date": "2026-04-02"
-        },
-        "weirdml": {
-          "value": 0.5226,
           "date": "2026-04-02"
         }
       }
@@ -6448,10 +6146,6 @@
         "scicode": {
           "value": 0.501157407407407,
           "date": "2026-03-18"
-        },
-        "weirdml": {
-          "value": 0.36950000000000005,
-          "date": "2026-03-18"
         }
       }
     },
@@ -6526,10 +6220,6 @@
         "simpleqa_verified": {
           "value": 0.294,
           "date": "2026-08-27"
-        },
-        "weirdml": {
-          "value": 0.603,
-          "date": "2026-03-17"
         }
       }
     },
@@ -6600,10 +6290,6 @@
         "simpleqa_verified": {
           "value": 0.117,
           "date": "2026-08-27"
-        },
-        "weirdml": {
-          "value": 0.49229999999999996,
-          "date": "2026-03-17"
         }
       }
     },
@@ -6648,10 +6334,6 @@
         "scicode": {
           "value": 0.35995370370370405,
           "date": "2026-03-11"
-        },
-        "weirdml": {
-          "value": 0.3801,
-          "date": "2026-03-11"
         }
       }
     },
@@ -6689,10 +6371,6 @@
         },
         "critpt": {
           "value": 0.23428571430000003,
-          "date": "2026-03-05"
-        },
-        "deepswe": {
-          "value": 0.5176991150442478,
           "date": "2026-03-05"
         },
         "dtbench": {
@@ -6758,10 +6436,6 @@
         "vending_bench_2": {
           "value": 6144.176,
           "date": "2026-03-05"
-        },
-        "weirdml": {
-          "value": 0.777,
-          "date": "2026-03-05"
         }
       }
     },
@@ -6808,10 +6482,6 @@
         "simpleqa_verified": {
           "value": 0.463,
           "date": "2026-08-27"
-        },
-        "weirdml": {
-          "value": 0.5744,
-          "date": "2026-03-05"
         }
       }
     },
@@ -6857,10 +6527,6 @@
         },
         "scicode": {
           "value": 0.434027777777778,
-          "date": "2026-03-03"
-        },
-        "weirdml": {
-          "value": 0.5219,
           "date": "2026-03-03"
         }
       }
@@ -6981,10 +6647,6 @@
         },
         "vending_bench_2": {
           "value": 201.97599999999994,
-          "date": "2026-02-24"
-        },
-        "weirdml": {
-          "value": 0.39530000000000004,
           "date": "2026-02-24"
         }
       }
@@ -7129,10 +6791,6 @@
           "value": 0.177142857142857,
           "date": "2026-02-19"
         },
-        "deepswe": {
-          "value": 0.1172566371681416,
-          "date": "2026-02-19"
-        },
         "dtbench": {
           "value": 0.9707,
           "date": "2026-02-19"
@@ -7196,10 +6854,6 @@
         "vending_bench_2": {
           "value": 911.2139999999997,
           "date": "2026-02-19"
-        },
-        "weirdml": {
-          "value": 0.7206999999999999,
-          "date": "2026-02-19"
         }
       }
     },
@@ -7253,10 +6907,6 @@
           "value": 0.0314285714285714,
           "date": "2026-02-17"
         },
-        "deepswe": {
-          "value": 0.29933481152993346,
-          "date": "2026-02-17"
-        },
         "dtbench": {
           "value": 0.8987,
           "date": "2026-02-17"
@@ -7296,10 +6946,6 @@
         "vending_bench_2": {
           "value": 7204.139999999999,
           "date": "2026-02-17"
-        },
-        "weirdml": {
-          "value": 0.6607,
-          "date": "2026-02-17"
         }
       }
     },
@@ -7337,10 +6983,6 @@
         },
         "vending_bench_2": {
           "value": 4662.846666666667,
-          "date": "2026-02-17"
-        },
-        "weirdml": {
-          "value": 0.5226,
           "date": "2026-02-17"
         }
       }
@@ -7554,10 +7196,6 @@
         "vending_bench_2": {
           "value": 4432.122000000001,
           "date": "2026-02-11"
-        },
-        "weirdml": {
-          "value": 0.4817,
-          "date": "2026-02-11"
         }
       }
     },
@@ -7652,10 +7290,6 @@
         "vending_bench_2": {
           "value": 8017.594,
           "date": "2026-02-05"
-        },
-        "weirdml": {
-          "value": 0.7795000000000001,
-          "date": "2026-02-05"
         }
       }
     },
@@ -7678,10 +7312,6 @@
         "vending_bench_2": {
           "value": 5940.124000000002,
           "date": "2026-02-05"
-        },
-        "weirdml": {
-          "value": 0.793,
-          "date": "2026-02-05"
         }
       }
     },
@@ -7699,10 +7329,6 @@
         },
         "scicode": {
           "value": 0.362268518518519,
-          "date": "2026-02-02"
-        },
-        "weirdml": {
-          "value": 0.344,
           "date": "2026-02-02"
         }
       }
@@ -7763,10 +7389,6 @@
         },
         "vending_bench_2": {
           "value": 1198.4579999999999,
-          "date": "2026-01-27"
-        },
-        "weirdml": {
-          "value": 0.456,
           "date": "2026-01-27"
         }
       }
@@ -7938,10 +7560,6 @@
         "vending_bench_2": {
           "value": 3634.715999999999,
           "date": "2025-12-17"
-        },
-        "weirdml": {
-          "value": 0.616,
-          "date": "2025-12-17"
         }
       }
     },
@@ -8027,10 +7645,6 @@
         },
         "vending_bench_2": {
           "value": 3591.3259999999996,
-          "date": "2025-12-11"
-        },
-        "weirdml": {
-          "value": 0.7219,
           "date": "2025-12-11"
         },
         "weirdml_v3": {
@@ -8132,20 +7746,6 @@
         "scicode": {
           "value": 0.42708333333333304,
           "date": "2025-12-02"
-        }
-      }
-    },
-    {
-      "id": "DeepSeek-V3.2-Speciale",
-      "name": "DeepSeek-V3.2-Speciale",
-      "display_name": "DeepSeek-V3.2-Speciale",
-      "creator": "deepseek",
-      "creator_name": "DeepSeek",
-      "release_date": "2025-12-01",
-      "scores": {
-        "weirdml": {
-          "value": 0.4673,
-          "date": "2025-12-01"
         }
       }
     },
@@ -8325,10 +7925,6 @@
           "value": 4967.056666666668,
           "date": "2025-11-24"
         },
-        "weirdml": {
-          "value": 0.6374000000000001,
-          "date": "2025-11-24"
-        },
         "weirdml_v3": {
           "value": 0.06514876515151515,
           "date": "2025-11-24"
@@ -8452,10 +8048,6 @@
         "vending_bench_2": {
           "value": 5478.158000000001,
           "date": "2025-11-18"
-        },
-        "weirdml": {
-          "value": 0.6993,
-          "date": "2025-11-18"
         }
       }
     },
@@ -8526,10 +8118,6 @@
         "vending_bench_2": {
           "value": 1473.432,
           "date": "2025-11-13"
-        },
-        "weirdml": {
-          "value": 0.6077,
-          "date": "2025-11-13"
         }
       }
     },
@@ -8557,10 +8145,6 @@
       "scores": {
         "ale_bench": {
           "value": 597.5,
-          "date": "2025-11-06"
-        },
-        "weirdml": {
-          "value": 0.4279,
           "date": "2025-11-06"
         }
       }
@@ -8700,10 +8284,6 @@
         "vending_bench_2": {
           "value": 458.88599999999985,
           "date": "2025-10-15"
-        },
-        "weirdml": {
-          "value": 0.454,
-          "date": "2025-10-15"
         }
       }
     },
@@ -8737,10 +8317,6 @@
         },
         "hle": {
           "value": 0.3164,
-          "date": "2025-10-07"
-        },
-        "weirdml": {
-          "value": 0.6039,
           "date": "2025-10-07"
         }
       }
@@ -8835,10 +8411,6 @@
         "vending_bench_2": {
           "value": 1034.0040000000001,
           "date": "2025-09-29"
-        },
-        "weirdml": {
-          "value": 0.3948,
-          "date": "2025-09-29"
         }
       }
     },
@@ -8929,25 +8501,6 @@
         "vending_bench_2": {
           "value": 3838.7400000000002,
           "date": "2025-09-29"
-        },
-        "weirdml": {
-          "value": 0.4771,
-          "date": "2025-09-29"
-        }
-      }
-    },
-    {
-      "id": "gemini-2.5-flash-preview-09-2025",
-      "name": "gemini-2.5-flash-preview-09-2025_16k",
-      "display_name": "gemini-2.5-flash-preview-09-2025",
-      "creator": "google-deepmind",
-      "creator_name": "Google DeepMind",
-      "release_date": "2025-09-25",
-      "variant_tag": "16k",
-      "scores": {
-        "weirdml": {
-          "value": 0.4191,
-          "date": "2025-09-25"
         }
       }
     },
@@ -9060,10 +8613,6 @@
         "dtbench": {
           "value": 0.8267,
           "date": "2025-09-19"
-        },
-        "weirdml": {
-          "value": 0.4286,
-          "date": "2025-09-19"
         }
       }
     },
@@ -9116,34 +8665,6 @@
       }
     },
     {
-      "id": "gpt-5-codex",
-      "name": "gpt-5-codex",
-      "display_name": "gpt-5-codex",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "release_date": "2025-09-15",
-      "scores": {
-        "weirdml": {
-          "value": 0.5453,
-          "date": "2025-09-15"
-        }
-      }
-    },
-    {
-      "id": "Kimi-K2-Instruct-0905",
-      "name": "Kimi-K2-Instruct-0905",
-      "display_name": "Kimi-K2-Instruct-0905",
-      "creator": "moonshot",
-      "creator_name": "Moonshot",
-      "release_date": "2025-09-05",
-      "scores": {
-        "weirdml": {
-          "value": 0.3668,
-          "date": "2025-09-05"
-        }
-      }
-    },
-    {
       "id": "moonshotai/kimi-k2-0905",
       "name": "moonshotai/kimi-k2-0905",
       "display_name": "moonshotai/kimi-k2-0905",
@@ -9168,16 +8689,12 @@
         "ale_bench": {
           "value": 587.73,
           "date": "2025-08-28"
-        },
-        "weirdml": {
-          "value": 0.3506,
-          "date": "2025-08-28"
         }
       }
     },
     {
       "id": "DeepSeek-V3.1",
-      "name": "DeepSeek-V3.1",
+      "name": "DeepSeek-V3.1_thinking",
       "display_name": "DeepSeek-V3.1",
       "creator": "deepseek",
       "creator_name": "DeepSeek",
@@ -9190,10 +8707,6 @@
         },
         "lmca": {
           "value": 24.29,
-          "date": "2025-08-21"
-        },
-        "weirdml": {
-          "value": 0.3836,
           "date": "2025-08-21"
         }
       }
@@ -9270,10 +8783,6 @@
         },
         "scicode": {
           "value": 0.32407407407407407,
-          "date": "2025-08-12"
-        },
-        "weirdml": {
-          "value": 0.33130000000000004,
           "date": "2025-08-12"
         }
       }
@@ -9369,10 +8878,6 @@
         "simpleqa_verified": {
           "value": 0.501,
           "date": "2026-08-27"
-        },
-        "weirdml": {
-          "value": 0.6070000000000001,
-          "date": "2025-08-07"
         }
       }
     },
@@ -9451,10 +8956,6 @@
         "vending_bench_2": {
           "value": -31.18399999999995,
           "date": "2025-08-07"
-        },
-        "weirdml": {
-          "value": 0.5267000000000001,
-          "date": "2025-08-07"
         }
       }
     },
@@ -9517,10 +9018,6 @@
         "simpleqa_verified": {
           "value": 0.117,
           "date": "2026-08-10"
-        },
-        "weirdml": {
-          "value": 0.38060000000000005,
-          "date": "2025-08-07"
         }
       }
     },
@@ -9589,10 +9086,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.6888888888888889,
           "date": "2025-08-05"
-        },
-        "weirdml": {
-          "value": 0.4586,
-          "date": "2025-08-05"
         }
       }
     },
@@ -9630,10 +9123,6 @@
         },
         "vending_bench_2": {
           "value": -21.532000000000053,
-          "date": "2025-08-05"
-        },
-        "weirdml": {
-          "value": 0.4817,
           "date": "2025-08-05"
         }
       }
@@ -9673,10 +9162,6 @@
         "scicode": {
           "value": 0.388888888888889,
           "date": "2025-08-05"
-        },
-        "weirdml": {
-          "value": 0.4093,
-          "date": "2025-08-05"
         }
       }
     },
@@ -9703,10 +9188,6 @@
         "scicode": {
           "value": 0.35995370370370405,
           "date": "2025-08-05"
-        },
-        "weirdml": {
-          "value": 0.4817,
-          "date": "2025-08-05"
         }
       }
     },
@@ -9717,7 +9198,6 @@
       "creator": "z-ai-zhipu-ai",
       "creator_name": "Z.ai (Zhipu AI)",
       "release_date": "2025-08-03",
-      "reasoning_status": "Reasoning",
       "scores": {
         "ale_bench": {
           "value": 344.82,
@@ -9726,10 +9206,6 @@
         "hle": {
           "value": 0.08320000000000001,
           "date": "2025-08-03"
-        },
-        "weirdml": {
-          "value": 0.4058,
-          "date": "2025-08-05"
         }
       }
     },
@@ -9748,10 +9224,6 @@
         "gso": {
           "value": 0.049,
           "date": "2025-09-02"
-        },
-        "weirdml": {
-          "value": 0.4117,
-          "date": "2025-07-31"
         }
       }
     },
@@ -9852,10 +9324,6 @@
         "lmca": {
           "value": 23.52,
           "date": "2025-07-25"
-        },
-        "weirdml": {
-          "value": 0.387,
-          "date": "2025-07-25"
         }
       }
     },
@@ -9894,10 +9362,6 @@
         "vending_bench_2": {
           "value": -11.340000000000078,
           "date": "2025-07-25"
-        },
-        "weirdml": {
-          "value": 0.4104,
-          "date": "2025-07-25"
         }
       }
     },
@@ -9915,10 +9379,6 @@
         },
         "scicode": {
           "value": 0.4143518518518521,
-          "date": "2025-07-25"
-        },
-        "weirdml": {
-          "value": 0.387,
           "date": "2025-07-25"
         }
       }
@@ -9952,24 +9412,6 @@
         "gso": {
           "value": 0.049,
           "date": "2025-08-26"
-        },
-        "weirdml": {
-          "value": 0.3936,
-          "date": "2025-07-12"
-        }
-      }
-    },
-    {
-      "id": "kimi-k2-0711-preview",
-      "name": "kimi-k2-0711-preview",
-      "display_name": "kimi-k2-0711-preview",
-      "creator": "moonshot",
-      "creator_name": "Moonshot",
-      "release_date": "2025-07-12",
-      "scores": {
-        "weirdml": {
-          "value": 0.3936,
-          "date": "2025-07-12"
         }
       }
     },
@@ -10000,20 +9442,17 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.84,
           "date": "2025-07-09"
-        },
-        "weirdml": {
-          "value": 0.4573,
-          "date": "2025-07-09"
         }
       }
     },
     {
       "id": "grok-3-mini",
-      "name": "grok-3-mini",
+      "name": "grok-3-mini_low",
       "display_name": "grok-3-mini",
       "creator": "xai",
       "creator_name": "xAI",
       "release_date": "2025-06-24",
+      "effort_level": "low",
       "scores": {
         "arc_agi": {
           "value": 0.165,
@@ -10021,10 +9460,6 @@
         },
         "arc_agi_2": {
           "value": 0.0042,
-          "date": "2025-06-24"
-        },
-        "weirdml": {
-          "value": 0.4258,
           "date": "2025-06-24"
         }
       }
@@ -10104,21 +9539,6 @@
       }
     },
     {
-      "id": "gemini-2.5-flash-lite-preview-06-17",
-      "name": "gemini-2.5-flash-lite-preview-06-17_16K",
-      "display_name": "gemini-2.5-flash-lite-preview-06-17",
-      "creator": "google-deepmind",
-      "creator_name": "Google DeepMind",
-      "release_date": "2025-06-17",
-      "variant_tag": "16K",
-      "scores": {
-        "weirdml": {
-          "value": 0.3522,
-          "date": "2025-06-17"
-        }
-      }
-    },
-    {
       "id": "gemini-2.5-flash-lite-preview-06-17-thinking",
       "name": "gemini-2.5-flash-lite-preview-06-17-thinking",
       "display_name": "gemini-2.5-flash-lite-preview-06-17-thinking",
@@ -10136,10 +9556,6 @@
         },
         "lmca": {
           "value": 18.07,
-          "date": "2025-06-17"
-        },
-        "weirdml": {
-          "value": 0.3522,
           "date": "2025-06-17"
         }
       }
@@ -10202,10 +9618,6 @@
         },
         "vending_bench_2": {
           "value": 573.6420000000003,
-          "date": "2025-06-17"
-        },
-        "weirdml": {
-          "value": 0.5403,
           "date": "2025-06-17"
         }
       }
@@ -10277,10 +9689,6 @@
         "lmca": {
           "value": 38.48,
           "date": "2025-06-10"
-        },
-        "weirdml": {
-          "value": 0.5821000000000001,
-          "date": "2025-06-10"
         }
       }
     },
@@ -10345,10 +9753,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.6638888888888889,
           "date": "2025-05-29"
-        },
-        "weirdml": {
-          "value": 0.41630000000000006,
-          "date": "2025-05-28"
         }
       }
     },
@@ -10413,10 +9817,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.6444444444444445,
           "date": "2025-05-28"
-        },
-        "weirdml": {
-          "value": 0.4372,
-          "date": "2025-05-22"
         }
       }
     },
@@ -10471,10 +9871,6 @@
         "scicode": {
           "value": 0.4004629629629631,
           "date": "2025-05-22"
-        },
-        "weirdml": {
-          "value": 0.4611,
-          "date": "2025-05-22"
         }
       }
     },
@@ -10500,10 +9896,6 @@
         },
         "otis_mock_aime_2024_2025": {
           "value": 0.7083333333333334,
-          "date": "2025-05-20"
-        },
-        "weirdml": {
-          "value": 0.4095,
           "date": "2025-05-20"
         }
       }
@@ -10585,10 +9977,6 @@
         "lmca": {
           "value": 25.0,
           "date": "2025-04-29"
-        },
-        "weirdml": {
-          "value": 0.3728,
-          "date": "2025-04-29"
         }
       }
     },
@@ -10615,10 +10003,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.6277777777777778,
           "date": "2026-08-28"
-        },
-        "weirdml": {
-          "value": 0.2975,
-          "date": "2025-04-29"
         }
       }
     },
@@ -10807,20 +10191,6 @@
       }
     },
     {
-      "id": "gemini-2.5-flash-preview-04-17 (16K thinking)",
-      "name": "gemini-2.5-flash-preview-04-17 (16K thinking)",
-      "display_name": "gemini-2.5-flash-preview-04-17 (16K thinking)",
-      "creator": "google-deepmind",
-      "creator_name": "Google DeepMind",
-      "release_date": "2025-04-17",
-      "scores": {
-        "weirdml": {
-          "value": 0.40950000000000003,
-          "date": "2025-04-17"
-        }
-      }
-    },
-    {
       "id": "gemini-2.5-flash-preview-04-17 (24K thinking)",
       "name": "gemini-2.5-flash-preview-04-17 (24K thinking)",
       "display_name": "gemini-2.5-flash-preview-04-17 (24K thinking)",
@@ -10897,10 +10267,6 @@
         "simpleqa_verified": {
           "value": 0.494,
           "date": "2026-08-27"
-        },
-        "weirdml": {
-          "value": 0.5242,
-          "date": "2025-04-16"
         }
       }
     },
@@ -10971,10 +10337,6 @@
         "simpleqa_verified": {
           "value": 0.196,
           "date": "2026-08-27"
-        },
-        "weirdml": {
-          "value": 0.5256000000000001,
-          "date": "2025-04-16"
         }
       }
     },
@@ -11029,10 +10391,6 @@
         "simpleqa_verified": {
           "value": 0.311,
           "date": "2026-08-31"
-        },
-        "weirdml": {
-          "value": 0.3904,
-          "date": "2025-04-14"
         }
       }
     },
@@ -11091,10 +10449,6 @@
         "simpleqa_verified": {
           "value": 0.127,
           "date": "2026-08-31"
-        },
-        "weirdml": {
-          "value": 0.3761,
-          "date": "2025-04-14"
         }
       }
     },
@@ -11145,10 +10499,6 @@
         "simpleqa_verified": {
           "value": 0.06,
           "date": "2026-08-31"
-        },
-        "weirdml": {
-          "value": 0.1898,
-          "date": "2025-04-14"
         }
       }
     },
@@ -11166,10 +10516,6 @@
         },
         "arc_agi_2": {
           "value": 0.0,
-          "date": "2025-04-09"
-        },
-        "weirdml": {
-          "value": 0.3724,
           "date": "2025-04-09"
         }
       }
@@ -11215,10 +10561,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.7777777777777778,
           "date": "2025-04-10"
-        },
-        "weirdml": {
-          "value": 0.4258,
-          "date": "2025-04-09"
         }
       }
     },
@@ -11284,10 +10626,6 @@
         },
         "scicode": {
           "value": 0.31712962962963,
-          "date": "2025-04-05"
-        },
-        "weirdml": {
-          "value": 0.2447,
           "date": "2025-04-05"
         }
       }
@@ -11422,10 +10760,6 @@
         },
         "scicode": {
           "value": 0.390046296296296,
-          "date": "2025-03-24"
-        },
-        "weirdml": {
-          "value": 0.3608,
           "date": "2025-03-24"
         }
       }
@@ -11711,10 +11045,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.37777777777777777,
           "date": "2025-02-28"
-        },
-        "weirdml": {
-          "value": 0.3937,
-          "date": "2025-02-27"
         }
       }
     },
@@ -11775,10 +11105,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.3111111111111111,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.2577,
-          "date": "2025-02-05"
         }
       }
     },
@@ -11873,10 +11199,6 @@
         "simpleqa_verified": {
           "value": 0.153,
           "date": "2026-08-31"
-        },
-        "weirdml": {
-          "value": 0.43700000000000006,
-          "date": "2025-01-31"
         }
       }
     },
@@ -12008,10 +11330,6 @@
         },
         "scicode": {
           "value": 0.3831018518518521,
-          "date": "2025-01-20"
-        },
-        "weirdml": {
-          "value": 0.3649,
           "date": "2025-01-20"
         }
       }
@@ -12175,10 +11493,6 @@
         "simpleqa_verified": {
           "value": 0.411,
           "date": "2026-08-31"
-        },
-        "weirdml": {
-          "value": 0.4608,
-          "date": "2024-12-17"
         }
       }
     },
@@ -12201,10 +11515,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.11527777777777778,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.2224,
-          "date": "2024-12-12"
         }
       }
     },
@@ -12268,10 +11578,6 @@
         },
         "scicode": {
           "value": 0.260416666666667,
-          "date": "2024-12-06"
-        },
-        "weirdml": {
-          "value": 0.1444,
           "date": "2024-12-06"
         }
       }
@@ -12375,10 +11681,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.0625,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.25120000000000003,
-          "date": "2024-11-20"
         }
       }
     },
@@ -12453,10 +11755,6 @@
         "scicode": {
           "value": 0.274305555555556,
           "date": "2024-10-22"
-        },
-        "weirdml": {
-          "value": 0.3073,
-          "date": "2024-10-22"
         }
       }
     },
@@ -12491,10 +11789,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.08472222222222223,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.3997,
-          "date": "2024-10-22"
         }
       }
     },
@@ -12659,10 +11953,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.1625,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.2487,
-          "date": "2024-09-24"
         }
       }
     },
@@ -12697,10 +11987,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.23055555555555557,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.222,
-          "date": "2024-09-24"
         }
       }
     },
@@ -12731,10 +12017,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.08055555555555556,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.1597,
-          "date": "2024-09-19"
         }
       }
     },
@@ -12823,10 +12105,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.46944444444444444,
           "date": "2025-03-06"
-        },
-        "weirdml": {
-          "value": 0.3632,
-          "date": "2024-09-12"
         }
       }
     },
@@ -12849,10 +12127,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.3111111111111111,
           "date": "2025-03-07"
-        },
-        "weirdml": {
-          "value": 0.4756,
-          "date": "2024-09-12"
         }
       }
     },
@@ -12995,10 +12269,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.09722222222222222,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.2138,
-          "date": "2024-07-23"
         }
       }
     },
@@ -13029,10 +12299,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.03611111111111111,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.0897,
-          "date": "2024-07-23"
         }
       }
     },
@@ -13070,10 +12336,6 @@
         },
         "scicode": {
           "value": 0.131944444444444,
-          "date": "2024-07-23"
-        },
-        "weirdml": {
-          "value": 0.0173,
           "date": "2024-07-23"
         }
       }
@@ -13143,10 +12405,6 @@
         "simpleqa_verified": {
           "value": 0.083,
           "date": "2026-08-31"
-        },
-        "weirdml": {
-          "value": 0.1176,
-          "date": "2024-07-18"
         }
       }
     },
@@ -13237,10 +12495,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.06527777777777778,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.3097,
-          "date": "2024-06-20"
         }
       }
     },
@@ -13255,10 +12509,6 @@
         "gpqa_diamond": {
           "value": 0.4078282828282828,
           "date": "2025-01-27"
-        },
-        "weirdml": {
-          "value": 0.113,
-          "date": "2024-06-07"
         }
       }
     },
@@ -13437,10 +12687,6 @@
         "dtbench": {
           "value": 0.5514,
           "date": "2024-04-17"
-        },
-        "weirdml": {
-          "value": 0.0317,
-          "date": "2024-04-17"
         }
       }
     },
@@ -13491,10 +12737,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.06666666666666667,
           "date": "2025-02-27"
-        },
-        "weirdml": {
-          "value": 0.1801,
-          "date": "2024-04-09"
         }
       }
     },
@@ -13549,10 +12791,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.018055555555555554,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.0984,
-          "date": "2024-03-07"
         }
       }
     },
@@ -13587,10 +12825,6 @@
         "simpleqa_verified": {
           "value": 0.126,
           "date": "2026-08-31"
-        },
-        "weirdml": {
-          "value": 0.19219999999999998,
-          "date": "2024-02-29"
         }
       }
     },
@@ -13613,10 +12847,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.025,
           "date": "2025-02-25"
-        },
-        "weirdml": {
-          "value": 0.10160000000000001,
-          "date": "2024-02-29"
         }
       }
     },
@@ -13701,10 +12931,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.022222222222222223,
           "date": "2026-08-07"
-        },
-        "weirdml": {
-          "value": 0.0348,
-          "date": "2024-01-25"
         }
       }
     },
@@ -13841,10 +13067,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.019444444444444445,
           "date": "2025-03-07"
-        },
-        "weirdml": {
-          "value": 0.0706,
-          "date": "2023-11-21"
         }
       }
     },
@@ -14021,10 +13243,6 @@
         "otis_mock_aime_2024_2025": {
           "value": 0.011111111111111112,
           "date": "2025-10-23"
-        },
-        "weirdml": {
-          "value": 0.1236,
-          "date": "2023-06-13"
         }
       }
     },
@@ -14079,18 +13297,6 @@
       }
     },
     {
-      "id": "gpt-5-chat",
-      "name": "gpt-5-chat",
-      "display_name": "gpt-5-chat",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "scores": {
-        "weirdml": {
-          "value": 0.39770000000000005
-        }
-      }
-    },
-    {
       "id": "mercury-2",
       "name": "mercury-2",
       "display_name": "mercury-2",
@@ -14105,9 +13311,6 @@
         },
         "scicode": {
           "value": 0.38657407407407407
-        },
-        "weirdml": {
-          "value": 0.43200000000000005
         }
       }
     },
