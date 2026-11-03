@@ -779,8 +779,8 @@ pub(super) fn draw_scatter(f: &mut Frame, area: Rect, app: &App) {
                 } else {
                     ("\u{25cb} ", Color::DarkGray)
                 };
-                let x_str = raw_x.map(&fmt_val).unwrap_or_else(|| "\u{2014}".into());
-                let y_str = raw_y.map(&fmt_val).unwrap_or_else(|| "\u{2014}".into());
+                let x_str = raw_x.map(fmt_val).unwrap_or_else(|| "\u{2014}".into());
+                let y_str = raw_y.map(fmt_val).unwrap_or_else(|| "\u{2014}".into());
                 let suffix = if *status == 2 { " (off-chart)" } else { "" };
                 let y_with_suffix = format!("{}{}", y_str, suffix);
 
