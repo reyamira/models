@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-11-03T01:47:32.652647525+00:00",
+    "fetched_at": "2026-11-03T02:17:31.321765520+00:00",
     "verified": true
   },
   "metrics": [
@@ -3800,40 +3800,6 @@
         },
         "ttft": {
           "value": 0.203
-        }
-      }
-    },
-    {
-      "id": "granite-4-2-30b",
-      "name": "Granite 4.2 30B",
-      "display_name": "Granite 4.2 30B",
-      "creator": "ibm",
-      "creator_name": "IBM",
-      "release_date": "2026-08-25",
-      "scores": {
-        "gpqa": {
-          "value": 0.644
-        },
-        "hle": {
-          "value": 0.112
-        },
-        "intelligence_index": {
-          "value": 5.5
-        },
-        "lcr": {
-          "value": 0.49
-        },
-        "price_blended": {
-          "value": 0.0
-        },
-        "price_input": {
-          "value": 0.0
-        },
-        "price_output": {
-          "value": 0.0
-        },
-        "scicode": {
-          "value": 0.378
         }
       }
     },
@@ -15835,6 +15801,37 @@
       }
     },
     {
+      "id": "granite-4-2-30b",
+      "name": "Granite 4.2 30B",
+      "display_name": "Granite 4.2 30B",
+      "creator": "ibm",
+      "creator_name": "IBM",
+      "release_date": "2026-08-25",
+      "scores": {
+        "gpqa": {
+          "value": 0.644
+        },
+        "hle": {
+          "value": 0.112
+        },
+        "lcr": {
+          "value": 0.49
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.378
+        }
+      }
+    },
+    {
       "id": "grok-2-1212",
       "name": "Grok 2 (Dec '24)",
       "display_name": "Grok 2",
@@ -17860,8 +17857,8 @@
     },
     {
       "id": "k-exaone-2-0-0803",
-      "name": "K-EXAONE 2.0 0803",
-      "display_name": "K-EXAONE 2.0 0803",
+      "name": "K-EXAONE 2.0",
+      "display_name": "K-EXAONE 2.0",
       "creator": "lg",
       "creator_name": "LG AI Research",
       "release_date": "2026-08-12",
