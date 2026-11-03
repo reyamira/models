@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-03T06:17:34.100978249+00:00",
+    "fetched_at": "2026-11-03T18:18:33.130933802+00:00",
     "verified": true
   },
   "metrics": [
@@ -75,7 +75,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-19",
+      "last_updated": "2026-11-02",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -105,7 +105,7 @@
       "label": "Ebr Bench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-26"
+      "last_updated": "2026-11-02"
     },
     {
       "id": "frontiercode",
@@ -126,14 +126,14 @@
       "label": "Frontiermath Tier 4 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-26"
+      "last_updated": "2026-11-02"
     },
     {
       "id": "frontiermath_tiers_1_3_v2",
       "label": "Frontiermath Tiers 1 3 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-26"
+      "last_updated": "2026-11-02"
     },
     {
       "id": "frontierswe",
@@ -147,14 +147,14 @@
       "label": "Furniture Assembly",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-26"
+      "last_updated": "2026-11-02"
     },
     {
       "id": "gpqa_diamond",
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-26",
+      "last_updated": "2026-11-02",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -177,14 +177,14 @@
       "label": "Mystery Game Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-26"
+      "last_updated": "2026-11-02"
     },
     {
       "id": "otis_mock_aime_2024_2025",
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-26",
+      "last_updated": "2026-11-02",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -214,7 +214,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-26",
+      "last_updated": "2026-11-02",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -262,6 +262,53 @@
     }
   ],
   "models": [
+    {
+      "id": "mistral-large-4-0-oss",
+      "name": "mistral-large-4-0-oss_high",
+      "display_name": "mistral-large-4-0-oss",
+      "creator": "mistral-ai",
+      "creator_name": "Mistral AI",
+      "release_date": "2026-10-29",
+      "effort_level": "high",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.29,
+          "date": "2026-11-02"
+        },
+        "ebr_bench": {
+          "value": 0.18095238095238095,
+          "date": "2026-11-02"
+        },
+        "frontiermath_tier_4_v2": {
+          "value": 0.17073170731707318,
+          "date": "2026-11-02"
+        },
+        "frontiermath_tiers_1_3_v2": {
+          "value": 0.4631578947368421,
+          "date": "2026-11-02"
+        },
+        "furniture_assembly": {
+          "value": 0.30833333333333335,
+          "date": "2026-11-02"
+        },
+        "gpqa_diamond": {
+          "value": 0.9015151515151515,
+          "date": "2026-11-02"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.2,
+          "date": "2026-11-02"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9944444444444445,
+          "date": "2026-11-02"
+        },
+        "simpleqa_verified": {
+          "value": 0.224,
+          "date": "2026-11-02"
+        }
+      }
+    },
     {
       "id": "gemini-4-carbon",
       "name": "gemini-4-carbon",
