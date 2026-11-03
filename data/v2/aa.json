@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-11-02T23:17:27.903584186+00:00",
+    "fetched_at": "2026-11-03T01:47:32.652647525+00:00",
     "verified": true
   },
   "metrics": [
@@ -1560,6 +1560,48 @@
       }
     },
     {
+      "id": "grok-4-7",
+      "name": "Grok 4.7 (Xhigh)",
+      "display_name": "Grok 4.7",
+      "creator": "xai",
+      "creator_name": "SpaceXAI",
+      "release_date": "2026-09-21",
+      "reasoning_status": "Reasoning",
+      "effort_level": "xhigh",
+      "scores": {
+        "hle": {
+          "value": 0.431
+        },
+        "intelligence_index": {
+          "value": 35.3
+        },
+        "lcr": {
+          "value": 0.766666666666667
+        },
+        "output_tps": {
+          "value": 61.799
+        },
+        "price_blended": {
+          "value": 3.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 6.0
+        },
+        "scicode": {
+          "value": 0.574
+        },
+        "ttfat": {
+          "value": 10.212
+        },
+        "ttft": {
+          "value": 10.212
+        }
+      }
+    },
+    {
       "id": "grok-4-7-high",
       "name": "Grok 4.7 (High)",
       "display_name": "Grok 4.7",
@@ -1723,48 +1765,6 @@
         },
         "ttft": {
           "value": 39.107
-        }
-      }
-    },
-    {
-      "id": "grok-4-7",
-      "name": "Grok 4.7 (Xhigh)",
-      "display_name": "Grok 4.7",
-      "creator": "xai",
-      "creator_name": "SpaceXAI",
-      "release_date": "2026-09-21",
-      "reasoning_status": "Reasoning",
-      "effort_level": "xhigh",
-      "scores": {
-        "hle": {
-          "value": 0.431
-        },
-        "intelligence_index": {
-          "value": 34.3
-        },
-        "lcr": {
-          "value": 0.766666666666667
-        },
-        "output_tps": {
-          "value": 61.799
-        },
-        "price_blended": {
-          "value": 3.0
-        },
-        "price_input": {
-          "value": 2.0
-        },
-        "price_output": {
-          "value": 6.0
-        },
-        "scicode": {
-          "value": 0.574
-        },
-        "ttfat": {
-          "value": 10.212
-        },
-        "ttft": {
-          "value": 10.212
         }
       }
     },
@@ -3800,6 +3800,40 @@
         },
         "ttft": {
           "value": 0.203
+        }
+      }
+    },
+    {
+      "id": "granite-4-2-30b",
+      "name": "Granite 4.2 30B",
+      "display_name": "Granite 4.2 30B",
+      "creator": "ibm",
+      "creator_name": "IBM",
+      "release_date": "2026-08-25",
+      "scores": {
+        "gpqa": {
+          "value": 0.644
+        },
+        "hle": {
+          "value": 0.112
+        },
+        "intelligence_index": {
+          "value": 5.5
+        },
+        "lcr": {
+          "value": 0.49
+        },
+        "price_blended": {
+          "value": 0.0
+        },
+        "price_input": {
+          "value": 0.0
+        },
+        "price_output": {
+          "value": 0.0
+        },
+        "scicode": {
+          "value": 0.378
         }
       }
     },
@@ -15797,37 +15831,6 @@
         },
         "terminalbench_hard": {
           "value": 0.0
-        }
-      }
-    },
-    {
-      "id": "granite-4-2-30b",
-      "name": "Granite 4.2 30B",
-      "display_name": "Granite 4.2 30B",
-      "creator": "ibm",
-      "creator_name": "IBM",
-      "release_date": "2026-08-25",
-      "scores": {
-        "gpqa": {
-          "value": 0.644
-        },
-        "hle": {
-          "value": 0.112
-        },
-        "lcr": {
-          "value": 0.49
-        },
-        "price_blended": {
-          "value": 0.0
-        },
-        "price_input": {
-          "value": 0.0
-        },
-        "price_output": {
-          "value": 0.0
-        },
-        "scicode": {
-          "value": 0.378
         }
       }
     },
