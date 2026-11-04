@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-11-04T15:47:38.372722244+00:00",
+    "fetched_at": "2026-11-04T16:17:40.404009555+00:00",
     "verified": true
   },
   "metrics": [
@@ -2038,6 +2038,42 @@
       }
     },
     {
+      "id": "grok-4-6-xhigh",
+      "name": "Grok 4.6 (Xhigh)",
+      "display_name": "Grok 4.6",
+      "creator": "xai",
+      "creator_name": "SpaceXAI",
+      "release_date": "2026-08-12",
+      "reasoning_status": "Reasoning",
+      "effort_level": "xhigh",
+      "scores": {
+        "gpqa": {
+          "value": 0.935
+        },
+        "hle": {
+          "value": 0.441
+        },
+        "intelligence_index": {
+          "value": 31.0
+        },
+        "lcr": {
+          "value": 0.81
+        },
+        "price_blended": {
+          "value": 3.0
+        },
+        "price_input": {
+          "value": 2.0
+        },
+        "price_output": {
+          "value": 6.0
+        },
+        "scicode": {
+          "value": 0.53
+        }
+      }
+    },
+    {
       "id": "gemini-3-8-flash",
       "name": "Gemini 3.8 Flash (High)",
       "display_name": "Gemini 3.8 Flash",
@@ -3844,6 +3880,59 @@
       }
     },
     {
+      "id": "claude-4-5-haiku-reasoning",
+      "name": "Claude 4.5 Haiku (Reasoning)",
+      "display_name": "Claude 4.5 Haiku",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2025-10-15",
+      "reasoning_status": "Reasoning",
+      "scores": {
+        "aime_25": {
+          "value": 0.836666666666667
+        },
+        "gpqa": {
+          "value": 0.672
+        },
+        "hle": {
+          "value": 0.104
+        },
+        "ifbench": {
+          "value": 0.542857142857143
+        },
+        "intelligence_index": {
+          "value": 7.4
+        },
+        "lcr": {
+          "value": 0.743333333333333
+        },
+        "livecodebench": {
+          "value": 0.615
+        },
+        "mmlu_pro": {
+          "value": 0.76
+        },
+        "price_blended": {
+          "value": 2.0
+        },
+        "price_input": {
+          "value": 1.0
+        },
+        "price_output": {
+          "value": 5.0
+        },
+        "scicode": {
+          "value": 0.422
+        },
+        "tau2": {
+          "value": 0.546783625730994
+        },
+        "terminalbench_hard": {
+          "value": 0.272727272727273
+        }
+      }
+    },
+    {
       "id": "muse-glimmer",
       "name": "Muse Glimmer (High)",
       "display_name": "Muse Glimmer",
@@ -5239,56 +5328,6 @@
         },
         "tau2": {
           "value": 0.324561403508772
-        },
-        "terminalbench_hard": {
-          "value": 0.272727272727273
-        }
-      }
-    },
-    {
-      "id": "claude-4-5-haiku-reasoning",
-      "name": "Claude 4.5 Haiku (Reasoning)",
-      "display_name": "Claude 4.5 Haiku",
-      "creator": "anthropic",
-      "creator_name": "Anthropic",
-      "release_date": "2025-10-15",
-      "reasoning_status": "Reasoning",
-      "scores": {
-        "aime_25": {
-          "value": 0.836666666666667
-        },
-        "gpqa": {
-          "value": 0.672
-        },
-        "hle": {
-          "value": 0.104
-        },
-        "ifbench": {
-          "value": 0.542857142857143
-        },
-        "lcr": {
-          "value": 0.743333333333333
-        },
-        "livecodebench": {
-          "value": 0.615
-        },
-        "mmlu_pro": {
-          "value": 0.76
-        },
-        "price_blended": {
-          "value": 2.0
-        },
-        "price_input": {
-          "value": 1.0
-        },
-        "price_output": {
-          "value": 5.0
-        },
-        "scicode": {
-          "value": 0.422
-        },
-        "tau2": {
-          "value": 0.546783625730994
         },
         "terminalbench_hard": {
           "value": 0.272727272727273
@@ -16706,39 +16745,6 @@
         },
         "scicode": {
           "value": 0.559
-        }
-      }
-    },
-    {
-      "id": "grok-4-6-xhigh",
-      "name": "Grok 4.6 (Xhigh)",
-      "display_name": "Grok 4.6",
-      "creator": "xai",
-      "creator_name": "SpaceXAI",
-      "release_date": "2026-08-12",
-      "reasoning_status": "Reasoning",
-      "effort_level": "xhigh",
-      "scores": {
-        "gpqa": {
-          "value": 0.935
-        },
-        "hle": {
-          "value": 0.441
-        },
-        "lcr": {
-          "value": 0.81
-        },
-        "price_blended": {
-          "value": 3.0
-        },
-        "price_input": {
-          "value": 2.0
-        },
-        "price_output": {
-          "value": 6.0
-        },
-        "scicode": {
-          "value": 0.53
         }
       }
     },
