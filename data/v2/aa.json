@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-11-04T06:17:48.494977995+00:00",
+    "fetched_at": "2026-11-04T07:17:27.402012589+00:00",
     "verified": true
   },
   "metrics": [
@@ -3896,6 +3896,49 @@
         },
         "ttft": {
           "value": 0.203
+        }
+      }
+    },
+    {
+      "id": "gemini-3-1-flash-lite-preview",
+      "name": "Gemini 3.1 Flash-Lite",
+      "display_name": "Gemini 3.1 Flash-Lite",
+      "creator": "google",
+      "creator_name": "Google",
+      "release_date": "2026-03-03",
+      "scores": {
+        "gpqa": {
+          "value": 0.822
+        },
+        "hle": {
+          "value": 0.172
+        },
+        "ifbench": {
+          "value": 0.772108843537415
+        },
+        "intelligence_index": {
+          "value": 6.2
+        },
+        "lcr": {
+          "value": 0.743333333333333
+        },
+        "price_blended": {
+          "value": 0.563
+        },
+        "price_input": {
+          "value": 0.25
+        },
+        "price_output": {
+          "value": 1.5
+        },
+        "scicode": {
+          "value": 0.434
+        },
+        "tau2": {
+          "value": 0.312865497076023
+        },
+        "terminalbench_hard": {
+          "value": 0.242424242424242
         }
       }
     },
@@ -10007,46 +10050,6 @@
         },
         "terminalbench_hard": {
           "value": 0.340909090909091
-        }
-      }
-    },
-    {
-      "id": "gemini-3-1-flash-lite-preview",
-      "name": "Gemini 3.1 Flash-Lite",
-      "display_name": "Gemini 3.1 Flash-Lite",
-      "creator": "google",
-      "creator_name": "Google",
-      "release_date": "2026-03-03",
-      "scores": {
-        "gpqa": {
-          "value": 0.822
-        },
-        "hle": {
-          "value": 0.172
-        },
-        "ifbench": {
-          "value": 0.772108843537415
-        },
-        "lcr": {
-          "value": 0.743333333333333
-        },
-        "price_blended": {
-          "value": 0.563
-        },
-        "price_input": {
-          "value": 0.25
-        },
-        "price_output": {
-          "value": 1.5
-        },
-        "scicode": {
-          "value": 0.434
-        },
-        "tau2": {
-          "value": 0.312865497076023
-        },
-        "terminalbench_hard": {
-          "value": 0.242424242424242
         }
       }
     },
