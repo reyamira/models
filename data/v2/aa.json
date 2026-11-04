@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-11-04T16:17:40.404009555+00:00",
+    "fetched_at": "2026-11-04T17:47:25.982333829+00:00",
     "verified": true
   },
   "metrics": [
@@ -4189,6 +4189,58 @@
         },
         "scicode": {
           "value": 0.253
+        }
+      }
+    },
+    {
+      "id": "mistral-medium-3-5",
+      "name": "Mistral Medium 3.5",
+      "display_name": "Mistral Medium 3.5",
+      "creator": "mistral",
+      "creator_name": "Mistral",
+      "release_date": "2026-04-29",
+      "scores": {
+        "gpqa": {
+          "value": 0.748
+        },
+        "hle": {
+          "value": 0.138
+        },
+        "ifbench": {
+          "value": 0.687755102040816
+        },
+        "intelligence_index": {
+          "value": 4.6
+        },
+        "lcr": {
+          "value": 0.693333333333333
+        },
+        "output_tps": {
+          "value": 168.511
+        },
+        "price_blended": {
+          "value": 3.0
+        },
+        "price_input": {
+          "value": 1.5
+        },
+        "price_output": {
+          "value": 7.5
+        },
+        "scicode": {
+          "value": 0.402
+        },
+        "tau2": {
+          "value": 0.941520467836257
+        },
+        "terminalbench_hard": {
+          "value": 0.333333333333333
+        },
+        "ttfat": {
+          "value": 12.666
+        },
+        "ttft": {
+          "value": 0.797
         }
       }
     },
@@ -22434,55 +22486,6 @@
         },
         "terminalbench_hard": {
           "value": 0.106060606060606
-        }
-      }
-    },
-    {
-      "id": "mistral-medium-3-5",
-      "name": "Mistral Medium 3.5",
-      "display_name": "Mistral Medium 3.5",
-      "creator": "mistral",
-      "creator_name": "Mistral",
-      "release_date": "2026-04-29",
-      "scores": {
-        "gpqa": {
-          "value": 0.748
-        },
-        "hle": {
-          "value": 0.138
-        },
-        "ifbench": {
-          "value": 0.687755102040816
-        },
-        "lcr": {
-          "value": 0.693333333333333
-        },
-        "output_tps": {
-          "value": 168.511
-        },
-        "price_blended": {
-          "value": 3.0
-        },
-        "price_input": {
-          "value": 1.5
-        },
-        "price_output": {
-          "value": 7.5
-        },
-        "scicode": {
-          "value": 0.402
-        },
-        "tau2": {
-          "value": 0.941520467836257
-        },
-        "terminalbench_hard": {
-          "value": 0.333333333333333
-        },
-        "ttfat": {
-          "value": 12.666
-        },
-        "ttft": {
-          "value": 0.797
         }
       }
     },
