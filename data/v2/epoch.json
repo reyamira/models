@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-03T18:18:33.130933802+00:00",
+    "fetched_at": "2026-11-04T06:17:54.115043337+00:00",
     "verified": true
   },
   "metrics": [
@@ -126,14 +126,14 @@
       "label": "Frontiermath Tier 4 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-02"
+      "last_updated": "2026-10-26"
     },
     {
       "id": "frontiermath_tiers_1_3_v2",
       "label": "Frontiermath Tiers 1 3 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-02"
+      "last_updated": "2026-10-26"
     },
     {
       "id": "frontierswe",
@@ -263,6 +263,29 @@
   ],
   "models": [
     {
+      "id": "doubao-seed-evolving",
+      "name": "doubao-seed-evolving_high",
+      "display_name": "doubao-seed-evolving",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2026-11-02",
+      "effort_level": "high",
+      "scores": {
+        "gpqa_diamond": {
+          "value": 0.9311868686868687,
+          "date": "2026-11-02"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9916666666666667,
+          "date": "2026-11-02"
+        },
+        "simpleqa_verified": {
+          "value": 0.419,
+          "date": "2026-11-02"
+        }
+      }
+    },
+    {
       "id": "mistral-large-4-0-oss",
       "name": "mistral-large-4-0-oss_high",
       "display_name": "mistral-large-4-0-oss",
@@ -277,14 +300,6 @@
         },
         "ebr_bench": {
           "value": 0.18095238095238095,
-          "date": "2026-11-02"
-        },
-        "frontiermath_tier_4_v2": {
-          "value": 0.17073170731707318,
-          "date": "2026-11-02"
-        },
-        "frontiermath_tiers_1_3_v2": {
-          "value": 0.4631578947368421,
           "date": "2026-11-02"
         },
         "furniture_assembly": {
@@ -4224,6 +4239,52 @@
       }
     },
     {
+      "id": "doubao-seed-2.1-pro-260628",
+      "name": "doubao-seed-2.1-pro-260628_high",
+      "display_name": "doubao-seed-2.1-pro-260628",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2026-06-23",
+      "effort_level": "high",
+      "scores": {
+        "gpqa_diamond": {
+          "value": 0.8933080808080808,
+          "date": "2026-10-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9555555555555556,
+          "date": "2026-10-30"
+        },
+        "simpleqa_verified": {
+          "value": 0.447,
+          "date": "2026-10-28"
+        }
+      }
+    },
+    {
+      "id": "doubao-seed-2.1-turbo-260628",
+      "name": "doubao-seed-2.1-turbo-260628_high",
+      "display_name": "doubao-seed-2.1-turbo-260628",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2026-06-23",
+      "effort_level": "high",
+      "scores": {
+        "gpqa_diamond": {
+          "value": 0.8958333333333334,
+          "date": "2026-10-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9611111111111111,
+          "date": "2026-10-30"
+        },
+        "simpleqa_verified": {
+          "value": 0.297,
+          "date": "2026-10-30"
+        }
+      }
+    },
+    {
       "id": "glm-5.2",
       "name": "glm-5.2",
       "display_name": "glm-5.2",
@@ -5082,6 +5143,29 @@
         "scicode": {
           "value": 0.258101851851852,
           "date": "2026-04-29"
+        }
+      }
+    },
+    {
+      "id": "doubao-seed-2.0-lite-260428",
+      "name": "doubao-seed-2.0-lite-260428_high",
+      "display_name": "doubao-seed-2.0-lite-260428",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2026-04-28",
+      "effort_level": "high",
+      "scores": {
+        "gpqa_diamond": {
+          "value": 0.8813131313131313,
+          "date": "2026-10-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9111111111111111,
+          "date": "2026-10-30"
+        },
+        "simpleqa_verified": {
+          "value": 0.315,
+          "date": "2026-10-28"
         }
       }
     },
@@ -7115,6 +7199,29 @@
         "vending_bench_2": {
           "value": 0.5440000000000417,
           "date": "2026-02-16"
+        }
+      }
+    },
+    {
+      "id": "doubao-seed-2.0-pro-260215",
+      "name": "doubao-seed-2.0-pro-260215_high",
+      "display_name": "doubao-seed-2.0-pro-260215",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2026-02-14",
+      "effort_level": "high",
+      "scores": {
+        "gpqa_diamond": {
+          "value": 0.8819444444444444,
+          "date": "2026-10-28"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9388888888888889,
+          "date": "2026-10-30"
+        },
+        "simpleqa_verified": {
+          "value": 0.394,
+          "date": "2026-10-28"
         }
       }
     },
@@ -9666,6 +9773,28 @@
         "vending_bench_2": {
           "value": 573.6420000000003,
           "date": "2025-06-17"
+        }
+      }
+    },
+    {
+      "id": "seed-1.6",
+      "name": "seed-1.6",
+      "display_name": "seed-1.6",
+      "creator": "bytedance",
+      "creator_name": "ByteDance",
+      "release_date": "2025-06-11",
+      "scores": {
+        "gpqa_diamond": {
+          "value": 0.7758838383838383,
+          "date": "2026-10-30"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.6944444444444444,
+          "date": "2026-10-30"
+        },
+        "simpleqa_verified": {
+          "value": 0.174,
+          "date": "2026-10-30"
         }
       }
     },
