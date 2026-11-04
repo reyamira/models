@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-11-04T15:18:16.307020776+00:00",
+    "fetched_at": "2026-11-04T15:47:38.372722244+00:00",
     "verified": true
   },
   "metrics": [
@@ -3531,6 +3531,47 @@
         },
         "ttft": {
           "value": 1.861
+        }
+      }
+    },
+    {
+      "id": "deepseek-v4-pro-non-reasoning",
+      "name": "DeepSeek V4 Pro 0813 (Non-reasoning)",
+      "display_name": "DeepSeek V4 Pro 0813",
+      "creator": "deepseek",
+      "creator_name": "DeepSeek",
+      "release_date": "2026-08-13",
+      "reasoning_status": "NonReasoning",
+      "scores": {
+        "hle": {
+          "value": 0.106
+        },
+        "intelligence_index": {
+          "value": 12.6
+        },
+        "lcr": {
+          "value": 0.506666666666667
+        },
+        "output_tps": {
+          "value": 77.359
+        },
+        "price_blended": {
+          "value": 1.98
+        },
+        "price_input": {
+          "value": 1.32
+        },
+        "price_output": {
+          "value": 3.96
+        },
+        "scicode": {
+          "value": 0.399
+        },
+        "ttfat": {
+          "value": 1.036
+        },
+        "ttft": {
+          "value": 1.036
         }
       }
     },
@@ -7772,44 +7813,6 @@
         },
         "terminalbench_hard": {
           "value": 0.363636363636364
-        }
-      }
-    },
-    {
-      "id": "deepseek-v4-pro-non-reasoning",
-      "name": "DeepSeek V4 Pro 0813 (Non-reasoning)",
-      "display_name": "DeepSeek V4 Pro 0813",
-      "creator": "deepseek",
-      "creator_name": "DeepSeek",
-      "release_date": "2026-08-13",
-      "reasoning_status": "NonReasoning",
-      "scores": {
-        "hle": {
-          "value": 0.106
-        },
-        "lcr": {
-          "value": 0.506666666666667
-        },
-        "output_tps": {
-          "value": 77.359
-        },
-        "price_blended": {
-          "value": 1.98
-        },
-        "price_input": {
-          "value": 1.32
-        },
-        "price_output": {
-          "value": 3.96
-        },
-        "scicode": {
-          "value": 0.399
-        },
-        "ttfat": {
-          "value": 1.036
-        },
-        "ttft": {
-          "value": 1.036
         }
       }
     },
