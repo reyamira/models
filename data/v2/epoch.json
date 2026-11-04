@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-04T06:17:54.115043337+00:00",
+    "fetched_at": "2026-11-04T18:17:43.927371063+00:00",
     "verified": true
   },
   "metrics": [
@@ -223,21 +223,21 @@
       "label": "Spireclimb",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-30"
+      "last_updated": "2026-11-03"
     },
     {
       "id": "spireclimb_sts1_a20_heart",
       "label": "Spireclimb Sts1 A20 Heart",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-30"
+      "last_updated": "2026-11-03"
     },
     {
       "id": "spireclimb_sts2_a10",
       "label": "Spireclimb Sts2 A10",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-30"
+      "last_updated": "2026-11-03"
     },
     {
       "id": "surface_evolver_bench",
@@ -409,6 +409,18 @@
         "simpleqa_verified": {
           "value": 0.573,
           "date": "2026-10-26"
+        },
+        "spireclimb": {
+          "value": 0.19833333333333333,
+          "date": "2026-11-03"
+        },
+        "spireclimb_sts1_a20_heart": {
+          "value": 0.05,
+          "date": "2026-11-03"
+        },
+        "spireclimb_sts2_a10": {
+          "value": 0.3466666666666667,
+          "date": "2026-11-03"
         },
         "vending_bench_2": {
           "value": 9107.458333333334,
