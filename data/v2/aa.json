@@ -3,7 +3,7 @@
     "id": "aa",
     "name": "Artificial Analysis",
     "url": "https://artificialanalysis.ai",
-    "fetched_at": "2026-11-04T18:17:40.792594533+00:00",
+    "fetched_at": "2026-11-04T19:47:26.531911420+00:00",
     "verified": true
   },
   "metrics": [
@@ -2809,6 +2809,42 @@
         },
         "ttft": {
           "value": 8.983
+        }
+      }
+    },
+    {
+      "id": "gpt-5-6-luna",
+      "name": "GPT-5.6 Luna (Max)",
+      "display_name": "GPT-5.6 Luna",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-07-09",
+      "reasoning_status": "Reasoning",
+      "effort_level": "max",
+      "scores": {
+        "gpqa": {
+          "value": 0.911
+        },
+        "hle": {
+          "value": 0.395
+        },
+        "intelligence_index": {
+          "value": 23.8
+        },
+        "lcr": {
+          "value": 0.836666666666667
+        },
+        "price_blended": {
+          "value": 0.45
+        },
+        "price_input": {
+          "value": 0.2
+        },
+        "price_output": {
+          "value": 1.2
+        },
+        "scicode": {
+          "value": 0.536
         }
       }
     },
@@ -14508,39 +14544,6 @@
         },
         "scicode": {
           "value": 0.461
-        }
-      }
-    },
-    {
-      "id": "gpt-5-6-luna",
-      "name": "GPT-5.6 Luna (Max)",
-      "display_name": "GPT-5.6 Luna",
-      "creator": "openai",
-      "creator_name": "OpenAI",
-      "release_date": "2026-07-09",
-      "reasoning_status": "Reasoning",
-      "effort_level": "max",
-      "scores": {
-        "gpqa": {
-          "value": 0.911
-        },
-        "hle": {
-          "value": 0.395
-        },
-        "lcr": {
-          "value": 0.836666666666667
-        },
-        "price_blended": {
-          "value": 0.45
-        },
-        "price_input": {
-          "value": 0.2
-        },
-        "price_output": {
-          "value": 1.2
-        },
-        "scicode": {
-          "value": 0.536
         }
       }
     },
