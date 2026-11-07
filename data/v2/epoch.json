@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-06T18:17:44.011627372+00:00",
+    "fetched_at": "2026-11-07T06:17:56.613331639+00:00",
     "verified": true
   },
   "metrics": [
@@ -75,7 +75,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-02",
+      "last_updated": "2026-11-06",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -126,14 +126,14 @@
       "label": "Frontiermath Tier 4 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-26"
+      "last_updated": "2026-11-06"
     },
     {
       "id": "frontiermath_tiers_1_3_v2",
       "label": "Frontiermath Tiers 1 3 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-26"
+      "last_updated": "2026-11-06"
     },
     {
       "id": "frontierswe",
@@ -147,14 +147,14 @@
       "label": "Furniture Assembly",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-02"
+      "last_updated": "2026-11-06"
     },
     {
       "id": "gpqa_diamond",
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-02",
+      "last_updated": "2026-11-06",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -177,14 +177,14 @@
       "label": "Mystery Game Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-02"
+      "last_updated": "2026-11-06"
     },
     {
       "id": "otis_mock_aime_2024_2025",
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-02",
+      "last_updated": "2026-11-06",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -214,7 +214,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-02",
+      "last_updated": "2026-11-06",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -459,6 +459,49 @@
         "scicode": {
           "value": 0.607638888888889,
           "date": "2026-10-23"
+        }
+      }
+    },
+    {
+      "id": "kimi-k3.1-pro-together",
+      "name": "kimi-k3.1-pro-together_max",
+      "display_name": "kimi-k3.1-pro-together",
+      "creator": "moonshot",
+      "creator_name": "Moonshot",
+      "release_date": "2026-10-23",
+      "effort_level": "max",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.45,
+          "date": "2026-11-06"
+        },
+        "frontiermath_tier_4_v2": {
+          "value": 0.6585365853658537,
+          "date": "2026-11-06"
+        },
+        "frontiermath_tiers_1_3_v2": {
+          "value": 0.7824561403508772,
+          "date": "2026-11-06"
+        },
+        "furniture_assembly": {
+          "value": 0.5583333333333333,
+          "date": "2026-11-06"
+        },
+        "gpqa_diamond": {
+          "value": 0.9419191919191919,
+          "date": "2026-11-06"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.42,
+          "date": "2026-11-06"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 1.0,
+          "date": "2026-11-06"
+        },
+        "simpleqa_verified": {
+          "value": 0.622,
+          "date": "2026-11-06"
         }
       }
     },
