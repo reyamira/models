@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-09T06:17:44.632126139+00:00",
+    "fetched_at": "2026-11-10T06:18:19.996042783+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "ARC-AGI",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-10-17",
+      "last_updated": "2026-11-09",
       "description": "Abstract visual grid puzzles where the model must infer a transformation rule from a few input-output demonstrations and apply it to a novel case. Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -20,7 +20,7 @@
       "label": "ARC-AGI-2",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-10-17",
+      "last_updated": "2026-11-09",
       "description": "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing compositional and symbolic reasoning, two attempts per task (pass@2). Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -37,7 +37,7 @@
       "label": "APEX Agents",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-10-26",
+      "last_updated": "2026-11-05",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
     },
@@ -84,7 +84,7 @@
       "label": "Critpt",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-28"
+      "last_updated": "2026-10-29"
     },
     {
       "id": "cursorbench",
@@ -98,14 +98,14 @@
       "label": "Dtbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-12"
+      "last_updated": "2026-10-23"
     },
     {
       "id": "ebr_bench",
       "label": "Ebr Bench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-02"
+      "last_updated": "2026-11-06"
     },
     {
       "id": "frontiercode",
@@ -140,7 +140,7 @@
       "label": "Frontierswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-07"
+      "last_updated": "2026-10-28"
     },
     {
       "id": "furniture_assembly",
@@ -163,7 +163,7 @@
       "label": "Lmca",
       "kind": "index",
       "group": "Academic",
-      "last_updated": "2026-10-12"
+      "last_updated": "2026-10-23"
     },
     {
       "id": "mirrorcode",
@@ -193,7 +193,7 @@
       "label": "Proofbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-23"
+      "last_updated": "2026-11-09"
     },
     {
       "id": "rli",
@@ -207,7 +207,7 @@
       "label": "Scicode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-28"
+      "last_updated": "2026-11-05"
     },
     {
       "id": "simpleqa_verified",
@@ -223,21 +223,21 @@
       "label": "Spireclimb",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-05"
+      "last_updated": "2026-11-06"
     },
     {
       "id": "spireclimb_sts1_a20_heart",
       "label": "Spireclimb Sts1 A20 Heart",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-05"
+      "last_updated": "2026-11-06"
     },
     {
       "id": "spireclimb_sts2_a10",
       "label": "Spireclimb Sts2 A10",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-03"
+      "last_updated": "2026-11-06"
     },
     {
       "id": "surface_evolver_bench",
@@ -262,6 +262,102 @@
     }
   ],
   "models": [
+    {
+      "id": "claude-fable-5-2",
+      "name": "claude-fable-5-2",
+      "display_name": "claude-fable-5-2",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-11-09",
+      "scores": {
+        "arc_agi": {
+          "value": 0.985,
+          "date": "2026-11-09"
+        },
+        "arc_agi_2": {
+          "value": 0.9375,
+          "date": "2026-11-09"
+        },
+        "chess_puzzles": {
+          "value": 0.79,
+          "date": "2026-11-06"
+        },
+        "ebr_bench": {
+          "value": 0.9047619047619048,
+          "date": "2026-11-06"
+        },
+        "frontiermath_tier_4_v2": {
+          "value": 1.0,
+          "date": "2026-11-06"
+        },
+        "frontiermath_tiers_1_3_v2": {
+          "value": 0.9508771929824561,
+          "date": "2026-11-06"
+        },
+        "furniture_assembly": {
+          "value": 0.9,
+          "date": "2026-11-06"
+        },
+        "gpqa_diamond": {
+          "value": 0.9387626262626263,
+          "date": "2026-11-06"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.9,
+          "date": "2026-11-06"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9972222222222222,
+          "date": "2026-11-06"
+        },
+        "proofbench": {
+          "value": 1.0,
+          "date": "2026-11-09"
+        },
+        "simpleqa_verified": {
+          "value": 0.94,
+          "date": "2026-11-06"
+        },
+        "spireclimb": {
+          "value": 0.19617117117117117,
+          "date": "2026-11-06"
+        },
+        "spireclimb_sts1_a20_heart": {
+          "value": 0.21666666666666667,
+          "date": "2026-11-06"
+        },
+        "spireclimb_sts2_a10": {
+          "value": 0.17567567567567569,
+          "date": "2026-11-06"
+        }
+      }
+    },
+    {
+      "id": "inkling-2-small",
+      "name": "inkling-2-small",
+      "display_name": "inkling-2-small",
+      "creator": "thinking-machines",
+      "creator_name": "Thinking Machines",
+      "release_date": "2026-11-05",
+      "scores": {
+        "apex_agents": {
+          "value": 0.46799999999999997,
+          "date": "2026-11-05"
+        },
+        "arc_agi": {
+          "value": 0.965,
+          "date": "2026-11-05"
+        },
+        "arc_agi_2": {
+          "value": 0.8166666666666668,
+          "date": "2026-11-05"
+        },
+        "scicode": {
+          "value": 0.523148148148148,
+          "date": "2026-11-05"
+        }
+      }
+    },
     {
       "id": "doubao-seed-evolving",
       "name": "doubao-seed-evolving_high",
@@ -291,16 +387,19 @@
     },
     {
       "id": "mistral-large-4-0-oss",
-      "name": "mistral-large-4-0-oss_high",
+      "name": "mistral-large-4-0-oss",
       "display_name": "mistral-large-4-0-oss",
       "creator": "mistral-ai",
       "creator_name": "Mistral AI",
       "release_date": "2026-10-29",
-      "effort_level": "high",
       "scores": {
         "chess_puzzles": {
           "value": 0.29,
           "date": "2026-11-02"
+        },
+        "critpt": {
+          "value": 0.111428571428571,
+          "date": "2026-10-29"
         },
         "ebr_bench": {
           "value": 0.18095238095238095,
@@ -336,12 +435,20 @@
       "creator_name": "Google DeepMind",
       "release_date": "2026-10-28",
       "scores": {
+        "apex_agents": {
+          "value": 0.8420000000000001,
+          "date": "2026-10-28"
+        },
         "blueprint_bench_2": {
           "value": 0.5856832971800434,
           "date": "2026-10-28"
         },
         "critpt": {
           "value": 0.36,
+          "date": "2026-10-28"
+        },
+        "frontierswe": {
+          "value": 0.6119949235294118,
           "date": "2026-10-28"
         },
         "scicode": {
@@ -448,8 +555,20 @@
           "value": 1932.75,
           "date": "2026-10-23"
         },
+        "apex_agents": {
+          "value": 0.655,
+          "date": "2026-10-23"
+        },
         "critpt": {
           "value": 0.245714285714286,
+          "date": "2026-10-23"
+        },
+        "dtbench": {
+          "value": 0.9333,
+          "date": "2026-10-23"
+        },
+        "lmca": {
+          "value": 57.61,
           "date": "2026-10-23"
         },
         "proofbench": {
@@ -458,6 +577,10 @@
         },
         "scicode": {
           "value": 0.607638888888889,
+          "date": "2026-10-23"
+        },
+        "weirdml_v3": {
+          "value": 0.09890022727272728,
           "date": "2026-10-23"
         }
       }
@@ -641,6 +764,10 @@
           "value": 0.6609999999999999,
           "date": "2026-10-12"
         },
+        "blueprint_bench_2": {
+          "value": 0.31670281995661614,
+          "date": "2026-10-12"
+        },
         "critpt": {
           "value": 0.282857142857143,
           "date": "2026-10-12"
@@ -694,7 +821,7 @@
           "date": "2026-10-12"
         },
         "weirdml_v3": {
-          "value": 0.15191042532467533,
+          "value": 0.1517172978896104,
           "date": "2026-10-12"
         }
       }
@@ -899,6 +1026,10 @@
       "creator_name": "Reflection",
       "release_date": "2026-10-05",
       "scores": {
+        "ale_bench": {
+          "value": 1097.53,
+          "date": "2026-10-05"
+        },
         "apex_agents": {
           "value": 0.488,
           "date": "2026-10-05"
@@ -911,8 +1042,16 @@
           "value": 0.23472222222222222,
           "date": "2026-10-05"
         },
+        "critpt": {
+          "value": 0.131428571428571,
+          "date": "2026-10-05"
+        },
         "proofbench": {
           "value": 0.18,
+          "date": "2026-10-05"
+        },
+        "scicode": {
+          "value": 0.48495370370370405,
           "date": "2026-10-05"
         }
       }
@@ -1030,7 +1169,7 @@
           "date": "2026-09-30"
         },
         "weirdml_v3": {
-          "value": 0.2009648962121212,
+          "value": 0.20261679772727273,
           "date": "2026-09-30"
         }
       }
@@ -1057,6 +1196,10 @@
         },
         "arc_agi_2": {
           "value": 0.9416666666666668,
+          "date": "2026-09-29"
+        },
+        "blueprint_bench_2": {
+          "value": 0.43167028199566154,
           "date": "2026-09-29"
         },
         "chess_puzzles": {
@@ -1134,6 +1277,10 @@
         "spireclimb_sts2_a10": {
           "value": 0.29333333333333333,
           "date": "2026-09-30"
+        },
+        "vending_bench_2": {
+          "value": 12860.61166666667,
+          "date": "2026-09-29"
         },
         "weirdml_v3": {
           "value": 0.38253641363636365,
@@ -1621,6 +1768,10 @@
       "creator_name": "xAI",
       "release_date": "2026-09-21",
       "scores": {
+        "ale_bench": {
+          "value": 1545.85,
+          "date": "2026-09-21"
+        },
         "apex_agents": {
           "value": 0.546,
           "date": "2026-09-21"
@@ -2406,6 +2557,10 @@
       "creator_name": "Alibaba",
       "release_date": "2026-09-01",
       "scores": {
+        "ale_bench": {
+          "value": 1679.12,
+          "date": "2026-09-01"
+        },
         "chess_puzzles": {
           "value": 0.37,
           "date": "2026-10-13"
@@ -10484,7 +10639,7 @@
           "date": "2026-10-13"
         },
         "critpt": {
-          "value": 0.013999999999999999,
+          "value": 0.0114285714285714,
           "date": "2025-04-16"
         },
         "dtbench": {
