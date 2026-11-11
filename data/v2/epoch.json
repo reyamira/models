@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-11T06:18:31.318165075+00:00",
+    "fetched_at": "2026-11-11T18:18:10.260936304+00:00",
     "verified": true
   },
   "metrics": [
@@ -37,7 +37,7 @@
       "label": "APEX Agents",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-11-05",
+      "last_updated": "2026-11-09",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
     },
@@ -54,7 +54,7 @@
       "label": "Ale Bench",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-10-26"
+      "last_updated": "2026-11-09"
     },
     {
       "id": "balrog",
@@ -84,21 +84,21 @@
       "label": "Critpt",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-29"
+      "last_updated": "2026-11-09"
     },
     {
       "id": "cursorbench",
       "label": "Cursorbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-17"
+      "last_updated": "2026-11-09"
     },
     {
       "id": "dtbench",
       "label": "Dtbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-23"
+      "last_updated": "2026-11-09"
     },
     {
       "id": "ebr_bench",
@@ -140,7 +140,7 @@
       "label": "Frontierswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-28"
+      "last_updated": "2026-11-09"
     },
     {
       "id": "furniture_assembly",
@@ -163,7 +163,7 @@
       "label": "Lmca",
       "kind": "index",
       "group": "Academic",
-      "last_updated": "2026-10-23"
+      "last_updated": "2026-11-09"
     },
     {
       "id": "mirrorcode",
@@ -200,14 +200,14 @@
       "label": "Rli",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-09-30"
+      "last_updated": "2026-11-09"
     },
     {
       "id": "scicode",
       "label": "Scicode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-05"
+      "last_updated": "2026-11-09"
     },
     {
       "id": "simpleqa_verified",
@@ -270,6 +270,14 @@
       "creator_name": "Anthropic",
       "release_date": "2026-11-09",
       "scores": {
+        "ale_bench": {
+          "value": 2509.8,
+          "date": "2026-11-09"
+        },
+        "apex_agents": {
+          "value": 0.8009999999999999,
+          "date": "2026-11-09"
+        },
         "arc_agi": {
           "value": 0.985,
           "date": "2026-11-09"
@@ -281,6 +289,18 @@
         "chess_puzzles": {
           "value": 0.79,
           "date": "2026-11-06"
+        },
+        "critpt": {
+          "value": 0.35714285714285704,
+          "date": "2026-11-09"
+        },
+        "cursorbench": {
+          "value": 0.6,
+          "date": "2026-11-09"
+        },
+        "dtbench": {
+          "value": 0.9920000000000001,
+          "date": "2026-11-09"
         },
         "ebr_bench": {
           "value": 0.9047619047619048,
@@ -294,6 +314,10 @@
           "value": 0.9508771929824561,
           "date": "2026-11-06"
         },
+        "frontierswe": {
+          "value": 0.6994018470588234,
+          "date": "2026-11-09"
+        },
         "furniture_assembly": {
           "value": 0.9,
           "date": "2026-11-06"
@@ -301,6 +325,10 @@
         "gpqa_diamond": {
           "value": 0.9387626262626263,
           "date": "2026-11-06"
+        },
+        "lmca": {
+          "value": 70.61,
+          "date": "2026-11-09"
         },
         "mystery_game_puzzles": {
           "value": 0.9,
@@ -312,6 +340,14 @@
         },
         "proofbench": {
           "value": 1.0,
+          "date": "2026-11-09"
+        },
+        "rli": {
+          "value": 0.413,
+          "date": "2026-11-09"
+        },
+        "scicode": {
+          "value": 0.677083333333333,
           "date": "2026-11-09"
         },
         "simpleqa_verified": {
@@ -329,6 +365,20 @@
         "spireclimb_sts2_a10": {
           "value": 0.17567567567567569,
           "date": "2026-11-06"
+        }
+      }
+    },
+    {
+      "id": "muse-ember-1.0",
+      "name": "muse-ember-1.0_unknown",
+      "display_name": "muse-ember-1.0",
+      "creator": "meta-ai",
+      "creator_name": "Meta AI",
+      "release_date": "2026-11-09",
+      "scores": {
+        "apex_agents": {
+          "value": 0.643,
+          "date": "2026-11-09"
         }
       }
     },
@@ -439,6 +489,14 @@
           "value": 0.8420000000000001,
           "date": "2026-10-28"
         },
+        "arc_agi": {
+          "value": 0.985,
+          "date": "2026-10-28"
+        },
+        "arc_agi_2": {
+          "value": 0.9416666666666668,
+          "date": "2026-10-28"
+        },
         "blueprint_bench_2": {
           "value": 0.5856832971800434,
           "date": "2026-10-28"
@@ -449,6 +507,10 @@
         },
         "critpt": {
           "value": 0.36,
+          "date": "2026-10-28"
+        },
+        "cursorbench": {
+          "value": 0.604,
           "date": "2026-10-28"
         },
         "ebr_bench": {
@@ -7025,7 +7087,7 @@
       "release_date": "2026-02-25",
       "scores": {
         "ale_bench": {
-          "value": 221.8,
+          "value": 265.93,
           "date": "2026-02-25"
         },
         "chess_puzzles": {
@@ -7158,6 +7220,10 @@
       "creator_name": "Alibaba",
       "release_date": "2026-02-24",
       "scores": {
+        "ale_bench": {
+          "value": 221.8,
+          "date": "2026-02-24"
+        },
         "critpt": {
           "value": 0.00571428571428571,
           "date": "2026-02-24"
@@ -7519,7 +7585,7 @@
       "release_date": "2026-02-16",
       "scores": {
         "ale_bench": {
-          "value": 621.92,
+          "value": 608.92,
           "date": "2026-02-16"
         },
         "chess_puzzles": {
@@ -7591,6 +7657,10 @@
       "creator_name": "Alibaba",
       "release_date": "2026-02-13",
       "scores": {
+        "ale_bench": {
+          "value": 621.92,
+          "date": "2026-02-13"
+        },
         "apex_agents": {
           "value": 0.249,
           "date": "2026-02-13"
@@ -8478,7 +8548,7 @@
       "release_date": "2025-11-19",
       "scores": {
         "ale_bench": {
-          "value": 1208.83,
+          "value": 1228.25,
           "date": "2025-11-19"
         },
         "proofbench": {
