@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-13T06:19:07.767865768+00:00",
+    "fetched_at": "2026-11-13T18:19:11.532903245+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "ARC-AGI",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-11-09",
+      "last_updated": "2026-11-10",
       "description": "Abstract visual grid puzzles where the model must infer a transformation rule from a few input-output demonstrations and apply it to a novel case. Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -20,7 +20,7 @@
       "label": "ARC-AGI-2",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-11-09",
+      "last_updated": "2026-11-10",
       "description": "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing compositional and symbolic reasoning, two attempts per task (pass@2). Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -37,7 +37,7 @@
       "label": "APEX Agents",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-11-09",
+      "last_updated": "2026-11-10",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
     },
@@ -54,7 +54,7 @@
       "label": "PostTrainBench",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-10-12",
+      "last_updated": "2026-10-13",
       "description": "AI R&D automation: a CLI agent must post-train a small base LLM on a single GPU within a time budget to raise its downstream scores. Scored as the average improvement across base models and evaluations; higher is better.",
       "short_label": "PTBench"
     },
@@ -77,7 +77,7 @@
       "label": "Blueprint Bench 2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-28"
+      "last_updated": "2026-11-10"
     },
     {
       "id": "chess_puzzles",
@@ -93,14 +93,14 @@
       "label": "Critpt",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-09"
+      "last_updated": "2026-11-10"
     },
     {
       "id": "cursorbench",
       "label": "Cursorbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-09"
+      "last_updated": "2026-11-10"
     },
     {
       "id": "dtbench",
@@ -121,7 +121,7 @@
       "label": "Frontiercode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-10-07"
+      "last_updated": "2026-10-13"
     },
     {
       "id": "frontiermath_erdos",
@@ -149,7 +149,7 @@
       "label": "Frontierswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-09"
+      "last_updated": "2026-11-10"
     },
     {
       "id": "furniture_assembly",
@@ -223,14 +223,14 @@
       "label": "Scicode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-09"
+      "last_updated": "2026-11-10"
     },
     {
       "id": "simplebench",
       "label": "SimpleBench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-09",
+      "last_updated": "2026-11-10",
       "description": "Common-sense reasoning 'trick' questions about space, time, and social cues that are easy for people (84% human baseline) but hard for models. Scored as accuracy (% correct); higher is better.",
       "short_label": "SimpleBnch"
     },
@@ -276,7 +276,7 @@
       "label": "Vending Bench 2",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-10-28"
+      "last_updated": "2026-11-10"
     },
     {
       "id": "weirdml_v3",
@@ -287,6 +287,96 @@
     }
   ],
   "models": [
+    {
+      "id": "gemini-4-carbon",
+      "name": "gemini-4-carbon",
+      "display_name": "gemini-4-carbon",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
+      "release_date": "2026-11-10",
+      "scores": {
+        "apex_agents": {
+          "value": 0.8420000000000001,
+          "date": "2026-11-10"
+        },
+        "arc_agi": {
+          "value": 0.985,
+          "date": "2026-11-10"
+        },
+        "arc_agi_2": {
+          "value": 0.9416666666666668,
+          "date": "2026-11-10"
+        },
+        "blueprint_bench_2": {
+          "value": 0.5856832971800434,
+          "date": "2026-11-10"
+        },
+        "chess_puzzles": {
+          "value": 0.78,
+          "date": "2026-11-02"
+        },
+        "critpt": {
+          "value": 0.36,
+          "date": "2026-11-10"
+        },
+        "cursorbench": {
+          "value": 0.604,
+          "date": "2026-11-10"
+        },
+        "ebr_bench": {
+          "value": 0.8761904761904763,
+          "date": "2026-11-05"
+        },
+        "frontiermath_erdos": {
+          "value": 0.0294,
+          "date": "2026-11-07"
+        },
+        "frontiermath_tier_4_v2": {
+          "value": 0.9512195121951219,
+          "date": "2026-11-02"
+        },
+        "frontiermath_tiers_1_3_v2": {
+          "value": 0.9052631578947369,
+          "date": "2026-11-02"
+        },
+        "frontierswe": {
+          "value": 0.6119949235294118,
+          "date": "2026-11-10"
+        },
+        "furniture_assembly": {
+          "value": 0.775,
+          "date": "2026-11-03"
+        },
+        "gpqa_diamond": {
+          "value": 0.9652777777777778,
+          "date": "2026-11-02"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.73,
+          "date": "2026-11-02"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 1.0,
+          "date": "2026-11-02"
+        },
+        "scicode": {
+          "value": 0.642361111111111,
+          "date": "2026-11-10"
+        },
+        "simplebench": {
+          "value": 0.9259999999999999,
+          "date": "2026-11-10"
+        },
+        "simpleqa_verified": {
+          "value": 0.777,
+          "date": "2026-11-02"
+        },
+        "vending_bench_2": {
+          "value": 16484.20666666667,
+          "date": "2026-11-10"
+        }
+      }
+    },
     {
       "id": "claude-fable-5-2",
       "name": "claude-fable-5-2",
@@ -522,96 +612,6 @@
         "simpleqa_verified": {
           "value": 0.224,
           "date": "2026-11-02"
-        }
-      }
-    },
-    {
-      "id": "gemini-4-carbon",
-      "name": "gemini-4-carbon",
-      "display_name": "gemini-4-carbon",
-      "creator": "google-deepmind",
-      "creator_name": "Google DeepMind",
-      "release_date": "2026-10-28",
-      "scores": {
-        "apex_agents": {
-          "value": 0.8420000000000001,
-          "date": "2026-10-28"
-        },
-        "arc_agi": {
-          "value": 0.985,
-          "date": "2026-10-28"
-        },
-        "arc_agi_2": {
-          "value": 0.9416666666666668,
-          "date": "2026-10-28"
-        },
-        "blueprint_bench_2": {
-          "value": 0.5856832971800434,
-          "date": "2026-10-28"
-        },
-        "chess_puzzles": {
-          "value": 0.78,
-          "date": "2026-11-02"
-        },
-        "critpt": {
-          "value": 0.36,
-          "date": "2026-10-28"
-        },
-        "cursorbench": {
-          "value": 0.604,
-          "date": "2026-10-28"
-        },
-        "ebr_bench": {
-          "value": 0.8761904761904763,
-          "date": "2026-11-05"
-        },
-        "frontiermath_erdos": {
-          "value": 0.0294,
-          "date": "2026-11-07"
-        },
-        "frontiermath_tier_4_v2": {
-          "value": 0.9512195121951219,
-          "date": "2026-11-02"
-        },
-        "frontiermath_tiers_1_3_v2": {
-          "value": 0.9052631578947369,
-          "date": "2026-11-02"
-        },
-        "frontierswe": {
-          "value": 0.6119949235294118,
-          "date": "2026-10-28"
-        },
-        "furniture_assembly": {
-          "value": 0.775,
-          "date": "2026-11-03"
-        },
-        "gpqa_diamond": {
-          "value": 0.9652777777777778,
-          "date": "2026-11-02"
-        },
-        "mystery_game_puzzles": {
-          "value": 0.73,
-          "date": "2026-11-02"
-        },
-        "otis_mock_aime_2024_2025": {
-          "value": 1.0,
-          "date": "2026-11-02"
-        },
-        "scicode": {
-          "value": 0.642361111111111,
-          "date": "2026-10-28"
-        },
-        "simplebench": {
-          "value": 0.9259999999999999,
-          "date": "2026-10-28"
-        },
-        "simpleqa_verified": {
-          "value": 0.777,
-          "date": "2026-11-02"
-        },
-        "vending_bench_2": {
-          "value": 16484.20666666667,
-          "date": "2026-10-28"
         }
       }
     },
@@ -911,6 +911,132 @@
         "simpleqa_verified": {
           "value": 0.566,
           "date": "2026-10-15"
+        }
+      }
+    },
+    {
+      "id": "gemini-4-argon",
+      "name": "gemini-4-argon",
+      "display_name": "gemini-4-argon",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
+      "release_date": "2026-10-13",
+      "scores": {
+        "ale_bench": {
+          "value": 2100.1,
+          "date": "2026-10-13"
+        },
+        "apex_agents": {
+          "value": 0.8240000000000001,
+          "date": "2026-10-13"
+        },
+        "arc_agi": {
+          "value": 0.985,
+          "date": "2026-10-13"
+        },
+        "arc_agi_2": {
+          "value": 0.9125,
+          "date": "2026-10-13"
+        },
+        "blueprint_bench_2": {
+          "value": 0.5444685466377441,
+          "date": "2026-10-13"
+        },
+        "chess_puzzles": {
+          "value": 0.59,
+          "date": "2026-10-13"
+        },
+        "critpt": {
+          "value": 0.271428571428571,
+          "date": "2026-10-13"
+        },
+        "cursorbench": {
+          "value": 0.529,
+          "date": "2026-10-13"
+        },
+        "dtbench": {
+          "value": 0.976,
+          "date": "2026-10-13"
+        },
+        "ebr_bench": {
+          "value": 0.6476190476190476,
+          "date": "2026-10-13"
+        },
+        "frontiercode": {
+          "value": 0.4755,
+          "date": "2026-10-13"
+        },
+        "frontiermath_erdos": {
+          "value": 0.014705882352941176,
+          "date": "2026-10-20"
+        },
+        "frontiermath_tier_4_v2": {
+          "value": 0.7804878048780488,
+          "date": "2026-10-13"
+        },
+        "frontiermath_tiers_1_3_v2": {
+          "value": 0.8596491228070176,
+          "date": "2026-10-13"
+        },
+        "frontierswe": {
+          "value": 0.5496118588235293,
+          "date": "2026-10-13"
+        },
+        "furniture_assembly": {
+          "value": 0.725,
+          "date": "2026-10-13"
+        },
+        "gpqa_diamond": {
+          "value": 0.9640151515151515,
+          "date": "2026-10-13"
+        },
+        "lmca": {
+          "value": 63.69,
+          "date": "2026-10-13"
+        },
+        "mirrorcode": {
+          "value": 0.5888888888888889,
+          "date": "2026-10-14"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.64,
+          "date": "2026-10-13"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 1.0,
+          "date": "2026-10-13"
+        },
+        "posttrainbench": {
+          "value": 0.4044,
+          "date": "2026-10-13"
+        },
+        "proofbench": {
+          "value": 0.99,
+          "date": "2026-10-13"
+        },
+        "rli": {
+          "value": 0.17079999999999998,
+          "date": "2026-10-13"
+        },
+        "scicode": {
+          "value": 0.618055555555556,
+          "date": "2026-10-13"
+        },
+        "simplebench": {
+          "value": 0.917,
+          "date": "2026-10-13"
+        },
+        "simpleqa_verified": {
+          "value": 0.76,
+          "date": "2026-10-13"
+        },
+        "vending_bench_2": {
+          "value": 13718.158333333333,
+          "date": "2026-10-13"
+        },
+        "weirdml_v3": {
+          "value": 0.20261679772727273,
+          "date": "2026-10-13"
         }
       }
     },
@@ -1231,132 +1357,6 @@
         "scicode": {
           "value": 0.48495370370370405,
           "date": "2026-10-05"
-        }
-      }
-    },
-    {
-      "id": "gemini-4-argon",
-      "name": "gemini-4-argon",
-      "display_name": "gemini-4-argon",
-      "creator": "google-deepmind",
-      "creator_name": "Google DeepMind",
-      "release_date": "2026-09-30",
-      "scores": {
-        "ale_bench": {
-          "value": 2100.1,
-          "date": "2026-09-30"
-        },
-        "apex_agents": {
-          "value": 0.8240000000000001,
-          "date": "2026-09-30"
-        },
-        "arc_agi": {
-          "value": 0.985,
-          "date": "2026-09-30"
-        },
-        "arc_agi_2": {
-          "value": 0.9125,
-          "date": "2026-09-30"
-        },
-        "blueprint_bench_2": {
-          "value": 0.5444685466377441,
-          "date": "2026-09-30"
-        },
-        "chess_puzzles": {
-          "value": 0.59,
-          "date": "2026-10-13"
-        },
-        "critpt": {
-          "value": 0.271428571428571,
-          "date": "2026-09-30"
-        },
-        "cursorbench": {
-          "value": 0.529,
-          "date": "2026-09-30"
-        },
-        "dtbench": {
-          "value": 0.976,
-          "date": "2026-09-30"
-        },
-        "ebr_bench": {
-          "value": 0.6476190476190476,
-          "date": "2026-10-13"
-        },
-        "frontiercode": {
-          "value": 0.4755,
-          "date": "2026-09-30"
-        },
-        "frontiermath_erdos": {
-          "value": 0.014705882352941176,
-          "date": "2026-10-20"
-        },
-        "frontiermath_tier_4_v2": {
-          "value": 0.7804878048780488,
-          "date": "2026-10-13"
-        },
-        "frontiermath_tiers_1_3_v2": {
-          "value": 0.8596491228070176,
-          "date": "2026-10-13"
-        },
-        "frontierswe": {
-          "value": 0.5496118588235293,
-          "date": "2026-09-30"
-        },
-        "furniture_assembly": {
-          "value": 0.725,
-          "date": "2026-10-13"
-        },
-        "gpqa_diamond": {
-          "value": 0.9640151515151515,
-          "date": "2026-10-13"
-        },
-        "lmca": {
-          "value": 63.69,
-          "date": "2026-09-30"
-        },
-        "mirrorcode": {
-          "value": 0.5888888888888889,
-          "date": "2026-10-14"
-        },
-        "mystery_game_puzzles": {
-          "value": 0.64,
-          "date": "2026-10-13"
-        },
-        "otis_mock_aime_2024_2025": {
-          "value": 1.0,
-          "date": "2026-10-13"
-        },
-        "posttrainbench": {
-          "value": 0.4044,
-          "date": "2026-09-30"
-        },
-        "proofbench": {
-          "value": 0.99,
-          "date": "2026-09-30"
-        },
-        "rli": {
-          "value": 0.17079999999999998,
-          "date": "2026-09-30"
-        },
-        "scicode": {
-          "value": 0.618055555555556,
-          "date": "2026-09-30"
-        },
-        "simplebench": {
-          "value": 0.917,
-          "date": "2026-09-30"
-        },
-        "simpleqa_verified": {
-          "value": 0.76,
-          "date": "2026-10-13"
-        },
-        "vending_bench_2": {
-          "value": 13718.158333333333,
-          "date": "2026-09-30"
-        },
-        "weirdml_v3": {
-          "value": 0.20261679772727273,
-          "date": "2026-09-30"
         }
       }
     },
