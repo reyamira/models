@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-12T18:18:18.812138087+00:00",
+    "fetched_at": "2026-11-13T06:19:07.767865768+00:00",
     "verified": true
   },
   "metrics": [
@@ -393,6 +393,21 @@
         },
         "spireclimb_sts2_a10": {
           "value": 0.17567567567567569,
+          "date": "2026-11-06"
+        }
+      }
+    },
+    {
+      "id": "claude-fable-5-2-fallback",
+      "name": "claude-fable-5-2-fallback_max",
+      "display_name": "claude-fable-5-2-fallback",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-11-09",
+      "effort_level": "max",
+      "scores": {
+        "gpqa_diamond": {
+          "value": 0.9602272727272727,
           "date": "2026-11-06"
         }
       }
@@ -1735,6 +1750,21 @@
         },
         "weirdml_v3": {
           "value": 0.3120028142857143,
+          "date": "2026-09-22"
+        }
+      }
+    },
+    {
+      "id": "claude-opus-5-5-fallback",
+      "name": "claude-opus-5-5-fallback_max",
+      "display_name": "claude-opus-5-5-fallback",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-09-22",
+      "effort_level": "max",
+      "scores": {
+        "gpqa_diamond": {
+          "value": 0.9406565656565656,
           "date": "2026-09-22"
         }
       }
@@ -5228,6 +5258,21 @@
         "weirdml_v3": {
           "value": 0.15586933333333333,
           "date": "2026-06-09"
+        }
+      }
+    },
+    {
+      "id": "claude-fable-5-fallback",
+      "name": "claude-fable-5-fallback_max",
+      "display_name": "claude-fable-5-fallback",
+      "creator": "anthropic",
+      "creator_name": "Anthropic",
+      "release_date": "2026-06-09",
+      "effort_level": "max",
+      "scores": {
+        "gpqa_diamond": {
+          "value": 0.9387626262626263,
+          "date": "2026-08-06"
         }
       }
     },
