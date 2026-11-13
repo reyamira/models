@@ -169,9 +169,6 @@ impl StatusApp {
     }
 
     pub fn apply_fetch(&mut self, fetched: Vec<ProviderStatus>) {
-        if fetched.is_empty() {
-            return;
-        }
         // Merge by slug: update fetched entries, reset untracked to placeholder
         let fetched_map: HashMap<String, ProviderStatus> =
             fetched.into_iter().map(|e| (e.slug.clone(), e)).collect();
@@ -756,6 +753,16 @@ fn hit_detail_panel(s: &StatusApp, ev: &MouseEvent) -> Option<DetailPanelFocus> 
 mod tests {
     use super::*;
     use crate::config::Config;
+
+    #[test]
+    fn regression_completed_empty_fetch_stops_refreshing() {
+        let mut config = Config::default();
+        config.status.tracked.clear();
+        let mut app = StatusApp::new(&config);
+        assert!(app.fetch_seeds().is_empty());
+        app.apply_fetch(Vec::new());
+        assert!(!app.loading);
+    }
 
     #[test]
     fn builds_unique_provider_entries_from_catalog() {
