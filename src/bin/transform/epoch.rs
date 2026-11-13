@@ -553,9 +553,9 @@ fn parse_csv(stem: &str, path: &Path) -> Result<ParsedCsv, String> {
 
     let records: Vec<Vec<String>> = reader
         .records()
-        .filter_map(Result::ok)
-        .map(|rec| rec.iter().map(str::to_string).collect())
-        .collect();
+        .map(|rec| rec.map(|rec| rec.iter().map(str::to_string).collect()))
+        .collect::<Result<_, _>>()
+        .map_err(|e| format!("records {}: {e}", path.display()))?;
 
     let ncol = headers.len();
     let score_idx = find_score_column(&records, ncol)
@@ -1016,6 +1016,40 @@ pub fn run(csv_dir: &Path, output: &Path) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn regression_invalid_utf8_skips_whole_csv_but_keeps_valid_source() {
+        let dir = std::env::temp_dir().join(format!(
+            "epoch_invalid_utf8_{}_{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir(&dir).unwrap();
+        let valid = b"Model version,Score,Release date\nvalid-model,0.5,2026-06-01\n";
+        std::fs::write(dir.join("valid.csv"), valid).unwrap();
+        let malformed = b"Model version,Score,Release date\npartial-model,0.7,2026-06-01\nbad-\xff,0.9,2026-06-01\n";
+        let bad_path = dir.join("malformed.csv");
+        std::fs::write(&bad_path, malformed).unwrap();
+
+        let parsed = parse_csv("malformed", &bad_path);
+        assert!(
+            parsed.is_err(),
+            "a valid prefix must not hide a CSV record error"
+        );
+        let (source, summary) = build_source_file(&dir, now(), "fixture".to_string());
+        assert_eq!(summary.skipped, 1);
+        assert_eq!(source.metrics.len(), 1);
+        assert_eq!(source.metrics[0].id, "valid");
+        assert_eq!(source.models.len(), 1);
+        assert_eq!(source.models[0].id, "valid-model");
+        let encoded = serde_json::to_string(&source).unwrap();
+        let decoded: SourceFile = serde_json::from_str(&encoded).unwrap();
+        assert_eq!(decoded, source);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
 
     fn fixtures_dir() -> std::path::PathBuf {
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/epoch")
