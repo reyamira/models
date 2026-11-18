@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-17T18:19:09.063718671+00:00",
+    "fetched_at": "2026-11-18T06:18:44.950592924+00:00",
     "verified": true
   },
   "metrics": [
@@ -301,6 +301,73 @@
     }
   ],
   "models": [
+    {
+      "id": "gpt-6.2-astra",
+      "name": "gpt-6.2-astra_max",
+      "display_name": "gpt-6.2-astra",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-11-17",
+      "effort_level": "max",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.78,
+          "date": "2026-10-27"
+        },
+        "ebr_bench": {
+          "value": 0.9238095238095237,
+          "date": "2026-10-27"
+        },
+        "frontiermath_erdos": {
+          "value": 0.10294117647058823,
+          "date": "2026-10-28"
+        },
+        "frontiermath_tier_4_v2": {
+          "value": 1.0,
+          "date": "2026-10-27"
+        },
+        "frontiermath_tiers_1_3_v2": {
+          "value": 0.9263157894736842,
+          "date": "2026-10-27"
+        },
+        "furniture_assembly": {
+          "value": 0.8916666666666667,
+          "date": "2026-10-27"
+        },
+        "gpqa_diamond": {
+          "value": 0.9684343434343434,
+          "date": "2026-10-27"
+        },
+        "mirrorcode": {
+          "value": 0.6777777777777778,
+          "date": "2026-10-27"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.95,
+          "date": "2026-10-27"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 1.0,
+          "date": "2026-10-27"
+        },
+        "simpleqa_verified": {
+          "value": 0.785,
+          "date": "2026-10-27"
+        },
+        "spireclimb": {
+          "value": 0.41333333333333333,
+          "date": "2026-11-06"
+        },
+        "spireclimb_sts1_a20_heart": {
+          "value": 0.3333333333333333,
+          "date": "2026-11-06"
+        },
+        "spireclimb_sts2_a10": {
+          "value": 0.49333333333333335,
+          "date": "2026-11-06"
+        }
+      }
+    },
     {
       "id": "gemini-4-hydrogen",
       "name": "gemini-4-hydrogen",
