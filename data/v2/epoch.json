@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-18T18:18:47.079032815+00:00",
+    "fetched_at": "2026-11-19T06:18:29.057718386+00:00",
     "verified": true
   },
   "metrics": [
@@ -84,7 +84,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06",
+      "last_updated": "2026-11-13",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -114,7 +114,7 @@
       "label": "Ebr Bench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06"
+      "last_updated": "2026-11-13"
     },
     {
       "id": "forecastbench",
@@ -142,14 +142,14 @@
       "label": "Frontiermath Tier 4 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06"
+      "last_updated": "2026-11-13"
     },
     {
       "id": "frontiermath_tiers_1_3_v2",
       "label": "Frontiermath Tiers 1 3 V2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06"
+      "last_updated": "2026-11-13"
     },
     {
       "id": "frontierswe",
@@ -163,14 +163,14 @@
       "label": "Furniture Assembly",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06"
+      "last_updated": "2026-11-13"
     },
     {
       "id": "gpqa_diamond",
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06",
+      "last_updated": "2026-11-13",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -207,14 +207,14 @@
       "label": "Mystery Game Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06"
+      "last_updated": "2026-11-13"
     },
     {
       "id": "otis_mock_aime_2024_2025",
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06",
+      "last_updated": "2026-11-13",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -253,7 +253,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06",
+      "last_updated": "2026-11-13",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -262,21 +262,21 @@
       "label": "Spireclimb",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06"
+      "last_updated": "2026-11-13"
     },
     {
       "id": "spireclimb_sts1_a20_heart",
       "label": "Spireclimb Sts1 A20 Heart",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06"
+      "last_updated": "2026-11-13"
     },
     {
       "id": "spireclimb_sts2_a10",
       "label": "Spireclimb Sts2 A10",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-06"
+      "last_updated": "2026-11-13"
     },
     {
       "id": "surface_evolver_bench",
@@ -384,13 +384,61 @@
           "value": 0.78,
           "date": "2026-11-12"
         },
+        "chess_puzzles": {
+          "value": 0.6,
+          "date": "2026-11-13"
+        },
         "cursorbench": {
           "value": 0.578,
           "date": "2026-11-12"
         },
+        "ebr_bench": {
+          "value": 0.7047619047619047,
+          "date": "2026-11-13"
+        },
+        "frontiermath_tier_4_v2": {
+          "value": 0.8780487804878049,
+          "date": "2026-11-13"
+        },
+        "frontiermath_tiers_1_3_v2": {
+          "value": 0.8807017543859649,
+          "date": "2026-11-13"
+        },
         "frontierswe": {
           "value": 0.5311297705882353,
           "date": "2026-11-12"
+        },
+        "furniture_assembly": {
+          "value": 0.575,
+          "date": "2026-11-13"
+        },
+        "gpqa_diamond": {
+          "value": 0.9678030303030303,
+          "date": "2026-11-13"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.65,
+          "date": "2026-11-13"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 1.0,
+          "date": "2026-11-13"
+        },
+        "simpleqa_verified": {
+          "value": 0.709,
+          "date": "2026-11-13"
+        },
+        "spireclimb": {
+          "value": 0.07666666666666667,
+          "date": "2026-11-13"
+        },
+        "spireclimb_sts1_a20_heart": {
+          "value": 0.1,
+          "date": "2026-11-13"
+        },
+        "spireclimb_sts2_a10": {
+          "value": 0.05333333333333334,
+          "date": "2026-11-13"
         },
         "vending_bench_2": {
           "value": 14549.489999999998,
