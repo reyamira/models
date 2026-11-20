@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-19T18:18:21.747861109+00:00",
+    "fetched_at": "2026-11-20T06:18:26.263137298+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "ARC-AGI",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-11-10",
+      "last_updated": "2026-11-17",
       "description": "Abstract visual grid puzzles where the model must infer a transformation rule from a few input-output demonstrations and apply it to a novel case. Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -20,7 +20,7 @@
       "label": "ARC-AGI-2",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-11-10",
+      "last_updated": "2026-11-17",
       "description": "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing compositional and symbolic reasoning, two attempts per task (pass@2). Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -37,7 +37,7 @@
       "label": "APEX Agents",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-11-12",
+      "last_updated": "2026-11-18",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
     },
@@ -66,18 +66,11 @@
       "last_updated": "2026-11-12"
     },
     {
-      "id": "balrog",
-      "label": "Balrog",
-      "kind": "percentage",
-      "group": "Academic",
-      "last_updated": "2026-09-20"
-    },
-    {
       "id": "blueprint_bench_2",
       "label": "Blueprint Bench 2",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-10"
+      "last_updated": "2026-11-17"
     },
     {
       "id": "chess_puzzles",
@@ -100,14 +93,14 @@
       "label": "Cursorbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-12"
+      "last_updated": "2026-11-18"
     },
     {
       "id": "dtbench",
       "label": "Dtbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-09"
+      "last_updated": "2026-11-10"
     },
     {
       "id": "ebr_bench",
@@ -193,14 +186,14 @@
       "label": "Lmca",
       "kind": "index",
       "group": "Academic",
-      "last_updated": "2026-11-09"
+      "last_updated": "2026-11-10"
     },
     {
       "id": "mirrorcode",
       "label": "Mirrorcode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-02"
+      "last_updated": "2026-11-17"
     },
     {
       "id": "mystery_game_puzzles",
@@ -244,7 +237,7 @@
       "label": "SimpleBench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-10",
+      "last_updated": "2026-11-18",
       "description": "Common-sense reasoning 'trick' questions about space, time, and social cues that are easy for people (84% human baseline) but hard for models. Scored as accuracy (% correct); higher is better.",
       "short_label": "SimpleBnch"
     },
@@ -290,7 +283,7 @@
       "label": "Vending Bench 2",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-11-12"
+      "last_updated": "2026-11-18"
     },
     {
       "id": "weirdml_v3",
@@ -302,14 +295,55 @@
   ],
   "models": [
     {
+      "id": "gemini-4-neon",
+      "name": "gemini-4-neon",
+      "display_name": "gemini-4-neon",
+      "creator": "google-deepmind",
+      "creator_name": "Google DeepMind",
+      "release_date": "2026-11-18",
+      "scores": {
+        "apex_agents": {
+          "value": 0.8290000000000001,
+          "date": "2026-11-18"
+        },
+        "cursorbench": {
+          "value": 0.654,
+          "date": "2026-11-18"
+        },
+        "simplebench": {
+          "value": 0.9440000000000001,
+          "date": "2026-11-18"
+        },
+        "vending_bench_2": {
+          "value": 16843.41,
+          "date": "2026-11-18"
+        }
+      }
+    },
+    {
       "id": "gpt-6.2-astra",
-      "name": "gpt-6.2-astra_max",
+      "name": "gpt-6.2-astra",
       "display_name": "gpt-6.2-astra",
       "creator": "openai",
       "creator_name": "OpenAI",
       "release_date": "2026-11-17",
-      "effort_level": "max",
       "scores": {
+        "apex_agents": {
+          "value": 0.7220000000000001,
+          "date": "2026-11-17"
+        },
+        "arc_agi": {
+          "value": 0.985,
+          "date": "2026-11-17"
+        },
+        "arc_agi_2": {
+          "value": 0.9583333333333335,
+          "date": "2026-11-17"
+        },
+        "blueprint_bench_2": {
+          "value": 0.6138828633405639,
+          "date": "2026-11-17"
+        },
         "chess_puzzles": {
           "value": 0.78,
           "date": "2026-10-27"
@@ -350,6 +384,10 @@
           "value": 1.0,
           "date": "2026-10-27"
         },
+        "simplebench": {
+          "value": 0.773,
+          "date": "2026-11-17"
+        },
         "simpleqa_verified": {
           "value": 0.785,
           "date": "2026-10-27"
@@ -365,6 +403,50 @@
         "spireclimb_sts2_a10": {
           "value": 0.49333333333333335,
           "date": "2026-11-06"
+        }
+      }
+    },
+    {
+      "id": "gpt-6.2-astra_promax",
+      "name": "gpt-6.2-astra_promax",
+      "display_name": "gpt-6.2-astra_promax",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-11-17",
+      "scores": {
+        "simplebench": {
+          "value": 0.792,
+          "date": "2026-11-17"
+        }
+      }
+    },
+    {
+      "id": "gpt-6.2-sol",
+      "name": "gpt-6.2-sol",
+      "display_name": "gpt-6.2-sol",
+      "creator": "openai",
+      "creator_name": "OpenAI",
+      "release_date": "2026-11-17",
+      "scores": {
+        "apex_agents": {
+          "value": 0.6659999999999999,
+          "date": "2026-11-17"
+        },
+        "arc_agi": {
+          "value": 0.975,
+          "date": "2026-11-17"
+        },
+        "arc_agi_2": {
+          "value": 0.8583333333333333,
+          "date": "2026-11-17"
+        },
+        "blueprint_bench_2": {
+          "value": 0.5704989154013016,
+          "date": "2026-11-17"
+        },
+        "simplebench": {
+          "value": 0.6990000000000001,
+          "date": "2026-11-17"
         }
       }
     },
@@ -389,7 +471,7 @@
           "date": "2026-11-13"
         },
         "cursorbench": {
-          "value": 0.578,
+          "value": 0.614,
           "date": "2026-11-12"
         },
         "ebr_bench": {
@@ -423,6 +505,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 1.0,
           "date": "2026-11-13"
+        },
+        "simplebench": {
+          "value": 0.917,
+          "date": "2026-11-12"
         },
         "simpleqa_verified": {
           "value": 0.709,
@@ -483,7 +569,11 @@
           "date": "2026-11-10"
         },
         "cursorbench": {
-          "value": 0.604,
+          "value": 0.615,
+          "date": "2026-11-10"
+        },
+        "dtbench": {
+          "value": 0.9839,
           "date": "2026-11-10"
         },
         "ebr_bench": {
@@ -513,6 +603,10 @@
         "gpqa_diamond": {
           "value": 0.9652777777777778,
           "date": "2026-11-02"
+        },
+        "lmca": {
+          "value": 65.67,
+          "date": "2026-11-10"
         },
         "mystery_game_puzzles": {
           "value": 0.73,
@@ -581,7 +675,7 @@
           "date": "2026-11-09"
         },
         "cursorbench": {
-          "value": 0.6,
+          "value": 0.613,
           "date": "2026-11-09"
         },
         "dtbench": {
@@ -951,6 +1045,10 @@
           "value": 0.45,
           "date": "2026-11-06"
         },
+        "ebr_bench": {
+          "value": 0.37142857142857144,
+          "date": "2026-11-13"
+        },
         "frontiermath_tier_4_v2": {
           "value": 0.6585365853658537,
           "date": "2026-11-06"
@@ -967,6 +1065,10 @@
           "value": 0.9419191919191919,
           "date": "2026-11-06"
         },
+        "mirrorcode": {
+          "value": 0.43333333333333335,
+          "date": "2026-11-17"
+        },
         "mystery_game_puzzles": {
           "value": 0.42,
           "date": "2026-11-06"
@@ -978,6 +1080,18 @@
         "simpleqa_verified": {
           "value": 0.622,
           "date": "2026-11-06"
+        },
+        "spireclimb": {
+          "value": 0.0,
+          "date": "2026-11-13"
+        },
+        "spireclimb_sts1_a20_heart": {
+          "value": 0.0,
+          "date": "2026-11-13"
+        },
+        "spireclimb_sts2_a10": {
+          "value": 0.0,
+          "date": "2026-11-13"
         }
       }
     },
@@ -1011,10 +1125,6 @@
         },
         "critpt": {
           "value": 0.24,
-          "date": "2026-10-17"
-        },
-        "cursorbench": {
-          "value": 0.47700000000000004,
           "date": "2026-10-17"
         },
         "frontiermath_tier_4_v2": {
@@ -1142,7 +1252,7 @@
           "date": "2026-10-13"
         },
         "cursorbench": {
-          "value": 0.529,
+          "value": 0.5650000000000001,
           "date": "2026-10-13"
         },
         "dtbench": {
@@ -1253,10 +1363,6 @@
         },
         "critpt": {
           "value": 0.282857142857143,
-          "date": "2026-10-12"
-        },
-        "cursorbench": {
-          "value": 0.504,
           "date": "2026-10-12"
         },
         "dtbench": {
@@ -1726,7 +1832,7 @@
           "date": "2026-09-28"
         },
         "cursorbench": {
-          "value": 0.555,
+          "value": 0.544,
           "date": "2026-09-28"
         },
         "dtbench": {
@@ -1856,7 +1962,7 @@
           "date": "2026-09-22"
         },
         "cursorbench": {
-          "value": 0.578,
+          "value": 0.5810000000000001,
           "date": "2026-09-22"
         },
         "dtbench": {
@@ -2253,7 +2359,7 @@
           "date": "2026-09-21"
         },
         "cursorbench": {
-          "value": 0.46299999999999997,
+          "value": 0.48600000000000004,
           "date": "2026-09-21"
         },
         "dtbench": {
@@ -2575,10 +2681,6 @@
           "value": 0.9500000000000001,
           "date": "2026-09-03"
         },
-        "balrog": {
-          "value": 0.6829999999999999,
-          "date": "2026-09-18"
-        },
         "blueprint_bench_2": {
           "value": 0.4967462039045553,
           "date": "2026-09-03"
@@ -2759,10 +2861,6 @@
           "value": 0.182857142857143,
           "date": "2026-09-02"
         },
-        "cursorbench": {
-          "value": 0.396,
-          "date": "2026-09-02"
-        },
         "dtbench": {
           "value": 0.9572,
           "date": "2026-09-02"
@@ -2878,7 +2976,7 @@
           "date": "2026-09-02"
         },
         "cursorbench": {
-          "value": 0.41600000000000004,
+          "value": 0.419,
           "date": "2026-09-02"
         },
         "dtbench": {
@@ -2973,10 +3071,6 @@
         },
         "critpt": {
           "value": 0.311428571428571,
-          "date": "2026-09-01"
-        },
-        "cursorbench": {
-          "value": 0.518,
           "date": "2026-09-01"
         },
         "dtbench": {
@@ -3193,10 +3287,6 @@
           "value": 0.154285714285714,
           "date": "2026-08-20"
         },
-        "cursorbench": {
-          "value": 0.368,
-          "date": "2026-08-20"
-        },
         "frontiercode": {
           "value": 0.3183,
           "date": "2026-08-20"
@@ -3265,10 +3355,6 @@
         },
         "critpt": {
           "value": 0.191428571428571,
-          "date": "2026-08-14"
-        },
-        "cursorbench": {
-          "value": 0.42600000000000005,
           "date": "2026-08-14"
         },
         "dtbench": {
@@ -3604,7 +3690,7 @@
           "date": "2026-08-12"
         },
         "cursorbench": {
-          "value": 0.414,
+          "value": 0.443,
           "date": "2026-08-12"
         },
         "dtbench": {
@@ -3948,10 +4034,6 @@
           "value": 0.9042,
           "date": "2026-07-24"
         },
-        "balrog": {
-          "value": 0.634,
-          "date": "2026-09-20"
-        },
         "blueprint_bench_2": {
           "value": 0.30368763557483736,
           "date": "2026-07-24"
@@ -3962,10 +4044,6 @@
         },
         "critpt": {
           "value": 0.291428571428571,
-          "date": "2026-07-24"
-        },
-        "cursorbench": {
-          "value": 0.466,
           "date": "2026-07-24"
         },
         "dtbench": {
@@ -4512,10 +4590,6 @@
           "value": 0.5954,
           "date": "2026-07-09"
         },
-        "balrog": {
-          "value": 0.456,
-          "date": "2026-09-18"
-        },
         "blueprint_bench_2": {
           "value": 0.22559652928416485,
           "date": "2026-07-09"
@@ -4526,10 +4600,6 @@
         },
         "critpt": {
           "value": 0.205714285714286,
-          "date": "2026-07-09"
-        },
-        "cursorbench": {
-          "value": 0.359,
           "date": "2026-07-09"
         },
         "dtbench": {
@@ -4622,10 +4692,6 @@
           "value": 0.925,
           "date": "2026-07-09"
         },
-        "balrog": {
-          "value": 0.6,
-          "date": "2026-09-18"
-        },
         "blueprint_bench_2": {
           "value": 0.336225596529284,
           "date": "2026-07-09"
@@ -4639,7 +4705,7 @@
           "date": "2026-07-09"
         },
         "cursorbench": {
-          "value": 0.41700000000000004,
+          "value": 0.409,
           "date": "2026-07-09"
         },
         "dtbench": {
@@ -4830,10 +4896,6 @@
           "value": 0.839,
           "date": "2026-07-09"
         },
-        "balrog": {
-          "value": 0.532,
-          "date": "2026-09-20"
-        },
         "blueprint_bench_2": {
           "value": 0.30802603036876364,
           "date": "2026-07-09"
@@ -4844,10 +4906,6 @@
         },
         "critpt": {
           "value": 0.3,
-          "date": "2026-07-09"
-        },
-        "cursorbench": {
-          "value": 0.413,
           "date": "2026-07-09"
         },
         "dtbench": {
@@ -5120,10 +5178,6 @@
         },
         "critpt": {
           "value": 0.168571428571429,
-          "date": "2026-06-30"
-        },
-        "cursorbench": {
-          "value": 0.341,
           "date": "2026-06-30"
         },
         "dtbench": {
@@ -6149,10 +6203,6 @@
       "creator_name": "Cursor",
       "release_date": "2026-05-18",
       "scores": {
-        "cursorbench": {
-          "value": 0.277,
-          "date": "2026-05-18"
-        },
         "frontiercode": {
           "value": 0.2564,
           "date": "2026-05-18"
@@ -8127,10 +8177,6 @@
           "value": 0.771,
           "date": "2026-02-19"
         },
-        "balrog": {
-          "value": 0.57,
-          "date": "2026-02-25"
-        },
         "blueprint_bench_2": {
           "value": 0.2646420824295011,
           "date": "2026-02-19"
@@ -8978,10 +9024,6 @@
           "value": 0.3361,
           "date": "2025-12-17"
         },
-        "balrog": {
-          "value": 0.48100000000000004,
-          "date": "2026-02-13"
-        },
         "blueprint_bench_2": {
           "value": 0.0,
           "date": "2025-12-17"
@@ -9376,10 +9418,6 @@
           "value": 0.3764,
           "date": "2025-11-24"
         },
-        "balrog": {
-          "value": 0.435,
-          "date": "2026-02-24"
-        },
         "chess_puzzles": {
           "value": 0.14,
           "date": "2026-10-13"
@@ -9565,10 +9603,6 @@
         "arc_agi_2": {
           "value": 0.3111,
           "date": "2025-11-18"
-        },
-        "balrog": {
-          "value": 0.5810000000000001,
-          "date": "2026-02-03"
         },
         "critpt": {
           "value": 0.069,
@@ -9821,10 +9855,6 @@
         "arc_agi_2": {
           "value": 0.0403,
           "date": "2025-10-15"
-        },
-        "balrog": {
-          "value": 0.312,
-          "date": "2026-02-24"
         },
         "blueprint_bench_2": {
           "value": 0.0,
@@ -10433,10 +10463,6 @@
         "arc_agi_2": {
           "value": 0.0986,
           "date": "2025-08-07"
-        },
-        "balrog": {
-          "value": 0.32799999999999996,
-          "date": "2025-08-19"
         },
         "chess_puzzles": {
           "value": 0.36,
@@ -11106,10 +11132,6 @@
           "value": 0.15975,
           "date": "2025-07-09"
         },
-        "balrog": {
-          "value": 0.436,
-          "date": "2025-07-23"
-        },
         "forecastbench": {
           "value": 64.5,
           "date": "2025-07-09"
@@ -11202,10 +11224,6 @@
         "ale_bench": {
           "value": 661.88,
           "date": "2025-06-17"
-        },
-        "balrog": {
-          "value": 0.335,
-          "date": "2025-07-22"
         },
         "critpt": {
           "value": 0.011000000000000001,
@@ -12349,10 +12367,6 @@
       "creator_name": "xAI",
       "release_date": "2025-04-09",
       "scores": {
-        "balrog": {
-          "value": 0.295,
-          "date": "2025-04-25"
-        },
         "gpqa_diamond": {
           "value": 0.6758207070707071,
           "date": "2025-05-26"
@@ -12557,10 +12571,6 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-03-25",
       "scores": {
-        "balrog": {
-          "value": 0.433,
-          "date": "2025-04-25"
-        },
         "geobench": {
           "value": 4093.0,
           "date": "2025-03-25"
@@ -12829,10 +12839,6 @@
       "creator_name": "Reka AI",
       "release_date": "2025-03-10",
       "scores": {
-        "balrog": {
-          "value": 0.292,
-          "date": "2025-03-13"
-        },
         "critpt": {
           "value": 0.0,
           "date": "2025-03-10"
@@ -13227,10 +13233,6 @@
           "value": 0.013000000000000001,
           "date": "2025-01-20"
         },
-        "balrog": {
-          "value": 0.349,
-          "date": "2025-04-10"
-        },
         "critpt": {
           "value": 0.011000000000000001,
           "date": "2025-01-20"
@@ -13315,10 +13317,6 @@
       "creator_name": "DeepSeek",
       "release_date": "2025-01-20",
       "scores": {
-        "balrog": {
-          "value": 0.195,
-          "date": "2025-01-26"
-        },
         "gpqa_diamond": {
           "value": 0.6414141414141414,
           "date": "2026-08-28"
@@ -13465,10 +13463,6 @@
       "creator_name": "Microsoft Research",
       "release_date": "2024-12-12",
       "scores": {
-        "balrog": {
-          "value": 0.11599999999999999,
-          "date": "2025-01-13"
-        },
         "critpt": {
           "value": 0.0,
           "date": "2024-12-12"
@@ -13505,10 +13499,6 @@
       "creator_name": "Meta AI",
       "release_date": "2024-12-06",
       "scores": {
-        "balrog": {
-          "value": 0.23,
-          "date": "2024-12-09"
-        },
         "critpt": {
           "value": 0.0,
           "date": "2024-12-06"
@@ -13719,10 +13709,6 @@
       "creator_name": "Anthropic",
       "release_date": "2024-10-22",
       "scores": {
-        "balrog": {
-          "value": 0.193,
-          "date": "2024-12-11"
-        },
         "critpt": {
           "value": 0.0,
           "date": "2024-10-22"
@@ -13757,10 +13743,6 @@
       "creator_name": "Anthropic",
       "release_date": "2024-10-22",
       "scores": {
-        "balrog": {
-          "value": 0.326,
-          "date": "2024-11-11"
-        },
         "dtbench": {
           "value": 0.6784,
           "date": "2024-10-22"
@@ -13865,10 +13847,6 @@
       "creator_name": "Meta AI",
       "release_date": "2024-09-24",
       "scores": {
-        "balrog": {
-          "value": 0.168,
-          "date": "2024-11-11"
-        },
         "critpt": {
           "value": 0.0,
           "date": "2024-09-24"
@@ -13883,10 +13861,6 @@
       "creator_name": "Meta AI",
       "release_date": "2024-09-24",
       "scores": {
-        "balrog": {
-          "value": 0.066,
-          "date": "2024-11-11"
-        },
         "gpqa_diamond": {
           "value": 0.23926767676767677,
           "date": "2026-08-30"
@@ -13898,20 +13872,6 @@
       }
     },
     {
-      "id": "Llama-3.2-3B-Instruct",
-      "name": "Llama-3.2-3B-Instruct",
-      "display_name": "Llama-3.2-3B-Instruct",
-      "creator": "meta-ai",
-      "creator_name": "Meta AI",
-      "release_date": "2024-09-24",
-      "scores": {
-        "balrog": {
-          "value": 0.10099999999999999,
-          "date": "2024-11-11"
-        }
-      }
-    },
-    {
       "id": "Llama-3.2-90B-Vision-Instruct",
       "name": "Llama-3.2-90B-Vision-Instruct",
       "display_name": "Llama-3.2-90B-Vision-Instruct",
@@ -13919,10 +13879,6 @@
       "creator_name": "Meta AI",
       "release_date": "2024-09-24",
       "scores": {
-        "balrog": {
-          "value": 0.273,
-          "date": "2024-11-11"
-        },
         "geobench": {
           "value": 2798.0,
           "date": "2024-09-24"
@@ -13945,10 +13901,6 @@
       "creator_name": "Google DeepMind",
       "release_date": "2024-09-24",
       "scores": {
-        "balrog": {
-          "value": 0.146,
-          "date": "2024-11-11"
-        },
         "dtbench": {
           "value": 0.5379,
           "date": "2024-09-24"
@@ -13978,10 +13930,6 @@
         "arc_agi_2": {
           "value": 0.008,
           "date": "2024-09-24"
-        },
-        "balrog": {
-          "value": 0.21,
-          "date": "2024-11-11"
         },
         "dtbench": {
           "value": 0.5898,
@@ -14027,10 +13975,6 @@
       "creator_name": "Alibaba",
       "release_date": "2024-09-19",
       "scores": {
-        "balrog": {
-          "value": 0.162,
-          "date": "2024-11-25"
-        },
         "dtbench": {
           "value": 0.6293,
           "date": "2024-09-19"
@@ -14061,10 +14005,6 @@
       "creator_name": "Alibaba",
       "release_date": "2024-09-19",
       "scores": {
-        "balrog": {
-          "value": 0.078,
-          "date": "2024-11-25"
-        },
         "dtbench": {
           "value": 0.4773,
           "date": "2024-09-19"
@@ -14226,34 +14166,6 @@
       }
     },
     {
-      "id": "Qwen2-VL-72B-Instruct",
-      "name": "Qwen2-VL-72B-Instruct",
-      "display_name": "Qwen2-VL-72B-Instruct",
-      "creator": "",
-      "creator_name": "",
-      "release_date": "2024-08-29",
-      "scores": {
-        "balrog": {
-          "value": 0.128,
-          "date": "2024-11-25"
-        }
-      }
-    },
-    {
-      "id": "Qwen2-VL-7B-Instruct",
-      "name": "Qwen2-VL-7B-Instruct",
-      "display_name": "Qwen2-VL-7B-Instruct",
-      "creator": "",
-      "creator_name": "",
-      "release_date": "2024-08-29",
-      "scores": {
-        "balrog": {
-          "value": 0.037000000000000005,
-          "date": "2024-11-25"
-        }
-      }
-    },
-    {
       "id": "gpt-4o-2024-08-06",
       "name": "gpt-4o-2024-08-06",
       "display_name": "gpt-4o-2024-08-06",
@@ -14359,10 +14271,6 @@
       "creator_name": "Meta AI",
       "release_date": "2024-07-23",
       "scores": {
-        "balrog": {
-          "value": 0.27899999999999997,
-          "date": "2024-11-11"
-        },
         "dtbench": {
           "value": 0.6,
           "date": "2024-07-23"
@@ -14389,10 +14297,6 @@
       "creator_name": "Meta AI",
       "release_date": "2024-07-23",
       "scores": {
-        "balrog": {
-          "value": 0.151,
-          "date": "2024-11-11"
-        },
         "critpt": {
           "value": 0.0,
           "date": "2024-07-23"
@@ -14427,10 +14331,6 @@
       "creator_name": "Mistral AI",
       "release_date": "2024-07-18",
       "scores": {
-        "balrog": {
-          "value": 0.17600000000000002,
-          "date": "2024-12-09"
-        },
         "dtbench": {
           "value": 0.48610000000000003,
           "date": "2024-07-18"
@@ -14448,10 +14348,6 @@
         "arc_agi_2": {
           "value": 0.0,
           "date": "2024-07-18"
-        },
-        "balrog": {
-          "value": 0.174,
-          "date": "2024-11-11"
         },
         "chess_puzzles": {
           "value": 0.03,
@@ -14699,10 +14595,6 @@
       "creator_name": "OpenAI",
       "release_date": "2024-05-13",
       "scores": {
-        "balrog": {
-          "value": 0.32299999999999995,
-          "date": "2024-11-11"
-        },
         "dtbench": {
           "value": 0.6453,
           "date": "2024-05-13"
