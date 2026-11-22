@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-21T18:17:59.271442746+00:00",
+    "fetched_at": "2026-11-22T06:18:14.718166042+00:00",
     "verified": true
   },
   "metrics": [
@@ -107,14 +107,7 @@
       "label": "Ebr Bench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-13"
-    },
-    {
-      "id": "forecastbench",
-      "label": "Forecastbench",
-      "kind": "index",
-      "group": "Academic",
-      "last_updated": "2026-09-22"
+      "last_updated": "2026-11-19"
     },
     {
       "id": "frontiercode",
@@ -306,6 +299,10 @@
         "cursorbench": {
           "value": 0.654,
           "date": "2026-11-18"
+        },
+        "ebr_bench": {
+          "value": 0.980952380952381,
+          "date": "2026-11-19"
         },
         "frontiermath_tier_4_v2": {
           "value": 0.975609756097561,
@@ -1998,10 +1995,6 @@
           "value": 0.7142857142857142,
           "date": "2026-09-22"
         },
-        "forecastbench": {
-          "value": 66.6,
-          "date": "2026-09-22"
-        },
         "frontiercode": {
           "value": 0.5464,
           "date": "2026-09-22"
@@ -2151,10 +2144,6 @@
           "value": 0.9013,
           "date": "2026-09-22"
         },
-        "forecastbench": {
-          "value": 64.3,
-          "date": "2026-09-22"
-        },
         "frontiercode": {
           "value": 0.4242,
           "date": "2026-09-22"
@@ -2263,10 +2252,6 @@
         },
         "ebr_bench": {
           "value": 0.5333333333333333,
-          "date": "2026-09-22"
-        },
-        "forecastbench": {
-          "value": 66.3,
           "date": "2026-09-22"
         },
         "frontiercode": {
@@ -2722,10 +2707,6 @@
           "value": 0.7619047619047619,
           "date": "2026-08-30"
         },
-        "forecastbench": {
-          "value": 66.6,
-          "date": "2026-09-03"
-        },
         "frontiercode": {
           "value": 0.5326,
           "date": "2026-09-03"
@@ -3000,10 +2981,6 @@
           "value": 0.9653,
           "date": "2026-09-02"
         },
-        "forecastbench": {
-          "value": 65.8,
-          "date": "2026-09-02"
-        },
         "frontiermath_tier_4_v2": {
           "value": 0.4634146341463415,
           "date": "2026-09-18"
@@ -3093,10 +3070,6 @@
         "ebr_bench": {
           "value": 0.5714285714285714,
           "date": "2026-09-08"
-        },
-        "forecastbench": {
-          "value": 65.8,
-          "date": "2026-09-01"
         },
         "frontiercode": {
           "value": 0.5091,
@@ -3596,10 +3569,6 @@
           "value": 0.968,
           "date": "2026-08-13"
         },
-        "forecastbench": {
-          "value": 65.7,
-          "date": "2026-08-13"
-        },
         "frontiercode": {
           "value": 0.43590000000000007,
           "date": "2026-08-13"
@@ -3705,10 +3674,6 @@
         "ebr_bench": {
           "value": 0.30476190476190473,
           "date": "2026-08-18"
-        },
-        "forecastbench": {
-          "value": 65.5,
-          "date": "2026-08-12"
         },
         "frontiercode": {
           "value": 0.4801000000000001,
@@ -4059,10 +4024,6 @@
           "value": 0.45714285714285713,
           "date": "2026-09-05"
         },
-        "forecastbench": {
-          "value": 66.4,
-          "date": "2026-07-24"
-        },
         "frontiercode": {
           "value": 0.5338,
           "date": "2026-07-24"
@@ -4251,10 +4212,6 @@
           "value": 0.9547,
           "date": "2026-07-21"
         },
-        "forecastbench": {
-          "value": 65.6,
-          "date": "2026-07-21"
-        },
         "frontiercode": {
           "value": 0.3437,
           "date": "2026-07-21"
@@ -4343,10 +4300,6 @@
         },
         "dtbench": {
           "value": 0.912,
-          "date": "2026-07-16"
-        },
-        "forecastbench": {
-          "value": 63.9,
           "date": "2026-07-16"
         },
         "frontiercode": {
@@ -4721,10 +4674,6 @@
           "value": 0.4476190476190475,
           "date": "2026-09-04"
         },
-        "forecastbench": {
-          "value": 65.7,
-          "date": "2026-07-09"
-        },
         "frontiercode": {
           "value": 0.47490000000000004,
           "date": "2026-07-09"
@@ -4829,10 +4778,6 @@
         },
         "dtbench": {
           "value": 0.96,
-          "date": "2026-07-09"
-        },
-        "forecastbench": {
-          "value": 65.8,
           "date": "2026-07-09"
         },
         "frontiermath_tier_4_v2": {
@@ -5069,10 +5014,6 @@
           "value": 0.9653,
           "date": "2026-07-08"
         },
-        "forecastbench": {
-          "value": 65.6,
-          "date": "2026-07-08"
-        },
         "frontiercode": {
           "value": 0.4244,
           "date": "2026-07-08"
@@ -5183,10 +5124,6 @@
         },
         "dtbench": {
           "value": 0.9248000000000001,
-          "date": "2026-06-30"
-        },
-        "forecastbench": {
-          "value": 62.9,
           "date": "2026-06-30"
         },
         "frontiercode": {
@@ -5529,10 +5466,6 @@
           "value": 0.395238,
           "date": "2026-07-17"
         },
-        "forecastbench": {
-          "value": 65.6,
-          "date": "2026-06-09"
-        },
         "frontiercode": {
           "value": 0.5348,
           "date": "2026-06-09"
@@ -5766,10 +5699,6 @@
           "value": 0.7893000000000001,
           "date": "2026-06-01"
         },
-        "forecastbench": {
-          "value": 63.8,
-          "date": "2026-06-01"
-        },
         "frontiercode": {
           "value": 0.147,
           "date": "2026-06-01"
@@ -5903,10 +5832,6 @@
         "ebr_bench": {
           "value": 0.2857142857142857,
           "date": "2026-08-07"
-        },
-        "forecastbench": {
-          "value": 66.0,
-          "date": "2026-05-28"
         },
         "frontiercode": {
           "value": 0.465,
@@ -6047,10 +5972,6 @@
         "ebr_bench": {
           "value": 0.047619047619047616,
           "date": "2026-06-25"
-        },
-        "forecastbench": {
-          "value": 63.8,
-          "date": "2026-05-19"
         },
         "frontiermath_tier_4_v2": {
           "value": 0.2682926829268293,
@@ -6491,10 +6412,6 @@
           "value": 0.9067000000000001,
           "date": "2026-04-24"
         },
-        "forecastbench": {
-          "value": 60.6,
-          "date": "2026-04-24"
-        },
         "frontiercode": {
           "value": 0.1764,
           "date": "2026-04-24"
@@ -6588,10 +6505,6 @@
         "ebr_bench": {
           "value": 0.3428571428571428,
           "date": "2026-07-27"
-        },
-        "forecastbench": {
-          "value": 66.6,
-          "date": "2026-04-23"
         },
         "frontiercode": {
           "value": 0.42960000000000004,
@@ -6953,10 +6866,6 @@
           "value": 0.9067000000000001,
           "date": "2026-04-17"
         },
-        "forecastbench": {
-          "value": 63.1,
-          "date": "2026-04-17"
-        },
         "frontiermath_tier_4_v2": {
           "value": 0.14634146341463414,
           "date": "2026-06-17"
@@ -7038,10 +6947,6 @@
         "ebr_bench": {
           "value": 0.19047619047619047,
           "date": "2026-06-30"
-        },
-        "forecastbench": {
-          "value": 62.4,
-          "date": "2026-04-16"
         },
         "frontiercode": {
           "value": 0.3854,
@@ -7356,10 +7261,6 @@
           "value": 0.8267,
           "date": "2026-04-02"
         },
-        "forecastbench": {
-          "value": 61.0,
-          "date": "2026-04-02"
-        },
         "gpqa_diamond": {
           "value": 0.7575757575757576,
           "date": "2026-08-06"
@@ -7528,10 +7429,6 @@
           "value": 0.8,
           "date": "2026-03-17"
         },
-        "forecastbench": {
-          "value": 60.8,
-          "date": "2026-03-17"
-        },
         "frontiercode": {
           "value": 0.2704,
           "date": "2026-03-17"
@@ -7604,10 +7501,6 @@
         },
         "dtbench": {
           "value": 0.8027,
-          "date": "2026-03-17"
-        },
-        "forecastbench": {
-          "value": 58.5,
           "date": "2026-03-17"
         },
         "frontiermath_tier_4_v2": {
@@ -7735,10 +7628,6 @@
         "ebr_bench": {
           "value": 0.253968,
           "date": "2026-06-25"
-        },
-        "forecastbench": {
-          "value": 62.7,
-          "date": "2026-03-05"
         },
         "frontiermath_tier_4_v2": {
           "value": 0.49,
@@ -7874,10 +7763,6 @@
         },
         "dtbench": {
           "value": 0.768,
-          "date": "2026-03-03"
-        },
-        "forecastbench": {
-          "value": 62.4,
           "date": "2026-03-03"
         },
         "frontiermath_tiers_1_3_v2": {
@@ -8174,10 +8059,6 @@
           "value": 0.14285714285714285,
           "date": "2026-06-25"
         },
-        "forecastbench": {
-          "value": 65.1,
-          "date": "2026-02-19"
-        },
         "frontiermath_tier_4_v2": {
           "value": 0.2682926829268293,
           "date": "2026-06-11"
@@ -8302,10 +8183,6 @@
           "value": 0.8987,
           "date": "2026-02-17"
         },
-        "forecastbench": {
-          "value": 63.8,
-          "date": "2026-02-17"
-        },
         "frontiercode": {
           "value": 0.24310000000000004,
           "date": "2026-02-17"
@@ -8376,10 +8253,6 @@
           "value": 0.9013,
           "date": "2026-02-17"
         },
-        "forecastbench": {
-          "value": 63.0,
-          "date": "2026-02-17"
-        },
         "lmca": {
           "value": 38.66,
           "date": "2026-02-17"
@@ -8401,10 +8274,6 @@
         "chess_puzzles": {
           "value": 0.29,
           "date": "2026-10-13"
-        },
-        "forecastbench": {
-          "value": 64.0,
-          "date": "2026-02-17"
         },
         "frontiermath_tier_4_v2": {
           "value": 0.17073170731707318,
@@ -8623,10 +8492,6 @@
           "value": 0.0486,
           "date": "2026-02-11"
         },
-        "forecastbench": {
-          "value": 63.3,
-          "date": "2026-02-11"
-        },
         "gpqa_diamond": {
           "value": 0.8781725888324873,
           "date": "2026-02-12"
@@ -8680,10 +8545,6 @@
         "ebr_bench": {
           "value": 0.126984,
           "date": "2026-06-29"
-        },
-        "forecastbench": {
-          "value": 63.1,
-          "date": "2026-02-05"
         },
         "frontiercode": {
           "value": 0.2664,
@@ -9005,10 +8866,6 @@
           "value": 0.8906999999999999,
           "date": "2025-12-17"
         },
-        "forecastbench": {
-          "value": 64.3,
-          "date": "2025-12-17"
-        },
         "frontiermath_tier_4_v2": {
           "value": 0.17073170731707318,
           "date": "2026-06-11"
@@ -9086,10 +8943,6 @@
         "ebr_bench": {
           "value": 0.230159,
           "date": "2026-06-26"
-        },
-        "forecastbench": {
-          "value": 63.7,
-          "date": "2025-12-11"
         },
         "frontiermath_tier_4_v2": {
           "value": 0.317,
@@ -9395,10 +9248,6 @@
           "value": 0.14285714285714285,
           "date": "2026-06-25"
         },
-        "forecastbench": {
-          "value": 64.5,
-          "date": "2025-11-24"
-        },
         "frontiermath_tier_4_v2": {
           "value": 0.04878048780487805,
           "date": "2026-06-11"
@@ -9527,10 +9376,6 @@
           "value": 0.8773000000000001,
           "date": "2025-11-19"
         },
-        "forecastbench": {
-          "value": 64.4,
-          "date": "2025-11-19"
-        },
         "proofbench": {
           "value": 0.04,
           "date": "2025-11-19"
@@ -9567,10 +9412,6 @@
         },
         "critpt": {
           "value": 0.069,
-          "date": "2025-11-18"
-        },
-        "forecastbench": {
-          "value": 64.8,
           "date": "2025-11-18"
         },
         "gpqa_diamond": {
@@ -9637,10 +9478,6 @@
         },
         "dtbench": {
           "value": 0.9013,
-          "date": "2025-11-13"
-        },
-        "forecastbench": {
-          "value": 61.9,
           "date": "2025-11-13"
         },
         "gpqa_diamond": {
@@ -9827,10 +9664,6 @@
         },
         "dtbench": {
           "value": 0.736,
-          "date": "2025-10-15"
-        },
-        "forecastbench": {
-          "value": 63.0,
           "date": "2025-10-15"
         },
         "gpqa_diamond": {
@@ -10026,10 +9859,6 @@
           "value": 0.023809523809523808,
           "date": "2026-06-25"
         },
-        "forecastbench": {
-          "value": 63.7,
-          "date": "2025-09-29"
-        },
         "frontiermath_tier_4_v2": {
           "value": 0.024390243902439025,
           "date": "2026-06-11"
@@ -10197,10 +10026,6 @@
         "dtbench": {
           "value": 0.8267,
           "date": "2025-09-19"
-        },
-        "forecastbench": {
-          "value": 64.5,
-          "date": "2025-09-19"
         }
       }
     },
@@ -10253,20 +10078,6 @@
       }
     },
     {
-      "id": "Kimi-K2-Instruct-0905",
-      "name": "Kimi-K2-Instruct-0905",
-      "display_name": "Kimi-K2-Instruct-0905",
-      "creator": "moonshot",
-      "creator_name": "Moonshot",
-      "release_date": "2025-09-05",
-      "scores": {
-        "forecastbench": {
-          "value": 62.2,
-          "date": "2025-09-05"
-        }
-      }
-    },
-    {
       "id": "moonshotai/kimi-k2-0905",
       "name": "moonshotai/kimi-k2-0905",
       "display_name": "moonshotai/kimi-k2-0905",
@@ -10305,10 +10116,6 @@
       "scores": {
         "dtbench": {
           "value": 0.8267,
-          "date": "2025-08-21"
-        },
-        "forecastbench": {
-          "value": 60.4,
           "date": "2025-08-21"
         },
         "lmca": {
@@ -10433,10 +10240,6 @@
           "value": 0.126984,
           "date": "2026-06-29"
         },
-        "forecastbench": {
-          "value": 64.9,
-          "date": "2025-08-07"
-        },
         "frontiermath_tier_4_v2": {
           "value": 0.21951219512195122,
           "date": "2026-06-11"
@@ -10527,10 +10330,6 @@
           "value": 0.8053,
           "date": "2025-08-07"
         },
-        "forecastbench": {
-          "value": 62.9,
-          "date": "2025-08-07"
-        },
         "frontiermath_tier_4_v2": {
           "value": 0.12195121951219512,
           "date": "2026-06-12"
@@ -10605,10 +10404,6 @@
           "value": 0.6267,
           "date": "2025-08-07"
         },
-        "forecastbench": {
-          "value": 58.6,
-          "date": "2025-08-07"
-        },
         "frontiermath_tier_4_v2": {
           "value": 0.024390243902439025,
           "date": "2026-06-12"
@@ -10680,10 +10475,6 @@
         "ebr_bench": {
           "value": 0.079365,
           "date": "2026-06-25"
-        },
-        "forecastbench": {
-          "value": 64.3,
-          "date": "2025-08-05"
         },
         "frontiermath_tier_4_v2": {
           "value": 0.024390243902439025,
@@ -10973,10 +10764,6 @@
           "value": 0.8027,
           "date": "2025-07-25"
         },
-        "forecastbench": {
-          "value": 61.9,
-          "date": "2025-07-25"
-        },
         "gpqa_diamond": {
           "value": 0.8005050505050505,
           "date": "2025-12-11"
@@ -11029,10 +10816,6 @@
       "creator_name": "Z.ai (Zhipu AI)",
       "release_date": "2025-07-20",
       "scores": {
-        "forecastbench": {
-          "value": 61.6,
-          "date": "2025-07-20"
-        },
         "gso": {
           "value": 0.0294,
           "date": "2025-08-26"
@@ -11051,10 +10834,6 @@
       "creator_name": "Moonshot",
       "release_date": "2025-07-12",
       "scores": {
-        "forecastbench": {
-          "value": 61.9,
-          "date": "2025-07-12"
-        },
         "gso": {
           "value": 0.049,
           "date": "2025-08-26"
@@ -11079,10 +10858,6 @@
         },
         "arc_agi_2": {
           "value": 0.15975,
-          "date": "2025-07-09"
-        },
-        "forecastbench": {
-          "value": 64.5,
           "date": "2025-07-09"
         },
         "gpqa_diamond": {
@@ -11178,10 +10953,6 @@
           "value": 0.7653,
           "date": "2025-06-17"
         },
-        "forecastbench": {
-          "value": 62.6,
-          "date": "2025-06-17"
-        },
         "lmca": {
           "value": 27.49,
           "date": "2025-06-17"
@@ -11244,10 +11015,6 @@
         },
         "dtbench": {
           "value": 0.8240000000000001,
-          "date": "2025-06-17"
-        },
-        "forecastbench": {
-          "value": 63.8,
           "date": "2025-06-17"
         },
         "frontiermath_tier_4_v2": {
@@ -11548,10 +11315,6 @@
           "value": 0.7706999999999999,
           "date": "2025-05-22"
         },
-        "forecastbench": {
-          "value": 63.8,
-          "date": "2025-05-22"
-        },
         "gpqa_diamond": {
           "value": 0.7828282828282829,
           "date": "2025-05-22"
@@ -11680,10 +11443,6 @@
       "scores": {
         "dtbench": {
           "value": 0.7573000000000001,
-          "date": "2025-04-29"
-        },
-        "forecastbench": {
-          "value": 63.7,
           "date": "2025-04-29"
         },
         "lmca": {
@@ -11896,10 +11655,6 @@
       "creator_name": "Google DeepMind",
       "release_date": "2025-04-17",
       "scores": {
-        "forecastbench": {
-          "value": 62.3,
-          "date": "2025-04-17"
-        },
         "hle": {
           "value": 0.1208,
           "date": "2025-04-17"
@@ -11954,10 +11709,6 @@
         },
         "dtbench": {
           "value": 0.848,
-          "date": "2025-04-16"
-        },
-        "forecastbench": {
-          "value": 64.2,
           "date": "2025-04-16"
         },
         "frontiermath_tiers_1_3_v2": {
@@ -12030,10 +11781,6 @@
           "value": 0.7759999999999999,
           "date": "2025-04-16"
         },
-        "forecastbench": {
-          "value": 63.9,
-          "date": "2025-04-16"
-        },
         "frontiermath_tier_4_v2": {
           "value": 0.04878048780487805,
           "date": "2026-06-11"
@@ -12102,10 +11849,6 @@
         },
         "dtbench": {
           "value": 0.6827,
-          "date": "2025-04-14"
-        },
-        "forecastbench": {
-          "value": 62.0,
           "date": "2025-04-14"
         },
         "frontiermath_tiers_1_3_v2": {
@@ -12424,10 +12167,6 @@
           "value": 0.5787,
           "date": "2025-04-05"
         },
-        "forecastbench": {
-          "value": 58.8,
-          "date": "2025-04-05"
-        },
         "gpqa_diamond": {
           "value": 0.5183080808080808,
           "date": "2025-04-08"
@@ -12456,10 +12195,6 @@
       "scores": {
         "arc_agi": {
           "value": 0.33,
-          "date": "2025-03-31"
-        },
-        "forecastbench": {
-          "value": 64.0,
           "date": "2025-03-31"
         },
         "simplebench": {
@@ -12794,10 +12529,6 @@
           "value": 0.008,
           "date": "2025-02-27"
         },
-        "forecastbench": {
-          "value": 64.4,
-          "date": "2025-02-27"
-        },
         "gpqa_diamond": {
           "value": 0.6868686868686869,
           "date": "2025-02-28"
@@ -12817,20 +12548,6 @@
       }
     },
     {
-      "id": "gemini-2.0-flash-lite-001",
-      "name": "gemini-2.0-flash-lite-001",
-      "display_name": "gemini-2.0-flash-lite-001",
-      "creator": "google-deepmind",
-      "creator_name": "Google DeepMind",
-      "release_date": "2025-02-25",
-      "scores": {
-        "forecastbench": {
-          "value": 56.7,
-          "date": "2025-02-25"
-        }
-      }
-    },
-    {
       "id": "claude-3-7-sonnet-20250219",
       "name": "claude-3-7-sonnet-20250219",
       "display_name": "claude-3-7-sonnet-20250219",
@@ -12844,10 +12561,6 @@
         },
         "arc_agi_2": {
           "value": 0.009,
-          "date": "2025-02-24"
-        },
-        "forecastbench": {
-          "value": 63.5,
           "date": "2025-02-24"
         },
         "gpqa_diamond": {
@@ -12952,10 +12665,6 @@
         },
         "dtbench": {
           "value": 0.688,
-          "date": "2025-01-31"
-        },
-        "forecastbench": {
-          "value": 63.4,
           "date": "2025-01-31"
         },
         "frontiermath_tier_4_v2": {
@@ -13234,10 +12943,6 @@
           "value": 0.0,
           "date": "2024-12-26"
         },
-        "forecastbench": {
-          "value": 62.2,
-          "date": "2024-12-26"
-        },
         "gpqa_diamond": {
           "value": 0.5653409090909091,
           "date": "2025-01-27"
@@ -13384,10 +13089,6 @@
           "value": 0.5947,
           "date": "2024-12-06"
         },
-        "forecastbench": {
-          "value": 60.9,
-          "date": "2024-12-06"
-        },
         "gpqa_diamond": {
           "value": 0.4744318181818182,
           "date": "2025-01-27"
@@ -13508,10 +13209,6 @@
           "value": 0.0,
           "date": "2024-11-20"
         },
-        "forecastbench": {
-          "value": 60.2,
-          "date": "2024-11-20"
-        },
         "gpqa_diamond": {
           "value": 0.4788510101010101,
           "date": "2025-02-05"
@@ -13540,10 +13237,6 @@
       "scores": {
         "dtbench": {
           "value": 0.6082,
-          "date": "2024-11-18"
-        },
-        "forecastbench": {
-          "value": 61.1,
           "date": "2024-11-18"
         },
         "gpqa_diamond": {
@@ -13614,10 +13307,6 @@
       "scores": {
         "dtbench": {
           "value": 0.6784,
-          "date": "2024-10-22"
-        },
-        "forecastbench": {
-          "value": 62.8,
           "date": "2024-10-22"
         },
         "gpqa_diamond": {
@@ -13820,10 +13509,6 @@
       "scores": {
         "dtbench": {
           "value": 0.6293,
-          "date": "2024-09-19"
-        },
-        "forecastbench": {
-          "value": 61.2,
           "date": "2024-09-19"
         },
         "gpqa_diamond": {
@@ -14040,10 +13725,6 @@
           "value": 0.6121,
           "date": "2024-07-24"
         },
-        "forecastbench": {
-          "value": 61.4,
-          "date": "2024-07-24"
-        },
         "gpqa_diamond": {
           "value": 0.49021464646464646,
           "date": "2025-01-27"
@@ -14072,10 +13753,6 @@
         },
         "dtbench": {
           "value": 0.6138,
-          "date": "2024-07-23"
-        },
-        "forecastbench": {
-          "value": 62.2,
           "date": "2024-07-23"
         },
         "gpqa_diamond": {
@@ -14296,10 +13973,6 @@
           "value": 0.6777,
           "date": "2024-06-20"
         },
-        "forecastbench": {
-          "value": 62.7,
-          "date": "2024-06-20"
-        },
         "gpqa_diamond": {
           "value": 0.5404040404040404,
           "date": "2025-01-27"
@@ -14358,10 +14031,6 @@
           "value": 0.5138,
           "date": "2024-05-23"
         },
-        "forecastbench": {
-          "value": 58.3,
-          "date": "2024-05-23"
-        },
         "gpqa_diamond": {
           "value": 0.40372474747474746,
           "date": "2025-01-27"
@@ -14382,10 +14051,6 @@
       "scores": {
         "dtbench": {
           "value": 0.5647,
-          "date": "2024-05-14"
-        },
-        "forecastbench": {
-          "value": 58.4,
           "date": "2024-05-14"
         },
         "gpqa_diamond": {
@@ -14424,10 +14089,6 @@
           "value": 0.6453,
           "date": "2024-05-13"
         },
-        "forecastbench": {
-          "value": 60.9,
-          "date": "2024-05-13"
-        },
         "gpqa_diamond": {
           "value": 0.4889520202020202,
           "date": "2025-01-27"
@@ -14443,20 +14104,6 @@
       }
     },
     {
-      "id": "qwen1.5-110b-chat",
-      "name": "qwen1.5-110b-chat",
-      "display_name": "qwen1.5-110b-chat",
-      "creator": "alibaba",
-      "creator_name": "Alibaba",
-      "release_date": "2024-04-25",
-      "scores": {
-        "forecastbench": {
-          "value": 59.2,
-          "date": "2024-04-25"
-        }
-      }
-    },
-    {
       "id": "Phi-3-medium-128k-instruct",
       "name": "Phi-3-medium-128k-instruct",
       "display_name": "Phi-3-medium-128k-instruct",
@@ -14467,20 +14114,6 @@
         "gpqa_diamond": {
           "value": 0.2758838383838384,
           "date": "2025-01-31"
-        }
-      }
-    },
-    {
-      "id": "Meta-Llama-3-70B",
-      "name": "Meta-Llama-3-70B",
-      "display_name": "Meta-Llama-3-70B",
-      "creator": "meta-ai",
-      "creator_name": "Meta AI",
-      "release_date": "2024-04-18",
-      "scores": {
-        "forecastbench": {
-          "value": 59.8,
-          "date": "2024-04-18"
         }
       }
     },
@@ -14518,10 +14151,6 @@
           "value": 0.4393,
           "date": "2024-04-18"
         },
-        "forecastbench": {
-          "value": 59.1,
-          "date": "2024-04-18"
-        },
         "gpqa_diamond": {
           "value": 0.26073232323232326,
           "date": "2025-01-27"
@@ -14542,10 +14171,6 @@
       "scores": {
         "dtbench": {
           "value": 0.5514,
-          "date": "2024-04-17"
-        },
-        "forecastbench": {
-          "value": 58.5,
           "date": "2024-04-17"
         }
       }
@@ -14586,10 +14211,6 @@
       "creator_name": "OpenAI",
       "release_date": "2024-04-09",
       "scores": {
-        "forecastbench": {
-          "value": 62.8,
-          "date": "2024-04-09"
-        },
         "frontiermath_tiers_1_3_v2": {
           "value": 0.007017543859649123,
           "date": "2026-08-27"
@@ -14648,10 +14269,6 @@
           "value": 0.5013000000000001,
           "date": "2024-03-07"
         },
-        "forecastbench": {
-          "value": 54.5,
-          "date": "2024-03-07"
-        },
         "gpqa_diamond": {
           "value": 0.3630050505050505,
           "date": "2025-01-27"
@@ -14680,10 +14297,6 @@
         },
         "dtbench": {
           "value": 0.616,
-          "date": "2024-02-29"
-        },
-        "forecastbench": {
-          "value": 62.0,
           "date": "2024-02-29"
         },
         "gpqa_diamond": {
@@ -14792,10 +14405,6 @@
           "value": 0.4853,
           "date": "2024-01-25"
         },
-        "forecastbench": {
-          "value": 46.0,
-          "date": "2024-01-25"
-        },
         "frontiermath_tiers_1_3_v2": {
           "value": 0.0,
           "date": "2026-08-27"
@@ -14862,10 +14471,6 @@
       "creator_name": "Mistral AI",
       "release_date": "2023-12-11",
       "scores": {
-        "forecastbench": {
-          "value": 57.9,
-          "date": "2023-12-11"
-        },
         "gpqa_diamond": {
           "value": 0.3058712121212121,
           "date": "2025-01-27"
@@ -14946,10 +14551,6 @@
       "scores": {
         "dtbench": {
           "value": 0.5095000000000001,
-          "date": "2023-11-21"
-        },
-        "forecastbench": {
-          "value": 58.4,
           "date": "2023-11-21"
         },
         "gpqa_diamond": {
@@ -15076,10 +14677,6 @@
       "creator_name": "Meta AI",
       "release_date": "2023-07-18",
       "scores": {
-        "forecastbench": {
-          "value": 50.2,
-          "date": "2023-07-18"
-        },
         "gpqa_diamond": {
           "value": 0.26325757575757575,
           "date": "2025-01-27"
@@ -15122,10 +14719,6 @@
       "scores": {
         "dtbench": {
           "value": 0.6267,
-          "date": "2023-06-13"
-        },
-        "forecastbench": {
-          "value": 61.1,
           "date": "2023-06-13"
         },
         "gpqa_diamond": {
