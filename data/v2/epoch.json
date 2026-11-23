@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-23T06:18:27.397372775+00:00",
+    "fetched_at": "2026-11-23T18:19:01.552702758+00:00",
     "verified": true
   },
   "metrics": [
@@ -77,7 +77,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-19",
+      "last_updated": "2026-11-20",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -107,7 +107,7 @@
       "label": "Ebr Bench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-19"
+      "last_updated": "2026-11-21"
     },
     {
       "id": "frontiercode",
@@ -121,7 +121,7 @@
       "label": "Frontiermath Erdos",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-07"
+      "last_updated": "2026-11-19"
     },
     {
       "id": "frontiermath_tier_4_v2",
@@ -149,14 +149,14 @@
       "label": "Furniture Assembly",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-19"
+      "last_updated": "2026-11-20"
     },
     {
       "id": "gpqa_diamond",
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-19",
+      "last_updated": "2026-11-20",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -186,14 +186,14 @@
       "label": "Mystery Game Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-19"
+      "last_updated": "2026-11-20"
     },
     {
       "id": "otis_mock_aime_2024_2025",
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-19",
+      "last_updated": "2026-11-20",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -232,7 +232,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-19",
+      "last_updated": "2026-11-20",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -241,21 +241,21 @@
       "label": "Spireclimb",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-13"
+      "last_updated": "2026-11-19"
     },
     {
       "id": "spireclimb_sts1_a20_heart",
       "label": "Spireclimb Sts1 A20 Heart",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-13"
+      "last_updated": "2026-11-19"
     },
     {
       "id": "spireclimb_sts2_a10",
       "label": "Spireclimb Sts2 A10",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-13"
+      "last_updated": "2026-11-19"
     },
     {
       "id": "surface_evolver_bench",
@@ -473,6 +473,45 @@
       }
     },
     {
+      "id": "qwen4-max",
+      "name": "qwen4-max_xhigh",
+      "display_name": "qwen4-max",
+      "creator": "alibaba",
+      "creator_name": "Alibaba",
+      "release_date": "2026-11-16",
+      "effort_level": "xhigh",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.36,
+          "date": "2026-11-20"
+        },
+        "ebr_bench": {
+          "value": 0.39999999999999997,
+          "date": "2026-11-21"
+        },
+        "furniture_assembly": {
+          "value": 0.3416666666666667,
+          "date": "2026-11-20"
+        },
+        "gpqa_diamond": {
+          "value": 0.9400252525252525,
+          "date": "2026-11-20"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.36,
+          "date": "2026-11-20"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 1.0,
+          "date": "2026-11-20"
+        },
+        "simpleqa_verified": {
+          "value": 0.541,
+          "date": "2026-11-20"
+        }
+      }
+    },
+    {
       "id": "gemini-4-hydrogen",
       "name": "gemini-4-hydrogen",
       "display_name": "gemini-4-hydrogen",
@@ -499,6 +538,10 @@
         "ebr_bench": {
           "value": 0.7047619047619047,
           "date": "2026-11-13"
+        },
+        "frontiermath_erdos": {
+          "value": 0.029411764705882353,
+          "date": "2026-11-19"
         },
         "frontiermath_tier_4_v2": {
           "value": 0.8780487804878049,
@@ -807,7 +850,7 @@
     },
     {
       "id": "muse-ember-1.0",
-      "name": "muse-ember-1.0_unknown",
+      "name": "muse-ember-1.0",
       "display_name": "muse-ember-1.0",
       "creator": "meta-ai",
       "creator_name": "Meta AI",
@@ -817,9 +860,41 @@
           "value": 0.643,
           "date": "2026-11-09"
         },
+        "chess_puzzles": {
+          "value": 0.43,
+          "date": "2026-11-19"
+        },
+        "ebr_bench": {
+          "value": 0.17142857142857143,
+          "date": "2026-11-19"
+        },
+        "furniture_assembly": {
+          "value": 0.48333333333333334,
+          "date": "2026-11-19"
+        },
+        "mystery_game_puzzles": {
+          "value": 0.28,
+          "date": "2026-11-19"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.9888888888888889,
+          "date": "2026-11-19"
+        },
         "simplebench": {
           "value": 0.7270000000000001,
           "date": "2026-11-09"
+        },
+        "spireclimb": {
+          "value": 0.0,
+          "date": "2026-11-19"
+        },
+        "spireclimb_sts1_a20_heart": {
+          "value": 0.0,
+          "date": "2026-11-19"
+        },
+        "spireclimb_sts2_a10": {
+          "value": 0.0,
+          "date": "2026-11-19"
         }
       }
     },
