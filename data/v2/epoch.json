@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-25T18:18:45.587664+00:00",
+    "fetched_at": "2026-11-26T06:18:40.066675982+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "ARC-AGI",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-11-17",
+      "last_updated": "2026-11-18",
       "description": "Abstract visual grid puzzles where the model must infer a transformation rule from a few input-output demonstrations and apply it to a novel case. Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -20,7 +20,7 @@
       "label": "ARC-AGI-2",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-11-17",
+      "last_updated": "2026-11-18",
       "description": "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing compositional and symbolic reasoning, two attempts per task (pass@2). Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -54,7 +54,7 @@
       "label": "PostTrainBench",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-11-10",
+      "last_updated": "2026-11-18",
       "description": "AI R&D automation: a CLI agent must post-train a small base LLM on a single GPU within a time budget to raise its downstream scores. Scored as the average improvement across base models and evaluations; higher is better.",
       "short_label": "PTBench"
     },
@@ -63,7 +63,7 @@
       "label": "Ale Bench",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-11-12"
+      "last_updated": "2026-11-17"
     },
     {
       "id": "blueprint_bench_2",
@@ -100,7 +100,7 @@
       "label": "Dtbench",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-10"
+      "last_updated": "2026-11-18"
     },
     {
       "id": "ebr_bench",
@@ -142,7 +142,7 @@
       "label": "Frontierswe",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-12"
+      "last_updated": "2026-11-18"
     },
     {
       "id": "furniture_assembly",
@@ -172,14 +172,14 @@
       "label": "Lmca",
       "kind": "index",
       "group": "Academic",
-      "last_updated": "2026-11-10"
+      "last_updated": "2026-11-18"
     },
     {
       "id": "mirrorcode",
       "label": "Mirrorcode",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-19"
+      "last_updated": "2026-11-21"
     },
     {
       "id": "mystery_game_puzzles",
@@ -209,7 +209,7 @@
       "label": "Rli",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-09"
+      "last_updated": "2026-11-10"
     },
     {
       "id": "scicode",
@@ -292,12 +292,24 @@
           "value": 0.8290000000000001,
           "date": "2026-11-18"
         },
+        "arc_agi": {
+          "value": 0.985,
+          "date": "2026-11-18"
+        },
+        "arc_agi_2": {
+          "value": 0.9375,
+          "date": "2026-11-18"
+        },
         "chess_puzzles": {
           "value": 0.83,
           "date": "2026-11-19"
         },
         "cursorbench": {
           "value": 0.654,
+          "date": "2026-11-18"
+        },
+        "dtbench": {
+          "value": 0.9919,
           "date": "2026-11-18"
         },
         "ebr_bench": {
@@ -316,6 +328,10 @@
           "value": 0.9122807017543859,
           "date": "2026-11-19"
         },
+        "frontierswe": {
+          "value": 0.624277823529412,
+          "date": "2026-11-18"
+        },
         "furniture_assembly": {
           "value": 0.8916666666666667,
           "date": "2026-11-19"
@@ -323,6 +339,10 @@
         "gpqa_diamond": {
           "value": 0.9627525252525253,
           "date": "2026-11-19"
+        },
+        "lmca": {
+          "value": 66.54,
+          "date": "2026-11-18"
         },
         "mirrorcode": {
           "value": 0.6111111111111112,
@@ -335,6 +355,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 1.0,
           "date": "2026-11-19"
+        },
+        "posttrainbench": {
+          "value": 0.4061,
+          "date": "2026-11-18"
         },
         "simplebench": {
           "value": 0.9440000000000001,
@@ -370,6 +394,10 @@
       "creator_name": "OpenAI",
       "release_date": "2026-11-17",
       "scores": {
+        "ale_bench": {
+          "value": 3017.12,
+          "date": "2026-11-17"
+        },
         "apex_agents": {
           "value": 0.7220000000000001,
           "date": "2026-11-17"
@@ -389,6 +417,10 @@
         "chess_puzzles": {
           "value": 0.78,
           "date": "2026-10-27"
+        },
+        "dtbench": {
+          "value": 0.976,
+          "date": "2026-11-17"
         },
         "ebr_bench": {
           "value": 0.9238095238095237,
@@ -414,6 +446,10 @@
           "value": 0.9684343434343434,
           "date": "2026-10-27"
         },
+        "lmca": {
+          "value": 62.09,
+          "date": "2026-11-17"
+        },
         "mirrorcode": {
           "value": 0.6777777777777778,
           "date": "2026-10-27"
@@ -425,6 +461,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 1.0,
           "date": "2026-10-27"
+        },
+        "posttrainbench": {
+          "value": 0.4349,
+          "date": "2026-11-17"
         },
         "simplebench": {
           "value": 0.773,
@@ -470,6 +510,10 @@
       "creator_name": "OpenAI",
       "release_date": "2026-11-17",
       "scores": {
+        "ale_bench": {
+          "value": 3036.03,
+          "date": "2026-11-17"
+        },
         "apex_agents": {
           "value": 0.6659999999999999,
           "date": "2026-11-17"
@@ -484,6 +528,14 @@
         },
         "blueprint_bench_2": {
           "value": 0.5704989154013016,
+          "date": "2026-11-17"
+        },
+        "dtbench": {
+          "value": 0.9733,
+          "date": "2026-11-17"
+        },
+        "lmca": {
+          "value": 57.04,
           "date": "2026-11-17"
         },
         "simplebench": {
@@ -524,6 +576,10 @@
         "gpqa_diamond": {
           "value": 0.9400252525252525,
           "date": "2026-11-20"
+        },
+        "mirrorcode": {
+          "value": 0.4777777777777778,
+          "date": "2026-11-21"
         },
         "mystery_game_puzzles": {
           "value": 0.36,
@@ -567,12 +623,24 @@
           "value": 0.78,
           "date": "2026-11-12"
         },
+        "arc_agi": {
+          "value": 0.985,
+          "date": "2026-11-12"
+        },
+        "arc_agi_2": {
+          "value": 0.925,
+          "date": "2026-11-12"
+        },
         "chess_puzzles": {
           "value": 0.6,
           "date": "2026-11-13"
         },
         "cursorbench": {
           "value": 0.614,
+          "date": "2026-11-12"
+        },
+        "dtbench": {
+          "value": 0.9920000000000001,
           "date": "2026-11-12"
         },
         "ebr_bench": {
@@ -602,6 +670,10 @@
         "gpqa_diamond": {
           "value": 0.9678030303030303,
           "date": "2026-11-13"
+        },
+        "lmca": {
+          "value": 59.39,
+          "date": "2026-11-12"
         },
         "mystery_game_puzzles": {
           "value": 0.65,
@@ -723,6 +795,10 @@
         },
         "posttrainbench": {
           "value": 0.4098,
+          "date": "2026-11-10"
+        },
+        "rli": {
+          "value": 0.2,
           "date": "2026-11-10"
         },
         "scicode": {
@@ -1540,6 +1616,10 @@
         },
         "frontiermath_tiers_1_3_v2": {
           "value": 0.8210526315789474,
+          "date": "2026-10-12"
+        },
+        "frontierswe": {
+          "value": 0.40244164705882357,
           "date": "2026-10-12"
         },
         "furniture_assembly": {
@@ -4978,7 +5058,7 @@
           "date": "2026-07-09"
         },
         "arc_agi_2": {
-          "value": 0.839,
+          "value": 0.8250000000000001,
           "date": "2026-07-09"
         },
         "blueprint_bench_2": {
