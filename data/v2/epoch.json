@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-26T06:18:40.066675982+00:00",
+    "fetched_at": "2026-11-26T18:18:18.595470637+00:00",
     "verified": true
   },
   "metrics": [
@@ -77,7 +77,7 @@
       "label": "Chess Puzzles",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-20",
+      "last_updated": "2026-11-25",
       "description": "100 programmatically generated chess positions (in FEN) where the model must name the single best move as judged by Stockfish. Scored as accuracy (% of positions with the correct move); higher is better.",
       "short_label": "Chess"
     },
@@ -156,7 +156,7 @@
       "label": "GPQA Diamond",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-20",
+      "last_updated": "2026-11-25",
       "description": "198 'Google-proof' graduate-level biology, chemistry, and physics questions that stump non-experts even with web access. Scored as accuracy (% correct); higher is better.",
       "short_label": "GPQA"
     },
@@ -193,7 +193,7 @@
       "label": "OTIS Mock AIME",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-20",
+      "last_updated": "2026-11-25",
       "description": "45 competition-style math problems from the 2024-2025 OTIS Mock AIME exams (integer answers 0-999), harder than MATH Level 5 but easier than FrontierMath. Scored as accuracy (% correct); higher is better.",
       "short_label": "OTIS AIME"
     },
@@ -232,7 +232,7 @@
       "label": "SimpleQA Verified",
       "kind": "percentage",
       "group": "Academic",
-      "last_updated": "2026-11-20",
+      "last_updated": "2026-11-25",
       "description": "A cleaned 1,000-prompt factuality benchmark of short fact-seeking questions, measuring parametric knowledge and resistance to hallucination. Scored as accuracy (% answered correctly); higher is better.",
       "short_label": "SimpleQA"
     },
@@ -280,6 +280,33 @@
     }
   ],
   "models": [
+    {
+      "id": "inkling-2-mini",
+      "name": "inkling-2-mini_xhigh",
+      "display_name": "inkling-2-mini",
+      "creator": "thinking-machines",
+      "creator_name": "Thinking Machines",
+      "release_date": "2026-11-20",
+      "effort_level": "xhigh",
+      "scores": {
+        "chess_puzzles": {
+          "value": 0.39,
+          "date": "2026-11-25"
+        },
+        "gpqa_diamond": {
+          "value": 0.8680555555555556,
+          "date": "2026-11-25"
+        },
+        "otis_mock_aime_2024_2025": {
+          "value": 0.925,
+          "date": "2026-11-25"
+        },
+        "simpleqa_verified": {
+          "value": 0.09,
+          "date": "2026-11-25"
+        }
+      }
+    },
     {
       "id": "gemini-4-neon",
       "name": "gemini-4-neon",
@@ -998,6 +1025,10 @@
         },
         "furniture_assembly": {
           "value": 0.48333333333333334,
+          "date": "2026-11-19"
+        },
+        "mirrorcode": {
+          "value": 0.4,
           "date": "2026-11-19"
         },
         "mystery_game_puzzles": {
