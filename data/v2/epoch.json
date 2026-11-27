@@ -3,7 +3,7 @@
     "id": "epoch",
     "name": "Epoch AI",
     "url": "https://epoch.ai/benchmarks",
-    "fetched_at": "2026-11-27T06:18:24.121898605+00:00",
+    "fetched_at": "2026-11-27T18:18:59.387979116+00:00",
     "verified": true
   },
   "metrics": [
@@ -12,7 +12,7 @@
       "label": "ARC-AGI",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-11-18",
+      "last_updated": "2026-11-20",
       "description": "Abstract visual grid puzzles where the model must infer a transformation rule from a few input-output demonstrations and apply it to a novel case. Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -20,7 +20,7 @@
       "label": "ARC-AGI-2",
       "kind": "percentage",
       "group": "Frontier",
-      "last_updated": "2026-11-18",
+      "last_updated": "2026-11-20",
       "description": "A substantially harder successor to ARC-AGI: abstract grid puzzles stressing compositional and symbolic reasoning, two attempts per task (pass@2). Scored as accuracy (% of tasks solved); higher is better."
     },
     {
@@ -37,7 +37,7 @@
       "label": "APEX Agents",
       "kind": "percentage",
       "group": "Agentic",
-      "last_updated": "2026-11-18",
+      "last_updated": "2026-11-20",
       "description": "Professional deliverables across investment banking, consulting, law, and primary care that would take practitioners hours, graded against pass/fail rubric criteria. Scored as % of rubric criteria satisfied; higher is better.",
       "short_label": "APEX"
     },
@@ -55,7 +55,7 @@
       "label": "Ale Bench",
       "kind": "elo",
       "group": "Academic",
-      "last_updated": "2026-11-17"
+      "last_updated": "2026-11-18"
     },
     {
       "id": "blueprint_bench_2",
@@ -274,13 +274,24 @@
   "models": [
     {
       "id": "inkling-2-mini",
-      "name": "inkling-2-mini_xhigh",
+      "name": "inkling-2-mini",
       "display_name": "inkling-2-mini",
       "creator": "thinking-machines",
       "creator_name": "Thinking Machines",
       "release_date": "2026-11-20",
-      "effort_level": "xhigh",
       "scores": {
+        "apex_agents": {
+          "value": 0.509,
+          "date": "2026-11-20"
+        },
+        "arc_agi": {
+          "value": 0.845,
+          "date": "2026-11-20"
+        },
+        "arc_agi_2": {
+          "value": 0.4930555555555555,
+          "date": "2026-11-20"
+        },
         "chess_puzzles": {
           "value": 0.39,
           "date": "2026-11-25"
@@ -307,6 +318,10 @@
       "creator_name": "Google DeepMind",
       "release_date": "2026-11-18",
       "scores": {
+        "ale_bench": {
+          "value": 2571.62,
+          "date": "2026-11-18"
+        },
         "apex_agents": {
           "value": 0.8290000000000001,
           "date": "2026-11-18"
@@ -565,13 +580,20 @@
     },
     {
       "id": "qwen4-max",
-      "name": "qwen4-max_xhigh",
+      "name": "qwen4-max",
       "display_name": "qwen4-max",
       "creator": "alibaba",
       "creator_name": "Alibaba",
       "release_date": "2026-11-16",
-      "effort_level": "xhigh",
       "scores": {
+        "ale_bench": {
+          "value": 1830.97,
+          "date": "2026-11-16"
+        },
+        "apex_agents": {
+          "value": 0.674,
+          "date": "2026-11-16"
+        },
         "chess_puzzles": {
           "value": 0.36,
           "date": "2026-11-20"
@@ -607,6 +629,10 @@
         "otis_mock_aime_2024_2025": {
           "value": 1.0,
           "date": "2026-11-20"
+        },
+        "posttrainbench": {
+          "value": 0.36719999999999997,
+          "date": "2026-11-16"
         },
         "simpleqa_verified": {
           "value": 0.541,
@@ -1166,6 +1192,10 @@
         },
         "blueprint_bench_2": {
           "value": 0.4208242950108459,
+          "date": "2026-10-26"
+        },
+        "chess_puzzles": {
+          "value": 0.66,
           "date": "2026-10-26"
         },
         "critpt": {
@@ -4196,6 +4226,10 @@
       "creator_name": "Alibaba",
       "release_date": "2026-07-27",
       "scores": {
+        "ale_bench": {
+          "value": 420.1,
+          "date": "2026-07-27"
+        },
         "frontiermath_tiers_1_3_v2": {
           "value": 0.19298245614035087,
           "date": "2026-08-29"
