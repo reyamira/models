@@ -689,14 +689,12 @@ impl BenchmarksApp {
             self.update_filtered(file);
         } else {
             self.loading = !Self::active_is_failed(store, active);
-            // No file to honor a metric sort or reasoning data against — fall
-            // back to safe defaults; the preserved search/filters re-apply once
-            // the source lands and rebuilds.
+            // A metric index is source-specific. Keep the reasoning intent
+            // until the loaded source's metadata can be checked in rebuild.
             if matches!(self.sort_key, SortKey::Metric(_)) {
                 self.sort_key = SortKey::ReleaseDate;
                 self.sort_descending = true;
             }
-            self.reasoning_filter = ReasoningFilter::default();
             self.creator_openness = HashMap::new();
             self.creator_info = HashMap::new();
             self.creator_list_items = vec![CreatorListItem::All];
@@ -711,6 +709,9 @@ impl BenchmarksApp {
     /// per-source default sort, and resets selection.
     pub fn rebuild(&mut self, file: &SourceFile) {
         self.loading = false;
+        if !Self::reasoning_filter_available(Some(file)) {
+            self.reasoning_filter = ReasoningFilter::default();
+        }
         self.sort_key = default_sort(file);
         self.sort_descending = Self::default_descending(file, self.sort_key);
         self.creator_openness = creator_openness(&file.models);
@@ -2236,6 +2237,23 @@ mod tests {
         app.switch_source(&store, true);
         assert_eq!(app.sort_key, default_sort(&file));
         assert!(app.sort_descending); // ReleaseDate default direction
+    }
+
+    #[test]
+    fn regression_loading_source_preserves_reasoning_until_metadata_arrives() {
+        let mut file = sample_file();
+        let store = MultiStore::new();
+        let mut app = BenchmarksApp::new(Some(&file));
+        app.reasoning_filter = ReasoningFilter::Reasoning;
+        app.reset_for_source(&store);
+        assert_eq!(app.reasoning_filter, ReasoningFilter::Reasoning);
+        app.rebuild(&file);
+        assert_eq!(app.reasoning_filter, ReasoningFilter::Reasoning);
+        for model in &mut file.models {
+            model.reasoning_status = ReasoningStatus::None;
+        }
+        app.rebuild(&file);
+        assert_eq!(app.reasoning_filter, ReasoningFilter::All);
     }
 
     #[test]
