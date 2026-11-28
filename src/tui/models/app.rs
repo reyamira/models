@@ -11,6 +11,34 @@ use crate::tui::widgets::scroll_offset::ScrollOffset;
 /// Page size for page up/down navigation
 const PAGE_SIZE: usize = 10;
 
+#[cfg(test)]
+mod cost_sort_tests {
+    use super::*;
+
+    #[test]
+    fn regression_cost_direction_matches_sort_ascending() {
+        let mut app = ModelsApp::new(&[]);
+        app.sort_order = SortOrder::Cost;
+        let mut entries: Vec<ModelEntry> = [("cheap", 1.0), ("expensive", 10.0)]
+            .into_iter()
+            .map(|(id, input)| ModelEntry {
+                id: id.to_string(),
+                provider_id: "provider".to_string(),
+                model: serde_json::from_value(serde_json::json!({
+                    "id": id, "name": id, "cost": {"input": input}
+                }))
+                .unwrap(),
+            })
+            .collect();
+        app.sort_ascending = false;
+        app.sort_entries(&mut entries);
+        assert_eq!(entries[0].id, "expensive");
+        app.sort_ascending = true;
+        app.sort_entries(&mut entries);
+        assert_eq!(entries[0].id, "cheap");
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Focus {
     Providers,
@@ -381,9 +409,9 @@ impl ModelsApp {
                                 .partial_cmp(&b_val)
                                 .unwrap_or(std::cmp::Ordering::Equal);
                             if self.sort_ascending {
-                                cmp.reverse()
-                            } else {
                                 cmp
+                            } else {
+                                cmp.reverse()
                             }
                         }
                         (Some(_), None) => std::cmp::Ordering::Less,
